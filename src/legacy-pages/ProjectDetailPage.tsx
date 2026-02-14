@@ -62,6 +62,7 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
     navigate(`/tags/${encodeURIComponent(tagSlug)}`);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (initialProject === undefined && id) fetchProject(); }, [id, initialProject]);
 
   const fetchProject = async () => {
@@ -303,6 +304,9 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
 };
 
 export default ProjectDetailPage;
+
+
+
 
 
 
