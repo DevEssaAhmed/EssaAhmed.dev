@@ -2,6 +2,7 @@
 
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
@@ -56,11 +57,6 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
   const [loading, setLoading] = useState(initialProject === undefined);
   const [isLiked, setIsLiked] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-
-  const handleTagClick = (tag: string) => {
-    const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
-    navigate(`/tags/${encodeURIComponent(tagSlug)}`);
-  };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (initialProject === undefined && id) fetchProject(); }, [id, initialProject]);
@@ -154,7 +150,7 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
         <div className="pt-20 flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-muted-foreground mb-4">Project not found</h2>
-            <Button onClick={() => navigate("/projects")}> <ArrowLeft className="w-4 h-4 mr-2" /> Back to Projects </Button>
+            <Button asChild> <Link href="/projects"><ArrowLeft className="w-4 h-4 mr-2" /> Back to Projects</Link></Button>
           </div>
         </div>
       </div>
@@ -175,8 +171,10 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
       />
       <div className="pt-20">
         <div className="max-w-6xl mx-auto px-6 py-8">
-          <Button variant="ghost" onClick={() => navigate("/projects")} className="mb-6 hover:shadow-soft transition-all duration-300">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Projects
+          <Button asChild variant="ghost" className="mb-6 hover:shadow-soft transition-all duration-300">
+            <Link href="/projects">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Projects
+            </Link>
           </Button>
           {(project.image_url || project.additional_images?.length > 0) && (
             <div className="mb-8">
@@ -237,9 +235,11 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
               <div className="flex items-center gap-2 flex-wrap">
                 <Tag className="w-4 h-4 text-muted-foreground" />
                 {projectTags.map((tag: any) => (
-                  <Badge key={tag.id} variant="outline" className="cursor-pointer hover:bg-primary/10 transition-colors" onClick={() => handleTagClick(tag.name)}>
-                    {tag.name}
-                  </Badge>
+                  <Link key={tag.id} href={`/tags/${encodeURIComponent(tag.name.toLowerCase().replace(/\s+/g, "-"))}`}>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-primary/10 transition-colors">
+                      {tag.name}
+                    </Badge>
+                  </Link>
                 ))}
               </div>
             )}

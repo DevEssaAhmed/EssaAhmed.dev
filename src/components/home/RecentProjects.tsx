@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, memo } from "react";
-import { useNavigate } from "@/lib/router-compat";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,17 +14,14 @@ interface RecentProjectsProps {
 }
 
 const RecentProjects = memo(({ showAll = false }: RecentProjectsProps) => {
-  const navigate = useNavigate();
   const [projects, setProjects] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
-  const handleTagClick = (e: React.MouseEvent, tag: string) => {
+  const handleTagClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    const tagSlug = tag.toLowerCase().replace(/\s+/g, "-");
-    navigate(`/tags/${encodeURIComponent(tagSlug)}`);
   };
 
   const fetchProjects = useCallback(async () => {
@@ -125,16 +121,23 @@ const RecentProjects = memo(({ showAll = false }: RecentProjectsProps) => {
 
                 <CardContent className="space-y-4">
                   <div className="flex flex-wrap gap-2">
-                    {(project.tags || []).slice(0, 4).map((tag: string) => (
-                      <Badge
-                        key={tag}
-                        variant="outline"
-                        className="cursor-pointer"
-                        onClick={(e) => handleTagClick(e, tag)}
-                      >
-                        #{tag}
-                      </Badge>
-                    ))}
+                    {(project.tags || []).slice(0, 4).map((tag: string) => {
+                      const tagSlug = tag.toLowerCase().replace(/\s+/g, "-");
+                      return (
+                        <Link
+                          key={tag}
+                          href={`/tags/${encodeURIComponent(tagSlug)}`}
+                          onClick={handleTagClick}
+                        >
+                          <Badge
+                            variant="outline"
+                            className="cursor-pointer"
+                          >
+                            #{tag}
+                          </Badge>
+                        </Link>
+                      );
+                    })}
                   </div>
 
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -169,7 +172,11 @@ const RecentProjects = memo(({ showAll = false }: RecentProjectsProps) => {
 
       {!showAll && (
         <div className="flex justify-center">
-          <Button onClick={() => navigate("/projects")}>View All Projects <ArrowRight className="ml-2 w-4 h-4" /></Button>
+          <Button asChild>
+            <Link href="/projects">
+              View All Projects <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
+          </Button>
         </div>
       )}
     </section>
@@ -179,4 +186,3 @@ const RecentProjects = memo(({ showAll = false }: RecentProjectsProps) => {
 RecentProjects.displayName = "RecentProjects";
 
 export default RecentProjects;
-

@@ -1,5 +1,6 @@
 import { OptimizedImage } from "@/components/OptimizedImage";
 import React, { useEffect, useMemo, useState } from 'react';
+import Link from "next/link";
 import { cn } from '@/lib/utils';
 import { useNavigate, useParams } from '@/lib/router-compat';
 import { useToast } from '@/hooks/use-toast';
@@ -450,9 +451,11 @@ const ProjectEditorEnhanced: React.FC = () => {
 
   const actions = (
     <div className='flex flex-wrap items-center gap-3'>
-      <Button variant='ghost' size='sm' onClick={() => navigate('/admin')}>
-        <ArrowLeft className='w-4 h-4 mr-2' />
-        Back
+      <Button asChild variant='ghost' size='sm'>
+        <Link href="/admin">
+          <ArrowLeft className='w-4 h-4 mr-2' />
+          Back
+        </Link>
       </Button>
       <div className='hidden md:flex items-center gap-2'>
         <div

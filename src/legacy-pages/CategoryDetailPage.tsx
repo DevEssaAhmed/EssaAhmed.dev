@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -97,8 +98,10 @@ const CategoryDetailPage = () => {
             <Folder className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
             <h1 className="text-2xl font-bold mb-2">Category Not Found</h1>
             <p className="text-muted-foreground mb-6">This category does not exist.</p>
-            <Button onClick={() => navigate("/categories")}>
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Categories
+            <Button asChild>
+              <Link href="/categories">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Categories
+              </Link>
             </Button>
           </div>
         </div>
@@ -112,8 +115,10 @@ const CategoryDetailPage = () => {
       <Navigation />
       <div className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-12">
-          <Button variant="ghost" onClick={() => navigate("/categories")} className="mb-8">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Categories
+          <Button asChild variant="ghost" className="mb-8">
+            <Link href="/categories">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Categories
+            </Link>
           </Button>
 
           <div className="mb-10 text-center">
@@ -135,11 +140,8 @@ const CategoryDetailPage = () => {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {articles.map((article) => (
-                <Card
-                  key={article.id}
-                  className="group cursor-pointer hover:shadow-glow transition-all duration-300"
-                  onClick={() => navigate(`/articles/${article.slug}`)}
-                >
+                <Link key={article.id} href={`/articles/${article.slug}`} className="block">
+                <Card className="group cursor-pointer hover:shadow-glow transition-all duration-300">
                   {article.image_url && (
                     <div className="h-48 overflow-hidden rounded-t-lg">
                       <OptimizedImage
@@ -175,6 +177,7 @@ const CategoryDetailPage = () => {
                     </div>
                   </CardContent>
                 </Card>
+                </Link>
               ))}
             </div>
           )}

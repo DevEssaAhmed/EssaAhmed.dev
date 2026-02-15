@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from "react";
-import { useNavigate } from "@/lib/router-compat";
+import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +26,6 @@ const TagsPage = () => {
   const [tags, setTags] = useState<TagInfo[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -111,7 +110,8 @@ const TagsPage = () => {
             <TabsContent value="trending">
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {trendingTags.map((tag) => (
-                  <Card key={tag.slug} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/tags/${tag.slug}`)}>
+                  <Link key={tag.slug} href={`/tags/${tag.slug}`} className="block">
+                  <Card className="cursor-pointer hover:shadow-md transition-shadow">
                     <CardHeader>
                       <CardTitle className="text-base">#{tag.name}</CardTitle>
                       <CardDescription>{tag.count} total uses</CardDescription>
@@ -121,6 +121,7 @@ const TagsPage = () => {
                       <Badge>Hot</Badge>
                     </CardContent>
                   </Card>
+                  </Link>
                 ))}
               </div>
             </TabsContent>
@@ -128,8 +129,10 @@ const TagsPage = () => {
             <TabsContent value="popular">
               <div className="flex flex-wrap gap-2">
                 {popularTags.map((tag) => (
-                  <Button key={tag.slug} variant="outline" onClick={() => navigate(`/tags/${tag.slug}`)}>
-                    #{tag.name} <Badge className="ml-2" variant="secondary">{tag.count}</Badge>
+                  <Button key={tag.slug} asChild variant="outline">
+                    <Link href={`/tags/${tag.slug}`}>
+                      #{tag.name} <Badge className="ml-2" variant="secondary">{tag.count}</Badge>
+                    </Link>
                   </Button>
                 ))}
               </div>
@@ -138,9 +141,11 @@ const TagsPage = () => {
             <TabsContent value="all">
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
                 {filteredTags.map((tag) => (
-                  <Button key={tag.slug} variant="ghost" className="justify-between" onClick={() => navigate(`/tags/${tag.slug}`)}>
-                    <span>#{tag.name}</span>
-                    <ArrowRight className="w-4 h-4" />
+                  <Button key={tag.slug} asChild variant="ghost" className="justify-between">
+                    <Link href={`/tags/${tag.slug}`}>
+                      <span>#{tag.name}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
                   </Button>
                 ))}
               </div>

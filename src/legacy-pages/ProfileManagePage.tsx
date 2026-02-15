@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useNavigate } from "@/lib/router-compat";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -188,7 +189,9 @@ const ProfileManagePage = () => {
 
   const actions = (
     <div className="flex items-center gap-2">
-      <Button variant="ghost" onClick={() => navigate('/admin')} className="gap-2"><ArrowLeft className="w-4 h-4" /> Back</Button>
+      <Button asChild variant="ghost" className="gap-2">
+        <Link href="/admin"><ArrowLeft className="w-4 h-4" /> Back</Link>
+      </Button>
       <Button type="submit" form="profile-form" disabled={saving}>{saving ? (<div className="w-4 h-4 border-2 border-primary-foreground/20 border-t-primary-foreground rounded-full animate-spin mr-2" />) : (<Save className="w-4 h-4 mr-2" />)}{saving ? "Saving..." : "Save"}</Button>
     </div>
   );

@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ExternalLink, Github, Heart, MessageCircle, Eye } from "lucide-react";
-import { useNavigate } from "@/lib/router-compat";
+import Link from "next/link";
 import { getMarkdownExcerpt } from "@/lib/markdownUtils";
 
 interface ProjectCardProps {
@@ -21,32 +21,22 @@ interface ProjectCardProps {
 }
 
 const ProjectCard = ({ id, title, description, image, tags, category, demoUrl, githubUrl, views, likes, comments }: ProjectCardProps) => {
-  const navigate = useNavigate();
-
-  const handleProjectClick = (e: React.MouseEvent) => {
-    // Don't navigate if clicking on buttons
-    if ((e.target as HTMLElement).closest('button')) {
-      return;
-    }
-    navigate(`/projects/${id}`);
-  };
-
   const handleDemoClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     if (demoUrl) {
       window.open(demoUrl, '_blank');
     }
   };
 
-  const handleTagClick = (e: React.MouseEvent | React.KeyboardEvent, tag: string) => {
+  const handleTagClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
-    // Navigate to the tag detail page
-    const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
-    navigate(`/tags/${encodeURIComponent(tagSlug)}`);
+    e.preventDefault();
   };
 
   const handleCodeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     if (githubUrl) {
       window.open(githubUrl, '_blank');
     }
@@ -55,18 +45,15 @@ const ProjectCard = ({ id, title, description, image, tags, category, demoUrl, g
   return (
     <Card 
       className="group overflow-hidden bg-card shadow-card hover:shadow-glow transition-all duration-300 aspect-square relative cursor-pointer card-focus"
-      onClick={handleProjectClick}
       tabIndex={0}
       role="article"
-      aria-label={`${title} project. ${getMarkdownExcerpt(description, 120)}`}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          navigate(`/projects/${id}`);
-        }
-      }}
     >
       <div className="relative h-full">
+        <Link
+          href={`/projects/${id}`}
+          className="absolute inset-0 z-10"
+          aria-label={`${title} project. ${getMarkdownExcerpt(description, 120)}`}
+        />
         <OptimizedImage
           src={image}
           alt={`${title} project thumbnail`}
@@ -79,7 +66,7 @@ const ProjectCard = ({ id, title, description, image, tags, category, demoUrl, g
         
         {/* Instagram-style overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all duration-300 flex items-center justify-center">
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-center p-4">
+          <div className="relative z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-center p-4">
             <h3 className="font-bold text-lg mb-2">{title}</h3>
             <p className="text-sm text-white/90 mb-4 line-clamp-3">{getMarkdownExcerpt(description, 120)}</p>
             
@@ -137,23 +124,21 @@ const ProjectCard = ({ id, title, description, image, tags, category, demoUrl, g
             </Badge>
             <div className="flex gap-2" role="list" aria-label="Project tags">
               {tags.slice(0, 2).map((tag) => (
-                <Badge 
-                  key={tag} 
-                  variant="outline" 
-                  className="text-xs bg-white/10 text-white border-white/30 backdrop-blur-sm cursor-pointer hover:bg-white/20 transition-colors focus-visible:ring-2 focus-visible:ring-white"
-                  onClick={(e) => handleTagClick(e, tag)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleTagClick(e, tag);
-                    }
-                  }}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`Filter by ${tag} tag`}
+                <Link
+                  key={tag}
+                  href={`/tags/${encodeURIComponent(tag.toLowerCase().replace(/\s+/g, "-"))}`}
+                  onClick={handleTagClick}
+                  onKeyDown={handleTagClick}
+                  className="relative z-20"
                 >
-                  {tag}
-                </Badge>
+                  <Badge
+                    variant="outline"
+                    className="text-xs bg-white/10 text-white border-white/30 backdrop-blur-sm cursor-pointer hover:bg-white/20 transition-colors focus-visible:ring-2 focus-visible:ring-white"
+                    aria-label={`Filter by ${tag} tag`}
+                  >
+                    {tag}
+                  </Badge>
+                </Link>
               ))}
             </div>
           </div>

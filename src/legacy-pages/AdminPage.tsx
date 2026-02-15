@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useNavigate } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,12 +27,14 @@ import {
   Calendar,
   Folder,
   PenTool,
-  Settings
+  Settings,
+  CalendarRange
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import HeroStatsManager from "@/components/admin/HeroStatsManager";
 import SEOSettings from "@/components/admin/SEOSettings";
+import YearlyNotesManager from "@/components/admin/YearlyNotesManager";
 import SeedProjects from "@/components/SeedProjects";
 import { getMarkdownExcerpt } from "@/lib/markdownUtils";
 import AdminLayout from "@/components/admin/layout/AdminLayout";
@@ -233,6 +236,9 @@ const AdminPage = () => {
           <TabsTrigger value="blog" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-4 py-2 font-medium">
             <PenTool className="w-4 h-4 mr-2" /> Blog Posts
           </TabsTrigger>
+          <TabsTrigger value="yearly-notes" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-4 py-2 font-medium">
+            <CalendarRange className="w-4 h-4 mr-2" /> Diary
+          </TabsTrigger>
           <TabsTrigger value="settings" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-4 py-2 font-medium">
             <Settings className="w-4 h-4 mr-2" /> Settings
           </TabsTrigger>
@@ -249,8 +255,10 @@ const AdminPage = () => {
                     Manage your portfolio projects ({projects.length} total)
                   </CardDescription>
                 </div>
-                <Button onClick={() => navigate("/admin/project/new")} size="sm" className="bg-primary hover:bg-primary/90">
-                  <Plus className="w-4 h-4 mr-2" /> New Project
+                <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
+                  <Link href="/admin/project/new">
+                    <Plus className="w-4 h-4 mr-2" /> New Project
+                  </Link>
                 </Button>
               </div>
             </CardHeader>
@@ -266,8 +274,10 @@ const AdminPage = () => {
                   <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
                     Create your first project to showcase your work to potential clients and collaborators.
                   </p>
-                  <Button onClick={() => navigate("/admin/project/new")} size="sm">
-                    <Plus className="w-4 h-4 mr-2" /> Create Your First Project
+                  <Button asChild size="sm">
+                    <Link href="/admin/project/new">
+                      <Plus className="w-4 h-4 mr-2" /> Create Your First Project
+                    </Link>
                   </Button>
                 </div>
               ) : (
@@ -302,13 +312,10 @@ const AdminPage = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            onClick={() => navigate(`/admin/project/edit/${project.id}`)}
-                            aria-label={`Edit ${project.title}`}
-                          >
-                            <Edit className="w-4 h-4" />
+                          <Button asChild size="sm" variant="ghost" aria-label={`Edit ${project.title}`}>
+                            <Link href={`/admin/project/edit/${project.id}`}>
+                              <Edit className="w-4 h-4" />
+                            </Link>
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -360,8 +367,10 @@ const AdminPage = () => {
                     Manage your blog posts ({blogPosts.length} total)
                   </CardDescription>
                 </div>
-                <Button onClick={() => navigate("/admin/blog/new")} size="sm" className="bg-primary hover:bg-primary/90">
-                  <Plus className="w-4 h-4 mr-2" /> New Post
+                <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
+                  <Link href="/admin/blog/new">
+                    <Plus className="w-4 h-4 mr-2" /> New Post
+                  </Link>
                 </Button>
               </div>
             </CardHeader>
@@ -377,8 +386,10 @@ const AdminPage = () => {
                   <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
                     Start sharing your thoughts and experiences with your audience.
                   </p>
-                  <Button onClick={() => navigate("/admin/blog/new")} size="sm">
-                    <Plus className="w-4 h-4 mr-2" /> Write Your First Post
+                  <Button asChild size="sm">
+                    <Link href="/admin/blog/new">
+                      <Plus className="w-4 h-4 mr-2" /> Write Your First Post
+                    </Link>
                   </Button>
                 </div>
               ) : (
@@ -413,13 +424,10 @@ const AdminPage = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            onClick={() => navigate(`/admin/blog/edit/${post.id}`)}
-                            aria-label={`Edit ${post.title}`}
-                          >
-                            <Edit className="w-4 h-4" />
+                          <Button asChild size="sm" variant="ghost" aria-label={`Edit ${post.title}`}>
+                            <Link href={`/admin/blog/edit/${post.id}`}>
+                              <Edit className="w-4 h-4" />
+                            </Link>
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -458,6 +466,10 @@ const AdminPage = () => {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="yearly-notes">
+          <YearlyNotesManager />
         </TabsContent>
 
         {/* Settings Tab */}

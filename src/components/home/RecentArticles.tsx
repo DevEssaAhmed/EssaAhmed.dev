@@ -1,6 +1,6 @@
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { useState, useEffect, memo } from "react";
-import { useNavigate } from "@/lib/router-compat";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,15 +13,13 @@ interface RecentArticlesProps {
 }
 
 const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
-  const navigate = useNavigate();
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const selectedTag = "All";
 
-  const handleTagClick = (e: React.MouseEvent, tag: string) => {
+  const handleTagClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
-    navigate(`/tags/${encodeURIComponent(tagSlug)}`);
+    e.preventDefault();
   };
   useEffect(() => { fetchArticles(); }, []);
 
@@ -91,12 +89,11 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
           </div>
           
           {/* DESKTOP BUTTON: Hidden on mobile, flex on md and up */}
-          <Button 
-            onClick={() => navigate("/articles")} 
-            className="hidden md:flex bg-gradient-primary hover:shadow-soft transition-all duration-300"
-          >
-            View All Articles
-            <ArrowRight className="w-4 h-4 ml-2" />
+          <Button asChild className="hidden md:flex bg-gradient-primary hover:shadow-soft transition-all duration-300">
+            <Link href="/articles">
+              View All Articles
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
           </Button>
         </div>
 
@@ -125,12 +122,13 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
           <>
             <div className={`grid md:grid-cols-2 ${showAll ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-8 animate-fade-up delay-300`}>
               {filteredArticles.map((article: any, index: number) => (
-                <Card 
-                  key={article.id} 
-                  className="group hover:shadow-soft transition-all duration-300 cursor-pointer bg-card/50 backdrop-blur-sm border-primary/20"
-                  onClick={() => navigate(`/articles/${article.slug}`)}
+                <Link
+                  key={article.id}
+                  href={`/articles/${article.slug}`}
+                  className="block"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
+                <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer bg-card/50 backdrop-blur-sm border-primary/20">
                   <div className="relative overflow-hidden rounded-t-lg">
                     <OptimizedImage
                       src={article.image_url || "/placeholder.svg"}
@@ -155,16 +153,20 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-1 mb-4">
-                      {article.tags?.slice(0, 3).map((tag: string) => (
-                        <Badge 
-                          key={tag} 
-                          variant="secondary" 
-                          className="text-xs cursor-pointer"
-                          onClick={(e) => handleTagClick(e, tag)}
-                        >
-                          {tag}
-                        </Badge>
-                      ))}
+                      {article.tags?.slice(0, 3).map((tag: string) => {
+                        const tagSlug = tag.toLowerCase().replace(/\s+/g, "-");
+                        return (
+                          <Link
+                            key={tag}
+                            href={`/tags/${encodeURIComponent(tagSlug)}`}
+                            onClick={handleTagClick}
+                          >
+                            <Badge variant="secondary" className="text-xs cursor-pointer">
+                              {tag}
+                            </Badge>
+                          </Link>
+                        );
+                      })}
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1"><Eye className="w-4 h-4" />{article.views || 0}</div>
@@ -172,17 +174,17 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
                     </div>
                   </CardContent>
                 </Card>
+                </Link>
               ))}
             </div>
 
             {/* MOBILE BUTTON: Visible only on mobile, placed after the grid */}
             <div className="mt-10 flex justify-center md:hidden">
-                <Button 
-                    onClick={() => navigate("/articles")} 
-                    className="w-full bg-gradient-primary hover:shadow-soft transition-all duration-300"
-                >
+                <Button asChild className="w-full bg-gradient-primary hover:shadow-soft transition-all duration-300">
+                  <Link href="/articles">
                     View All Articles
                     <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
                 </Button>
             </div>
           </>

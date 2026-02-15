@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
@@ -90,9 +91,11 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
       <Navigation />
       <div className="pt-20">
         <div className="max-w-4xl mx-auto px-6 py-12">
-          <Button variant="ghost" onClick={() => navigate("/articles")} className="mb-8">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Articles
+          <Button asChild variant="ghost" className="mb-8">
+            <Link href="/articles">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Articles
+            </Link>
           </Button>
 
           {article.image_url && (
@@ -114,9 +117,11 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
 
           <div className="flex flex-wrap gap-2 mb-8">
             {(article.tags || []).map((tag) => (
-              <Badge key={tag} variant="secondary" onClick={() => navigate(`/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`)} className="cursor-pointer">
-                {tag}
-              </Badge>
+              <Link key={tag} href={`/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}>
+                <Badge variant="secondary" className="cursor-pointer">
+                  {tag}
+                </Badge>
+              </Link>
             ))}
           </div>
 

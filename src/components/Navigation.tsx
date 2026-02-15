@@ -2,7 +2,8 @@
 
 import { useState, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate, useLocation } from '@/lib/router-compat';
+import Link from 'next/link';
+import { useLocation } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';
 import {
   Menu,
@@ -30,7 +31,6 @@ const NavIcon = ({ name }: { name: string }) => {
 const Navigation = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
@@ -148,12 +148,12 @@ const Navigation = memo(() => {
                       {navItems.map((item) => {
                         const isActive = location.pathname === item.path;
                         return (
-                          <button
+                          <Link
                             key={item.name}
                             onClick={() => {
                               setIsOpen(false);
-                              navigate(item.path);
                             }}
+                            href={item.path}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                               isActive
                                 ? 'bg-primary/10 text-primary'
@@ -177,7 +177,7 @@ const Navigation = memo(() => {
                                 transition={{ type: 'spring', damping: 20, stiffness: 300 }}
                               />
                             )}
-                          </button>
+                          </Link>
                         );
                       })}
                     </div>
@@ -195,17 +195,14 @@ const Navigation = memo(() => {
                         </Button>
                       </HashLink>
                       {user && (
-                        <Button
-                          size='default'
-                          variant='outline'
-                          className='w-full rounded-xl font-medium border-border hover:bg-muted transition-all'
-                          onClick={() => {
-                            setIsOpen(false);
-                            navigate('/admin');
-                          }}
-                          aria-label='Go to admin dashboard'
-                        >
-                          âš™ï¸ Admin Panel
+                        <Button asChild size='default' variant='outline' className='w-full rounded-xl font-medium border-border hover:bg-muted transition-all'>
+                          <Link
+                            href='/admin'
+                            onClick={() => setIsOpen(false)}
+                            aria-label='Go to admin dashboard'
+                          >
+                            âš™ï¸ Admin Panel
+                          </Link>
                         </Button>
                       )}
                     </div>
@@ -226,27 +223,27 @@ const Navigation = memo(() => {
         <div className='max-w-7xl mx-auto px-4 sm:px-6'>
         <div className='flex items-center justify-between h-16'>
           {/* Logo */}
-          <button
+          <Link
+            href='/'
             className='font-extrabold text-lg sm:text-xl bg-gradient-primary bg-clip-text text-transparent tracking-tight hover:scale-[1.02] transition-transform truncate max-w-[150px] sm:max-w-none'
-            onClick={() => navigate('/')}
             aria-label="Navigate to home page"
           >
             {profile?.name || 'Portfolio'}
-          </button>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className='hidden lg:flex items-center gap-1'>
             {navItems.map((item) => (
-              <button
+              <Link
                 key={item.name}
-                onClick={() => navigate(item.path)}
+                href={item.path}
                 className='group relative text-foreground/80 hover:text-primary font-medium transition-all duration-300 text-sm tracking-wide px-2 xl:px-3 py-2 rounded-lg hover:bg-primary/5'
                 aria-label={`Navigate to ${item.name}`}
               >
                 <span className='absolute inset-x-2 -bottom-[1px] h-px bg-gradient-primary opacity-0 group-hover:opacity-80 transition-opacity' />
                 <span className='hidden xl:inline'>{item.name.toUpperCase()}</span>
                 <span className='xl:hidden'>{item.name}</span>
-              </button>
+              </Link>
             ))}
           </div>
 
@@ -276,14 +273,10 @@ const Navigation = memo(() => {
               </Button>
             </HashLink>
             {user && (
-              <Button
-                size='sm'
-                variant='outline'
-                onClick={() => navigate('/admin')}
-                className='hover:shadow-soft transition-all duration-300 rounded-lg'
-                aria-label="Go to admin dashboard"
-              >
-                Admin
+              <Button asChild size='sm' variant='outline' className='hover:shadow-soft transition-all duration-300 rounded-lg'>
+                <Link href='/admin' aria-label="Go to admin dashboard">
+                  Admin
+                </Link>
               </Button>
             )}
           </div>

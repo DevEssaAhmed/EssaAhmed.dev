@@ -1,11 +1,11 @@
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { BookOpen, ArrowRight, Sparkles, Clock, CheckCircle, Pause } from "lucide-react";
 import { toast } from "sonner";
@@ -29,7 +29,6 @@ interface Series {
 const SeriesPage = () => {
   const [series, setSeries] = useState<Series[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => { fetchSeries(); }, []);
 
@@ -49,8 +48,6 @@ const SeriesPage = () => {
       setLoading(false);
     }
   };
-
-  const handleSeriesClick = (slug: string) => { navigate(`/series/${slug}`); };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -151,11 +148,8 @@ const SeriesPage = () => {
               </div>
               <div className="grid lg:grid-cols-2 gap-8 mb-8">
                 {series.filter(s => s.featured).map((seriesItem) => (
-                  <Card 
-                    key={seriesItem.id}
-                    className="group hover:shadow-glow transition-all duration-300 cursor-pointer border-2 hover:border-primary/50"
-                    onClick={() => handleSeriesClick(seriesItem.slug)}
-                  >
+                  <Link key={seriesItem.id} href={`/series/${seriesItem.slug}`} className="block">
+                  <Card className="group hover:shadow-glow transition-all duration-300 cursor-pointer border-2 hover:border-primary/50">
                     {(seriesItem.featured_image_url || seriesItem.image_url) && (
                       <div className="relative overflow-hidden rounded-t-lg">
                         <OptimizedImage
@@ -189,6 +183,7 @@ const SeriesPage = () => {
                       </div>
                     </CardContent>
                   </Card>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -199,11 +194,8 @@ const SeriesPage = () => {
             <h2 className="text-2xl font-bold mb-6">All Series</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {series.filter(s => !s.featured).map((seriesItem) => (
-                <Card 
-                  key={seriesItem.id}
-                  className="group hover:shadow-soft transition-all duration-300 cursor-pointer hover:border-primary/30"
-                  onClick={() => handleSeriesClick(seriesItem.slug)}
-                >
+                <Link key={seriesItem.id} href={`/series/${seriesItem.slug}`} className="block">
+                <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer hover:border-primary/30">
                   {(seriesItem.featured_image_url || seriesItem.image_url) && (
                     <div className="relative overflow-hidden rounded-t-lg">
                       <OptimizedImage
@@ -236,6 +228,7 @@ const SeriesPage = () => {
                     </div>
                   </CardContent>
                 </Card>
+                </Link>
               ))}
             </div>
           </div>

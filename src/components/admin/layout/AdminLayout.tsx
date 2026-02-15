@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { useNavigate, useLocation } from "@/lib/router-compat";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -43,11 +44,10 @@ interface AdminLayoutProps {
 }
 
 const NavItem: React.FC<{ icon: React.ElementType; label: string; to: string; active?: boolean }> = ({ icon: Icon, label, to, active }) => {
-  const navigate = useNavigate();
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton 
-        onClick={() => navigate(to)} 
+      <SidebarMenuButton
+        asChild
         isActive={active} 
         tooltip={label} 
         className={cn(
@@ -55,8 +55,10 @@ const NavItem: React.FC<{ icon: React.ElementType; label: string; to: string; ac
           active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
         )}
       >
-        <Icon className="w-4 h-4 mr-3 shrink-0" />
-        <span className="truncate text-sm">{label}</span>
+        <Link href={to}>
+          <Icon className="w-4 h-4 mr-3 shrink-0" />
+          <span className="truncate text-sm">{label}</span>
+        </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
@@ -77,15 +79,16 @@ const SidebarBrand: React.FC = () => {
 };
 
 const SidebarFooterContent: React.FC = () => {
-  const navigate = useNavigate();
   const { state } = useSidebar();
   if (state === "collapsed") {
     return (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="w-8 h-8 hover:bg-muted" onClick={() => navigate("/")}> 
-              <Eye className="w-4 h-4" />
+            <Button asChild variant="ghost" size="icon" className="w-8 h-8 hover:bg-muted">
+              <Link href="/">
+                <Eye className="w-4 h-4" />
+              </Link>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">View Site</TooltipContent>
@@ -94,9 +97,11 @@ const SidebarFooterContent: React.FC = () => {
     );
   }
   return (
-    <Button variant="ghost" size="sm" className="w-full justify-start hover:bg-muted text-muted-foreground hover:text-foreground" onClick={() => navigate("/")}> 
-      <Eye className="w-4 h-4 mr-2" />
-      View Site
+    <Button asChild variant="ghost" size="sm" className="w-full justify-start hover:bg-muted text-muted-foreground hover:text-foreground">
+      <Link href="/">
+        <Eye className="w-4 h-4 mr-2" />
+        View Site
+      </Link>
     </Button>
   );
 };

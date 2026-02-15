@@ -7,6 +7,7 @@ import { useProfile } from "@/contexts/ProfileContext";
 import SEO from "@/components/SEO";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import Footer from '@/components/Footer'
+import { Link } from "@/lib/router-compat";
 
 const AboutPage = () => {
   const { profile, loading } = useProfile();
@@ -68,6 +69,18 @@ const AboutPage = () => {
                     ) : (
                       <p className="italic">No about content yet. Add it from your profile settings.</p>
                     )}
+                  </div>
+
+                  <div className="mt-8 p-4 rounded-xl border border-border/60 bg-muted/25">
+                    <p className="text-sm text-muted-foreground">
+                      I keep a quiet public diary of ongoing experiments and life notes.
+                    </p>
+                    <Link
+                      to="/diary"
+                      className="inline-block mt-2 text-sm font-medium text-primary hover:underline"
+                    >
+                      Open diary timeline
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

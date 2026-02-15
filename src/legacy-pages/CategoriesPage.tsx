@@ -1,10 +1,10 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { Folder, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
@@ -23,7 +23,6 @@ interface Category {
 const CategoriesPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -94,8 +93,10 @@ const CategoriesPage = () => {
                 </CardHeader>
                 <CardContent className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">{category.article_count || 0} articles</span>
-                  <Button size="sm" onClick={() => navigate(`/categories/${category.slug}`)}>
-                    Explore <ArrowRight className="ml-1 w-4 h-4" />
+                  <Button asChild size="sm">
+                    <Link href={`/categories/${category.slug}`}>
+                      Explore <ArrowRight className="ml-1 w-4 h-4" />
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -109,4 +110,5 @@ const CategoriesPage = () => {
 };
 
 export default CategoriesPage;
+
 

@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "@/lib/router-compat";
 import { useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Home, ArrowLeft, Search, BookOpen } from "lucide-react";
@@ -52,13 +53,11 @@ const NotFound = () => {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <Button 
-                  onClick={() => navigate("/")}
-                  className="w-full bg-gradient-primary hover:shadow-soft transition-all duration-300"
-                  size="lg"
-                >
-                  <Home className="w-5 h-5 mr-2" />
-                  Go Home
+                <Button asChild className="w-full bg-gradient-primary hover:shadow-soft transition-all duration-300" size="lg">
+                  <Link href="/">
+                    <Home className="w-5 h-5 mr-2" />
+                    Go Home
+                  </Link>
                 </Button>
                 
                 <div className="grid grid-cols-2 gap-3">
@@ -70,13 +69,11 @@ const NotFound = () => {
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Go Back
                   </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={() => navigate("/articles")}
-                    className="hover:shadow-soft transition-all duration-300"
-                  >
-                    <BookOpen className="w-4 h-4 mr-2" />
-                    Articles
+                  <Button asChild variant="outline" className="hover:shadow-soft transition-all duration-300">
+                    <Link href="/articles">
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Articles
+                    </Link>
                   </Button>
                 </div>
               </div>
@@ -87,24 +84,15 @@ const NotFound = () => {
                   Looking for something specific?
                 </p>
                 <div className="flex justify-center gap-4 text-xs">
-                  <button 
-                    onClick={() => navigate("/projects")}
-                    className="text-primary hover:text-primary/80 transition-colors"
-                  >
+                  <Link href="/projects" className="text-primary hover:text-primary/80 transition-colors">
                     Projects
-                  </button>
-                  <button 
-                    onClick={() => navigate("/articles")}
-                    className="text-primary hover:text-primary/80 transition-colors"
-                  >
+                  </Link>
+                  <Link href="/articles" className="text-primary hover:text-primary/80 transition-colors">
                     Articles
-                  </button>
-                  <button 
-                    onClick={() => navigate("/about")}
-                    className="text-primary hover:text-primary/80 transition-colors"
-                  >
+                  </Link>
+                  <Link href="/about" className="text-primary hover:text-primary/80 transition-colors">
                     About
-                  </button>
+                  </Link>
                 </div>
               </div>
             </CardContent>

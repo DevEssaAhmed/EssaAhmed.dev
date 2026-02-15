@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
@@ -89,7 +90,8 @@ const ArticlesPage = ({ initialArticles }: ArticlesPageProps) => {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredArticles.map((article) => (
-                <Card key={article.id} className="group hover:shadow-soft transition-all duration-300 cursor-pointer" onClick={() => (window.location.href = `/articles/${article.slug}`)}>
+                <Link key={article.id} href={`/articles/${article.slug}`} className="block">
+                <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer">
                   <div className="relative overflow-hidden rounded-t-lg">
                     <OptimizedImage src={article.image_url || "/placeholder.svg"} alt={article.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
                   </div>
@@ -115,14 +117,17 @@ const ArticlesPage = ({ initialArticles }: ArticlesPageProps) => {
                     </div>
                   </CardContent>
                 </Card>
+                </Link>
               ))}
             </div>
           )}
 
           <div className="text-center mt-12">
-            <Button onClick={() => (window.location.href = "/articles")} variant="outline" size="lg" className="hover:bg-primary/5 hover:border-primary/30 transition-all duration-300">
-              View All Articles
-              <ArrowRight className="w-4 h-4 ml-2" />
+            <Button asChild variant="outline" size="lg" className="hover:bg-primary/5 hover:border-primary/30 transition-all duration-300">
+              <Link href="/articles">
+                View All Articles
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
             </Button>
           </div>
         </div>

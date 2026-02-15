@@ -1,4 +1,5 @@
 import { useNavigate } from "@/lib/router-compat";
+import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -35,20 +36,15 @@ const TagNotFoundPage = () => {
                 Go Back
               </Button>
               
-              <Button 
-                onClick={() => navigate("/categories")}
-                className="bg-gradient-primary hover:shadow-glow transition-all duration-300"
-              >
-                <Search className="w-4 h-4 mr-2" />
-                Browse Categories
+              <Button asChild className="bg-gradient-primary hover:shadow-glow transition-all duration-300">
+                <Link href="/categories">
+                  <Search className="w-4 h-4 mr-2" />
+                  Browse Categories
+                </Link>
               </Button>
               
-              <Button 
-                onClick={() => navigate("/articles")}
-                variant="outline"
-                className="hover:shadow-soft transition-all duration-300"
-              >
-                View All Articles
+              <Button asChild variant="outline" className="hover:shadow-soft transition-all duration-300">
+                <Link href="/articles">View All Articles</Link>
               </Button>
             </div>
           </div>

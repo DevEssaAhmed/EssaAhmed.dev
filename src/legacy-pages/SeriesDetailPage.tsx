@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -114,8 +115,10 @@ const SeriesDetailPage = () => {
             <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
             <h1 className="text-2xl font-bold mb-2">Series Not Found</h1>
             <p className="text-muted-foreground mb-6">This series does not exist.</p>
-            <Button onClick={() => navigate("/series")}>
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Series
+            <Button asChild>
+              <Link href="/series">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Series
+              </Link>
             </Button>
           </div>
         </div>
@@ -129,8 +132,10 @@ const SeriesDetailPage = () => {
       <Navigation />
       <div className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-12">
-          <Button variant="ghost" onClick={() => navigate("/series")} className="mb-8">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Series
+          <Button asChild variant="ghost" className="mb-8">
+            <Link href="/series">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Series
+            </Link>
           </Button>
 
           <Card className="mb-10 overflow-hidden">
@@ -160,7 +165,8 @@ const SeriesDetailPage = () => {
           ) : (
             <div className="space-y-4">
               {articles.map((article, index) => (
-                <Card key={article.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/articles/${article.slug}`)}>
+                <Link key={article.id} href={`/articles/${article.slug}`} className="block">
+                <Card className="cursor-pointer hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex gap-4 items-start">
                       <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold shrink-0">
@@ -179,6 +185,7 @@ const SeriesDetailPage = () => {
                     </div>
                   </CardContent>
                 </Card>
+                </Link>
               ))}
             </div>
           )}

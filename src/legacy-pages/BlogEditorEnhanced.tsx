@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from "next/link";
 import { cn } from '@/lib/utils';
 
 import { useNavigate, useParams } from '@/lib/router-compat';
@@ -268,8 +269,10 @@ const BlogEditorEnhanced: React.FC = () => {
 
   const actions = (
     <div className="flex items-center gap-2">
-      <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="gap-2">
-        <ArrowLeft className="w-4 h-4" /> Back
+      <Button asChild variant="ghost" size="sm" className="gap-2">
+        <Link href="/admin">
+          <ArrowLeft className="w-4 h-4" /> Back
+        </Link>
       </Button>
       <Button variant="outline" size="sm" onClick={() => setShowSettings(!showSettings)} className="gap-2">
         <Settings className="w-4 h-4" /> Settings

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useNavigate } from '@/lib/router-compat';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -141,12 +142,10 @@ const LoginForm = () => {
             </form>
             
             <div className="mt-6 text-center">
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/')}
-                className="text-muted-foreground hover:text-primary"
-              >
-                ← Back to Portfolio
+              <Button asChild variant="ghost" className="text-muted-foreground hover:text-primary">
+                <Link href="/">
+                  ← Back to Portfolio
+                </Link>
               </Button>
             </div>
           </CardContent>

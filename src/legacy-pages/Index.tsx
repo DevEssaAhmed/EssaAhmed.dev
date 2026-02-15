@@ -1,8 +1,8 @@
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import SEO from "@/components/SEO";
+import Link from "next/link";
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
-import { useNavigate } from "@/lib/router-compat";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,6 @@ const useIsMobile = () => {
 };
 
 const Index = () => {
-  const navigate = useNavigate();
   const { profile } = useProfile();
   const isMobile = useIsMobile();
 
@@ -202,10 +201,8 @@ const Index = () => {
                     whileTap={{ scale: 0.98 }}
                     className="relative"
                   >
-                    <Button 
-                      className="bg-gradient-primary hover:shadow-glow transition-all duration-300 relative overflow-hidden" 
-                      onClick={() => navigate("/projects")}
-                    >
+                    <Button asChild className="bg-gradient-primary hover:shadow-glow transition-all duration-300 relative overflow-hidden">
+                      <Link href="/projects">
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                         initial={{ x: '-100%' }}
@@ -220,18 +217,15 @@ const Index = () => {
                       >
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </motion.div>
+                      </Link>
                     </Button>
                   </motion.div>
                   <motion.div 
                     whileHover={{ scale: 1.02, y: -2 }} 
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Button 
-                      variant="outline" 
-                      onClick={() => navigate("/about")}
-                      className="border-border/50 hover:border-primary/50 transition-all duration-300"
-                    >
-                      Contact
+                    <Button asChild variant="outline" className="border-border/50 hover:border-primary/50 transition-all duration-300">
+                      <Link href="/about">Contact</Link>
                     </Button>
                   </motion.div>
                 </div>

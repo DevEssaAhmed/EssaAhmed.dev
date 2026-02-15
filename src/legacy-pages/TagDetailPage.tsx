@@ -1,5 +1,6 @@
 import { OptimizedImage } from "@/components/OptimizedImage";
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from "next/link";
 import { useParams, useNavigate } from '@/lib/router-compat';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -58,6 +59,8 @@ interface GetRelatedTagsParams {
   p_tag_name: string;
 }
 
+
+const tagToHref = (tag: string) => `/tags/${encodeURIComponent(tag.toLowerCase().replace(/\s+/g, "-"))}`;
 
 const TagDetailPage: React.FC = () => {
   const { tagSlug } = useParams<{ tagSlug: string }>();
@@ -174,10 +177,6 @@ const fetchTagContent = React.useCallback(async () => {
     setLoading(false);
   }
 }, [tagSlug, setBlogPosts, setProjects, setLoading, setTagName, fetchRelatedTags]);
-  const handleTagClick = (tag: string) => {
-    const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
-    navigate(`/tags/${encodeURIComponent(tagSlug)}`);
-  };
 
   const filteredBlogPosts = blogPosts.filter(post =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -221,13 +220,11 @@ const fetchTagContent = React.useCallback(async () => {
         <div className="max-w-7xl mx-auto px-6 py-12">
           {/* Header */}
           <div className="mb-12">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate("/tags")}
-              className="mb-6 hover:shadow-soft transition-all duration-300"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to All Tags
+            <Button asChild variant="ghost" className="mb-6 hover:shadow-soft transition-all duration-300">
+              <Link href="/tags">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to All Tags
+              </Link>
             </Button>
 
             <div className="text-center">
@@ -262,14 +259,14 @@ const fetchTagContent = React.useCallback(async () => {
                   <h3 className="text-sm font-medium text-muted-foreground mb-3">Related Tags</h3>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {relatedTags.slice(0, 10).map((tag) => (
-                      <Badge
-                        key={tag.name}
-                        variant="secondary"
-                        className="hover:bg-primary hover:text-primary-foreground cursor-pointer transition-colors"
-                        onClick={() => handleTagClick(tag.name)}
-                      >
-                        #{tag.name} ({tag.count})
-                      </Badge>
+                      <Link key={tag.name} href={tagToHref(tag.name)}>
+                        <Badge
+                          variant="secondary"
+                          className="hover:bg-primary hover:text-primary-foreground cursor-pointer transition-colors"
+                        >
+                          #{tag.name} ({tag.count})
+                        </Badge>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -294,7 +291,8 @@ const fetchTagContent = React.useCallback(async () => {
                   <h2 className="text-2xl font-semibold mb-4">Articles</h2>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {filteredBlogPosts.map((post) => (
-                      <Card key={post.id} className="bg-card/50 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer" onClick={() => navigate(`/articles/${post.slug}`)}>
+                      <Link key={post.id} href={`/articles/${post.slug}`} className="block">
+                      <Card className="bg-card/50 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer">
                         {post.image_url && (
                           <div className="aspect-video overflow-hidden rounded-t-lg">
                             <OptimizedImage
@@ -341,6 +339,7 @@ const fetchTagContent = React.useCallback(async () => {
                           </div>
                         </CardContent>
                       </Card>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -352,7 +351,8 @@ const fetchTagContent = React.useCallback(async () => {
                   <h2 className="text-2xl font-semibold mb-4">Projects</h2>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {filteredProjects.map((project) => (
-                      <Card key={project.id} className="bg-card/50 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
+                      <Link key={project.id} href={`/projects/${project.id}`} className="block">
+                      <Card className="bg-card/50 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer">
                         {project.image_url && (
                           <div className="aspect-video overflow-hidden rounded-t-lg">
                             <OptimizedImage
@@ -399,6 +399,7 @@ const fetchTagContent = React.useCallback(async () => {
                           </div>
                         </CardContent>
                       </Card>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -411,12 +412,8 @@ const fetchTagContent = React.useCallback(async () => {
                   <p className="text-muted-foreground">
                     {searchTerm ? 'Try adjusting your search terms' : `No content tagged with "${tagName}"`}
                   </p>
-                  <Button 
-                    onClick={() => navigate("/tags")}
-                    variant="outline"
-                    className="mt-4"
-                  >
-                    Browse All Tags
+                  <Button asChild variant="outline" className="mt-4">
+                    <Link href="/tags">Browse All Tags</Link>
                   </Button>
                 </div>
               )}
@@ -427,7 +424,8 @@ const fetchTagContent = React.useCallback(async () => {
             {filteredBlogPosts.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredBlogPosts.map((post) => (
-                  <Card key={post.id} className="bg-card/50 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer" onClick={() => navigate(`/articles/${post.slug}`)}>
+                  <Link key={post.id} href={`/articles/${post.slug}`} className="block">
+                  <Card className="bg-card/50 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer">
                     {post.image_url && (
                       <div className="aspect-video overflow-hidden rounded-t-lg">
                         <OptimizedImage
@@ -474,6 +472,7 @@ const fetchTagContent = React.useCallback(async () => {
                       </div>
                     </CardContent>
                   </Card>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -489,7 +488,8 @@ const fetchTagContent = React.useCallback(async () => {
             {filteredProjects.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredProjects.map((project) => (
-                  <Card key={project.id} className="bg-card/50 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer" onClick={() => navigate(`/projects/${project.id}`)}>
+                  <Link key={project.id} href={`/projects/${project.id}`} className="block">
+                  <Card className="bg-card/50 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer">
                     {project.image_url && (
                       <div className="aspect-video overflow-hidden rounded-t-lg">
                         <OptimizedImage
@@ -536,6 +536,7 @@ const fetchTagContent = React.useCallback(async () => {
                       </div>
                     </CardContent>
                   </Card>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -558,14 +559,14 @@ const fetchTagContent = React.useCallback(async () => {
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {relatedTags.map((tag) => (
-                  <Badge
-                    key={tag.name}
-                    variant="outline"
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                    onClick={() => handleTagClick(tag.name)}
-                  >
-                    {tag.name} ({tag.count})
-                  </Badge>
+                  <Link key={tag.name} href={tagToHref(tag.name)}>
+                    <Badge
+                      variant="outline"
+                      className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                    >
+                      {tag.name} ({tag.count})
+                    </Badge>
+                  </Link>
                 ))}
               </div>
             </CardContent>
