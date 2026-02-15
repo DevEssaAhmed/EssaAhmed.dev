@@ -1,5 +1,6 @@
-﻿import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useNavigate } from "@/lib/router-compat";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ const RecentProjects = memo(({ showAll = false }: RecentProjectsProps) => {
 
   const handleTagClick = (e: React.MouseEvent, tag: string) => {
     e.stopPropagation();
+    e.preventDefault();
     const tagSlug = tag.toLowerCase().replace(/\s+/g, "-");
     navigate(`/tags/${encodeURIComponent(tagSlug)}`);
   };
@@ -99,57 +101,55 @@ const RecentProjects = memo(({ showAll = false }: RecentProjectsProps) => {
       {filteredProjects.length > 0 ? (
         <div className="grid md:grid-cols-2 gap-6">
           {filteredProjects.map((project: any) => (
-            <Card
-              key={project.id}
-              className="group cursor-pointer hover:shadow-glow transition-all duration-300"
-              onClick={() => navigate(`/projects/${project.id}`)}
-            >
-              {project.image_url && (
-                <div className="h-48 overflow-hidden rounded-t-lg">
-                  <OptimizedImage
-                    src={project.image_url}
-                    alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              )}
-
-              <CardHeader>
-                <div className="flex items-center justify-between gap-2">
-                  <CardTitle className="line-clamp-1">{project.title}</CardTitle>
-                  {project.featured && <Badge>Featured</Badge>}
-                </div>
-                <CardDescription className="line-clamp-3">
-                  {getMarkdownExcerpt(project.description || "", 120)}
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  {(project.tags || []).slice(0, 4).map((tag: string) => (
-                    <Badge
-                      key={tag}
-                      variant="outline"
-                      className="cursor-pointer"
-                      onClick={(e) => handleTagClick(e, tag)}
-                    >
-                      #{tag}
-                    </Badge>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {project.views || 0}</span>
-                    <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {project.likes || 0}</span>
+            <Link key={project.id} href={`/projects/${project.id}`} className="block">
+              <Card className="group cursor-pointer hover:shadow-glow transition-all duration-300">
+                {project.image_url && (
+                  <div className="h-48 overflow-hidden rounded-t-lg">
+                    <OptimizedImage
+                      src={project.image_url}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
-                  <div className="flex items-center gap-2">
-                    {project.demo_url && <ExternalLink className="w-3 h-3" />}
-                    {project.github_url && <Github className="w-3 h-3" />}
+                )}
+
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle className="line-clamp-1">{project.title}</CardTitle>
+                    {project.featured && <Badge>Featured</Badge>}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <CardDescription className="line-clamp-3">
+                    {getMarkdownExcerpt(project.description || "", 120)}
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {(project.tags || []).slice(0, 4).map((tag: string) => (
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className="cursor-pointer"
+                        onClick={(e) => handleTagClick(e, tag)}
+                      >
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {project.views || 0}</span>
+                      <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {project.likes || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {project.demo_url && <ExternalLink className="w-3 h-3" />}
+                      {project.github_url && <Github className="w-3 h-3" />}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       ) : (
