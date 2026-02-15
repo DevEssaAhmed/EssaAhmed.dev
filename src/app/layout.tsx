@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+import "../index.css";
 import Providers from "./providers";
+import GTMProvider from "@/components/gtm-provider";
+import GTMPageView from "@/components/gtm-pageview";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://essaahmed.dev"),
@@ -30,38 +32,13 @@ export const metadata: Metadata = {
   },
 };
 
-const gtmLoaderScript = `
-  function loadGTM() {
-    if (window.gtmDidInit) return;
-    window.gtmDidInit = true;
-
-    (function (w, d, s, l, i) {
-      w[l] = w[l] || [];
-      w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-      var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != "dataLayer" ? "&l=" + l : "";
-      j.async = true;
-      j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-      f.parentNode.insertBefore(j, f);
-    })(window, document, "script", "dataLayer", "GTM-N5VQ53PG");
-  }
-
-  const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart"];
-  events.forEach(function (event) {
-    window.addEventListener(event, loadGTM, { once: true, passive: true });
-  });
-
-  setTimeout(loadGTM, 3500);
-`;
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html>
       <head>
         <link
           rel="preconnect"
@@ -69,21 +46,12 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body>
-        <Providers>{children}</Providers>
-
-        <Script id="gtm-deferred-loader" strategy="afterInteractive">
-          {gtmLoaderScript}
-        </Script>
-
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-N5VQ53PG"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          />
-        </noscript>
+      <body suppressHydrationWarning>
+        <Providers>
+          <GTMPageView />
+          {children}
+          <GTMProvider />
+        </Providers>
       </body>
     </html>
   );
