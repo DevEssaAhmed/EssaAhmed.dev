@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import "../index.css";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
@@ -69,9 +68,8 @@ export default function RootLayout({
           href="https://kexmzaaufxbzegurxuqz.supabase.co"
           crossOrigin="anonymous"
         />
-        <style>{`:root{--background:210 20% 98%;--foreground:220 15% 25%;--card:0 0% 100%;--card-foreground:220 15% 25%;--primary:217 91% 60%;--primary-foreground:0 0% 100%;--muted:210 20% 95%;--muted-foreground:220 10% 55%;--border:214.3 31.8% 91.4%;--radius:.5rem}.dark{--background:222 15% 6%;--foreground:210 15% 97%;--card:222 14% 9%;--card-foreground:210 12% 98%;--primary:258 95% 70%;--primary-foreground:0 0% 100%;--muted:220 15% 15%;--muted-foreground:210 10% 72%;--border:220 15% 22%}*{border-color:hsl(var(--border))}body{background-color:hsl(var(--background));color:hsl(var(--foreground));margin:0;font-family:system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}#root{min-height:100vh;display:flex;flex-direction:column}.nav-fixed{position:fixed;top:0;left:0;right:0;z-index:50}`}</style>
       </head>
-      <body suppressHydrationWarning>
+      <body>
         <Providers>{children}</Providers>
 
         <Script id="gtm-deferred-loader" strategy="afterInteractive">
