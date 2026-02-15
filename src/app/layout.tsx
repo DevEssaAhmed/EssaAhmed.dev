@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "../index.css";
 import Providers from "./providers";
 import GTMProvider from "@/components/gtm-provider";
@@ -48,7 +49,9 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         <Providers>
-          <GTMPageView />
+          <Suspense fallback={null}>
+            <GTMPageView />
+          </Suspense>
           {children}
           <GTMProvider />
         </Providers>

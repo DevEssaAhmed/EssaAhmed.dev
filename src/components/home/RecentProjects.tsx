@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,14 +15,21 @@ interface RecentProjectsProps {
 }
 
 const RecentProjects = memo(({ showAll = false }: RecentProjectsProps) => {
+  const router = useRouter();
   const [projects, setProjects] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
-  const handleTagClick = (e: React.MouseEvent) => {
+  const handleTagInteraction = (e: React.SyntheticEvent) => {
     e.stopPropagation();
-    e.preventDefault();
+  };
+
+  const handleCardKeyDown = (e: React.KeyboardEvent, href: string) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      router.push(href);
+    }
   };
 
   const fetchProjects = useCallback(async () => {
@@ -97,8 +105,14 @@ const RecentProjects = memo(({ showAll = false }: RecentProjectsProps) => {
       {filteredProjects.length > 0 ? (
         <div className="grid md:grid-cols-2 gap-6">
           {filteredProjects.map((project: any) => (
-            <Link key={project.id} href={`/projects/${project.id}`} className="block">
-              <Card className="group cursor-pointer hover:shadow-glow transition-all duration-300">
+            <Card
+              key={project.id}
+              className="group cursor-pointer hover:shadow-glow transition-all duration-300"
+              role="link"
+              tabIndex={0}
+              onClick={() => router.push(`/projects/${project.id}`)}
+              onKeyDown={(e) => handleCardKeyDown(e, `/projects/${project.id}`)}
+            >
                 {project.image_url && (
                   <div className="h-48 overflow-hidden rounded-t-lg">
                     <OptimizedImage
@@ -127,7 +141,8 @@ const RecentProjects = memo(({ showAll = false }: RecentProjectsProps) => {
                         <Link
                           key={tag}
                           href={`/tags/${encodeURIComponent(tagSlug)}`}
-                          onClick={handleTagClick}
+                          onClick={handleTagInteraction}
+                          onKeyDown={handleTagInteraction}
                         >
                           <Badge
                             variant="outline"
@@ -152,7 +167,6 @@ const RecentProjects = memo(({ showAll = false }: RecentProjectsProps) => {
                   </div>
                 </CardContent>
               </Card>
-            </Link>
           ))}
         </div>
       ) : (

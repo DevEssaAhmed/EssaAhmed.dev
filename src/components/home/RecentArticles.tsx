@@ -1,6 +1,7 @@
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { useState, useEffect, memo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,14 +13,29 @@ interface RecentArticlesProps {
   showAll?: boolean;
 }
 
+const formatPublishedDate = (value: string) =>
+  new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(value));
+
 const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
+  const router = useRouter();
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const selectedTag = "All";
 
-  const handleTagClick = (e: React.MouseEvent) => {
+  const handleTagInteraction = (e: React.SyntheticEvent) => {
     e.stopPropagation();
-    e.preventDefault();
+  };
+
+  const handleCardKeyDown = (e: React.KeyboardEvent, href: string) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      router.push(href);
+    }
   };
   useEffect(() => { fetchArticles(); }, []);
 
@@ -122,13 +138,15 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
           <>
             <div className={`grid md:grid-cols-2 ${showAll ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-8 animate-fade-up delay-300`}>
               {filteredArticles.map((article: any, index: number) => (
-                <Link
+                <Card
                   key={article.id}
-                  href={`/articles/${article.slug}`}
-                  className="block"
+                  role="link"
+                  tabIndex={0}
+                  onClick={() => router.push(`/articles/${article.slug}`)}
+                  onKeyDown={(e) => handleCardKeyDown(e, `/articles/${article.slug}`)}
+                  className="group hover:shadow-soft transition-all duration-300 cursor-pointer bg-card/50 backdrop-blur-sm border-primary/20"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer bg-card/50 backdrop-blur-sm border-primary/20">
                   <div className="relative overflow-hidden rounded-t-lg">
                     <OptimizedImage
                       src={article.image_url || "/placeholder.svg"}
@@ -140,7 +158,7 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
                   <CardHeader>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                       <Calendar className="w-4 h-4" />
-                      {new Date(article.created_at).toLocaleDateString()}
+                      {formatPublishedDate(article.created_at)}
                       <Clock className="w-4 h-4 ml-2" />
                       {article.reading_time || 5} min read
                     </div>
@@ -159,7 +177,8 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
                           <Link
                             key={tag}
                             href={`/tags/${encodeURIComponent(tagSlug)}`}
-                            onClick={handleTagClick}
+                            onClick={handleTagInteraction}
+                            onKeyDown={handleTagInteraction}
                           >
                             <Badge variant="secondary" className="text-xs cursor-pointer">
                               {tag}
@@ -174,7 +193,6 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
                     </div>
                   </CardContent>
                 </Card>
-                </Link>
               ))}
             </div>
 
