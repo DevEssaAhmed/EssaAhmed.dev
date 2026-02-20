@@ -3,13 +3,13 @@ import Link from "next/link";
 import { cn } from '@/lib/utils';
 
 import { useNavigate, useParams } from '@/lib/router-compat';
+import { useDebounce } from '@/hooks/use-debouncer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { EnhancedCard } from '@/components/ui/enhanced-card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import {
   Select,
@@ -92,6 +92,30 @@ const BlogEditorEnhanced: React.FC = () => {
   const editorRef = useRef<BlockNoteEditor | null>(null);
   const [contentLoading, setContentLoading] = useState(!!id);
 
+  // Stable ref to latest handleSave, used by the Ctrl+S listener to avoid stale closures
+  const handleSaveRef = useRef<((isPublishing: boolean, isAutoSave?: boolean) => Promise<void>) | null>(null);
+
+  // Stable callback for onEditorReady — must be at component scope to avoid
+  // creating a new function reference on every render, which triggers focus loss.
+  const onEditorReady = useCallback((editor: BlockNoteEditor) => {
+    editorRef.current = editor;
+  }, []);
+
+  // Last save timestamp for display
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+
+  // Debounced mirrors for autosave behavior
+  const debouncedBlockNoteContent = useDebounce(blockNoteContent, 3000);
+  const debouncedFormData = useDebounce(formData, 3000);
+  const debouncedTags = useDebounce(selectedTags, 3000);
+
+  // Track last saved version (seeded by fetchProject to prevent spurious saves on load)
+  const [lastSaved, setLastSaved] = useState<{
+    formData: typeof formData;
+    content: BlockNoteContent;
+    tags: string[];
+  } | null>(null);
+
   const loadCategories = useCallback(async () => {
     try { const allCategories = await getAllCategories(); setCategories(allCategories || []); }
     catch (err) { console.error('Error loading categories', err); setCategories([]); }
@@ -114,7 +138,7 @@ const BlogEditorEnhanced: React.FC = () => {
         .single();
       if (error) throw error;
 
-      setFormData({
+      const loadedFormData = {
         title: data.title || '',
         slug: data.slug || '',
         excerpt: data.excerpt || '',
@@ -130,9 +154,15 @@ const BlogEditorEnhanced: React.FC = () => {
         og_title: (data as any).og_title || '',
         og_description: (data as any).og_description || '',
         og_image: (data as any).og_image || '',
-      });
+      };
+      setFormData(loadedFormData);
 
-      if (id) { const tags = await getBlogPostTags(id); setSelectedTags(tags.map((tag: any) => tag.name)); }
+      let loadedTags: string[] = [];
+      if (id) {
+        const tags = await getBlogPostTags(id);
+        loadedTags = tags.map((tag: any) => tag.name as string);
+        setSelectedTags(loadedTags);
+      }
 
       // Load content - check if BlockNote format (array) or old Yoopta format (object)
       let contentToSet: BlockNoteContent = [];
@@ -156,6 +186,9 @@ const BlogEditorEnhanced: React.FC = () => {
         setBlockNoteContent(contentToSet);
       }
       setContentLoading(false);
+
+      // Seed lastSaved so the first debounce tick doesn't trigger a spurious autosave
+      setLastSaved({ formData: loadedFormData, content: contentToSet, tags: loadedTags });
     } catch (error: any) {
       console.error('Fetch post error:', error);
       toast({ title: 'Error loading blog post', description: error.message, variant: 'destructive' });
@@ -179,6 +212,52 @@ const BlogEditorEnhanced: React.FC = () => {
   const handleAddTag = () => { if (tagInput.trim() && !selectedTags.includes(tagInput.trim())) { setSelectedTags(prev => [...prev, tagInput.trim()]); setTagInput(''); } };
   const handleRemoveTag = (tagToRemove: string) => { setSelectedTags(prev => prev.filter(tag => tag !== tagToRemove)); };
   const handleKeyPress = (e: React.KeyboardEvent) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); } };
+
+  // Autosave: fire when debounced state differs from lastSaved snapshot.
+  // NOTE: isSaving is intentionally excluded from deps — adding it causes a
+  // re-run loop (save starts → isSaving=true → effect reruns → isSaving=false → effect reruns)
+  useEffect(() => {
+    if (!id) return;
+    if (!lastSaved) return; // not seeded yet, skip
+
+    const hasChanges =
+      JSON.stringify(debouncedFormData) !== JSON.stringify(lastSaved.formData) ||
+      JSON.stringify(debouncedBlockNoteContent) !== JSON.stringify(lastSaved.content) ||
+      JSON.stringify(debouncedTags) !== JSON.stringify(lastSaved.tags);
+
+    if (hasChanges && debouncedFormData.title.trim()) {
+      const snapshot = {
+        formData: debouncedFormData,
+        content: debouncedBlockNoteContent,
+        tags: debouncedTags,
+      };
+      // Update lastSaved immediately to prevent double-fires while the async save runs
+      setLastSaved(snapshot);
+      (async () => {
+        try {
+          if (handleSaveRef.current) await handleSaveRef.current(debouncedFormData.published as unknown as boolean, true);
+        } catch (err) {
+          console.error('Autosave error:', err);
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, debouncedFormData, debouncedBlockNoteContent, debouncedTags, lastSaved]);
+
+  // Ctrl/Cmd+S keyboard shortcut - uses a ref to always call the latest handleSave
+  // without needing it in the deps array (avoids stale closures / [object Event] error)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        if (handleSaveRef.current) handleSaveRef.current(formData.published, false).catch(console.error);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // Empty deps is intentional — we use handleSaveRef to access the latest save fn
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const createNewSeries = async () => {
     if (!newSeries.title) return;
@@ -210,53 +289,66 @@ const BlogEditorEnhanced: React.FC = () => {
     return Math.max(1, Math.ceil(words / 200));
   };
 
-  const handleSave = async (isPublishing: boolean) => {
-    if (!formData.title.trim()) return;
+  const handleSave = useCallback(async (isPublishing: boolean, isAutoSave = false) => {
+    const dataToSave = isAutoSave ? debouncedFormData : formData;
+    const contentToSave = isAutoSave ? debouncedBlockNoteContent : blockNoteContent;
+    const tagsToSave = isAutoSave ? debouncedTags : selectedTags;
+
+    if (!dataToSave.title.trim()) return;
     setIsSaving(true);
     try {
       const md = editorRef.current ? await blocksToMarkdown(editorRef.current) : '';
       const readingTime = estimateReadingTime(md);
 
       // Auto-generate OG if empty
-      const autoOgTitle = formData.title;
-      const autoOgDescription = (formData.excerpt || stripMarkdown(md)).slice(0, 160);
-      const autoOgImage = formData.image_url || firstImageFromMarkdown(md) || '';
+      const autoOgTitle = dataToSave.title;
+      const autoOgDescription = (dataToSave.excerpt || stripMarkdown(md)).slice(0, 160);
+      const autoOgImage = dataToSave.image_url || firstImageFromMarkdown(md) || '';
 
       const blogData: any = {
-        title: formData.title,
-        slug: formData.slug,
-        excerpt: formData.excerpt,
+        title: dataToSave.title,
+        slug: dataToSave.slug,
+        excerpt: dataToSave.excerpt,
         content: md,
-        content_jsonb: blockNoteContent,
-        image_url: formData.image_url,
-        video_url: formData.video_url,
-        video_type: formData.video_type,
-        category_id: formData.category_id || null,
-        series_id: formData.series_id || null,
-        series_order: formData.series_order,
+        content_jsonb: contentToSave,
+        image_url: dataToSave.image_url,
+        video_url: dataToSave.video_url,
+        video_type: dataToSave.video_type,
+        category_id: dataToSave.category_id || null,
+        series_id: dataToSave.series_id || null,
+        series_order: dataToSave.series_order,
         published: isPublishing,
         reading_time: readingTime,
-        og_title: formData.og_title || autoOgTitle,
-        og_description: formData.og_description || autoOgDescription,
-        og_image: formData.og_image || autoOgImage || null,
+        og_title: dataToSave.og_title || autoOgTitle,
+        og_description: dataToSave.og_description || autoOgDescription,
+        og_image: dataToSave.og_image || autoOgImage || null,
       };
+
       if (id) {
         const { error } = await supabase.from('blog_posts').update(blogData).eq('id', id);
         if (error) throw error;
-        await associateBlogPostTags(id, selectedTags);
-        toast({ title: 'Blog post updated successfully!' });
+        await associateBlogPostTags(id, tagsToSave);
+        setLastSavedAt(new Date());
+        if (!isAutoSave) toast({ title: 'Blog post updated successfully!' });
       } else {
         const { data, error } = await supabase.from('blog_posts').insert([blogData]).select().single();
         if (error) throw error;
-        await associateBlogPostTags(data.id, selectedTags);
-        toast({ title: 'Blog post created successfully!' });
-        navigate(`/admin/blog/edit/${data.id}`);
+        await associateBlogPostTags(data.id, tagsToSave);
+        setLastSavedAt(new Date());
+        if (!isAutoSave) {
+          toast({ title: 'Blog post created successfully!' });
+          navigate(`/admin/blog/edit/${data.id}`);
+        }
       }
     } catch (error: any) {
-      toast({ title: 'Error saving blog post', description: error.message, variant: 'destructive' });
+      if (!isAutoSave) toast({ title: 'Error saving blog post', description: error.message, variant: 'destructive' });
       console.error('Save error:', error);
     } finally { setIsSaving(false); }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, formData, blockNoteContent, selectedTags, debouncedFormData, debouncedBlockNoteContent, debouncedTags]);
+
+  // Keep the ref always pointing at the latest handleSave
+  useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
 
   const handleImageUpload = (urls: string[]) => { if (urls.length > 0) setFormData(prev => ({ ...prev, image_url: urls[0] })); };
   const handleVideoUpload = (urls: string[]) => { if (urls.length > 0) { setFormData(prev => ({ ...prev, video_url: urls[0], video_type: urls[0].includes('youtube') || urls[0].includes('vimeo') ? 'external' : 'file' })); } };
@@ -276,20 +368,35 @@ const BlogEditorEnhanced: React.FC = () => {
           <ArrowLeft className="w-4 h-4" /> Back
         </Link>
       </Button>
+      <div className="hidden md:flex items-center gap-2 mr-2">
+        <div
+          className={`w-2 h-2 rounded-full transition-colors ${isSaving ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'
+            }`}
+        />
+        <span className='text-xs text-muted-foreground mr-4'>
+          {isSaving
+            ? 'Saving…'
+            : lastSavedAt
+              ? `Saved at ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+              : id
+                ? 'Saved'
+                : 'Ready'}
+        </span>
+      </div>
       <Button variant="outline" size="sm" onClick={() => setShowSettings(!showSettings)} className="gap-2">
         <Settings className="w-4 h-4" /> Settings
       </Button>
       <Button variant={focusMode ? 'default' : 'outline'} size="sm" onClick={() => setFocusMode((v) => !v)} className="gap-2 hidden md:inline-flex">
-        <Focus className="w-4 h-4" /> {focusMode ? 'Exit Focus' : 'Focus mode'}
+        <Focus className="w-4 h-4" /> {focusMode ? 'Exit Focus' : 'Focus'}
       </Button>
       <Button variant="outline" size="sm" className="gap-2" disabled={!formData.title}>
         <Eye className="w-4 h-4" /> Preview
       </Button>
-      <Button size="sm" onClick={() => handleSave(false)} disabled={isSaving || !formData.title} className="gap-2">
-        <Save className="w-4 h-4" /> {isSaving ? 'Saving...' : 'Save Draft'}
+      <Button size="sm" onClick={() => handleSave(false, false)} disabled={isSaving || !formData.title} className="gap-2">
+        <Save className="w-4 h-4" /> Save Draft
       </Button>
       {!formData.published && (
-        <Button size="sm" onClick={() => handleSave(true)} disabled={isSaving || !formData.title} className="gap-2">
+        <Button size="sm" onClick={() => handleSave(true, false)} disabled={isSaving || !formData.title} className="gap-2">
           <Save className="w-4 h-4" /> Publish
         </Button>
       )}
@@ -298,70 +405,113 @@ const BlogEditorEnhanced: React.FC = () => {
 
   return (
     <AdminLayout title="Blog Editor" subtitle={id ? 'Editing post' : 'Create new post'} actions={actions} fullWidthContent={focusMode}>
-      <div className={cn("grid gap-8", focusMode ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3")}>
-        <div className={cn(focusMode ? "col-span-1" : "lg:col-span-2")}>
-          <Card>
-            <CardContent className={cn("p-6 space-y-6", focusMode ? "p-0 md:p-4" : "")}>
-              <Input placeholder="Enter your blog post title..." value={formData.title} onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))} className="text-2xl md:text-4xl font-bold border-none bg-transparent px-0 placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0" />
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Slug</Label>
-                <Input value={formData.slug} onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))} className="mt-1" placeholder="blog-post-slug" />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Content</Label>
-                <div className="mt-2">
-                  <BlockNoteEditorComponent
-                    initialContent={blockNoteContent}
-                    loading={contentLoading}
-                    onChange={setBlockNoteContent}
-                    onEditorReady={(editor) => { editorRef.current = editor; }}
-                    placeholder="Type '/' for commands or start writing your blog post..."
-                    className="border rounded-lg p-4"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      <div
+        className={cn(
+          'flex flex-col lg:flex-row gap-8 lg:gap-12 relative max-w-7xl mx-auto transition-all duration-500 ease-in-out',
+          focusMode ? 'opacity-100 max-w-4xl' : ''
+        )}
+      >
+        {/* Main Document Area */}
+        <div className={cn(
+          'flex-1 min-w-0 transition-all duration-500',
+          focusMode ? 'mx-auto w-full' : ''
+        )}>
+          <div className={cn('space-y-8', focusMode ? 'py-12' : 'py-6')}>
+            <Input
+              placeholder="Post Title"
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight border-none bg-transparent px-0 h-auto py-2 placeholder:text-muted-foreground/30 focus-visible:ring-0 focus-visible:ring-offset-0 leading-tight"
+            />
+
+            <div className="prose prose-neutral dark:prose-invert max-w-none">
+              <BlockNoteEditorComponent
+                initialContent={blockNoteContent}
+                loading={contentLoading}
+                onChange={setBlockNoteContent}
+                onEditorReady={onEditorReady}
+                placeholder="Press '/' for commands..."
+                className="min-h-[60vh]"
+              />
+            </div>
+          </div>
         </div>
 
-        {!focusMode && (
-          <div className="space-y-6 animate-slide-in-right">
-            <EnhancedCard variant="glass" title="Publishing" className="animate-scale-in delay-300">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Status</span>
-                  <Badge
-                    variant={formData.published ? 'default' : 'secondary'}
-                    className={cn(
-                      "transition-all duration-200",
-                      formData.published && "bg-gradient-primary text-primary-foreground shadow-glow"
-                    )}
-                  >
-                    {formData.published ? 'Published' : 'Draft'}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Reading Time
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={formData.reading_time}
-                      onChange={(e) => setFormData(prev => ({ ...prev, reading_time: parseInt(e.target.value) || 5 }))}
-                      className="w-16 h-8 text-center border-muted focus:border-primary/50 transition-colors"
-                      min="1"
+        {/* Floating Sidebar */}
+        <div
+          className={cn(
+            'w-full lg:w-[380px] shrink-0 space-y-6 transition-all duration-500',
+            focusMode ? 'opacity-0 translate-x-8 pointer-events-none hidden' : 'opacity-100 translate-x-0 block'
+          )}
+        >
+          <div className="sticky top-24 space-y-6 pb-24 animate-slide-in-right">
+
+            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden animate-scale-in delay-300">
+              <CardContent className="p-6">
+                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 mb-4">
+                  <Hash className="w-3.5 h-3.5" /> Post Settings
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Slug</Label>
+                    <Input value={formData.slug} onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))} className="mt-1" placeholder="blog-post-slug" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Excerpt (Optional)</Label>
+                    <Textarea
+                      value={formData.excerpt}
+                      onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                      className="mt-1"
+                      placeholder="Brief summary used on article cards..."
+                      rows={3}
                     />
-                    <span className="text-sm text-muted-foreground">min</span>
                   </div>
                 </div>
-              </div>
-            </EnhancedCard>
+              </CardContent>
+            </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-4 flex items-center gap-2"><Tag className="w-4 h-4" /> Categories & Series</h3>
+            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden animate-scale-in delay-300">
+              <CardContent className="p-6">
+                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 mb-4">
+                  <Clock className="w-3.5 h-3.5" /> Publishing
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Status</span>
+                    <Badge
+                      variant={formData.published ? 'default' : 'secondary'}
+                      className={cn(
+                        "transition-all duration-200",
+                        formData.published && "bg-gradient-primary text-primary-foreground shadow-glow"
+                      )}
+                    >
+                      {formData.published ? 'Published' : 'Draft'}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      Reading Time
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        value={formData.reading_time}
+                        onChange={(e) => setFormData(prev => ({ ...prev, reading_time: parseInt(e.target.value) || 5 }))}
+                        className="w-16 h-8 text-center border-muted focus:border-primary/50 transition-colors"
+                        min="1"
+                      />
+                      <span className="text-sm text-muted-foreground">min</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden">
+              <CardContent className="p-6">
+                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 mb-4">
+                  <Tag className="w-3.5 h-3.5" /> Categories & Series
+                </h3>
                 <div className="space-y-4">
                   <div>
                     <Label className="text-sm font-medium">Category</Label>
@@ -405,17 +555,21 @@ const BlogEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-4 flex items-center gap-2"><Hash className="w-4 h-4" /> Tags</h3>
+            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden">
+              <CardContent className="p-6">
+                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 mb-4">
+                  <Hash className="w-3.5 h-3.5" /> Tags
+                </h3>
                 <div className="flex gap-2 mb-3"><Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleKeyPress} placeholder="Add a tag..." className="flex-1" /><Button size="sm" variant="outline" onClick={handleAddTag} disabled={!tagInput.trim() || selectedTags.includes(tagInput.trim())}><Plus className="w-4 h-4" /></Button></div>
                 <div className="flex flex-wrap gap-2">{selectedTags.map((tag, index) => (<Badge key={index} variant="secondary" className="gap-1">{tag}<button onClick={() => handleRemoveTag(tag)} className="ml-1 hover:text-destructive"><X className="w-3 h-3" /></button></Badge>))}</div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-4 flex items-center gap-2"><ImageIcon className="w-4 h-4" /> Media</h3>
+            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden">
+              <CardContent className="p-6">
+                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 mb-4">
+                  <ImageIcon className="w-3.5 h-3.5" /> Media
+                </h3>
                 <div className="space-y-4">
                   <FileUpload label="Featured Image" uploadType="image" onUploadComplete={handleImageUpload} maxFiles={1} existingFiles={formData.image_url ? [formData.image_url] : []} simultaneousMode={true} urlInputPlaceholder="https://example.com/image.jpg" enableImageEditing={true} />
                   <FileUpload label="Video (Optional)" uploadType="video" onUploadComplete={handleVideoUpload} maxFiles={1} existingFiles={formData.video_url ? [formData.video_url] : []} simultaneousMode={true} urlInputPlaceholder="https://youtube.com/watch?v=... or direct video URL" />
@@ -423,9 +577,9 @@ const BlogEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-4">SEO Overrides (optional)</h3>
+            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden">
+              <CardContent className="p-6">
+                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-4">SEO Overrides</h3>
                 <div className="space-y-4">
                   <div><Label>OG Title</Label><Input value={formData.og_title} onChange={(e) => setFormData(prev => ({ ...prev, og_title: e.target.value }))} placeholder="Custom title for social shares" /></div>
                   <div><Label>OG Description</Label><Textarea value={formData.og_description} onChange={(e) => setFormData(prev => ({ ...prev, og_description: e.target.value }))} rows={3} placeholder="Custom description for social shares" /></div>
@@ -434,7 +588,7 @@ const BlogEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
           </div>
-        )}
+        </div>
       </div>
     </AdminLayout>
   );

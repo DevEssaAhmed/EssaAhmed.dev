@@ -1,5 +1,5 @@
 import { OptimizedImage } from "@/components/OptimizedImage";
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Link from "next/link";
 import { cn } from '@/lib/utils';
 import { useNavigate, useParams } from '@/lib/router-compat';
@@ -44,7 +44,7 @@ import {
 import BlockNoteEditorComponent, { BlockNoteContent, markdownToBlocks, blocksToMarkdown } from '@/components/editor/BlockNoteEditor';
 import { BlockNoteEditor } from '@blocknote/core';
 import AdminLayout from '@/components/admin/layout/AdminLayout';
-import { Skeleton } from '@/components/ui/skeleton';
+
 import { PerformanceSkeleton } from '@/components/ui/performance-skeleton';
 import { Switch } from '@/components/ui/switch';
 import FileUpload from '@/components/FileUpload';
@@ -77,7 +77,7 @@ const ProjectEditorEnhanced: React.FC = () => {
     og_image: '',
   });
 
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
 
@@ -86,57 +86,67 @@ const ProjectEditorEnhanced: React.FC = () => {
   const [contentLoading, setContentLoading] = useState(!!id);
   const [blockNoteContent, setBlockNoteContent] = useState<BlockNoteContent>([]);
 
+  // Last save timestamp for display
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+
   // Debounced mirrors for autosave behavior
   const debouncedBlockNoteContent = useDebounce(blockNoteContent, 3000);
   const debouncedFormData = useDebounce(formData, 3000);
   const debouncedTags = useDebounce(selectedTags, 3000);
 
+  // Stable ref to latest handleSave, used by the Ctrl+S listener to avoid stale closures
+  const handleSaveRef = useRef<((isAutoSave?: boolean) => Promise<void>) | null>(null);
+
+  // Stable callback for onEditorReady — must be at component scope (not inline) to avoid
+  // creating a new function reference on every render, which would re-trigger the
+  // useEffect inside BlockNoteEditorComponent and cause subtle focus-loss bugs.
+  const onEditorReady = useCallback((editor: BlockNoteEditor) => {
+    editorRef.current = editor;
+  }, []);
+
   const fetchProject = React.useCallback(async () => {
     if (!id) return;
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: projectData, error } = await supabase
         .from('projects')
         .select('*')
         .eq('id', id)
         .single();
       if (error) throw error;
 
-      setFormData((prev) => ({
-        ...prev,
-        title: data.title || '',
-        description: data.description || '',
-        image_url: data.image_url || '',
-        additional_images: Array.isArray(data.additional_images)
-          ? data.additional_images.join(', ')
-          : data.additional_images || '',
-        featured: data.featured || false,
-        category_id: data.category_id || '',
+      const loadedFormData = {
+        title: projectData.title || '',
+        description: projectData.description || '',
+        image_url: projectData.image_url || '',
+        additional_images: Array.isArray(projectData.additional_images)
+          ? projectData.additional_images.join(', ')
+          : projectData.additional_images || '',
+        featured: projectData.featured || false,
+        category_id: projectData.category_id || '',
         category_name: '',
-        demo_url: (data as any).demo_url || '',
-        github_url: (data as any).github_url || '',
-        demo_video_url: (data as any).demo_video_url || '',
-        demo_video_type: (data as any).demo_video_type || 'youtube',
-        og_title: (data as any).og_title || '',
-        og_description: (data as any).og_description || '',
-        og_image: (data as any).og_image || '',
-      }));
+        demo_url: projectData.demo_url || '',
+        github_url: projectData.github_url || '',
+        demo_video_url: projectData.demo_video_url || '',
+        demo_video_type: (projectData.demo_video_type as 'youtube' | 'vimeo' | 'external' | 'file') || 'youtube',
+        og_title: projectData.og_title || '',
+        og_description: projectData.og_description || '',
+        og_image: projectData.og_image || '',
+      };
+      setFormData((prev) => ({ ...prev, ...loadedFormData }));
 
       // Load content - check if BlockNote format (array) or old Yoopta format (object)
       let contentToSet: BlockNoteContent = [];
-      const contentJsonb = data.description_jsonb;
-      const contentMd = data.description;
+      const contentJsonb = projectData.description_jsonb;
+      const contentMd = projectData.description;
 
       if (contentJsonb && Array.isArray(contentJsonb) && contentJsonb.length > 0) {
-        // Already BlockNote format
         contentToSet = contentJsonb as BlockNoteContent;
       } else if (contentJsonb && typeof contentJsonb === 'object' && !Array.isArray(contentJsonb) && Object.keys(contentJsonb).length > 0) {
-        // Old Yoopta format - convert from markdown
         if (contentMd && contentMd.trim()) {
           contentToSet = markdownToBlocks(contentMd) as BlockNoteContent;
         }
       } else if (contentMd && contentMd.trim()) {
-        // Just markdown
         contentToSet = markdownToBlocks(contentMd) as BlockNoteContent;
       }
 
@@ -146,7 +156,11 @@ const ProjectEditorEnhanced: React.FC = () => {
       setContentLoading(false);
 
       const tags = await getProjectTags(id);
-      setSelectedTags(tags.map((t: any) => t.name));
+      const loadedTags = tags.map((t: any) => t.name as string);
+      setSelectedTags(loadedTags);
+
+      // Seed lastSaved so the first debounce tick doesn't trigger a spurious autosave
+      setLastSaved({ formData: loadedFormData, content: contentToSet, tags: loadedTags });
     } catch (error: any) {
       toast({
         title: 'Error loading project',
@@ -176,7 +190,7 @@ const ProjectEditorEnhanced: React.FC = () => {
   }, [id, fetchProject]);
 
   // Save in both Markdown (description) and JSONB (content_jsonb).
-  const handleSave = React.useCallback(
+  const handleSave = useCallback(
     async (isAutoSave = false) => {
       if (!debouncedFormData.title.trim()) return;
       if (isSaving) return;
@@ -185,16 +199,18 @@ const ProjectEditorEnhanced: React.FC = () => {
       try {
         const markdownString = editorRef.current ? await blocksToMarkdown(editorRef.current) : '';
 
-        const payload: any = {
+        const additionalImagesArray = Array.isArray(debouncedFormData.additional_images)
+          ? debouncedFormData.additional_images
+          : debouncedFormData.additional_images
+            ? debouncedFormData.additional_images.split(',').map((s: string) => s.trim()).filter(Boolean)
+            : [];
+
+        const payload = {
           title: debouncedFormData.title,
           description: markdownString,
           description_jsonb: debouncedBlockNoteContent,
           image_url: debouncedFormData.image_url || null,
-          additional_images: debouncedFormData.additional_images
-            ? debouncedFormData.additional_images
-              .split(',')
-              .map((s) => s.trim())
-            : [],
+          additional_images: additionalImagesArray,
           featured: debouncedFormData.featured,
           category_id: debouncedFormData.category_id || null,
           demo_url: debouncedFormData.demo_url || null,
@@ -205,8 +221,7 @@ const ProjectEditorEnhanced: React.FC = () => {
             : 'youtube',
           og_title: debouncedFormData.og_title || debouncedFormData.title,
           og_description: debouncedFormData.og_description || '',
-          og_image:
-            debouncedFormData.og_image || debouncedFormData.image_url || null,
+          og_image: debouncedFormData.og_image || debouncedFormData.image_url || null,
         };
 
         let projectId = id;
@@ -217,16 +232,18 @@ const ProjectEditorEnhanced: React.FC = () => {
             .eq('id', id);
           if (error) throw error;
         } else {
-          const { data, error } = await supabase
+          const { data: insertData, error } = await supabase
             .from('projects')
             .insert([payload])
             .select('id')
             .single();
           if (error) throw error;
-          projectId = data?.id;
+          projectId = insertData?.id;
         }
 
         if (projectId) await associateProjectTags(projectId, debouncedTags);
+
+        setLastSavedAt(new Date());
 
         if (!isAutoSave) {
           toast({
@@ -254,54 +271,57 @@ const ProjectEditorEnhanced: React.FC = () => {
       debouncedTags,
       navigate,
       toast,
-      isSaving,
+      // NOTE: isSaving intentionally excluded — including it makes useCallback recreate
+      // `handleSave` every save cycle, which re-triggers the keyboard listener useEffect.
     ]
   );
 
-  // Track last saved version
+  // Track last saved version (seeded by fetchProject to prevent spurious saves on load)
   const [lastSaved, setLastSaved] = useState<{
     formData: typeof formData;
     content: BlockNoteContent;
     tags: string[];
   } | null>(null);
 
-  const didInit = React.useRef(false);
+  // Keep the ref always pointing at the latest handleSave
+  useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
 
+  // Ctrl/Cmd+S keyboard shortcut — uses a ref so the listener is never re-added
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        handleSaveRef.current?.(false)?.catch(console.error);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Autosave: fire when debounced state differs from lastSaved snapshot.
+  // NOTE: isSaving and handleSave intentionally excluded from deps to prevent
+  // infinite re-run loops when save toggles isSaving state.
   useEffect(() => {
     if (!id) return;
-    if (isSaving) return;
-
-    if (!didInit.current) {
-      didInit.current = true;
-      return;
-    }
+    if (!lastSaved) return;
 
     const hasChanges =
-      JSON.stringify(debouncedFormData) !==
-      JSON.stringify(lastSaved?.formData) ||
-      JSON.stringify(debouncedBlockNoteContent) !==
-      JSON.stringify(lastSaved?.content) ||
-      JSON.stringify(debouncedTags) !== JSON.stringify(lastSaved?.tags);
+      JSON.stringify(debouncedFormData) !== JSON.stringify(lastSaved.formData) ||
+      JSON.stringify(debouncedBlockNoteContent) !== JSON.stringify(lastSaved.content) ||
+      JSON.stringify(debouncedTags) !== JSON.stringify(lastSaved.tags);
 
     if (hasChanges && debouncedFormData.title.trim()) {
-      (async () => {
-        await handleSave(true);
-        setLastSaved({
-          formData: debouncedFormData,
-          content: debouncedBlockNoteContent,
-          tags: debouncedTags,
-        });
-      })();
+      // Snapshot immediately to prevent double-fires during async save
+      setLastSaved({
+        formData: debouncedFormData,
+        content: debouncedBlockNoteContent,
+        tags: debouncedTags,
+      });
+      handleSaveRef.current?.(true)?.catch(console.error);
     }
-  }, [
-    id,
-    debouncedFormData,
-    debouncedBlockNoteContent,
-    debouncedTags,
-    handleSave,
-    isSaving,
-    lastSaved,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, debouncedFormData, debouncedBlockNoteContent, debouncedTags, lastSaved]);
 
   const handleAddTag = () => {
     if (tagInput.trim() && !selectedTags.includes(tagInput.trim())) {
@@ -453,11 +473,17 @@ const ProjectEditorEnhanced: React.FC = () => {
       </Button>
       <div className='hidden md:flex items-center gap-2'>
         <div
-          className={`w-2 h-2 rounded-full ${isSaving ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'
+          className={`w-2 h-2 rounded-full transition-colors ${isSaving ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'
             }`}
         />
         <span className='text-xs text-muted-foreground'>
-          {isSaving ? 'Saving...' : id ? 'Saved' : 'Ready'}
+          {isSaving
+            ? 'Saving…'
+            : lastSavedAt
+              ? `Saved at ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+              : id
+                ? 'Saved'
+                : 'Ready'}
         </span>
       </div>
       <Button
@@ -498,48 +524,50 @@ const ProjectEditorEnhanced: React.FC = () => {
     >
       <div
         className={cn(
-          'grid gap-8',
-          focusMode ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'
+          'flex flex-col lg:flex-row gap-8 lg:gap-12 relative max-w-7xl mx-auto transition-all duration-500 ease-in-out',
+          focusMode ? 'opacity-100 max-w-4xl' : ''
         )}
       >
-        <div className={cn(focusMode ? 'col-span-1' : 'lg:col-span-2')}>
-          <Card>
-            <CardContent
-              className={cn('p-6 space-y-6', focusMode ? 'p-0 md:p-4' : '')}
-            >
-              <Input
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, title: e.target.value }))
-                }
-                placeholder='Enter your project title...'
-                className='text-2xl md:text-4xl font-bold border-none bg-transparent px-0 placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0'
+        {/* Main Document Area */}
+        <div className={cn(
+          'flex-1 min-w-0 transition-all duration-500',
+          focusMode ? 'mx-auto w-full' : ''
+        )}>
+          <div className={cn('space-y-8', focusMode ? 'py-12' : 'py-6')}>
+            <Input
+              value={formData.title}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
+              placeholder='Project Title'
+              className='text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight border-none bg-transparent px-0 h-auto py-2 placeholder:text-muted-foreground/30 focus-visible:ring-0 focus-visible:ring-offset-0 leading-tight'
+            />
+
+            <div className="prose prose-neutral dark:prose-invert max-w-none">
+              <BlockNoteEditorComponent
+                initialContent={blockNoteContent}
+                loading={contentLoading}
+                onChange={setBlockNoteContent}
+                onEditorReady={onEditorReady}
+                placeholder="Press '/' for commands..."
+                className="min-h-[60vh]"
               />
-              <div>
-                <Label className='text-sm font-medium text-muted-foreground'>
-                  Project Description
-                </Label>
-                <div className='mt-2'>
-                  <BlockNoteEditorComponent
-                    initialContent={blockNoteContent}
-                    loading={contentLoading}
-                    onChange={setBlockNoteContent}
-                    onEditorReady={(editor) => { editorRef.current = editor; }}
-                    placeholder="Type '/' for commands or start writing your project description..."
-                    className="border rounded-lg p-4"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
-        {!focusMode && (
-          <div className='space-y-6'>
-            <Card className='bg-card/50 backdrop-blur-sm'>
-              <CardContent className='p-6 space-y-4'>
-                <h3 className='font-semibold text-foreground flex items-center gap-2'>
-                  <Folder className='w-4 h-4' /> Project Status
+        {/* Floating Sidebar */}
+        <div
+          className={cn(
+            'w-full lg:w-[380px] shrink-0 space-y-6 transition-all duration-500',
+            focusMode ? 'opacity-0 translate-x-8 pointer-events-none hidden' : 'opacity-100 translate-x-0 block'
+          )}
+        >
+          <div className="sticky top-24 space-y-6 pb-24">
+            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
+              <CardContent className='p-5 space-y-4'>
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2'>
+                  <Folder className='w-3.5 h-3.5' /> Publishing
                 </h3>
                 <div className='flex items-center justify-between'>
                   <span className='text-sm text-muted-foreground'>
@@ -555,10 +583,10 @@ const ProjectEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className='bg-card/50 backdrop-blur-sm'>
+            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
               <CardContent className='p-6 space-y-6'>
-                <h3 className='font-semibold text-foreground flex items-center gap-2'>
-                  <Tag className='w-4 h-4' /> Category &amp; Tags
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2'>
+                  <Tag className='w-3.5 h-3.5' /> Category & Tags
                 </h3>
                 <div>
                   <Label>Select Category</Label>
@@ -607,7 +635,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                     <Input
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
-                      onKeyPress={handleKeyPress}
+                      onKeyDown={handleKeyPress}
                       placeholder='Add tag and press Enter'
                     />
                     <Button
@@ -641,10 +669,10 @@ const ProjectEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className='bg-card/50 backdrop-blur-sm'>
+            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
               <CardContent className='p-6 space-y-4'>
-                <h3 className='font-semibold text-foreground flex items-center gap-2'>
-                  <LinkIcon className='w-4 h-4' /> Links
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2'>
+                  <LinkIcon className='w-3.5 h-3.5' /> Links
                 </h3>
                 <div className='space-y-2'>
                   <div>
@@ -679,10 +707,10 @@ const ProjectEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className='bg-card/50 backdrop-blur-sm'>
+            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
               <CardContent className='p-6 space-y-4'>
-                <h3 className='font-semibold text-foreground flex items-center gap-2'>
-                  <Play className='w-4 h-4' /> Demo Video (Optional)
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2'>
+                  <Play className='w-3.5 h-3.5' /> Demo Video
                 </h3>
                 <FileUpload
                   label='Demo Video'
@@ -698,10 +726,10 @@ const ProjectEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className='bg-card/50 backdrop-blur-sm'>
+            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
               <CardContent className='p-6 space-y-6'>
-                <h3 className='font-semibold text-foreground flex items-center gap-2'>
-                  <Folder className='w-4 h-4' /> Images
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2'>
+                  <Folder className='w-3.5 h-3.5' /> Media
                 </h3>
                 <div className='space-y-2'>
                   {formData.image_url ? (
@@ -775,30 +803,37 @@ const ProjectEditorEnhanced: React.FC = () => {
                 </div>
 
                 <div className='border-t border-border pt-4'>
-                  <Label htmlFor='additional_images'>Additional Images</Label>
-                  <Textarea
-                    id='additional_images'
-                    value={formData.additional_images}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        additional_images: e.target.value,
-                      }))
-                    }
-                    rows={3}
-                    className='mt-1 bg-background/50'
-                    placeholder='https://example.com/img1.jpg, https://example.com/img2.jpg'
-                  />
-                  <p className='text-xs text-muted-foreground mt-1'>
-                    Separate URLs with commas
-                  </p>
+                  <Label>Additional Images</Label>
+                  <div className='mt-1'>
+                    <FileUpload
+                      label='Additional Images'
+                      uploadType='image'
+                      multiple
+                      maxFiles={10}
+                      existingFiles={
+                        formData.additional_images
+                          ? formData.additional_images
+                            .split(',')
+                            .map((s: string) => s.trim())
+                            .filter(Boolean)
+                          : []
+                      }
+                      onUploadComplete={(urls) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          additional_images: urls.join(', '),
+                        }))
+                      }
+                      simultaneousMode={true}
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className='p-4'>
-                <h3 className='font-semibold mb-4'>SEO Overrides (optional)</h3>
+            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
+              <CardContent className='p-6'>
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-4'>SEO Overrides</h3>
                 <div className='space-y-4'>
                   <div>
                     <Label>OG Title</Label>
@@ -817,7 +852,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                     <Label>OG Description</Label>
                     <Textarea
                       value={formData.og_description}
-                      onChange={(e) =>
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                         setFormData((prev) => ({
                           ...prev,
                           og_description: e.target.value,
@@ -844,7 +879,7 @@ const ProjectEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
           </div>
-        )}
+        </div>
       </div>
     </AdminLayout>
   );

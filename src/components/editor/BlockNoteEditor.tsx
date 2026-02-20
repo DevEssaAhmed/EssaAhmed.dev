@@ -35,7 +35,7 @@ async function uploadFile(file: File): Promise<string> {
     bucket = 'videos';
   }
 
-  const { data, error } = await supabase.storage.from(bucket).upload(fileName, file, {
+  const { error } = await supabase.storage.from(bucket).upload(fileName, file, {
     contentType: file.type,
     upsert: true,
   });
@@ -165,9 +165,13 @@ export function markdownToBlocks(markdown: string): PartialBlock[] {
     else if (/^\d+\.\s/.test(line)) {
       blocks.push({ type: 'numberedListItem', content: parseInlineContent(line.replace(/^\d+\.\s/, '')) });
     }
-    // Handle blockquotes - skip for now, BlockNote doesn't have native quote blocks
+    // Handle blockquotes — rendered as a proper quote paragraph with styling
     else if (line.startsWith('> ')) {
-      blocks.push({ type: 'paragraph', content: parseInlineContent(line.slice(2)) });
+      blocks.push({
+        type: 'paragraph',
+        props: { textColor: 'gray', backgroundColor: 'gray' },
+        content: parseInlineContent(line.slice(2)),
+      });
     }
     // Handle images
     else if (line.match(/^!\[.*?\]\((.+?)\)$/)) {
@@ -176,9 +180,9 @@ export function markdownToBlocks(markdown: string): PartialBlock[] {
         blocks.push({ type: 'image', props: { url: match[1] } });
       }
     }
-    // Handle horizontal rules - skip
+    // Handle horizontal rules — render as an empty paragraph (BlockNote has no HR)
     else if (line === '---' || line === '***') {
-      // BlockNote doesn't have HR, skip
+      blocks.push({ type: 'paragraph', content: '' });
     }
     // Handle paragraphs with inline formatting
     else if (line.trim()) {
@@ -227,6 +231,43 @@ const EditorSkeleton: React.FC<{ className?: string }> = ({ className }) => (
   </div>
 );
 
+// Error boundary to gracefully catch editor crashes
+class EditorErrorBoundary extends React.Component<
+  { children: React.ReactNode; className?: string },
+  { hasError: boolean; error: string }
+> {
+  constructor(props: { children: React.ReactNode; className?: string }) {
+    super(props);
+    this.state = { hasError: false, error: '' };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error: error.message };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('BlockNote editor error:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className={`flex flex-col items-center justify-center p-8 border border-destructive/30 rounded-lg bg-destructive/5 ${this.props.className || ''}`}>
+          <p className="text-sm font-medium text-destructive">Editor encountered an error</p>
+          <p className="text-xs text-muted-foreground mt-1">{this.state.error}</p>
+          <button
+            className="mt-3 text-xs underline text-muted-foreground hover:text-foreground"
+            onClick={() => this.setState({ hasError: false, error: '' })}
+          >
+            Try again
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const BlockNoteEditorComponent: React.FC<BlockNoteEditorProps> = ({
   initialContent,
   loading = false,
@@ -239,22 +280,22 @@ const BlockNoteEditorComponent: React.FC<BlockNoteEditorProps> = ({
   const { theme } = useTheme();
   const editorReadyRef = useRef(false);
 
-  // Create editor only when we have content (or explicitly no content)
-  // This follows BlockNote's uncontrolled component pattern
+  // Create the editor exactly once when loading is done.
+  // IMPORTANT: `initialContent` is intentionally excluded from deps — BlockNote
+  // uses an uncontrolled pattern. Re-creating the editor on every content change
+  // would destroy and reset the document on each keystroke.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const editor = useMemo(() => {
-    // If loading, don't create editor yet
     if (loading) return null;
 
-    // Determine initial content
-    const content = initialContent && initialContent.length > 0
-      ? initialContent
-      : undefined;
+    const content = initialContent && initialContent.length > 0 ? initialContent : undefined;
 
     return BlockNoteEditor.create({
       initialContent: content,
       uploadFile,
     });
-  }, [loading, initialContent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   // Notify parent when editor is ready
   useEffect(() => {
@@ -267,8 +308,7 @@ const BlockNoteEditorComponent: React.FC<BlockNoteEditorProps> = ({
   // Handle content changes
   const handleChange = useCallback(() => {
     if (!editor) return;
-    const content = editor.document;
-    onChange(content);
+    onChange(editor.document);
   }, [editor, onChange]);
 
   // Show loading state
@@ -277,15 +317,17 @@ const BlockNoteEditorComponent: React.FC<BlockNoteEditorProps> = ({
   }
 
   return (
-    <div className={`blocknote-editor-wrapper ${className}`} data-theme={theme}>
-      <BlockNoteView
-        editor={editor}
-        onChange={handleChange}
-        editable={editable}
-        theme={theme}
-        data-color-scheme={theme}
-      />
-    </div>
+    <EditorErrorBoundary className={className}>
+      <div className={`blocknote-editor-wrapper ${className}`} data-theme={theme}>
+        <BlockNoteView
+          editor={editor}
+          onChange={handleChange}
+          editable={editable}
+          theme={theme}
+          data-color-scheme={theme}
+        />
+      </div>
+    </EditorErrorBoundary>
   );
 };
 
