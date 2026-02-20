@@ -10,6 +10,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useCallback,
 } from "react";
 
 type NavigateOptions = { replace?: boolean };
@@ -135,7 +136,7 @@ export const useParams = <T extends Params = Params>(): T => {
 export const useNavigate = () => {
   const router = useRouter();
 
-  return (to: string | number, options?: NavigateOptions) => {
+  return useCallback((to: string | number, options?: NavigateOptions) => {
     if (typeof to === "number") {
       if (typeof window !== "undefined") {
         window.history.go(to);
@@ -149,7 +150,7 @@ export const useNavigate = () => {
     }
 
     router.push(to);
-  };
+  }, [router]);
 };
 
 export const useLocation = (): LocationShape => {
@@ -176,11 +177,11 @@ export const useLocation = (): LocationShape => {
     };
   }, []);
 
-  return {
+  return useMemo(() => ({
     pathname,
     search: locationState.search,
     hash: locationState.hash,
-  };
+  }), [pathname, locationState.search, locationState.hash]);
 };
 
 export const LinkAdapter = ({ to, replace, children, ...props }: LinkProps) => {

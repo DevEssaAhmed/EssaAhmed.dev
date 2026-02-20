@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from "next/link";
 import { cn } from '@/lib/utils';
 
@@ -11,19 +11,19 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { EnhancedCard } from '@/components/ui/enhanced-card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  ArrowLeft, 
-  Save, 
-  Eye, 
-  Settings, 
-  Image as ImageIcon, 
+import {
+  ArrowLeft,
+  Save,
+  Eye,
+  Settings,
+  Image as ImageIcon,
   Hash,
   Clock,
   Tag,
@@ -36,7 +36,7 @@ import { useToast } from '@/hooks/use-toast';
 import { createOrGetCategory, getAllCategories, associateBlogPostTags, getBlogPostTags } from '@/lib/tagUtils';
 import FileUpload from '@/components/FileUpload';
 import BlockNoteEditorComponent, { BlockNoteContent, markdownToBlocks, blocksToMarkdown } from '@/components/editor/BlockNoteEditor';
-import { useCreateBlockNote } from '@blocknote/react';
+import { BlockNoteEditor } from '@blocknote/core';
 import AdminLayout from '@/components/admin/layout/AdminLayout';
 import { PerformanceSkeleton } from '@/components/ui/performance-skeleton';
 
@@ -69,7 +69,7 @@ const BlogEditorEnhanced: React.FC = () => {
   const [blockNoteContent, setBlockNoteContent] = useState<BlockNoteContent>([]);
   const [showNewSeriesDialog, setShowNewSeriesDialog] = useState(false);
   const [newSeries, setNewSeries] = useState({ title: '', slug: '', description: '' });
-  
+
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -89,9 +89,10 @@ const BlogEditorEnhanced: React.FC = () => {
   });
 
   // BlockNote editor reference
-  const editor = useCreateBlockNote();
+  const editorRef = useRef<BlockNoteEditor | null>(null);
+  const [contentLoading, setContentLoading] = useState(!!id);
 
-    const loadCategories = useCallback(async () => {
+  const loadCategories = useCallback(async () => {
     try { const allCategories = await getAllCategories(); setCategories(allCategories || []); }
     catch (err) { console.error('Error loading categories', err); setCategories([]); }
   }, []);
@@ -108,7 +109,7 @@ const BlogEditorEnhanced: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select(`*, categories (id, name), series (id, title)`) 
+        .select(`*, categories (id, name), series (id, title)`)
         .eq('id', id)
         .single();
       if (error) throw error;
@@ -154,11 +155,12 @@ const BlogEditorEnhanced: React.FC = () => {
       if (contentToSet.length > 0) {
         setBlockNoteContent(contentToSet);
       }
+      setContentLoading(false);
     } catch (error: any) {
       console.error('Fetch post error:', error);
       toast({ title: 'Error loading blog post', description: error.message, variant: 'destructive' });
       navigate('/admin');
-    } finally { setIsLoading(false); }
+    } finally { setIsLoading(false); setContentLoading(false); }
   }, [id, navigate, toast]);
 
   useEffect(() => {
@@ -212,7 +214,7 @@ const BlogEditorEnhanced: React.FC = () => {
     if (!formData.title.trim()) return;
     setIsSaving(true);
     try {
-      const md = editor ? await blocksToMarkdown(editor) : '';
+      const md = editorRef.current ? await blocksToMarkdown(editorRef.current) : '';
       const readingTime = estimateReadingTime(md);
 
       // Auto-generate OG if empty
@@ -308,11 +310,13 @@ const BlogEditorEnhanced: React.FC = () => {
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">Content</Label>
                 <div className="mt-2">
-                  <BlockNoteEditorComponent 
-                    value={blockNoteContent} 
-                    onChange={setBlockNoteContent} 
-                    placeholder="Type '/' for commands or start writing your blog post..." 
-                    className="border rounded-lg p-4" 
+                  <BlockNoteEditorComponent
+                    initialContent={blockNoteContent}
+                    loading={contentLoading}
+                    onChange={setBlockNoteContent}
+                    onEditorReady={(editor) => { editorRef.current = editor; }}
+                    placeholder="Type '/' for commands or start writing your blog post..."
+                    className="border rounded-lg p-4"
                   />
                 </div>
               </div>
@@ -326,7 +330,7 @@ const BlogEditorEnhanced: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Status</span>
-                  <Badge 
+                  <Badge
                     variant={formData.published ? 'default' : 'secondary'}
                     className={cn(
                       "transition-all duration-200",
@@ -342,12 +346,12 @@ const BlogEditorEnhanced: React.FC = () => {
                     Reading Time
                   </span>
                   <div className="flex items-center gap-2">
-                    <Input 
-                      type="number" 
-                      value={formData.reading_time} 
-                      onChange={(e) => setFormData(prev => ({ ...prev, reading_time: parseInt(e.target.value) || 5 }))} 
-                      className="w-16 h-8 text-center border-muted focus:border-primary/50 transition-colors" 
-                      min="1" 
+                    <Input
+                      type="number"
+                      value={formData.reading_time}
+                      onChange={(e) => setFormData(prev => ({ ...prev, reading_time: parseInt(e.target.value) || 5 }))}
+                      className="w-16 h-8 text-center border-muted focus:border-primary/50 transition-colors"
+                      min="1"
                     />
                     <span className="text-sm text-muted-foreground">min</span>
                   </div>

@@ -11,10 +11,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  ArrowLeft, 
-  User, 
-  Save, 
+import {
+  ArrowLeft,
+  User,
+  Save,
   X,
   Plus,
   MapPin,
@@ -30,7 +30,7 @@ import AdminLayout from "@/components/admin/layout/AdminLayout";
 import BlockNoteEditorComponent, { BlockNoteContent, markdownToBlocks, blocksToMarkdown } from "@/components/editor/BlockNoteEditor";
 import HeroStatsManager from "@/components/admin/HeroStatsManager";
 import { supabase } from "@/integrations/supabase/client";
-import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteEditor } from "@blocknote/core";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -61,8 +61,9 @@ const ProfileManagePage = () => {
 
   // BlockNote About content
   const [aboutContent, setAboutContent] = useState<BlockNoteContent>([]);
-  const editorRef = useCreateBlockNote();
+  const editorRef = useRef<BlockNoteEditor | null>(null);
   const hydratedSignatureRef = useRef<string | null>(null);
+  const [contentLoading, setContentLoading] = useState(true);
 
   // Populate form when profile loads
   useEffect(() => {
@@ -95,7 +96,7 @@ const ProfileManagePage = () => {
     if (json && Array.isArray(json) && json.length > 0) {
       contentToSet = json as BlockNoteContent;
       signature = `json:${JSON.stringify(json)}`;
-    } 
+    }
     // Check if it's old Yoopta format (object with keys) - convert from markdown
     else if (json && typeof json === 'object' && !Array.isArray(json) && Object.keys(json).length > 0) {
       // Old Yoopta format - use markdown fallback
@@ -114,12 +115,13 @@ const ProfileManagePage = () => {
     hydratedSignatureRef.current = signature;
 
     setAboutContent(contentToSet);
+    setContentLoading(false);
   }, [profile]);
 
   const onSubmit = async (data: ProfileFormData) => {
     setSaving(true);
     try {
-      const md = editorRef ? await blocksToMarkdown(editorRef) : '';
+      const md = editorRef.current ? await blocksToMarkdown(editorRef.current) : '';
       const updateData: any = { ...data, skills, avatar_url: avatarUrl, about_markdown: md, about_content_jsonb: aboutContent };
       await updateProfile(updateData as any);
       toast.success("Profile updated successfully!");
@@ -215,15 +217,15 @@ const ProfileManagePage = () => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 w-full">
-                <FileUpload 
-                  label="Upload Avatar" 
-                  uploadType="avatar" 
-                  accept="image/*" 
-                  maxFiles={1} 
-                  maxSizeMB={5} 
-                  onUploadComplete={handleAvatarUpload} 
-                  existingFiles={avatarUrl ? [avatarUrl] : []} 
-                  showPreview={false} 
+                <FileUpload
+                  label="Upload Avatar"
+                  uploadType="avatar"
+                  accept="image/*"
+                  maxFiles={1}
+                  maxSizeMB={5}
+                  onUploadComplete={handleAvatarUpload}
+                  existingFiles={avatarUrl ? [avatarUrl] : []}
+                  showPreview={false}
                 />
                 <div className="mt-3">
                   <Button type="button" variant="outline" onClick={handleRemoveAvatar} disabled={!avatarUrl}>
@@ -267,11 +269,13 @@ const ProfileManagePage = () => {
         <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
           <CardHeader><CardTitle>About Page Content</CardTitle><CardDescription>Rich content displayed on your public About page</CardDescription></CardHeader>
           <CardContent>
-            <BlockNoteEditorComponent 
-              value={aboutContent} 
-              onChange={setAboutContent} 
-              placeholder="Tell your story... Use / to insert headings, lists, images, etc." 
-              className="border rounded-lg p-4" 
+            <BlockNoteEditorComponent
+              initialContent={aboutContent}
+              loading={contentLoading}
+              onChange={setAboutContent}
+              onEditorReady={(editor) => { editorRef.current = editor; }}
+              placeholder="Tell your story... Use / to insert headings, lists, images, etc."
+              className="border rounded-lg p-4"
             />
           </CardContent>
         </Card>

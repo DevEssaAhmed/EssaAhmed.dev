@@ -1,5 +1,5 @@
 import { OptimizedImage } from "@/components/OptimizedImage";
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import Link from "next/link";
 import { cn } from '@/lib/utils';
 import { useNavigate, useParams } from '@/lib/router-compat';
@@ -42,9 +42,10 @@ import {
 } from 'lucide-react';
 
 import BlockNoteEditorComponent, { BlockNoteContent, markdownToBlocks, blocksToMarkdown } from '@/components/editor/BlockNoteEditor';
-import { useCreateBlockNote } from '@blocknote/react';
+import { BlockNoteEditor } from '@blocknote/core';
 import AdminLayout from '@/components/admin/layout/AdminLayout';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PerformanceSkeleton } from '@/components/ui/performance-skeleton';
 import { Switch } from '@/components/ui/switch';
 import FileUpload from '@/components/FileUpload';
 
@@ -81,7 +82,8 @@ const ProjectEditorEnhanced: React.FC = () => {
   const [tagInput, setTagInput] = useState('');
 
   // BlockNote editor
-  const editor = useCreateBlockNote();
+  const editorRef = useRef<BlockNoteEditor | null>(null);
+  const [contentLoading, setContentLoading] = useState(!!id);
   const [blockNoteContent, setBlockNoteContent] = useState<BlockNoteContent>([]);
 
   // Debounced mirrors for autosave behavior
@@ -141,6 +143,7 @@ const ProjectEditorEnhanced: React.FC = () => {
       if (contentToSet.length > 0) {
         setBlockNoteContent(contentToSet);
       }
+      setContentLoading(false);
 
       const tags = await getProjectTags(id);
       setSelectedTags(tags.map((t: any) => t.name));
@@ -153,6 +156,7 @@ const ProjectEditorEnhanced: React.FC = () => {
       navigate('/admin');
     } finally {
       setIsLoading(false);
+      setContentLoading(false);
     }
   }, [id, navigate, toast]);
 
@@ -179,7 +183,7 @@ const ProjectEditorEnhanced: React.FC = () => {
 
       setIsSaving(true);
       try {
-        const markdownString = editor ? await blocksToMarkdown(editor) : '';
+        const markdownString = editorRef.current ? await blocksToMarkdown(editorRef.current) : '';
 
         const payload: any = {
           title: debouncedFormData.title,
@@ -188,8 +192,8 @@ const ProjectEditorEnhanced: React.FC = () => {
           image_url: debouncedFormData.image_url || null,
           additional_images: debouncedFormData.additional_images
             ? debouncedFormData.additional_images
-                .split(',')
-                .map((s) => s.trim())
+              .split(',')
+              .map((s) => s.trim())
             : [],
           featured: debouncedFormData.featured,
           category_id: debouncedFormData.category_id || null,
@@ -244,7 +248,7 @@ const ProjectEditorEnhanced: React.FC = () => {
     },
     [
       id,
-      editor,
+      editorRef,
       debouncedFormData,
       debouncedBlockNoteContent,
       debouncedTags,
@@ -274,9 +278,9 @@ const ProjectEditorEnhanced: React.FC = () => {
 
     const hasChanges =
       JSON.stringify(debouncedFormData) !==
-        JSON.stringify(lastSaved?.formData) ||
+      JSON.stringify(lastSaved?.formData) ||
       JSON.stringify(debouncedBlockNoteContent) !==
-        JSON.stringify(lastSaved?.content) ||
+      JSON.stringify(lastSaved?.content) ||
       JSON.stringify(debouncedTags) !== JSON.stringify(lastSaved?.tags);
 
     if (hasChanges && debouncedFormData.title.trim()) {
@@ -421,8 +425,8 @@ const ProjectEditorEnhanced: React.FC = () => {
               ? 'youtube'
               : 'vimeo'
             : u.startsWith('http')
-            ? 'external'
-            : 'file',
+              ? 'external'
+              : 'file',
       }));
     }
   };
@@ -434,17 +438,7 @@ const ProjectEditorEnhanced: React.FC = () => {
         subtitle='Loading...'
         fullWidthContent={focusMode}
       >
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-          <div className='lg:col-span-2 space-y-4'>
-            <Skeleton className='h-12 w-2/3' />
-            <Skeleton className='h-[480px] w-full' />
-          </div>
-          <div className='space-y-4'>
-            <Skeleton className='h-40 w-full' />
-            <Skeleton className='h-40 w-full' />
-            <Skeleton className='h-40 w-full' />
-          </div>
-        </div>
+        <PerformanceSkeleton variant="editor" />
       </AdminLayout>
     );
   }
@@ -459,9 +453,8 @@ const ProjectEditorEnhanced: React.FC = () => {
       </Button>
       <div className='hidden md:flex items-center gap-2'>
         <div
-          className={`w-2 h-2 rounded-full ${
-            isSaving ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'
-          }`}
+          className={`w-2 h-2 rounded-full ${isSaving ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'
+            }`}
         />
         <span className='text-xs text-muted-foreground'>
           {isSaving ? 'Saving...' : id ? 'Saved' : 'Ready'}
@@ -528,8 +521,10 @@ const ProjectEditorEnhanced: React.FC = () => {
                 </Label>
                 <div className='mt-2'>
                   <BlockNoteEditorComponent
-                    value={blockNoteContent}
+                    initialContent={blockNoteContent}
+                    loading={contentLoading}
                     onChange={setBlockNoteContent}
+                    onEditorReady={(editor) => { editorRef.current = editor; }}
                     placeholder="Type '/' for commands or start writing your project description..."
                     className="border rounded-lg p-4"
                   />
@@ -744,9 +739,8 @@ const ProjectEditorEnhanced: React.FC = () => {
                         />
                         <label
                           htmlFor='image-upload'
-                          className={`cursor-pointer flex flex-col items-center justify-center space-y-2 ${
-                            isUploading ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
+                          className={`cursor-pointer flex flex-col items-center justify-center space-y-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
                         >
                           {isUploading ? (
                             <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
