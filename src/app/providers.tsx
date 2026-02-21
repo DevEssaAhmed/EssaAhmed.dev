@@ -9,6 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import SkipLink from "@/components/SkipLink";
+import PageTransition from "@/components/PageTransition";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -34,7 +35,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               <SkipLink />
               <Toaster />
               <Sonner />
-              {children}
+              <PageTransition>
+                {children}
+              </PageTransition>
             </TooltipProvider>
           </ProfileProvider>
         </AuthProvider>

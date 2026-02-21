@@ -1,4 +1,4 @@
-﻿import AboutPage from "@/legacy-pages/AboutPage";
+﻿import SeriesPage from "@/legacy-pages/SeriesPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 
 export const revalidate = 120;
@@ -6,11 +6,10 @@ export const revalidate = 120;
 export default async function Page() {
   const supabase = getSupabaseServer();
   const { data } = await supabase
-    .from("profile_settings")
+    .from("series")
     .select("*")
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .single();
+    .order("featured", { ascending: false })
+    .order("created_at", { ascending: false });
 
-  return <AboutPage initialProfile={data || undefined} />;
+  return <SeriesPage initialSeries={data || []} />;
 }

@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Inter } from "next/font/google";
 import "../index.css";
 import Providers from "./providers";
 import GTMProvider from "@/components/gtm-provider";
 import GTMPageView from "@/components/gtm-pageview";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://essaahmed.dev"),
@@ -21,12 +28,12 @@ export const metadata: Metadata = {
     description:
       "Design-forward portfolio and journal. Data visualizations, projects, and writing.",
     type: "website",
-    images: [{ url: "/og-image.svg" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Essa Ahmed - Portfolio & Blog" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@DevEssaAhmed",
-    images: ["/placeholder.svg"],
+    images: ["/og-image.png"],
   },
   verification: {
     google: "FYfYBNT6h1kpZ8TJMt_ZYOZbOK00MX8ZeuLnroemaGc",
@@ -39,7 +46,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html>
+    <html lang="en" className={inter.variable}>
       <head>
         <link
           rel="preconnect"

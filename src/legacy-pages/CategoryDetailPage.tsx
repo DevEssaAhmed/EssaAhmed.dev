@@ -44,7 +44,7 @@ const CategoryDetailPage = () => {
     } catch (error) {
       console.error("Error fetching category:", error);
       toast.error("Category not found");
-      navigate("/categories");
+      navigate("/articles/categories");
     } finally {
       setLoading(false);
     }
@@ -99,7 +99,7 @@ const CategoryDetailPage = () => {
             <h1 className="text-2xl font-bold mb-2">Category Not Found</h1>
             <p className="text-muted-foreground mb-6">This category does not exist.</p>
             <Button asChild>
-              <Link href="/categories">
+              <Link href="/articles/categories">
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back to Categories
               </Link>
             </Button>
@@ -116,7 +116,7 @@ const CategoryDetailPage = () => {
       <div className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <Button asChild variant="ghost" className="mb-8">
-            <Link href="/categories">
+            <Link href="/articles/categories">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Categories
             </Link>
           </Button>
@@ -130,53 +130,66 @@ const CategoryDetailPage = () => {
           </div>
 
           {articles.length === 0 ? (
-            <div className="text-center py-12">
-              <Folder className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2 text-muted-foreground">No Articles Yet</h3>
-              <p className="text-muted-foreground">
-                Articles in the {category.name} category will appear here once they&apos;re published.
-              </p>
+            <div className="w-full relative overflow-hidden rounded-3xl border border-border/50 bg-background/50 p-12 text-center shadow-sm">
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+              <div className="relative z-10 flex flex-col items-center justify-center">
+                <div className="w-24 h-24 mb-6 rounded-full bg-primary/10 flex items-center justify-center ring-8 ring-primary/5">
+                  <Folder className="w-10 h-10 text-primary" />
+                </div>
+                <h3 className="text-3xl font-bold tracking-tight mb-3">Coming Soon</h3>
+                <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-8">
+                  I'm currently crafting new articles for <span className="text-foreground font-medium">{category.name}</span>. They'll appear here once they're full-polished and published.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <Button asChild className="bg-gradient-primary hover:shadow-glow transition-all duration-300 rounded-xl px-8 h-12">
+                    <Link href="/articles">Read Latest Articles</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="rounded-xl px-8 h-12 hover:bg-muted transition-all duration-300">
+                    <Link href="/articles/categories">View All Categories</Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {articles.map((article) => (
                 <Link key={article.id} href={`/articles/${article.slug}`} className="block">
-                <Card className="group cursor-pointer hover:shadow-glow transition-all duration-300">
-                  {article.image_url && (
-                    <div className="h-48 overflow-hidden rounded-t-lg">
-                      <OptimizedImage
-                        src={article.image_url}
-                        alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="line-clamp-2">{article.title}</CardTitle>
-                    <CardDescription className="line-clamp-3">{article.excerpt || "No excerpt available."}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(article.created_at).toLocaleDateString()}
+                  <Card className="group cursor-pointer hover:shadow-glow transition-all duration-300">
+                    {article.image_url && (
+                      <div className="h-48 overflow-hidden rounded-t-lg">
+                        <OptimizedImage
+                          src={article.image_url}
+                          alt={article.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {article.read_time || 5} min
+                    )}
+                    <CardHeader>
+                      <CardTitle className="line-clamp-2">{article.title}</CardTitle>
+                      <CardDescription className="line-clamp-3">{article.excerpt || "No excerpt available."}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(article.created_at).toLocaleDateString()}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {article.read_time || 5} min
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {article.views || 0}</span>
-                        <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {article.likes || 0}</span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {article.views || 0}</span>
+                          <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {article.likes || 0}</span>
+                        </div>
+                        <Badge variant={article.published ? "default" : "secondary"}>
+                          {article.published ? "Published" : "Draft"}
+                        </Badge>
                       </div>
-                      <Badge variant={article.published ? "default" : "secondary"}>
-                        {article.published ? "Published" : "Draft"}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
                 </Link>
               ))}
             </div>

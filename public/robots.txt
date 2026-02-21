@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://essadataanalyst.lovable.app/sitemap.xml
+Sitemap: https://essaahmed.vercel.app/sitemap.xml

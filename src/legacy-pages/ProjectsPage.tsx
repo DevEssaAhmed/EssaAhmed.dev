@@ -8,6 +8,9 @@ import ProjectCard from "@/components/ProjectCard";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { FolderSearch } from "lucide-react";
 
 type ProjectsPageProps = {
   initialProjects?: any[];
@@ -86,11 +89,32 @@ const ProjectsPage = ({ initialProjects }: ProjectsPageProps) => {
                 </Card>
               ))}
             </div>
-          ) : (
+          ) : projects.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((p) => (
                 <ProjectCard key={p.id} {...p} />
               ))}
+            </div>
+          ) : (
+            <div className="w-full relative overflow-hidden rounded-3xl border border-border/50 bg-background/50 p-12 text-center shadow-sm my-8">
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+              <div className="relative z-10 flex flex-col items-center justify-center">
+                <div className="w-24 h-24 mb-6 rounded-full bg-primary/10 flex items-center justify-center ring-8 ring-primary/5">
+                  <FolderSearch className="w-10 h-10 text-primary" />
+                </div>
+                <h3 className="text-3xl font-bold tracking-tight mb-3">Projects Coming Soon</h3>
+                <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-8">
+                  I'm currently working on some exciting new projects. Check back soon!
+                </p>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <Button asChild className="bg-gradient-primary hover:shadow-glow transition-all duration-300 rounded-xl px-8 h-12">
+                    <Link href="/articles">Read Latest Articles</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="rounded-xl px-8 h-12 hover:bg-muted transition-all duration-300">
+                    <Link href="/">Back to Home</Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </div>

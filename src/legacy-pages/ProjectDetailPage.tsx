@@ -28,7 +28,7 @@ function tryConvertJsonToMarkdown(content: string): string {
     // If it's BlockNote format (array of blocks), convert to basic markdown
     if (Array.isArray(json)) {
       return json.map((block: any) => {
-        const text = Array.isArray(block.content) 
+        const text = Array.isArray(block.content)
           ? block.content.map((c: any) => c.text || '').join('')
           : (typeof block.content === 'string' ? block.content : '');
         switch (block.type) {
@@ -235,11 +235,9 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
               <div className="flex items-center gap-2 flex-wrap">
                 <Tag className="w-4 h-4 text-muted-foreground" />
                 {projectTags.map((tag: any) => (
-                  <Link key={tag.id} href={`/tags/${encodeURIComponent(tag.name.toLowerCase().replace(/\s+/g, "-"))}`}>
-                    <Badge variant="outline" className="cursor-pointer hover:bg-primary/10 transition-colors">
-                      {tag.name}
-                    </Badge>
-                  </Link>
+                  <Badge key={tag.id} variant="outline" className="pointer-events-none">
+                    {tag.name}
+                  </Badge>
                 ))}
               </div>
             )}

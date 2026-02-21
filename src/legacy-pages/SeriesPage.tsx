@@ -1,3 +1,5 @@
+"use client";
+
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -11,6 +13,7 @@ import { BookOpen, ArrowRight, Sparkles, Clock, CheckCircle, Pause } from "lucid
 import { toast } from "sonner";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
+import ArticlesSubNav from "@/components/ArticlesSubNav";
 
 interface Series {
   id: string;
@@ -26,11 +29,15 @@ interface Series {
   created_at: string;
 }
 
-const SeriesPage = () => {
-  const [series, setSeries] = useState<Series[]>([]);
-  const [loading, setLoading] = useState(true);
+type SeriesPageProps = {
+  initialSeries?: Series[];
+};
 
-  useEffect(() => { fetchSeries(); }, []);
+const SeriesPage = ({ initialSeries }: SeriesPageProps) => {
+  const [series, setSeries] = useState<Series[]>(initialSeries ?? []);
+  const [loading, setLoading] = useState(initialSeries === undefined);
+
+  useEffect(() => { if (initialSeries === undefined) fetchSeries(); }, [initialSeries]);
 
   const fetchSeries = async () => {
     try {
@@ -118,7 +125,7 @@ const SeriesPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO 
+      <SEO
         title="Article Series"
         description="Dive deep into comprehensive article series. Follow structured learning paths and master complex topics step by step."
         url="/series"
@@ -134,9 +141,10 @@ const SeriesPage = () => {
                 Article Series
               </h1>
             </div>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
               Dive deep into comprehensive article series. Follow structured learning paths and master complex topics step by step.
             </p>
+            <ArticlesSubNav />
           </div>
 
           {/* Featured Series */}
@@ -148,41 +156,41 @@ const SeriesPage = () => {
               </div>
               <div className="grid lg:grid-cols-2 gap-8 mb-8">
                 {series.filter(s => s.featured).map((seriesItem) => (
-                  <Link key={seriesItem.id} href={`/series/${seriesItem.slug}`} className="block">
-                  <Card className="group hover:shadow-glow transition-all duration-300 cursor-pointer border-2 hover:border-primary/50">
-                    {(seriesItem.featured_image_url || seriesItem.image_url) && (
-                      <div className="relative overflow-hidden rounded-t-lg">
-                        <OptimizedImage
-                          src={seriesItem.featured_image_url || seriesItem.image_url || "/placeholder.svg"}
-                          alt={seriesItem.title}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    )}
-                    <CardHeader>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-sm text-muted-foreground">
-                          {new Date(seriesItem.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+                  <Link key={seriesItem.id} href={`/articles/series/${seriesItem.slug}`} className="block">
+                    <Card className="group hover:shadow-glow transition-all duration-300 cursor-pointer border-2 hover:border-primary/50">
+                      {(seriesItem.featured_image_url || seriesItem.image_url) && (
+                        <div className="relative overflow-hidden rounded-t-lg">
+                          <OptimizedImage
+                            src={seriesItem.featured_image_url || seriesItem.image_url || "/placeholder.svg"}
+                            alt={seriesItem.title}
+                            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
                         </div>
-                      </div>
-                      <CardTitle className="group-hover:text-primary transition-colors text-xl">
-                        {seriesItem.title}
-                      </CardTitle>
-                      <CardDescription>
-                        {seriesItem.description || `A comprehensive series about ${seriesItem.title.toLowerCase()}`}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-muted-foreground">
-                          {seriesItem.article_count} {seriesItem.article_count === 1 ? 'article' : 'articles'}
+                      )}
+                      <CardHeader>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(seriesItem.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+                          </div>
                         </div>
-                        <Button size="sm" variant="ghost" className="group-hover:text-primary">
-                          <ArrowRight className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                        <CardTitle className="group-hover:text-primary transition-colors text-xl">
+                          {seriesItem.title}
+                        </CardTitle>
+                        <CardDescription>
+                          {seriesItem.description || `A comprehensive series about ${seriesItem.title.toLowerCase()}`}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm text-muted-foreground">
+                            {seriesItem.article_count} {seriesItem.article_count === 1 ? 'article' : 'articles'}
+                          </div>
+                          <Button size="sm" variant="ghost" className="group-hover:text-primary">
+                            <ArrowRight className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </Link>
                 ))}
               </div>
@@ -194,40 +202,40 @@ const SeriesPage = () => {
             <h2 className="text-2xl font-bold mb-6">All Series</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {series.filter(s => !s.featured).map((seriesItem) => (
-                <Link key={seriesItem.id} href={`/series/${seriesItem.slug}`} className="block">
-                <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer hover:border-primary/30">
-                  {(seriesItem.featured_image_url || seriesItem.image_url) && (
-                    <div className="relative overflow-hidden rounded-t-lg">
-                      <OptimizedImage
-                        src={seriesItem.featured_image_url || seriesItem.image_url || "/placeholder.svg"}
-                        alt={seriesItem.title}
-                        className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  )}
-                  <CardHeader className="pb-4">
-                    <div className="text-sm text-muted-foreground mb-2">
-                      {new Date(seriesItem.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
-                    </div>
-                    <CardTitle className="group-hover:text-primary transition-colors">
-                      {seriesItem.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm">
-                      {seriesItem.description?.slice(0, 100)}
-                      {seriesItem.description && seriesItem.description.length > 100 && "..."}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-muted-foreground">
-                        {seriesItem.article_count} {seriesItem.article_count === 1 ? 'article' : 'articles'}
+                <Link key={seriesItem.id} href={`/articles/series/${seriesItem.slug}`} className="block">
+                  <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer h-full border hover:border-primary/30">
+                    {(seriesItem.featured_image_url || seriesItem.image_url) && (
+                      <div className="relative overflow-hidden rounded-t-lg">
+                        <OptimizedImage
+                          src={seriesItem.featured_image_url || seriesItem.image_url || "/placeholder.svg"}
+                          alt={seriesItem.title}
+                          className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
                       </div>
-                      <Button size="sm" variant="ghost" className="group-hover:text-primary">
-                        <ArrowRight className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                    )}
+                    <CardHeader className="pb-4">
+                      <div className="text-sm text-muted-foreground mb-2">
+                        {new Date(seriesItem.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+                      </div>
+                      <CardTitle className="group-hover:text-primary transition-colors">
+                        {seriesItem.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm">
+                        {seriesItem.description?.slice(0, 100)}
+                        {seriesItem.description && seriesItem.description.length > 100 && "..."}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-muted-foreground">
+                          {seriesItem.article_count} {seriesItem.article_count === 1 ? 'article' : 'articles'}
+                        </div>
+                        <Button size="sm" variant="ghost" className="group-hover:text-primary">
+                          <ArrowRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </Link>
               ))}
             </div>

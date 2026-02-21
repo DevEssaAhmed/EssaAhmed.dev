@@ -35,6 +35,11 @@ export const OptimizedImage = memo(({
 }: OptimizedImageProps) => {
   const resolvedSrc = typeof src === "string" && src.trim() ? src : "/placeholder.svg";
 
+  // Only optimize Supabase-hosted or local images; external URLs stay unoptimized
+  const isOptimizable =
+    resolvedSrc.startsWith("/") ||
+    resolvedSrc.includes("supabase.co");
+
   return (
     <Image
       src={resolvedSrc}
@@ -45,7 +50,7 @@ export const OptimizedImage = memo(({
       priority={priority}
       loading={priority ? undefined : "lazy"}
       sizes={sizes ?? "100vw"}
-      unoptimized
+      unoptimized={!isOptimizable}
       {...(rest as Record<string, unknown>)}
     />
   );

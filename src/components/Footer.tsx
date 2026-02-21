@@ -1,12 +1,13 @@
 ﻿"use client";
 
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { 
-  Github, 
-  Linkedin, 
-  Twitter, 
-  Mail, 
-  Heart, 
+import {
+  Github,
+  Linkedin,
+  Twitter,
+  Mail,
+  Heart,
   ArrowUp,
   Code,
   Database,
@@ -18,7 +19,7 @@ import { useProfile } from '@/contexts/ProfileContext';
 
 const Footer = () => {
   const { profile } = useProfile();
-  
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -88,12 +89,12 @@ const Footer = () => {
             <ul className="space-y-2">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  <a 
+                  <Link
                     href={link.href}
                     className="text-sm text-foreground/70 hover:text-primary transition-colors duration-300"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -121,10 +122,10 @@ const Footer = () => {
           <div className="flex items-center gap-2 text-xs text-foreground/70">
             <span>Â© {new Date().getFullYear()} {profile?.name || 'Portfolio'}. Built with</span>
             <Heart className="w-3.5 h-3.5 text-red-500 fill-current" />
-            <span>React & TypeScript</span>
+            <span>Next JS & TypeScript</span>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={scrollToTop}
             className="hover:shadow-soft transition-all duration-300"

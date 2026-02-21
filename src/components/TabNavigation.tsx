@@ -19,9 +19,17 @@ import { useProfile } from '@/contexts/ProfileContext';
 
 interface TabNavigationProps {
   className?: string;
+  initialProjects?: any[];
+  initialProjectCategories?: string[];
+  initialArticles?: any[];
 }
 
-const TabNavigation = ({ className = '' }: TabNavigationProps) => {
+const TabNavigation = ({
+  className = '',
+  initialProjects,
+  initialProjectCategories,
+  initialArticles
+}: TabNavigationProps) => {
   const [activeTab, setActiveTab] = useState<'projects' | 'articles' | 'about'>(
     'projects'
   );
@@ -37,13 +45,20 @@ const TabNavigation = ({ className = '' }: TabNavigationProps) => {
       case 'projects':
         return (
           <div className='animate-fade-up'>
-            <RecentProjects showAll={false} />
+            <RecentProjects
+              showAll={false}
+              initialProjects={initialProjects}
+              initialCategories={initialProjectCategories}
+            />
           </div>
         );
       case 'articles':
         return (
           <div className='animate-fade-up'>
-            <RecentArticles showAll={false} />
+            <RecentArticles
+              showAll={false}
+              initialArticles={initialArticles}
+            />
           </div>
         );
       case 'about':
@@ -74,10 +89,9 @@ const TabNavigation = ({ className = '' }: TabNavigationProps) => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`
                     flex items-center gap-2 sm:gap-3 px-3 sm:px-8 py-3 sm:py-4 rounded-xl text-xs sm:text-sm font-semibold tracking-wider transition-all duration-300 whitespace-nowrap
-                    ${
-                      isActive
-                        ? 'bg-gradient-primary text-white shadow-soft transform scale-105'
-                        : 'text-foreground/70 hover:text-foreground hover:bg-muted/50'
+                    ${isActive
+                      ? 'bg-gradient-primary text-white shadow-soft transform scale-105'
+                      : 'text-foreground/70 hover:text-foreground hover:bg-muted/50'
                     }
                   `}
                 >

@@ -17,17 +17,17 @@ const TagNotFoundPage = () => {
             <div className="flex items-center justify-center gap-2 mb-6">
               <Tag className="w-16 h-16 text-muted-foreground" />
             </div>
-            
+
             <h1 className="text-4xl lg:text-5xl font-bold mb-4">
               Tag Page Coming Soon
             </h1>
-            
+
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
               Tag-based filtering is currently under development. For now, you can explore articles through our categories and series.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-              <Button 
+              <Button
                 onClick={() => navigate(-1)}
                 variant="outline"
                 className="hover:shadow-soft transition-all duration-300"
@@ -35,14 +35,14 @@ const TagNotFoundPage = () => {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Go Back
               </Button>
-              
+
               <Button asChild className="bg-gradient-primary hover:shadow-glow transition-all duration-300">
-                <Link href="/categories">
+                <Link href="/articles/categories">
                   <Search className="w-4 h-4 mr-2" />
                   Browse Categories
                 </Link>
               </Button>
-              
+
               <Button asChild variant="outline" className="hover:shadow-soft transition-all duration-300">
                 <Link href="/articles">View All Articles</Link>
               </Button>
@@ -51,7 +51,7 @@ const TagNotFoundPage = () => {
         </div>
       </div>
       <Footer />
-      
+
     </div>
   );
 };

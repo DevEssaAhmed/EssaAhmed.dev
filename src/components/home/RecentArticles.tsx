@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Eye, Heart, Clock, Calendar, FileQuestion } from "lucide-react";
+import { ArrowRight, Eye, Heart, Clock, Calendar, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface RecentArticlesProps {
   showAll?: boolean;
+  initialArticles?: any[];
 }
 
 const formatPublishedDate = (value: string) =>
@@ -21,10 +22,10 @@ const formatPublishedDate = (value: string) =>
     timeZone: "UTC",
   }).format(new Date(value));
 
-const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
+const RecentArticles = memo(({ showAll = false, initialArticles }: RecentArticlesProps) => {
   const router = useRouter();
-  const [articles, setArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [articles, setArticles] = useState<any[]>(initialArticles ?? []);
+  const [loading, setLoading] = useState(initialArticles === undefined);
   const selectedTag = "All";
 
   const handleTagInteraction = (e: React.SyntheticEvent) => {
@@ -37,7 +38,9 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
       router.push(href);
     }
   };
-  useEffect(() => { fetchArticles(); }, []);
+  useEffect(() => {
+    if (initialArticles === undefined) fetchArticles();
+  }, [initialArticles]);
 
   const fetchArticles = async () => {
     try {
@@ -55,7 +58,7 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
       setLoading(false);
     }
   };
-  const filteredArticles = selectedTag === "All" 
+  const filteredArticles = selectedTag === "All"
     ? articles.slice(0, showAll ? articles.length : 4)
     : articles.filter((article: any) => article.tags?.includes(selectedTag)).slice(0, showAll ? articles.length : 4);
 
@@ -103,7 +106,7 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
               Insights, tutorials, and thoughts about data science and technology
             </p>
           </div>
-          
+
           {/* DESKTOP BUTTON: Hidden on mobile, flex on md and up */}
           <Button asChild className="hidden md:flex bg-gradient-primary hover:shadow-soft transition-all duration-300">
             <Link href="/articles">
@@ -198,22 +201,27 @@ const RecentArticles = memo(({ showAll = false }: RecentArticlesProps) => {
 
             {/* MOBILE BUTTON: Visible only on mobile, placed after the grid */}
             <div className="mt-10 flex justify-center md:hidden">
-                <Button asChild className="w-full bg-gradient-primary hover:shadow-soft transition-all duration-300">
-                  <Link href="/articles">
-                    View All Articles
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </Button>
+              <Button asChild className="w-full bg-gradient-primary hover:shadow-soft transition-all duration-300">
+                <Link href="/articles">
+                  View All Articles
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
             </div>
           </>
         ) : (
           /* Empty State */
-          <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-up">
-            <div className="bg-muted/50 p-4 rounded-full mb-4">
-              <FileQuestion className="w-10 h-10 text-muted-foreground" />
+          <div className="w-full relative overflow-hidden rounded-3xl border border-border/50 bg-background/50 p-12 text-center shadow-sm mt-8 animate-fade-up">
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+            <div className="relative z-10 flex flex-col items-center justify-center">
+              <div className="w-24 h-24 mb-6 rounded-full bg-primary/10 flex items-center justify-center ring-8 ring-primary/5">
+                <FileText className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="text-3xl font-bold tracking-tight mb-3">Recent Articles</h3>
+              <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-4">
+                I'm currently writing new content. Check back soon for fresh articles.
+              </p>
             </div>
-            <h3 className="text-xl font-semibold mb-2">No articles found</h3>
-        
           </div>
         )}
       </div>
