@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useMemo, useState } from 'react';
 import AdminLayout from '@/components/admin/layout/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

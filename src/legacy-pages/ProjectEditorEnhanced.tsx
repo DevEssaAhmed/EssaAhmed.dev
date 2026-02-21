@@ -1,3 +1,5 @@
+"use client";
+
 import { OptimizedImage } from "@/components/OptimizedImage";
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Link from "next/link";

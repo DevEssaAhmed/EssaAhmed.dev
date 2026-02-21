@@ -1,3 +1,5 @@
+"use client";
+
 import { useNavigate } from "@/lib/router-compat";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";

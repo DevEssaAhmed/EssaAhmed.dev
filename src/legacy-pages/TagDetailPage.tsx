@@ -1,5 +1,7 @@
+"use client";
+
 import { OptimizedImage } from "@/components/OptimizedImage";
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import { useParams, useNavigate } from '@/lib/router-compat';
 import Navigation from '@/components/Navigation';

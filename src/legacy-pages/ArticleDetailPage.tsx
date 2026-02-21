@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
