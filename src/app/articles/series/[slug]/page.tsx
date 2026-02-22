@@ -1,4 +1,4 @@
-﻿import SeriesDetailPage from "@/legacy-pages/SeriesDetailPage";
+﻿import SeriesDetailPage from "./SeriesDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { Metadata } from 'next';
 

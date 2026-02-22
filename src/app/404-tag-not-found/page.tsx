@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import TagNotFoundPage from "@/legacy-pages/TagNotFoundPage";
+import TagNotFoundPage from "./TagNotFoundPage";
 
 export default function Page() {
   return <TagNotFoundPage />;

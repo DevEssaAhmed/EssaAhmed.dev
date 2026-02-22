@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useLocation, useNavigate } from "@/lib/router-compat";
 import { useEffect } from "react";

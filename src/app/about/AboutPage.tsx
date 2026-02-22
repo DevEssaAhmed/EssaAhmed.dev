@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { OptimizedImage } from "@/components/OptimizedImage";
 import Navigation from "@/components/Navigation";
@@ -62,7 +62,7 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
       <Navigation />
       <SEO
         title={`About ${fullName}`}
-        description={bio.substring(0, 160) || `${fullName} — ${profile.title}`}
+        description={bio.substring(0, 160) || `${fullName} â€” ${profile.title}`}
         image={avatar}
         url="/about"
         type="website"
@@ -70,7 +70,7 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
 
       <div className="pt-20">
 
-        {/* ── Hero section ── */}
+        {/* â”€â”€ Hero section â”€â”€ */}
         <section className="relative py-16 px-6 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
           <div className="absolute top-10 right-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
@@ -149,7 +149,7 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
           </div>
         </section>
 
-        {/* ── Main content split ── */}
+        {/* â”€â”€ Main content split â”€â”€ */}
         <section className="max-w-5xl mx-auto px-6 py-12">
           <div className="grid lg:grid-cols-3 gap-8">
 
@@ -181,7 +181,7 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
                     I keep a quiet public diary of ongoing experiments and reflections.
                   </p>
                   <Link href="/diary" className="text-sm font-semibold text-primary hover:underline">
-                    Read the diary →
+                    Read the diary â†’
                   </Link>
                 </div>
               </div>
@@ -235,7 +235,7 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
             </motion.div>
           </div>
 
-          {/* ── Skills Cloud ── */}
+          {/* â”€â”€ Skills Cloud â”€â”€ */}
           {skills.length > 0 && (
             <motion.div
               className="mt-14"

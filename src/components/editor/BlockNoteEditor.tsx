@@ -284,7 +284,7 @@ const BlockNoteEditorComponent: React.FC<BlockNoteEditorProps> = ({
   // IMPORTANT: `initialContent` is intentionally excluded from deps — BlockNote
   // uses an uncontrolled pattern. Re-creating the editor on every content change
   // would destroy and reset the document on each keystroke.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   const editor = useMemo(() => {
     if (loading) return null;
 

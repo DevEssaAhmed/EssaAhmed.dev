@@ -1,4 +1,4 @@
-﻿import Index from "@/legacy-pages/Index";
+﻿import Index from "./Index";
 import { getSupabaseServer } from "@/lib/supabase-server";
 
 export const revalidate = 120; // 2 minutes

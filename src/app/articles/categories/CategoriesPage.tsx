@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -100,7 +100,7 @@ const CategoriesPage = ({ initialCategories }: CategoriesPageProps) => {
               Categories
             </h1>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8">
-              Articles organized by topic — dive into a subject that interests you.
+              Articles organized by topic â€” dive into a subject that interests you.
             </p>
             <ArticlesSubNav />
           </div>

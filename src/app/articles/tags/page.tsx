@@ -1,4 +1,4 @@
-﻿import TagsPage from "@/legacy-pages/TagsPage";
+﻿import TagsPage from "./TagsPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 
 export const revalidate = 120;

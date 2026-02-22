@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -235,7 +235,7 @@ const ProfileManagePage = () => {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Square image recommended • At least 256×256px • Max 5MB
+                  Square image recommended â€¢ At least 256Ã—256px â€¢ Max 5MB
                 </p>
               </div>
             </div>

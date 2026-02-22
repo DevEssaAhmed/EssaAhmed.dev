@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import ProfileManagePage from "@/legacy-pages/ProfileManagePage";
+import ProfileManagePage from "./ProfileManagePage";
 
 export default function Page() {
   return (

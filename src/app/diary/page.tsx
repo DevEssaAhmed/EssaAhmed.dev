@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import DiaryPage from "@/legacy-pages/DiaryPage";
+﻿import type { Metadata } from "next";
+import DiaryPage from "./DiaryPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 
 export const revalidate = 120;

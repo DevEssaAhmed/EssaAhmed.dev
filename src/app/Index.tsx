@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
@@ -176,7 +176,7 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
                   </motion.div>
                 </Reveal>
                 <Reveal delay={60}>
-                  <p className="text-sm text-muted-foreground mb-2">Hi, I&apos;m {profile?.name || "—"} — {profile?.title || "Analytics Engineer"}</p>
+                  <p className="text-sm text-muted-foreground mb-2">Hi, I&apos;m {profile?.name || "â€”"} â€” {profile?.title || "Analytics Engineer"}</p>
                 </Reveal>
                 <Reveal delay={60}>
                   <h1 className="text-5xl sm:text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.05]">
@@ -199,7 +199,7 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
                 </Reveal>
                 <Reveal delay={120}>
                   <p className="mt-5 text-lg sm:text-xl text-muted-foreground max-w-2xl">
-                    From raw data to dashboards and decision systems—built with accuracy, automation, and scale in mind.
+                    From raw data to dashboards and decision systemsâ€”built with accuracy, automation, and scale in mind.
                   </p>
                 </Reveal>
                 <Reveal delay={240}>
@@ -242,8 +242,8 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
                   <div className="mt-6 flex flex-wrap gap-4 text-sm text-muted-foreground">
                     {profile ? (
                       <>
-                        <span>Based in {profile.location || "—"}</span>
-                        <span>•</span>
+                        <span>Based in {profile.location || "â€”"}</span>
+                        <span>â€¢</span>
                         {/* <span>{profile.title || ""}</span> */}
                         <span>{"Open to opportunities worldwide"}</span>
 
@@ -278,7 +278,7 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
                         />
                         <span className="relative z-10 flex items-center gap-1">
                           <Star className="w-3 h-3" />
-                          Analytics · {new Date().getFullYear()}
+                          Analytics Â· {new Date().getFullYear()}
                         </span>
                       </Badge>
                     </motion.div>

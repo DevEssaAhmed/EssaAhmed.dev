@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useNavigate } from "@/lib/router-compat";
 import Link from "next/link";

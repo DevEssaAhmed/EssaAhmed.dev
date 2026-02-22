@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import AdminPage from "@/legacy-pages/AdminPage";
+import AdminPage from "./AdminPage";
 
 export default function Page() {
   return (

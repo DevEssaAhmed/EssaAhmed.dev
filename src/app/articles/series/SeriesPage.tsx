@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { useState, useEffect } from "react";

@@ -1,4 +1,4 @@
-﻿import TagDetailPage from "@/legacy-pages/TagDetailPage";
+﻿import TagDetailPage from "./TagDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { Metadata } from 'next';
 

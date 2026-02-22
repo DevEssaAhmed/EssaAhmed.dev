@@ -1,4 +1,4 @@
-﻿import CategoriesPage from "@/legacy-pages/CategoriesPage";
+﻿import CategoriesPage from "./CategoriesPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 
 export const revalidate = 120;
