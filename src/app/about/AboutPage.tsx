@@ -62,7 +62,7 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
       <Navigation />
       <SEO
         title={`About ${fullName}`}
-        description={bio.substring(0, 160) || `${fullName} â€” ${profile.title}`}
+        description={bio.substring(0, 160) || `${fullName} — ${profile.title}`}
         image={avatar}
         url="/about"
         type="website"

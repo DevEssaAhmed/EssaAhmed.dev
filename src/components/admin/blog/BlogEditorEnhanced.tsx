@@ -97,7 +97,7 @@ const BlogEditorEnhanced: React.FC = () => {
   // Stable ref to latest handleSave, used by the Ctrl+S listener to avoid stale closures
   const handleSaveRef = useRef<((isPublishing: boolean, isAutoSave?: boolean) => Promise<void>) | null>(null);
 
-  // Stable callback for onEditorReady â€” must be at component scope to avoid
+  // Stable callback for onEditorReady — must be at component scope to avoid
   // creating a new function reference on every render, which triggers focus loss.
   const onEditorReady = useCallback((editor: BlockNoteEditor) => {
     editorRef.current = editor;
@@ -216,8 +216,8 @@ const BlogEditorEnhanced: React.FC = () => {
   const handleKeyPress = (e: React.KeyboardEvent) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); } };
 
   // Autosave: fire when debounced state differs from lastSaved snapshot.
-  // NOTE: isSaving is intentionally excluded from deps â€” adding it causes a
-  // re-run loop (save starts â†’ isSaving=true â†’ effect reruns â†’ isSaving=false â†’ effect reruns)
+  // NOTE: isSaving is intentionally excluded from deps — adding it causes a
+  // re-run loop (save starts → isSaving=true → effect reruns → isSaving=false → effect reruns)
   useEffect(() => {
     if (!id) return;
     if (!lastSaved) return; // not seeded yet, skip
@@ -243,7 +243,7 @@ const BlogEditorEnhanced: React.FC = () => {
         }
       })();
     }
-     
+
   }, [id, debouncedFormData, debouncedBlockNoteContent, debouncedTags, lastSaved]);
 
   // Ctrl/Cmd+S keyboard shortcut - uses a ref to always call the latest handleSave
@@ -257,7 +257,7 @@ const BlogEditorEnhanced: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-    // Empty deps is intentional â€” we use handleSaveRef to access the latest save fn
+    // Empty deps is intentional — we use handleSaveRef to access the latest save fn
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -377,7 +377,7 @@ const BlogEditorEnhanced: React.FC = () => {
         />
         <span className='text-xs text-muted-foreground mr-4'>
           {isSaving
-            ? 'Savingâ€¦'
+            ? 'Saving…'
             : lastSavedAt
               ? `Saved at ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
               : id

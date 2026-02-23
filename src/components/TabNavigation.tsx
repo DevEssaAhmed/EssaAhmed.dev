@@ -88,20 +88,21 @@ const TabNavigation = ({
                   variant={isActive ? 'default' : 'ghost'}
                   onClick={() => setActiveTab(tab.id)}
                   className={`
-                    flex items-center gap-2 sm:gap-3 px-3 sm:px-8 py-3 sm:py-4 rounded-xl text-xs sm:text-sm font-semibold tracking-wider transition-all duration-300 whitespace-nowrap
+                    shrink-0 flex items-center gap-1.5 sm:gap-3 px-3 sm:px-8 py-2.5 sm:py-4 rounded-xl text-xs sm:text-sm font-semibold tracking-wider transition-all duration-300 whitespace-nowrap
                     ${isActive
-                      ? 'bg-gradient-primary text-white shadow-soft transform scale-105'
+                      ? 'bg-gradient-primary text-white shadow-soft sm:scale-105'
                       : 'text-foreground/70 hover:text-foreground hover:bg-muted/50'
                     }
                   `}
                 >
                   <IconComponent className='w-4 h-4' />
-                  <span className='hidden sm:inline'>{tab.label}</span>
-                  <span className='sm:hidden'>{tab.label.slice(0, 8)}</span>
+                  <span className='hidden xs:inline sm:inline'>{tab.label}</span>
+                  <span className='xs:hidden sm:hidden'>{tab.label.slice(0, 4)}</span>
                 </Button>
               );
             })}
           </div>
+
         </div>
       </div>
 

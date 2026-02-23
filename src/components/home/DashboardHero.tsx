@@ -128,20 +128,20 @@ const FloatingBadge: React.FC<{ text: string; color?: string; style?: React.CSSP
 // Inline skeleton component for faster FCP/LCP
 const DashboardSkeleton = () => (
   <div className="relative h-fit w-full max-w-[470px] md:max-w-[520px] lg:max-w-[560px] select-none">
-    <div 
+    <div
       className="absolute inset-0 rounded-2xl pointer-events-none"
       style={{
         boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02), 0 40px 80px rgba(25,17,50,0.55)",
         borderRadius: 18,
-      }} 
+      }}
     />
     <div className="relative z-10">
-      <div 
+      <div
         className="absolute right-0 top-6 w-[86%] h-[76%] rounded-2xl border border-border/50 bg-card/60"
         style={{ transform: "rotate(-1.2deg)" }}
       />
       <div className="absolute right-0 top-0 w-full h-[92%] rounded-2xl border border-border/60 bg-gradient-to-br from-violet-500/4 to-blue-500/4" />
-      <div 
+      <div
         className="relative rounded-2xl overflow-hidden border border-border bg-card/90 p-4"
         style={{ minHeight: 420 }}
       >
@@ -160,10 +160,10 @@ const DashboardSkeleton = () => (
           <div className="h-44 flex flex-col justify-end">
             <div className="flex items-end justify-between gap-1 h-32 px-2">
               {Array.from({ length: 14 }).map((_, i) => (
-                <Skeleton 
-                  key={i} 
+                <Skeleton
+                  key={i}
                   className="flex-1 rounded-t-sm"
-                  style={{ height: `${30 + Math.sin(i * 0.5) * 25 + 15}%` }} 
+                  style={{ height: `${30 + Math.sin(i * 0.5) * 25 + 15}%` }}
                 />
               ))}
             </div>
@@ -181,10 +181,10 @@ const DashboardSkeleton = () => (
           <div className="rounded-lg border border-border bg-card/80 p-3" style={{ minHeight: 120 }}>
             <div className="flex items-end justify-between gap-2 h-[100px]">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton 
-                  key={i} 
+                <Skeleton
+                  key={i}
                   className="flex-1 rounded-t-md"
-                  style={{ height: `${85 - i * 12}%` }} 
+                  style={{ height: `${85 - i * 12}%` }}
                 />
               ))}
             </div>
@@ -242,10 +242,10 @@ const HeroRightDashboard: React.FC<{ className?: string }> = ({ className }) => 
     >
       {/* Background blurred halo + soft border to ensure it reads on both themes */}
       <div className="absolute inset-0 rounded-2xl pointer-events-none"
-           style={{
-             boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02), 0 40px 80px rgba(25,17,50,0.55)",
-             borderRadius: 18,
-           }} />
+        style={{
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02), 0 40px 80px rgba(25,17,50,0.55)",
+          borderRadius: 18,
+        }} />
 
       {/* Layered Windows (3 overlapping cards) */}
       <div className="relative z-10">

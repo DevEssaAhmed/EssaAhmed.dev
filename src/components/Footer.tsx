@@ -48,7 +48,7 @@ const Footer = () => {
 
   return (
     <footer className="bg-background border-t border-border/50 mt-12">
-      <div className="max-w-7xl mx-auto px-6 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         {/* Compact Footer Content */}
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {/* Brand */}
@@ -120,7 +120,7 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="border-t border-border/30 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-xs text-foreground/70">
-            <span>Â© {new Date().getFullYear()} {profile?.name || 'Portfolio'}. Built with</span>
+            <span>© {new Date().getFullYear()} {profile?.name || 'Portfolio'}. Built with</span>
             <Heart className="w-3.5 h-3.5 text-red-500 fill-current" />
             <span>Next JS & TypeScript</span>
           </div>

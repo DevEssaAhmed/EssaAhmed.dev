@@ -398,6 +398,11 @@ All colors MUST be HSL.
 
 /* Mobile-specific optimizations */
 @media (max-width: 768px) {
+  /* Eliminate 300ms tap delay on all interactive elements */
+  a, button, [role="button"], input, label, select, textarea {
+    touch-action: manipulation;
+  }
+
   /* Reduce animation complexity on mobile */
   .motion-reduce,
   [class*="animate-float"],
@@ -412,24 +417,43 @@ All colors MUST be HSL.
   
   /* Reduce backdrop blur intensity on mobile for better performance */
   .backdrop-blur-xl {
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+  
+  .backdrop-blur-sm {
+    backdrop-filter: blur(3px) !important;
+    -webkit-backdrop-filter: blur(3px) !important;
+  }
+
+  /* Reduce backdrop blur on navigation */
+  nav .backdrop-blur-xl,
+  nav [class*="backdrop-blur"] {
     backdrop-filter: blur(8px) !important;
     -webkit-backdrop-filter: blur(8px) !important;
   }
   
-  .backdrop-blur-sm {
-    backdrop-filter: blur(4px) !important;
-    -webkit-backdrop-filter: blur(4px) !important;
-  }
-  
-  /* Optimize shadows for mobile */
+  /* Optimize shadows for mobile — removes expensive blur-heavy shadows */
   .shadow-glow,
   .shadow-soft {
     box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.1) !important;
   }
   
-  /* Force GPU compositing for smooth scrolling */
-  main, section {
+  /* Reset GPU layer promotion for elements that are NOT animating */
+  /* (Prevents overdraw from excessive compositor layers) */
+  [style*="will-change: opacity"],
+  [style*="will-change: transform"] {
+    will-change: auto;
+  }
+  
+  /* Force GPU compositing only on the scroll container, not every section */
+  main {
     transform: translateZ(0);
+  }
+
+  /* Reduce heavy grid background on mobile */
+  .bg-grid-slate {
+    display: none;
   }
 }
 

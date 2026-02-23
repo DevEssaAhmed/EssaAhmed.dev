@@ -99,7 +99,7 @@ const ProjectEditorEnhanced: React.FC = () => {
   // Stable ref to latest handleSave, used by the Ctrl+S listener to avoid stale closures
   const handleSaveRef = useRef<((isAutoSave?: boolean) => Promise<void>) | null>(null);
 
-  // Stable callback for onEditorReady â€” must be at component scope (not inline) to avoid
+  // Stable callback for onEditorReady — must be at component scope (not inline) to avoid
   // creating a new function reference on every render, which would re-trigger the
   // useEffect inside BlockNoteEditorComponent and cause subtle focus-loss bugs.
   const onEditorReady = useCallback((editor: BlockNoteEditor) => {
@@ -273,7 +273,7 @@ const ProjectEditorEnhanced: React.FC = () => {
       debouncedTags,
       navigate,
       toast,
-      // NOTE: isSaving intentionally excluded â€” including it makes useCallback recreate
+      // NOTE: isSaving intentionally excluded — including it makes useCallback recreate
       // `handleSave` every save cycle, which re-triggers the keyboard listener useEffect.
     ]
   );
@@ -288,7 +288,7 @@ const ProjectEditorEnhanced: React.FC = () => {
   // Keep the ref always pointing at the latest handleSave
   useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
 
-  // Ctrl/Cmd+S keyboard shortcut â€” uses a ref so the listener is never re-added
+  // Ctrl/Cmd+S keyboard shortcut — uses a ref so the listener is never re-added
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
@@ -298,7 +298,7 @@ const ProjectEditorEnhanced: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-     
+
   }, []);
 
   // Autosave: fire when debounced state differs from lastSaved snapshot.
@@ -322,7 +322,7 @@ const ProjectEditorEnhanced: React.FC = () => {
       });
       handleSaveRef.current?.(true)?.catch(console.error);
     }
-     
+
   }, [id, debouncedFormData, debouncedBlockNoteContent, debouncedTags, lastSaved]);
 
   const handleAddTag = () => {
@@ -480,7 +480,7 @@ const ProjectEditorEnhanced: React.FC = () => {
         />
         <span className='text-xs text-muted-foreground'>
           {isSaving
-            ? 'Savingâ€¦'
+            ? 'Saving…'
             : lastSavedAt
               ? `Saved at ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
               : id
