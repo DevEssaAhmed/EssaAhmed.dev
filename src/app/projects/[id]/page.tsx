@@ -1,4 +1,4 @@
-﻿import ProjectDetailPage from "@/legacy-pages/ProjectDetailPage";
+﻿import ProjectDetailPage from "./ProjectDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";

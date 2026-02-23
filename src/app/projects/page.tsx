@@ -1,4 +1,4 @@
-﻿import ProjectsPage from "@/legacy-pages/ProjectsPage";
+﻿import ProjectsPage from "./ProjectsPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 
 export const revalidate = 120;
