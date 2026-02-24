@@ -47,7 +47,9 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-background border-t border-border/50 mt-12">
+    <footer className="bg-surface-1 mt-0">
+      {/* Gradient top divider */}
+      <div className="section-divider" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         {/* Compact Footer Content */}
         <div className="grid md:grid-cols-3 gap-8 mb-8">

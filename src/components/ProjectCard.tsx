@@ -44,7 +44,7 @@ const ProjectCard = ({ id, title, description, image, tags, category, demoUrl, g
 
   return (
     <Card
-      className="group overflow-hidden bg-card shadow-card hover:shadow-glow transition-all duration-300 aspect-square relative cursor-pointer card-focus"
+      className="group overflow-hidden bg-card shadow-card hover:shadow-glow transition-all duration-300 aspect-[4/5] relative cursor-pointer card-focus"
       tabIndex={0}
       role="article"
     >
@@ -59,76 +59,77 @@ const ProjectCard = ({ id, title, description, image, tags, category, demoUrl, g
           alt={`${title} project thumbnail`}
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           width="443"
-          height="443"
+          height="554"
         />
 
-        {/* Instagram-style overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all duration-300 flex items-center justify-center">
-          <div className="relative z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-center p-4">
-            <h3 className="font-bold text-lg mb-2">{title}</h3>
-            <p className="text-sm text-white/90 mb-4 line-clamp-3">{getMarkdownExcerpt(description, 120)}</p>
+        {/* Hover overlay — dimming only */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300" />
 
-            {/* Instagram-style engagement metrics */}
-            <div className="flex justify-center gap-6 mb-4" role="group" aria-label="Project engagement metrics">
-              <div className="flex items-center gap-1" aria-label={`${likes} likes`}>
-                <Heart className="w-5 h-5 fill-white" aria-hidden="true" />
-                <span className="text-sm font-medium">{likes}</span>
-              </div>
-              <div className="flex items-center gap-1" aria-label={`${comments} comments`}>
-                <MessageCircle className="w-5 h-5" aria-hidden="true" />
-                <span className="text-sm font-medium">{comments}</span>
-              </div>
-              <div className="flex items-center gap-1" aria-label={`${views} views`}>
-                <Eye className="w-5 h-5" aria-hidden="true" />
-                <span className="text-sm font-medium">{views}</span>
-              </div>
-            </div>
+        {/* Hover-only content — description, metrics, action buttons */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 text-white text-center px-5">
+          <p className="text-sm text-white/90 mb-4 line-clamp-3 max-w-[90%]">{getMarkdownExcerpt(description, 120)}</p>
 
-            {/* Action buttons */}
-            <div className="flex justify-center gap-2" role="group" aria-label="Project actions">
-              {githubUrl && (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="bg-white/20 border-white/30 text-white hover:bg-white/30"
-                  onClick={handleCodeClick}
-                  aria-label={`View ${title} source code on GitHub`}
-                >
-                  <Github className="w-4 h-4 mr-2" aria-hidden="true" />
-                  Code
-                </Button>
-              )}
-              {demoUrl && (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="bg-white/20 border-white/30 text-white hover:bg-white/30"
-                  onClick={handleDemoClick}
-                  aria-label={`View ${title} live demo`}
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" aria-hidden="true" />
-                  Demo
-                </Button>
-              )}
+          {/* Engagement metrics */}
+          <div className="flex justify-center gap-5 mb-4" role="group" aria-label="Project engagement metrics">
+            <div className="flex items-center gap-1" aria-label={`${likes} likes`}>
+              <Heart className="w-4 h-4 fill-white" aria-hidden="true" />
+              <span className="text-sm font-medium">{likes}</span>
             </div>
+            <div className="flex items-center gap-1" aria-label={`${comments} comments`}>
+              <MessageCircle className="w-4 h-4" aria-hidden="true" />
+              <span className="text-sm font-medium">{comments}</span>
+            </div>
+            <div className="flex items-center gap-1" aria-label={`${views} views`}>
+              <Eye className="w-4 h-4" aria-hidden="true" />
+              <span className="text-sm font-medium">{views}</span>
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex justify-center gap-2" role="group" aria-label="Project actions">
+            {githubUrl && (
+              <Button
+                size="sm"
+                variant="secondary"
+                className="bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-sm"
+                onClick={handleCodeClick}
+                aria-label={`View ${title} source code on GitHub`}
+              >
+                <Github className="w-4 h-4 mr-1.5" aria-hidden="true" />
+                Code
+              </Button>
+            )}
+            {demoUrl && (
+              <Button
+                size="sm"
+                variant="secondary"
+                className="bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-sm"
+                onClick={handleDemoClick}
+                aria-label={`View ${title} live demo`}
+              >
+                <ExternalLink className="w-4 h-4 mr-1.5" aria-hidden="true" />
+                Demo
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* Bottom info bar - always visible */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4" aria-label="Project metadata">
+        {/* Bottom info bar — always visible with title + category + tags */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-12 pb-4 px-4 transition-all duration-300" aria-label="Project metadata">
+          <h3 className="font-bold text-white text-base mb-2 line-clamp-1">{title}</h3>
           <div className="flex items-center justify-between">
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm" aria-label={`Category: ${category}`}>
+            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm text-xs" aria-label={`Category: ${category}`}>
               {category}
             </Badge>
-            <div className="flex gap-2" role="list" aria-label="Project tags">
+            <div className="flex gap-1.5" role="list" aria-label="Project tags">
               {tags.slice(0, 2).map((tag) => (
                 <Badge
                   key={tag}
                   variant="outline"
-                  className="text-xs bg-white/10 text-white border-white/30 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-white pointer-events-none"
-                  aria-label={`Filter by ${tag} tag`}
+                  className="text-[11px] bg-white/10 text-white/80 border-white/20 backdrop-blur-sm pointer-events-none"
+                  aria-label={`Tag: ${tag}`}
                 >
                   {tag}
                 </Badge>

@@ -61,15 +61,6 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
     }
   };
 
-  // Floating orb animation
-  const floatingAnimation = {
-    y: [0, -10, 0],
-    transition: {
-      duration: 3,
-      repeat: Infinity,
-      ease: [0.4, 0, 0.6, 1] as const,
-    },
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,7 +72,7 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
         {/* Hero Section */}
         <motion.section
           ref={heroRef}
-          className="relative pt-28 pb-16 px-4 sm:px-6 overflow-hidden"
+          className="relative pt-36 pb-20 px-4 sm:px-6 overflow-hidden min-h-[90vh] flex items-center"
           initial="initial"
           animate="animate"
           variants={staggerContainer}
@@ -93,22 +84,20 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
           {/* Grid hidden on mobile via CSS (.bg-grid-slate display:none at <768px) */}
           <div className="absolute inset-0 bg-grid-slate opacity-[0.15] mask-soft" />
 
-          {/* Floating orbs */}
-          <motion.div
-            className="absolute top-20 left-10 w-32 h-32 bg-gradient-primary rounded-full blur-3xl opacity-20"
-            animate={floatingAnimation}
+          {/* Floating orbs — CSS-driven for zero JS overhead */}
+          <div
+            className="absolute top-20 left-10 w-32 h-32 bg-gradient-primary rounded-full blur-3xl opacity-20 animate-float pointer-events-none"
+            aria-hidden="true"
           />
-          <motion.div
-            className="absolute top-40 right-20 w-24 h-24 bg-gradient-accent rounded-full blur-2xl opacity-15"
-            animate={{
-              y: [0, -15, 0],
-              transition: {
-                duration: 4,
-                repeat: Infinity,
-                delay: 1,
-                ease: [0.4, 0, 0.6, 1] as const
-              }
-            }}
+          <div
+            className="absolute top-40 right-20 w-24 h-24 bg-gradient-accent rounded-full blur-2xl opacity-15 animate-float-delay pointer-events-none"
+            aria-hidden="true"
+          />
+          {/* Warm accent orb for color variety */}
+          <div
+            className="absolute bottom-20 left-1/3 w-40 h-40 rounded-full blur-3xl opacity-10 animate-float-delay pointer-events-none"
+            style={{ background: 'hsl(var(--warm-accent))' }}
+            aria-hidden="true"
           />
 
           <motion.div className="relative max-w-6xl mx-auto" variants={fadeInUp}>
@@ -133,16 +122,13 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
                     FIXED: Was `text-5xl sm:text-4xl` — that's backwards (bigger at xs, smaller at sm).
                     Now correctly mobile-first: 3xl → 4xl → 5xl → 6xl.
                   */}
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1]">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] font-[family-name:var(--font-jakarta)]">
                     I engineer decision systems,
-                    <motion.span
-                      className="block bg-gradient-primary bg-clip-text text-transparent"
-                      animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                      style={{ backgroundSize: '200% 200%' }}
+                    <span
+                      className="block bg-gradient-primary bg-clip-text text-transparent bg-gradient-animated"
                     >
                       focusing on data reliability and creating impact.
-                    </motion.span>
+                    </span>
                   </h1>
                 </Reveal>
 
@@ -166,13 +152,7 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
                               transition={{ duration: 0.6 }}
                             />
                             <span className="relative z-10">View Case Studies</span>
-                            <motion.div
-                              animate={{ x: [0, 3, 0] }}
-                              transition={{ duration: 1.5, repeat: Infinity }}
-                              className="relative z-10"
-                            >
-                              <ArrowRight className="w-4 h-4 ml-2" />
-                            </motion.div>
+                            <ArrowRight className="w-4 h-4 ml-2 relative z-10" />
                           </Link>
                         </Button>
                       </motion.div>
@@ -207,9 +187,10 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
                 <Reveal delay={120}>
                   <motion.div
                     className="aspect-[4/3] rounded-2xl overflow-hidden border bg-card shadow-glow relative group"
-                    whileHover={{ scale: 1.02, y: -5, rotateY: 5 }}
-                    transition={{ duration: 0.4, type: "spring" }}
-                    style={{ transformStyle: 'preserve-3d' }}
+                    initial={{ rotateY: -4, rotateX: 2 }}
+                    whileHover={{ scale: 1.02, y: -5, rotateY: 0, rotateX: 0 }}
+                    transition={{ duration: 0.5, type: "spring", stiffness: 120, damping: 15 }}
+                    style={{ transformStyle: 'preserve-3d', perspective: 1200 }}
                   >
                     {/* Floating badge */}
                     <motion.div
@@ -247,9 +228,12 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
           </motion.div>
         </motion.section>
 
+        {/* Section divider */}
+        <div className="section-divider" />
+
         {/* Tabbed navigation */}
         <motion.section
-          className="py-12 px-4 sm:px-6"
+          className="py-20 px-4 sm:px-6 bg-surface-1"
           initial={{ opacity: 0, y: isMobile ? 20 : 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: isMobile ? 0.3 : 0.6, ease: "easeOut" }}
@@ -268,10 +252,13 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
           </div>
         </motion.section>
 
+        {/* Section divider */}
+        <div className="section-divider" />
+
         {/* Contact Section */}
         <motion.section
           id="contact"
-          className="py-16 px-4 sm:px-6"
+          className="py-20 px-4 sm:px-6"
           initial={{ opacity: 0, y: isMobile ? 20 : 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: isMobile ? 0.3 : 0.6, ease: "easeOut" }}

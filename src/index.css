@@ -11,6 +11,15 @@ All colors MUST be HSL.
     --background: 210 20% 98%;
     --foreground: 220 15% 25%;
 
+    /* Surface layering system */
+    --surface-0: 210 20% 98%;
+    --surface-1: 210 18% 96%;
+    --surface-2: 0 0% 100%;
+
+    /* Warm accent */
+    --warm-accent: 38 95% 54%;
+    --warm-accent-foreground: 38 100% 15%;
+
     --card: 0 0% 100%;
     --card-foreground: 220 15% 25%;
 
@@ -31,27 +40,19 @@ All colors MUST be HSL.
     --accent-foreground: 250 80% 25%;
 
     /* Light gradients */
-    --gradient-primary: linear-gradient(
-      135deg,
-      hsl(217, 91%, 60%),
-      hsl(200, 100%, 70%)
-    );
-    --gradient-secondary: linear-gradient(
-      135deg,
-      hsl(190, 60%, 80%),
-      hsl(190, 70%, 85%)
-    );
-    --gradient-accent: linear-gradient(
-      135deg,
-      hsl(250, 60%, 75%),
-      hsl(240, 50%, 80%)
-    );
-    --gradient-hero: linear-gradient(
-      135deg,
-      hsl(217, 40%, 95%),
-      hsl(200, 30%, 97%),
-      hsl(190, 25%, 95%)
-    );
+    --gradient-primary: linear-gradient(135deg,
+        hsl(217, 91%, 60%),
+        hsl(200, 100%, 70%));
+    --gradient-secondary: linear-gradient(135deg,
+        hsl(190, 60%, 80%),
+        hsl(190, 70%, 85%));
+    --gradient-accent: linear-gradient(135deg,
+        hsl(250, 60%, 75%),
+        hsl(240, 50%, 80%));
+    --gradient-hero: linear-gradient(135deg,
+        hsl(217, 40%, 95%),
+        hsl(200, 30%, 97%),
+        hsl(190, 25%, 95%));
 
     /* Elegant shadows */
     --shadow-soft: 0 4px 20px -4px hsl(217 91% 60% / 0.15);
@@ -83,51 +84,63 @@ All colors MUST be HSL.
 
   .dark {
     /* Enhanced dark theme with better readability */
-    --background: 222 15% 6%; /* deeper, warmer black */
-    --foreground: 210 15% 97%; /* higher contrast white */
+    --background: 222 15% 6%;
+    /* deeper, warmer black */
+    --foreground: 210 15% 97%;
+    /* higher contrast white */
 
-    --card: 222 14% 9%; /* slightly warmer card background */
-    --card-foreground: 210 12% 98%; /* crisp white text */
+    /* Surface layering system */
+    --surface-0: 222 15% 6%;
+    --surface-1: 222 14% 10%;
+    --surface-2: 222 14% 13%;
+
+    /* Warm accent */
+    --warm-accent: 38 90% 64%;
+    --warm-accent-foreground: 0 0% 100%;
+
+    --card: 222 14% 9%;
+    /* slightly warmer card background */
+    --card-foreground: 210 12% 98%;
+    /* crisp white text */
 
     --popover: 222 15% 8%;
     --popover-foreground: 210 12% 98%;
 
     /* Brighter, more vibrant accent colors */
-    --primary: 258 95% 70%; /* brighter violet */
+    --primary: 258 95% 70%;
+    /* brighter violet */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 100% 68%; /* brighter blue glow */
+    --primary-glow: 217 100% 68%;
+    /* brighter blue glow */
 
-    --secondary: 220 15% 18%; /* improved contrast */
-    --secondary-foreground: 210 12% 92%; /* better readability */
+    --secondary: 220 15% 18%;
+    /* improved contrast */
+    --secondary-foreground: 210 12% 92%;
+    /* better readability */
 
-    --muted: 220 15% 15%; /* warmer muted background */
-    --muted-foreground: 210 10% 75%; /* improved text contrast */
+    --muted: 220 15% 15%;
+    /* warmer muted background */
+    --muted-foreground: 210 12% 78%;
+    /* improved text contrast — WCAG AA fix */
 
-    --accent: 217 100% 68%; /* brighter accent */
+    --accent: 217 100% 68%;
+    /* brighter accent */
     --accent-foreground: 0 0% 100%;
 
     /* Enhanced dark gradients with better vibrancy */
-    --gradient-primary: linear-gradient(
-      135deg,
-      hsl(258, 95%, 70%),
-      hsl(217, 100%, 68%)
-    );
-    --gradient-secondary: linear-gradient(
-      135deg,
-      hsl(220, 15%, 18%),
-      hsl(220, 15%, 22%)
-    );
-    --gradient-accent: linear-gradient(
-      135deg,
-      hsl(217, 100%, 68%),
-      hsl(258, 95%, 70%)
-    );
-    --gradient-hero: linear-gradient(
-      135deg,
-      hsl(222, 15%, 7%),
-      hsl(220, 15%, 9%),
-      hsl(218, 15%, 11%)
-    );
+    --gradient-primary: linear-gradient(135deg,
+        hsl(258, 95%, 70%),
+        hsl(217, 100%, 68%));
+    --gradient-secondary: linear-gradient(135deg,
+        hsl(220, 15%, 18%),
+        hsl(220, 15%, 22%));
+    --gradient-accent: linear-gradient(135deg,
+        hsl(217, 100%, 68%),
+        hsl(258, 95%, 70%));
+    --gradient-hero: linear-gradient(135deg,
+        hsl(222, 15%, 7%),
+        hsl(220, 15%, 9%),
+        hsl(218, 15%, 11%));
 
     /* Enhanced shadows for better depth */
     --shadow-soft: 0 8px 32px -8px hsl(217 100% 68% / 0.25);
@@ -137,8 +150,10 @@ All colors MUST be HSL.
     --destructive: 0 65% 46%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 15% 22%; /* improved border visibility */
-    --input: 220 15% 20%; /* better input contrast */
+    --border: 220 15% 25%;
+    /* improved border visibility — contrast fix */
+    --input: 220 15% 22%;
+    /* better input contrast */
     --ring: 258 95% 70%;
 
     --sidebar-background: 230 14% 8%;
@@ -156,83 +171,234 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+
+  /* Headline elements use Plus Jakarta Sans for geometric character */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
   }
 }
 
 /* Modern animations and effects */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
-@keyframes float-delay {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-}
-@keyframes bg-gradient-animated {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(var(--primary), 0.2); }
-  50% { box-shadow: 0 0 30px rgba(var(--primary), 0.4); }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-@keyframes slide-in-up {
-  0% { transform: translateY(20px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-@keyframes slide-in-down {
-  0% { transform: translateY(-20px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-@keyframes slide-in-left {
-  0% { transform: translateX(-20px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
-}
-@keyframes slide-in-right {
-  0% { transform: translateX(20px); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
-}
-@keyframes scale-in {
-  0% { transform: scale(0.9); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-@keyframes bounce-in {
-  0% { transform: scale(0.3); opacity: 0; }
-  50% { transform: scale(1.05); }
-  70% { transform: scale(0.9); }
-  100% { transform: scale(1); opacity: 1; }
-}
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 5px hsl(var(--primary) / 0.3); }
-  50% { box-shadow: 0 0 20px hsl(var(--primary) / 0.6); }
-}
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
-.animate-float { animation: float 6s ease-in-out infinite; }
-.animate-float-delay { animation: float-delay 8s ease-in-out infinite; }
+@keyframes float-delay {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes bg-gradient-animated {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(var(--primary), 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(var(--primary), 0.4);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes slide-in-up {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-down {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-left {
+  0% {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px hsl(var(--primary) / 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.6);
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delay {
+  animation: float-delay 8s ease-in-out infinite;
+}
+
 .bg-gradient-animated {
   background-size: 400% 400%;
   animation: bg-gradient-animated 15s ease infinite;
 }
-.animate-glow { animation: glow 2s ease-in-out infinite alternate; }
-.animate-slide-in-up { animation: slide-in-up 0.6s ease-out; }
-.animate-slide-in-down { animation: slide-in-down 0.6s ease-out; }
-.animate-slide-in-left { animation: slide-in-left 0.6s ease-out; }
-.animate-slide-in-right { animation: slide-in-right 0.6s ease-out; }
-.animate-scale-in { animation: scale-in 0.5s ease-out; }
-.animate-bounce-in { animation: bounce-in 0.7s ease-out; }
-.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.6s ease-out;
+}
+
+.animate-slide-in-down {
+  animation: slide-in-down 0.6s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.6s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.7s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
 
 .shimmer {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
@@ -246,6 +412,7 @@ All colors MUST be HSL.
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 .glass-dark {
   background: rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
@@ -257,18 +424,40 @@ All colors MUST be HSL.
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Surface layer utilities */
+.bg-surface-0 {
+  background-color: hsl(var(--surface-0));
+}
+
+.bg-surface-1 {
+  background-color: hsl(var(--surface-1));
+}
+
+.bg-surface-2 {
+  background-color: hsl(var(--surface-2));
+}
+
+/* Gradient section divider */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.2), transparent);
+}
+
 /* Custom scrollbars */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
 }
+
 .scrollbar-thin::-webkit-scrollbar-track {
   background: rgba(var(--muted), 0.3);
   border-radius: 3px;
 }
+
 .scrollbar-thin::-webkit-scrollbar-thumb {
   background: rgba(var(--primary), 0.4);
   border-radius: 3px;
 }
+
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: rgba(var(--primary), 0.6);
 }
@@ -300,33 +489,30 @@ All colors MUST be HSL.
 
 /* Designer hero background utilities */
 .bg-hero-spotlight {
-  background: radial-gradient(
-      800px 400px at 20% 20%,
-      hsl(258 90% 66% / 0.15),
-      transparent 60%
-    ),
-    radial-gradient(
-      800px 400px at 80% 10%,
-      hsl(220 100% 60% / 0.12),
-      transparent 60%
-    ),
+  background: radial-gradient(1000px 600px at 15% 30%,
+      hsl(258 90% 66% / 0.18),
+      transparent 65%),
+    radial-gradient(900px 500px at 85% 15%,
+      hsl(217 100% 60% / 0.14),
+      transparent 60%),
+    radial-gradient(600px 400px at 50% 90%,
+      hsl(var(--warm-accent) / 0.06),
+      transparent 60%),
     linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
 }
+
 .bg-grid-slate {
-  background-image: linear-gradient(
-      hsl(var(--border) / 0.15) 1px,
-      transparent 1px
-    ),
+  background-image: linear-gradient(hsl(var(--border) / 0.15) 1px,
+      transparent 1px),
     linear-gradient(90deg, hsl(var(--border) / 0.15) 1px, transparent 1px);
   background-size: 24px 24px, 24px 24px;
   background-position: center;
 }
+
 .mask-soft {
-  -webkit-mask-image: radial-gradient(
-    ellipse at center,
-    black 40%,
-    transparent 80%
-  );
+  -webkit-mask-image: radial-gradient(ellipse at center,
+      black 40%,
+      transparent 80%);
   mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
 }
 
@@ -337,6 +523,7 @@ All colors MUST be HSL.
   transition: opacity 600ms ease, transform 600ms ease;
   will-change: opacity, transform;
 }
+
 .reveal-visible {
   opacity: 1;
   transform: translateY(0);
@@ -362,33 +549,44 @@ All colors MUST be HSL.
 
 /* Subtle entrance animation for cards/sections */
 @keyframes fade-up {
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.animate-fade-up { animation: fade-up 500ms ease forwards; }
+
+.animate-fade-up {
+  animation: fade-up 500ms ease forwards;
+}
 
 /* Performance optimizations for mobile */
 @layer utilities {
+
   /* GPU acceleration for transforms */
   .gpu-accelerated {
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
   }
-  
+
   /* Containment for better performance */
   .contain-layout {
     contain: layout;
   }
-  
+
   .contain-paint {
     contain: paint;
   }
-  
+
   .contain-strict {
     contain: strict;
   }
-  
+
   /* Content visibility for off-screen content */
   .content-auto {
     content-visibility: auto;
@@ -398,8 +596,15 @@ All colors MUST be HSL.
 
 /* Mobile-specific optimizations */
 @media (max-width: 768px) {
+
   /* Eliminate 300ms tap delay on all interactive elements */
-  a, button, [role="button"], input, label, select, textarea {
+  a,
+  button,
+  [role="button"],
+  input,
+  label,
+  select,
+  textarea {
     touch-action: manipulation;
   }
 
@@ -409,18 +614,18 @@ All colors MUST be HSL.
   [class*="animate-glow"] {
     animation: none !important;
   }
-  
+
   /* Faster animations on mobile */
   [class*="animate-"] {
     animation-duration: 0.2s !important;
   }
-  
+
   /* Reduce backdrop blur intensity on mobile for better performance */
   .backdrop-blur-xl {
     backdrop-filter: blur(6px) !important;
     -webkit-backdrop-filter: blur(6px) !important;
   }
-  
+
   .backdrop-blur-sm {
     backdrop-filter: blur(3px) !important;
     -webkit-backdrop-filter: blur(3px) !important;
@@ -432,20 +637,20 @@ All colors MUST be HSL.
     backdrop-filter: blur(8px) !important;
     -webkit-backdrop-filter: blur(8px) !important;
   }
-  
+
   /* Optimize shadows for mobile — removes expensive blur-heavy shadows */
   .shadow-glow,
   .shadow-soft {
     box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.1) !important;
   }
-  
+
   /* Reset GPU layer promotion for elements that are NOT animating */
   /* (Prevents overdraw from excessive compositor layers) */
   [style*="will-change: opacity"],
   [style*="will-change: transform"] {
     will-change: auto;
   }
-  
+
   /* Force GPU compositing only on the scroll container, not every section */
   main {
     transform: translateZ(0);
@@ -459,6 +664,7 @@ All colors MUST be HSL.
 
 /* Prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
