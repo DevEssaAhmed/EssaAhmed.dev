@@ -1,14 +1,14 @@
 ﻿import SeriesDetailPage from "./SeriesDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
-import { Metadata } from 'next';
+import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata";
 
-export const revalidate = 120; // 2 minutes
+export const revalidate = 120;
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-// Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
@@ -16,21 +16,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: series } = await supabase
     .from("series")
-    .select("name, description")
+    .select("title, description")
     .eq("slug", slug)
     .single();
 
   if (!series) {
-    return { title: 'Series Not Found' };
+    return buildPageMetadata({
+      title: "Series Not Found",
+      description: "The requested series could not be found.",
+      path: `/articles/series/${slug}`,
+    });
   }
 
-  return {
-    title: `${series.name} | Series`,
-    description: series.description || `Read the complete ${series.name} article series.`,
-    alternates: {
-      canonical: `/articles/series/${slug}`,
-    },
-  };
+  return buildPageMetadata({
+    title: `${series.title} Series`,
+    description: series.description || `Read the complete ${series.title} article series.`,
+    path: `/articles/series/${slug}`,
+  });
 }
 
 export default async function Page({ params }: Props) {
@@ -38,7 +40,6 @@ export default async function Page({ params }: Props) {
   const slug = resolvedParams.slug;
   const supabase = getSupabaseServer();
 
-  // 1. Fetch series by slug
   const { data: seriesData } = await supabase
     .from("series")
     .select("*")
@@ -46,10 +47,9 @@ export default async function Page({ params }: Props) {
     .single();
 
   if (!seriesData) {
-    return <SeriesDetailPage />; // Let client handle the 404/redirect
+    return <SeriesDetailPage />;
   }
 
-  // 2. Fetch associated published articles ordered by series_order
   const { data: articlesData } = await supabase
     .from("blog_posts")
     .select("*")
@@ -65,3 +65,4 @@ export default async function Page({ params }: Props) {
     />
   );
 }
+

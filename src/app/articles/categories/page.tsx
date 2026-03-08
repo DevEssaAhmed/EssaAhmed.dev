@@ -1,7 +1,14 @@
 ﻿import CategoriesPage from "./CategoriesPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { buildPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 120;
+
+export const metadata = buildPageMetadata({
+  title: "Article Categories",
+  description: "Explore articles organized by topic and subject area.",
+  path: "/articles/categories",
+});
 
 export default async function Page() {
   const supabase = getSupabaseServer();
@@ -13,3 +20,4 @@ export default async function Page() {
 
   return <CategoriesPage initialCategories={data || []} />;
 }
+

@@ -2,6 +2,7 @@
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -16,24 +17,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .eq("id", id)
     .single();
 
-  if (!data) return { title: "Project Not Found" };
+  if (!data) {
+    return buildPageMetadata({
+      title: "Project Not Found",
+      description: "The requested project could not be found.",
+      path: `/projects/${id}`,
+    });
+  }
 
-  return {
-    title: `${data.title} | Essa Ahmed`,
+  return buildPageMetadata({
+    title: data.title,
     description: data.description || data.title,
-    openGraph: {
-      title: data.title,
-      description: data.description || data.title,
-      type: "article",
-      images: data.image_url ? [{ url: data.image_url }] : undefined,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: data.title,
-      description: data.description || data.title,
-      images: data.image_url ? [data.image_url] : undefined,
-    },
-  };
+    path: `/projects/${id}`,
+    image: data.image_url,
+  });
 }
 
 export default async function Page({ params }: PageProps) {
@@ -54,3 +51,4 @@ export default async function Page({ params }: PageProps) {
 
   return <ProjectDetailPage initialProject={project} initialProjectTags={initialProjectTags} />;
 }
+

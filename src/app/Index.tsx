@@ -2,9 +2,8 @@
 
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
-import SEO from "@/components/SEO";
 import Link from "next/link";
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,10 +11,22 @@ import { ArrowRight, Star, Sparkles } from "lucide-react";
 import { useProfile } from "@/contexts/ProfileContext";
 import TabNavigation from "@/components/TabNavigation";
 import Reveal from "@/components/ui/reveal";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform, useSpring } from "framer-motion";
 
-const DashboardHero = lazy(() => import("@/components/home/DashboardHero"));
-const OptimizedContactForm = lazy(() => import("@/components/OptimizedContactForm"));
+import dynamic from "next/dynamic";
+
+const DashboardHero = dynamic(() => import("@/components/home/DashboardHero"), {
+  loading: () => <Skeleton className="h-full w-full" />
+});
+const OptimizedContactForm = dynamic(() => import("@/components/OptimizedContactForm"), {
+  loading: () => (
+    <div className="rounded-xl border p-6">
+      <Skeleton className="h-6 w-1/2 mb-4" />
+      <Skeleton className="h-10 w-full mb-3" />
+      <Skeleton className="h-10 w-full" />
+    </div>
+  )
+});
 
 // Breakpoint matches the `lg` Tailwind breakpoint (1024px) used to show the dashboard
 const useIsMobile = () => {
@@ -38,25 +49,27 @@ interface IndexProps {
 const Index = ({ initialProjects, initialProjectCategories, initialArticles }: IndexProps) => {
   const { profile } = useProfile();
   const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
 
   const heroRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll();
 
   // Disable parallax on mobile — no spring math on the main thread
-  const y = useTransform(scrollYProgress, [0, 1], [0, isMobile ? 0 : -50]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3], [1, isMobile ? 1 : 0]);
-  const springY = useSpring(y, { stiffness: isMobile ? 0 : 100, damping: isMobile ? 0 : 30 });
+  const motionDisabled = Boolean(prefersReducedMotion);
+  const y = useTransform(scrollYProgress, [0, 1], [0, isMobile || motionDisabled ? 0 : -50]);
+  const opacity = useTransform(scrollYProgress, [0, 0.3], [1, isMobile || motionDisabled ? 1 : 0]);
+  const springY = useSpring(y, { stiffness: isMobile || motionDisabled ? 0 : 100, damping: isMobile || motionDisabled ? 0 : 30 });
 
   const fadeInUp = {
     initial: { opacity: 0, y: isMobile ? 20 : 60 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: isMobile ? 0.3 : 0.6, ease: "easeOut" }
+    transition: { duration: isMobile || motionDisabled ? 0.2 : 0.6, ease: "easeOut" }
   };
 
   const staggerContainer = {
     animate: {
       transition: {
-        staggerChildren: isMobile ? 0.05 : 0.1
+        staggerChildren: isMobile || motionDisabled ? 0 : 0.1
       }
     }
   };
@@ -64,7 +77,6 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO title="Home" description="Design-forward portfolio and journal showcasing selected work, process, and thinking." url="/" />
       <Navigation />
 
       <main id="main-content" role="main" aria-label="Main content">
@@ -120,7 +132,7 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
                 <Reveal delay={60}>
                   {/*
                     FIXED: Was `text-5xl sm:text-4xl` — that's backwards (bigger at xs, smaller at sm).
-                    Now correctly mobile-first: 3xl → 4xl → 5xl → 6xl.
+                    Now correctly mobile-first: 3xl ? 4xl ? 5xl ? 6xl.
                   */}
                   <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] font-[family-name:var(--font-jakarta)]">
                     I engineer decision systems,
@@ -236,7 +248,7 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
           className="py-20 px-4 sm:px-6 bg-surface-1"
           initial={{ opacity: 0, y: isMobile ? 20 : 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: isMobile ? 0.3 : 0.6, ease: "easeOut" }}
+          transition={{ duration: isMobile || motionDisabled ? 0.2 : 0.6, ease: "easeOut" }}
           viewport={{ once: true }}
           aria-label="Featured content sections"
         >
@@ -261,7 +273,7 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
           className="py-20 px-4 sm:px-6"
           initial={{ opacity: 0, y: isMobile ? 20 : 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: isMobile ? 0.3 : 0.6, ease: "easeOut" }}
+          transition={{ duration: isMobile || motionDisabled ? 0.2 : 0.6, ease: "easeOut" }}
           viewport={{ once: true, margin: "-100px" }}
           aria-labelledby="contact-heading"
         >
@@ -298,3 +310,8 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
 };
 
 export default Index;
+
+
+
+
+

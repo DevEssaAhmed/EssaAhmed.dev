@@ -1,12 +1,14 @@
 ﻿import ArticlesPage from "./ArticlesPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { buildPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 120;
 
-export const metadata = {
-  title: "Articles & Insights | Essa Ahmed",
-  description: "Thoughts, tutorials, and insights about data science, analytics, and technology",
-};
+export const metadata = buildPageMetadata({
+  title: "Articles & Insights",
+  description: "Thoughts, tutorials, and insights about data science, analytics, and technology.",
+  path: "/articles",
+});
 
 export default async function Page() {
   const supabase = getSupabaseServer();
@@ -18,3 +20,4 @@ export default async function Page() {
 
   return <ArticlesPage initialArticles={data || []} />;
 }
+

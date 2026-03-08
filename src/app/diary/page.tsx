@@ -1,17 +1,16 @@
 ﻿import type { Metadata } from "next";
 import DiaryPage from "./DiaryPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { buildPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 120;
 
-export const metadata: Metadata = {
-  title: "Diary | Essa Ahmed",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Diary",
   description:
     "A public online diary timeline with personal notes, experiments, and life updates.",
-  alternates: {
-    canonical: "/diary",
-  },
-};
+  path: "/diary",
+});
 
 type SearchParamValue = string | string[] | undefined;
 
@@ -65,3 +64,4 @@ export default async function Page({ searchParams }: DiaryPageRouteProps) {
     />
   );
 }
+

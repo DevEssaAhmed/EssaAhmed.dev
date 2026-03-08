@@ -21,7 +21,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { HashLink } from '@/lib/hash-link-compat';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 const NavIcon = ({ name }: { name: string }) => {
   const map: Record<string, any> = { Home, Box, BookOpen, Layers, Tag, Info };
   const Cmp = map[name] || Home;
@@ -35,6 +35,7 @@ const Navigation = memo(() => {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
   const { profile } = useProfile();
+  const prefersReducedMotion = useReducedMotion();
 
   const isHome = location.pathname === '/';
 
@@ -61,6 +62,17 @@ const Navigation = memo(() => {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -102,7 +114,7 @@ const Navigation = memo(() => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
                 onClick={() => setIsOpen(false)}
                 aria-hidden='true'
               />
@@ -115,7 +127,8 @@ const Navigation = memo(() => {
                 initial={{ x: '100%' }}
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', damping: 30, stiffness: 300 }}
+                id='mobile-navigation'
                 role='dialog'
                 aria-modal='true'
                 aria-label='Mobile navigation menu'
@@ -186,7 +199,7 @@ const Navigation = memo(() => {
                         onClick={() => setIsOpen(false)}
                         aria-label='Contact me for hiring'
                       >
-                        ðŸ’¼ Hire Me
+                        Hire Me
                       </Button>
                     </HashLink>
                     {user && (
@@ -196,7 +209,7 @@ const Navigation = memo(() => {
                           onClick={() => setIsOpen(false)}
                           aria-label='Go to admin dashboard'
                         >
-                          âš™ï¸ Admin Panel
+                          Admin Panel
                         </Link>
                       </Button>
                     )}
@@ -297,6 +310,8 @@ const Navigation = memo(() => {
                 onClick={() => setIsOpen(!isOpen)}
                 className='rounded-lg relative z-50'
                 aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-controls='mobile-navigation'
+                aria-expanded={isOpen}
               >
                 {isOpen ? (
                   <X className='w-5 h-5' />
@@ -317,5 +332,8 @@ const Navigation = memo(() => {
 Navigation.displayName = 'Navigation';
 
 export default Navigation;
+
+
+
 
 

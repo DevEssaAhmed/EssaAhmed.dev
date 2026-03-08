@@ -1,7 +1,14 @@
 ﻿import AboutPage from "./AboutPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { buildPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 120;
+
+export const metadata = buildPageMetadata({
+  title: "About",
+  description: "Background, writing, and current focus areas for Essa Ahmed.",
+  path: "/about",
+});
 
 export default async function Page() {
   const supabase = getSupabaseServer();
@@ -14,3 +21,4 @@ export default async function Page() {
 
   return <AboutPage initialProfile={data || undefined} />;
 }
+

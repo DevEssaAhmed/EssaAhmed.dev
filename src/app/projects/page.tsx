@@ -1,7 +1,14 @@
 ﻿import ProjectsPage from "./ProjectsPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { buildPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 120;
+
+export const metadata = buildPageMetadata({
+  title: "Projects",
+  description: "Browse analytics, dashboard, and data application projects by Essa Ahmed.",
+  path: "/projects",
+});
 
 export default async function Page() {
   const supabase = getSupabaseServer();
@@ -26,3 +33,4 @@ export default async function Page() {
 
   return <ProjectsPage initialProjects={initialProjects} />;
 }
+

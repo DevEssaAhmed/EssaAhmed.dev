@@ -1,16 +1,13 @@
 ﻿"use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Eye, Heart, ArrowRight, FileText } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import ArticlesSubNav from "@/components/ArticlesSubNav";
 import { motion } from "framer-motion";
@@ -19,43 +16,29 @@ type ArticlesPageProps = {
   initialArticles?: any[];
 };
 
-const ArticlesPage = ({ initialArticles }: ArticlesPageProps) => {
-  const [articles, setArticles] = useState<any[]>(initialArticles ?? []);
+const ArticlesPage = ({ initialArticles = [] }: ArticlesPageProps) => {
   const [selectedTag, setSelectedTag] = useState("All");
-  const [loading, setLoading] = useState(initialArticles === undefined);
+  const articles = initialArticles;
 
-  useEffect(() => {
-    if (initialArticles === undefined) fetchArticles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const fetchArticles = async () => {
-    try {
-      setLoading(true);
-      const { data } = await supabase
-        .from("blog_posts")
-        .select("*")
-        .eq("published", true)
-        .order("created_at", { ascending: false });
-      setArticles(data || []);
-    } catch (error) {
-      console.error("Error fetching articles:", error);
-      setArticles([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const allTags = ["All", ...new Set(articles.flatMap((article: any) => article.tags || []))];
-  const filteredArticles = selectedTag === "All" ? articles : articles.filter((article: any) => article.tags?.includes(selectedTag));
+  const allTags = useMemo(
+    () => ["All", ...new Set(articles.flatMap((article: any) => article.tags || []))],
+    [articles]
+  );
+  const filteredArticles =
+    selectedTag === "All"
+      ? articles
+      : articles.filter((article: any) => article.tags?.includes(selectedTag));
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO title="Articles" description="Thoughts, tutorials, and insights about data science, analytics, and technology" url="/articles" />
       <Navigation />
       <div className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-6">
+              <FileText className="w-4 h-4" />
+              Fresh writing, notes, and long-form thinking
+            </div>
             <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">Articles & Insights</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">Thoughts, tutorials, and insights about data science, analytics, and technology</p>
             <ArticlesSubNav />
@@ -74,23 +57,7 @@ const ArticlesPage = ({ initialArticles }: ArticlesPageProps) => {
             ))}
           </div>
 
-          {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
-                  <div className="h-48 w-full bg-muted rounded-t-lg" />
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-2">
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-4 w-16" />
-                    </div>
-                    <Skeleton className="h-6 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          ) : filteredArticles.length > 0 ? (
+          {filteredArticles.length > 0 ? (
             <motion.div
               className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
               variants={{ show: { transition: { staggerChildren: 0.09 } } }}
@@ -105,9 +72,14 @@ const ArticlesPage = ({ initialArticles }: ArticlesPageProps) => {
                   transition={{ duration: 0.4, ease: "easeOut" }}
                 >
                   <Link href={`/articles/${article.slug}`} className="block h-full">
-                    <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer h-full hover:-translate-y-1 border-border/50">
+                    <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer h-full hover:-translate-y-1 border-border/50 overflow-hidden">
                       <div className="relative overflow-hidden rounded-t-lg">
-                        <OptimizedImage src={article.image_url || "/placeholder.svg"} alt={article.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <OptimizedImage
+                          src={article.image_url || "/placeholder.svg"}
+                          alt={article.title}
+                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
                       </div>
                       <CardHeader>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
@@ -145,7 +117,7 @@ const ArticlesPage = ({ initialArticles }: ArticlesPageProps) => {
                 <h3 className="text-3xl font-bold tracking-tight mb-3">No Articles Found</h3>
                 <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-8">
                   {selectedTag === "All"
-                    ? "I'm currently writing new content. Check back soon for fresh articles."
+                    ? "I&apos;m currently writing new content. Check back soon for fresh articles."
                     : `There are currently no articles published under the "${selectedTag}" tag.`}
                 </p>
                 {selectedTag !== "All" && (
@@ -160,7 +132,7 @@ const ArticlesPage = ({ initialArticles }: ArticlesPageProps) => {
           <div className="text-center mt-12">
             <Button asChild variant="outline" size="lg" className="hover:bg-primary/5 hover:border-primary/30 transition-all duration-300">
               <Link href="/articles">
-                View All Articles
+                Browse the archive
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
@@ -173,3 +145,4 @@ const ArticlesPage = ({ initialArticles }: ArticlesPageProps) => {
 };
 
 export default ArticlesPage;
+

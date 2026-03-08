@@ -1,7 +1,14 @@
 ﻿import SeriesPage from "./SeriesPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { buildPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 120;
+
+export const metadata = buildPageMetadata({
+  title: "Article Series",
+  description: "Dive into structured article series and long-form learning paths.",
+  path: "/articles/series",
+});
 
 export default async function Page() {
   const supabase = getSupabaseServer();
@@ -13,3 +20,4 @@ export default async function Page() {
 
   return <SeriesPage initialSeries={data || []} />;
 }
+

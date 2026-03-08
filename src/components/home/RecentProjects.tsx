@@ -1,13 +1,11 @@
-import { useState, useEffect, useCallback, memo } from "react";
+﻿import { useMemo, useState, memo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Eye, Heart, ExternalLink, Github, FolderSearch } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { getMarkdownExcerpt } from "@/lib/markdownUtils";
-import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface RecentProjectsProps {
@@ -16,18 +14,11 @@ interface RecentProjectsProps {
   initialCategories?: string[];
 }
 
-const RecentProjects = memo(({ showAll = false, initialProjects, initialCategories }: RecentProjectsProps) => {
+const RecentProjects = memo(({ showAll = false, initialProjects = [], initialCategories = [] }: RecentProjectsProps) => {
   const router = useRouter();
-  const [projects, setProjects] = useState<any[]>(initialProjects ?? []);
-  const [categories, setCategories] = useState<string[]>(
-    initialCategories ? ["All", ...initialCategories] : []
-  );
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [loading, setLoading] = useState(initialProjects === undefined);
-
-  const handleTagInteraction = (e: React.SyntheticEvent) => {
-    e.stopPropagation();
-  };
+  const projects = initialProjects;
+  const categories = useMemo(() => ["All", ...initialCategories], [initialCategories]);
 
   const handleCardKeyDown = (e: React.KeyboardEvent, href: string) => {
     if (e.key === "Enter" || e.key === " ") {
@@ -36,60 +27,12 @@ const RecentProjects = memo(({ showAll = false, initialProjects, initialCategori
     }
   };
 
-  const fetchProjects = useCallback(async () => {
-    try {
-      const { data } = await supabase
-        .from("projects")
-        .select("id,title,description,image_url,featured,views,likes,demo_url,github_url,created_at,categories(name),project_tags(tags(name))")
-        .order("created_at", { ascending: false })
-        .limit(showAll ? 50 : 6);
-
-      if (data) {
-        const projectsWithTags = data.map((project: any) => ({
-          ...project,
-          tags: (project.project_tags || []).map((pt: any) => pt.tags?.name).filter(Boolean),
-        }));
-        setProjects(projectsWithTags);
-
-        const { data: categoriesData } = await supabase.from("categories").select("name").order("name");
-        const categoryNames = categoriesData?.map((cat: any) => cat.name) || [];
-        setCategories(["All", ...categoryNames]);
-      }
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [showAll]);
-
-  useEffect(() => {
-    if (initialProjects === undefined) fetchProjects();
-  }, [fetchProjects, initialProjects]);
-
   const filteredProjects =
     selectedCategory === "All"
       ? projects.slice(0, showAll ? projects.length : 4)
       : projects
-        .filter((project: any) => project.categories?.name === selectedCategory)
-        .slice(0, showAll ? projects.length : 4);
-
-  if (loading) {
-    return (
-      <section className="py-12">
-        <div className="grid md:grid-cols-2 gap-6">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}>
-              <Skeleton className="h-48 w-full rounded-t-lg" />
-              <CardHeader>
-                <Skeleton className="h-6 w-2/3" />
-                <Skeleton className="h-4 w-full" />
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-      </section>
-    );
-  }
+          .filter((project: any) => project.categories?.name === selectedCategory || project.category === selectedCategory)
+          .slice(0, showAll ? projects.length : 4);
 
   return (
     <section className="py-12 space-y-6">
@@ -117,12 +60,13 @@ const RecentProjects = memo(({ showAll = false, initialProjects, initialCategori
               onClick={() => router.push(`/projects/${project.id}`)}
               onKeyDown={(e) => handleCardKeyDown(e, `/projects/${project.id}`)}
             >
-              {project.image_url && (
+              {(project.image_url || project.image) && (
                 <div className="h-48 overflow-hidden rounded-t-lg">
                   <OptimizedImage
-                    src={project.image_url}
+                    src={project.image_url || project.image}
                     alt={project.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                 </div>
               )}
@@ -140,11 +84,7 @@ const RecentProjects = memo(({ showAll = false, initialProjects, initialCategori
               <CardContent className="space-y-4">
                 <div className="flex flex-wrap gap-2">
                   {(project.tags || []).slice(0, 4).map((tag: string) => (
-                    <Badge
-                      key={tag}
-                      variant="outline"
-                      className="pointer-events-none"
-                    >
+                    <Badge key={tag} variant="outline" className="pointer-events-none">
                       #{tag}
                     </Badge>
                   ))}
@@ -156,8 +96,8 @@ const RecentProjects = memo(({ showAll = false, initialProjects, initialCategori
                     <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {project.likes || 0}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {project.demo_url && <ExternalLink className="w-3 h-3" />}
-                    {project.github_url && <Github className="w-3 h-3" />}
+                    {project.demo_url || project.demoUrl ? <ExternalLink className="w-3 h-3" /> : null}
+                    {project.github_url || project.githubUrl ? <Github className="w-3 h-3" /> : null}
                   </div>
                 </div>
               </CardContent>
@@ -174,8 +114,8 @@ const RecentProjects = memo(({ showAll = false, initialProjects, initialCategori
             <h3 className="text-3xl font-bold tracking-tight mb-3">No Projects Found</h3>
             <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-8">
               {selectedCategory === "All"
-                ? "I'm currently working on some exciting new projects. Check back soon!"
-                : `We couldn't find any projects in the "${selectedCategory}" category.`}
+                ? "I&apos;m currently working on some exciting new projects. Check back soon!"
+                : `We couldn&apos;t find any projects in the "${selectedCategory}" category.`}
             </p>
             {selectedCategory !== "All" && (
               <Button onClick={() => setSelectedCategory("All")} className="bg-gradient-primary hover:shadow-glow transition-all duration-300 rounded-xl px-8 h-12">
@@ -202,3 +142,4 @@ const RecentProjects = memo(({ showAll = false, initialProjects, initialCategori
 RecentProjects.displayName = "RecentProjects";
 
 export default RecentProjects;
+

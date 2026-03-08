@@ -1,7 +1,11 @@
 ﻿"use client";
 
+import dynamic from "next/dynamic";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import ProjectEditorEnhanced from "@/components/admin/project/ProjectEditorEnhanced";
+
+const ProjectEditorEnhanced = dynamic(() => import("@/components/admin/project/ProjectEditorEnhanced"), {
+  ssr: false,
+});
 
 export default function Page() {
   return (
