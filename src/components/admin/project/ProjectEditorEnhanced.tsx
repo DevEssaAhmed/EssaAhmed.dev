@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { OptimizedImage } from "@/components/OptimizedImage";
 import React, { useEffect, useState, useRef, useCallback } from 'react';
@@ -561,7 +561,7 @@ const ProjectEditorEnhanced: React.FC = () => {
         {/* Floating Sidebar */}
         <div
           className={cn(
-            'w-full lg:w-[380px] shrink-0 space-y-6 transition-all duration-500',
+            'w-full lg:w-[300px] shrink-0 space-y-6 transition-all duration-500',
             focusMode ? 'opacity-0 translate-x-8 pointer-events-none hidden' : 'opacity-100 translate-x-0 block'
           )}
         >

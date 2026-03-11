@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { useState, useEffect } from "react";
@@ -281,9 +281,9 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
                 <Card>
                   <CardContent className="pt-6">
                     <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-                      {project.demo_video_type === 'youtube' ? (
-                        <iframe src={`https://www.youtube.com/embed/${project.demo_video_url.split('/').pop()}`} className="w-full h-full" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
-                      ) : project.demo_video_type === 'vimeo' ? (
+                      {project.demo_video_type === 'youtube' || project.demo_video_url.includes('youtube') || project.demo_video_url.includes('youtu.be') ? (
+                        <iframe src={`https://www.youtube.com/embed/${project.demo_video_url.includes('watch?v=') ? project.demo_video_url.split('watch?v=')[1]?.split('&')[0] : project.demo_video_url.split('/').pop()}`} className="w-full h-full" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+                      ) : project.demo_video_type === 'vimeo' || project.demo_video_url.includes('vimeo') ? (
                         <iframe src={`https://player.vimeo.com/video/${project.demo_video_url.split('/').pop()}`} className="w-full h-full" allowFullScreen />
                       ) : (
                         <video src={project.demo_video_url} controls className="w-full h-full" />

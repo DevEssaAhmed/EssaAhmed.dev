@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -26,6 +26,8 @@ type Article = {
   excerpt: string;
   tags: string[];
   image_url: string;
+  video_url?: string;
+  video_type?: string;
   views: number;
   likes: number;
   reading_time: number;
@@ -175,6 +177,32 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
           <p className="text-xl text-muted-foreground leading-relaxed mb-10 border-l-4 border-primary/40 pl-5">
             {article.excerpt}
           </p>
+
+          {/* Video Player */}
+          {article.video_url && (
+            <div className="mb-10 rounded-xl overflow-hidden border border-border/50 shadow-sm">
+              <div className="aspect-video bg-muted">
+                {article.video_type === 'youtube' || article.video_url.includes('youtube') || article.video_url.includes('youtu.be') ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${article.video_url.includes('watch?v=') ? article.video_url.split('watch?v=')[1]?.split('&')[0] : article.video_url.split('/').pop()}`}
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    title={article.title}
+                  />
+                ) : article.video_type === 'vimeo' || article.video_url.includes('vimeo') ? (
+                  <iframe
+                    src={`https://player.vimeo.com/video/${article.video_url.split('/').pop()}`}
+                    className="w-full h-full"
+                    allowFullScreen
+                    title={article.title}
+                  />
+                ) : (
+                  <video src={article.video_url} controls className="w-full h-full" />
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Article Body */}
           <div className="prose prose-lg dark:prose-invert max-w-none mb-12">

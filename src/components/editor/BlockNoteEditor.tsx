@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { BlockNoteEditor, Block, PartialBlock } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/mantine';
+import { SuggestionMenuController, getDefaultReactSlashMenuItems } from '@blocknote/react';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import './blocknote-theme.css';
@@ -180,6 +181,13 @@ export function markdownToBlocks(markdown: string): PartialBlock[] {
         blocks.push({ type: 'image', props: { url: match[1] } });
       }
     }
+    // Handle videos (custom syntax !video[...](...))
+    else if (line.match(/^!video\[.*?\]\((.+?)\)$/)) {
+      const match = line.match(/^!video\[.*?\]\((.+?)\)$/);
+      if (match) {
+        blocks.push({ type: 'video', props: { url: match[1] } });
+      }
+    }
     // Handle horizontal rules — render as an empty paragraph (BlockNote has no HR)
     else if (line === '---' || line === '***') {
       blocks.push({ type: 'paragraph', content: '' });
@@ -196,7 +204,23 @@ export function markdownToBlocks(markdown: string): PartialBlock[] {
 // Convert blocks to markdown
 export async function blocksToMarkdown(editor: BlockNoteEditor): Promise<string> {
   try {
-    return await editor.blocksToMarkdownLossy(editor.document);
+    let markdown = '';
+    const blocks = editor.document;
+    
+    for (const block of blocks) {
+      if (block.type === 'video') {
+        const url = (block.props as { url?: string }).url || '';
+        if (url) {
+          markdown += `\n!video[${url}](${url})\n\n`;
+        }
+      } else {
+        // Use lossy for everything else, but block by block
+        const blockMd = await editor.blocksToMarkdownLossy([block]);
+        markdown += blockMd + '\n';
+      }
+    }
+    
+    return markdown.trim();
   } catch (error) {
     console.error('Error converting to markdown:', error);
     return '';
@@ -325,7 +349,24 @@ const BlockNoteEditorComponent: React.FC<BlockNoteEditorProps> = ({
           editable={editable}
           theme={theme}
           data-color-scheme={theme}
-        />
+          slashMenu={false}
+        >
+          <SuggestionMenuController
+            triggerCharacter="/"
+            getItems={async (query) => {
+              const defaultItems = getDefaultReactSlashMenuItems(editor);
+              // Filter items based on query
+              if (!query) return defaultItems;
+              const lowerQuery = query.toLowerCase();
+              return defaultItems.filter(
+                (item) =>
+                  item.title.toLowerCase().includes(lowerQuery) ||
+                  (item.subtext && item.subtext.toLowerCase().includes(lowerQuery)) ||
+                  (item.aliases && item.aliases.some((alias) => alias.toLowerCase().includes(lowerQuery)))
+              );
+            }}
+          />
+        </BlockNoteView>
       </div>
     </EditorErrorBoundary>
   );

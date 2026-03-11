@@ -35,7 +35,7 @@ interface UploadingFile {
 
 export const FileUpload = ({ 
   label = "Upload Files", 
-  accept = "image/*", 
+  accept: acceptProp, 
   onUploadComplete, 
   maxFiles = 1,
   existingFiles = [],
@@ -48,6 +48,21 @@ export const FileUpload = ({
   simultaneousMode = false,
   enableImageEditing = false,
 }: FileUploadProps) => {
+  // Auto-derive accept from uploadType when not explicitly provided
+  const accept = acceptProp ?? (() => {
+    switch (uploadType) {
+      case 'image':
+      case 'avatar':
+        return 'image/*';
+      case 'video':
+        return 'video/*';
+      case 'document':
+        return '.pdf,.doc,.docx,.txt,.csv,.xls,.xlsx';
+      default:
+        return '*/*';
+    }
+  })();
+
   const idBase = useId();
   const uploadInputId = `file-upload-${idBase}`;
   const tabbedUploadInputId = `file-upload-tabbed-${idBase}`;

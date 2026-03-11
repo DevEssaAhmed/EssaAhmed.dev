@@ -84,7 +84,7 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
         {/* Hero Section */}
         <motion.section
           ref={heroRef}
-          className="relative pt-36 pb-20 px-4 sm:px-6 overflow-hidden min-h-[90vh] flex items-center"
+          className="relative pt-32 pb-20 px-4 sm:px-6 overflow-hidden min-h-[90vh] flex items-center"
           initial="initial"
           animate="animate"
           variants={staggerContainer}

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { useRef, useState } from 'react';
@@ -70,7 +70,42 @@ const MarkdownRenderer = ({ content, className = "" }: MarkdownRendererProps) =>
           h5: ({ ...props }) => <h5 className="text-base font-semibold mb-3 text-foreground" {...props} />,
           h6: ({ ...props }) => <h6 className="text-sm font-semibold mb-2 text-foreground" {...props} />,
 
-          p: ({ ...props }) => <p className="mb-4 leading-relaxed text-foreground" {...props} />,
+          p: ({ node, children, ...props }: any) => {
+            // Check if the paragraph contains our custom !video text
+            if (node?.children?.length === 1 && node.children[0].type === 'text') {
+              const text = node.children[0].value;
+              const match = text.match(/^!video\[.*?\]\((.+?)\)$/);
+              if (match) {
+                const url = match[1];
+                const isYoutube = url.includes('youtube') || url.includes('youtu.be');
+                const isVimeo = url.includes('vimeo');
+                
+                return (
+                  <div className="my-8 rounded-xl overflow-hidden border border-border/50 shadow-sm max-w-4xl mx-auto">
+                    <div className="aspect-video bg-muted">
+                      {isYoutube ? (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${url.includes('watch?v=') ? url.split('watch?v=')[1]?.split('&')[0] : url.split('/').pop()}`}
+                          className="w-full h-full"
+                          allowFullScreen
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        />
+                      ) : isVimeo ? (
+                        <iframe
+                          src={`https://player.vimeo.com/video/${url.split('/').pop()}`}
+                          className="w-full h-full"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <video src={url} controls className="w-full h-full" />
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+            }
+            return <p className="mb-4 leading-relaxed text-foreground" {...props}>{children}</p>;
+          },
 
           a: ({ ...props }) => (
             <a
