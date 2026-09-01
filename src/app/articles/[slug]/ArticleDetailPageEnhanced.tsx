@@ -8,7 +8,7 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Eye, Heart, ArrowLeft, Twitter, Linkedin, Link2 } from "lucide-react";
+import { Calendar, Clock, Eye, Heart, ArrowLeft, Twitter, Linkedin, Link2, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import SEO from "@/components/SEO";
@@ -16,6 +16,7 @@ import Footer from "@/components/Footer";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { calculateReadingTime, formatReadingTime } from "@/utils/readingTime";
 import { useProfile } from "@/contexts/ProfileContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { motion, useScroll, useSpring } from "framer-motion";
 
 type Article = {
@@ -52,6 +53,7 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
   const { slug } = useParams();
   const navigate = useNavigate();
   const { profile } = useProfile();
+  const { user } = useAuth();
   const [article, setArticle] = useState<Article | null>(initialArticle ?? null);
   const [loading, setLoading] = useState(initialArticle === undefined);
 
@@ -152,13 +154,23 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
 
         <div className="max-w-4xl mx-auto px-6 py-10">
 
-          {/* Back link */}
-          <Button asChild variant="ghost" className="mb-6 -ml-2 text-muted-foreground hover:text-foreground">
-            <Link href="/articles">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Articles
-            </Link>
-          </Button>
+          {/* Article actions */}
+          <div className="mb-6 flex items-center justify-between gap-3">
+            <Button asChild variant="ghost" className="-ml-2 text-muted-foreground hover:text-foreground">
+              <Link href="/articles">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Articles
+              </Link>
+            </Button>
+            {user ? (
+              <Button asChild size="sm" variant="outline" className="gap-2">
+                <Link href={`/admin/blog/edit/${article.id}`}>
+                  <Pencil className="w-4 h-4" />
+                  Edit Article
+                </Link>
+              </Button>
+            ) : null}
+          </div>
 
           {/* Article Metadata */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-5">
