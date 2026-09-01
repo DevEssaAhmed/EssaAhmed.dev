@@ -29,6 +29,7 @@ interface BlogPost {
   excerpt: string;
   slug: string;
   published: boolean;
+  unlisted: boolean;
   created_at: string;
   tags: string[];
   views?: number;
@@ -38,16 +39,6 @@ interface BlogPost {
   content_jsonb?: Json;
 }
 // Define the type for the data returned by your RPC function
-interface RelatedTag {
-  name: string;
-  count: number;
-}
-// Define the type for the parameters passed to your RPC function
-interface GetRelatedTagsParams {
-  p_tag_name: string;
-}
-
-
 const tagToHref = (tag: string) => `/articles/tags/${encodeURIComponent(tag.toLowerCase().replace(/\s+/g, "-"))}`;
 
 interface TagDetailPageProps {
@@ -106,20 +97,6 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
   //     setLoading(false);
   //   }
   // };
-  const fetchRelatedTags = React.useCallback(async (currentTag: string) => {
-    try {
-      const { data, error } = await supabase
-        .rpc('get_related_tags', { p_tag_name: currentTag });
-
-      if (error) throw error;
-
-      setRelatedTags(data || []);
-
-    } catch (error) {
-      console.error('Error fetching related tags:', error);
-      toast.error('Failed to load related tags.');
-    }
-  }, [setRelatedTags]);
   const fetchTagContent = React.useCallback(async () => {
     if (!tagSlug) return;
 
@@ -147,14 +124,33 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
       // Fetch blog posts using the join table
       const { data: blogPostTagData } = await supabase
         .from('blog_post_tags')
-        .select('blog_posts(*)') // Select all columns from the linked blog_posts table
-        .eq('tag_id', tagId);
+        .select('blog_post_id, blog_posts!inner(*)') // Select only publicly listed posts from the linked table
+        .eq('tag_id', tagId)
+        .eq('blog_posts.published', true)
+        .eq('blog_posts.unlisted', false);
 
       // Extracted blog posts
       const blogPostsWithTags = blogPostTagData?.map(item => item.blog_posts).filter(Boolean) || [];
       setBlogPosts(blogPostsWithTags.flat());
 
-      await fetchRelatedTags(decodedTag);
+      const publicPostIds = (blogPostTagData || []).map((item) => item.blog_post_id);
+      if (publicPostIds.length > 0) {
+        const { data: relatedTagLinks, error: relatedTagError } = await supabase
+          .from('blog_post_tags')
+          .select('tags(name)')
+          .in('blog_post_id', publicPostIds)
+          .neq('tag_id', tagId);
+
+        if (relatedTagError) throw relatedTagError;
+        const counts = (relatedTagLinks || []).reduce((result: Map<string, number>, link: any) => {
+          const relatedTag = Array.isArray(link.tags) ? link.tags[0] : link.tags;
+          if (relatedTag?.name) result.set(relatedTag.name, (result.get(relatedTag.name) || 0) + 1);
+          return result;
+        }, new Map<string, number>());
+        setRelatedTags(Array.from(counts, ([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count));
+      } else {
+        setRelatedTags([]);
+      }
 
     } catch (error) {
       console.error('Error fetching tag content:', error);
@@ -162,7 +158,7 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [tagSlug, setBlogPosts, setLoading, setTagName, fetchRelatedTags]);
+  }, [tagSlug]);
 
   const filteredBlogPosts = blogPosts.filter(post =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

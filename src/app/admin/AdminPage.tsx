@@ -94,7 +94,9 @@ const AdminPage = () => {
     projects.reduce((sum, p) => sum + (p.views || 0), 0) + blogPosts.reduce((sum, p) => sum + (p.views || 0), 0);
   const totalLikes =
     projects.reduce((sum, p) => sum + (p.likes || 0), 0) + blogPosts.reduce((sum, p) => sum + (p.likes || 0), 0);
-  const publishedPosts = blogPosts.filter((p) => p.published).length;
+  const publishedPosts = blogPosts.filter((p) => p.published && !p.unlisted).length;
+  const unlistedPosts = blogPosts.filter((p) => p.published && p.unlisted).length;
+  const draftPosts = blogPosts.length - publishedPosts - unlistedPosts;
 
   // Skeleton for content list items
   const ContentSkeleton = () => (
@@ -205,7 +207,7 @@ const AdminPage = () => {
                 </div>
               </div>
               <div className="flex items-center gap-1 mt-3 text-xs">
-                <span className="text-muted-foreground">{blogPosts.length - publishedPosts} drafts</span>
+                <span className="text-muted-foreground">{unlistedPosts} unlisted · {draftPosts} drafts</span>
               </div>
             </CardContent>
           </Card>
@@ -405,8 +407,8 @@ const AdminPage = () => {
                         <div className="flex-1 min-w-0 pr-4">
                           <div className="flex items-center gap-2 mb-2">
                             <h3 className="font-medium text-foreground truncate">{post.title}</h3>
-                            <Badge variant={post.published ? "default" : "secondary"} className="text-xs">
-                              {post.published ? "Published" : "Draft"}
+                            <Badge variant={post.published && !post.unlisted ? "default" : "secondary"} className="text-xs">
+                              {post.unlisted ? "Unlisted" : post.published ? "Published" : "Draft"}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground mb-3 line-clamp-2">

@@ -315,7 +315,7 @@ export const getBlogPostsByTag = async (tagSlug: string): Promise<any[]> => {
     const { data, error } = await supabase
       .from('blog_post_tags')
       .select(`
-        blog_posts (
+        blog_posts!inner (
           id,
           title,
           slug,
@@ -323,11 +323,14 @@ export const getBlogPostsByTag = async (tagSlug: string): Promise<any[]> => {
           image_url,
           created_at,
           published,
+          unlisted,
           reading_time,
           views,
           likes
         )
       `)
+      .eq('blog_posts.published', true)
+      .eq('blog_posts.unlisted', false)
       .eq('tags.slug', tagSlug);
 
     if (error) {

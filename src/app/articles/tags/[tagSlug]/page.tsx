@@ -52,18 +52,34 @@ export default async function Page({ params }: Props) {
 
   const { data: blogPostTagData } = await supabase
     .from("blog_post_tags")
-    .select("blog_posts(*)")
-    .eq("tag_id", tagData.id);
+    .select("blog_post_id, blog_posts!inner(*)")
+    .eq("tag_id", tagData.id)
+    .eq("blog_posts.published", true)
+    .eq("blog_posts.unlisted", false);
   const blogPosts = blogPostTagData?.map((item: any) => item.blog_posts).filter(Boolean).flat() || [];
 
-  const { data: relatedTags } = await supabase
-    .rpc("get_related_tags", { p_tag_name: decodedTag });
+  const publicPostIds = (blogPostTagData || []).map((item: any) => item.blog_post_id);
+  const { data: relatedTagLinks } = publicPostIds.length > 0
+    ? await supabase
+        .from("blog_post_tags")
+        .select("tags(name)")
+        .in("blog_post_id", publicPostIds)
+        .neq("tag_id", tagData.id)
+    : { data: [] };
+
+  const relatedTagCounts = (relatedTagLinks || []).reduce((counts: Map<string, number>, link: any) => {
+    const relatedTag = Array.isArray(link.tags) ? link.tags[0] : link.tags;
+    if (relatedTag?.name) counts.set(relatedTag.name, (counts.get(relatedTag.name) || 0) + 1);
+    return counts;
+  }, new Map<string, number>());
+  const relatedTags = Array.from(relatedTagCounts, ([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
 
   return (
     <TagDetailPage
       initialTagName={decodedTag}
       initialBlogPosts={blogPosts}
-      initialRelatedTags={relatedTags || []}
+      initialRelatedTags={relatedTags}
     />
   );
 }

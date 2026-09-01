@@ -24,6 +24,7 @@ import {
   ArrowLeft,
   Save,
   Eye,
+  EyeOff,
   Settings,
   Image as ImageIcon,
   Hash,
@@ -56,6 +57,19 @@ const firstImageFromMarkdown = (md: string): string | null => {
   return m ? m[1] : null;
 };
 
+type PostVisibility = 'draft' | 'unlisted' | 'published';
+
+const getPostVisibility = (post: { published: boolean; unlisted: boolean }): PostVisibility => {
+  if (!post.published) return 'draft';
+  return post.unlisted ? 'unlisted' : 'published';
+};
+
+const visibilityDescription: Record<PostVisibility, string> = {
+  draft: 'Only visible in the admin area.',
+  unlisted: 'Available by direct link, but hidden from public listings and search engines.',
+  published: 'Visible on the site and included in public listings.',
+};
+
 const BlogEditorEnhanced: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -84,18 +98,21 @@ const BlogEditorEnhanced: React.FC = () => {
     series_id: '',
     series_order: 1,
     published: false,
+    unlisted: false,
     reading_time: 5,
     og_title: '',
     og_description: '',
     og_image: '',
   });
+  const formDataRef = useRef(formData);
+  formDataRef.current = formData;
 
   // BlockNote editor reference
   const editorRef = useRef<BlockNoteEditor | null>(null);
   const [contentLoading, setContentLoading] = useState(!!id);
 
   // Stable ref to latest handleSave, used by the Ctrl+S listener to avoid stale closures
-  const handleSaveRef = useRef<((isPublishing: boolean, isAutoSave?: boolean) => Promise<void>) | null>(null);
+  const handleSaveRef = useRef<((visibility: PostVisibility, isAutoSave?: boolean) => Promise<void>) | null>(null);
 
   // Stable callback for onEditorReady — must be at component scope to avoid
   // creating a new function reference on every render, which triggers focus loss.
@@ -152,6 +169,7 @@ const BlogEditorEnhanced: React.FC = () => {
         series_id: data.series_id || '',
         series_order: data.series_order || 1,
         published: data.published || false,
+        unlisted: data.unlisted || false,
         reading_time: data.reading_time || 5,
         og_title: (data as any).og_title || '',
         og_description: (data as any).og_description || '',
@@ -237,7 +255,7 @@ const BlogEditorEnhanced: React.FC = () => {
       setLastSaved(snapshot);
       (async () => {
         try {
-          if (handleSaveRef.current) await handleSaveRef.current(debouncedFormData.published as unknown as boolean, true);
+          if (handleSaveRef.current) await handleSaveRef.current(getPostVisibility(debouncedFormData), true);
         } catch (err) {
           console.error('Autosave error:', err);
         }
@@ -252,7 +270,7 @@ const BlogEditorEnhanced: React.FC = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
-        if (handleSaveRef.current) handleSaveRef.current(formData.published, false).catch(console.error);
+        if (handleSaveRef.current) handleSaveRef.current(getPostVisibility(formDataRef.current), false).catch(console.error);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -291,7 +309,7 @@ const BlogEditorEnhanced: React.FC = () => {
     return Math.max(1, Math.ceil(words / 200));
   };
 
-  const handleSave = useCallback(async (isPublishing: boolean, isAutoSave = false) => {
+  const handleSave = useCallback(async (visibility: PostVisibility, isAutoSave = false) => {
     const dataToSave = isAutoSave ? debouncedFormData : formData;
     const contentToSave = isAutoSave ? debouncedBlockNoteContent : blockNoteContent;
     const tagsToSave = isAutoSave ? debouncedTags : selectedTags;
@@ -319,7 +337,8 @@ const BlogEditorEnhanced: React.FC = () => {
         category_id: dataToSave.category_id || null,
         series_id: dataToSave.series_id || null,
         series_order: dataToSave.series_order,
-        published: isPublishing,
+        published: visibility !== 'draft',
+        unlisted: visibility === 'unlisted',
         reading_time: readingTime,
         og_title: dataToSave.og_title || autoOgTitle,
         og_description: dataToSave.og_description || autoOgDescription,
@@ -342,6 +361,17 @@ const BlogEditorEnhanced: React.FC = () => {
           navigate(`/admin/blog/edit/${data.id}`);
         }
       }
+
+      if (!isAutoSave) {
+        const savedFormData = {
+          ...dataToSave,
+          published: visibility !== 'draft',
+          unlisted: visibility === 'unlisted',
+          reading_time: readingTime,
+        };
+        setFormData(savedFormData);
+        setLastSaved({ formData: savedFormData, content: contentToSave, tags: tagsToSave });
+      }
     } catch (error: any) {
       if (!isAutoSave) toast({ title: 'Error saving blog post', description: error.message, variant: 'destructive' });
       console.error('Save error:', error);
@@ -351,6 +381,16 @@ const BlogEditorEnhanced: React.FC = () => {
 
   // Keep the ref always pointing at the latest handleSave
   useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
+
+  const visibility = getPostVisibility(formData);
+
+  const setVisibility = (nextVisibility: PostVisibility) => {
+    setFormData((prev) => ({
+      ...prev,
+      published: nextVisibility !== 'draft',
+      unlisted: nextVisibility === 'unlisted',
+    }));
+  };
 
   const handleImageUpload = (urls: string[]) => { if (urls.length > 0) setFormData(prev => ({ ...prev, image_url: urls[0] })); };
   const handleVideoUpload = (urls: string[]) => { if (urls.length > 0) { setFormData(prev => ({ ...prev, video_url: urls[0], video_type: urls[0].includes('youtube') || urls[0].includes('vimeo') ? 'external' : 'file' })); } };
@@ -394,11 +434,14 @@ const BlogEditorEnhanced: React.FC = () => {
       <Button variant="outline" size="sm" className="gap-2" disabled={!formData.title}>
         <Eye className="w-4 h-4" /> Preview
       </Button>
-      <Button size="sm" onClick={() => handleSave(false, false)} disabled={isSaving || !formData.title} className="gap-2">
+      <Button size="sm" onClick={() => handleSave('draft', false)} disabled={isSaving || !formData.title} className="gap-2">
         <Save className="w-4 h-4" /> Save Draft
       </Button>
-      {!formData.published && (
-        <Button size="sm" onClick={() => handleSave(true, false)} disabled={isSaving || !formData.title} className="gap-2">
+      <Button variant="outline" size="sm" onClick={() => handleSave('unlisted', false)} disabled={isSaving || !formData.title} className="gap-2">
+        <EyeOff className="w-4 h-4" /> {visibility === 'published' ? 'Unlist' : 'Save Unlisted'}
+      </Button>
+      {visibility !== 'published' && (
+        <Button size="sm" onClick={() => handleSave('published', false)} disabled={isSaving || !formData.title} className="gap-2">
           <Save className="w-4 h-4" /> Publish
         </Button>
       )}
@@ -478,17 +521,32 @@ const BlogEditorEnhanced: React.FC = () => {
                   <Clock className="w-3.5 h-3.5" /> Publishing
                 </h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Status</span>
+                  <div className="flex items-center justify-between gap-4">
+                    <Label htmlFor="post-visibility" className="text-sm font-medium">Visibility</Label>
                     <Badge
-                      variant={formData.published ? 'default' : 'secondary'}
+                      variant={visibility === 'published' ? 'default' : 'secondary'}
                       className={cn(
                         "transition-all duration-200",
-                        formData.published && "bg-gradient-primary text-primary-foreground shadow-glow"
+                        visibility === 'published' && "bg-gradient-primary text-primary-foreground shadow-glow"
                       )}
                     >
-                      {formData.published ? 'Published' : 'Draft'}
+                      {visibility === 'unlisted' ? 'Unlisted' : visibility === 'published' ? 'Published' : 'Draft'}
                     </Badge>
+                  </div>
+                  <div>
+                    <Select value={visibility} onValueChange={(value) => setVisibility(value as PostVisibility)}>
+                      <SelectTrigger id="post-visibility" aria-describedby="post-visibility-description">
+                        <SelectValue placeholder="Choose visibility" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="unlisted">Unlisted</SelectItem>
+                        <SelectItem value="published">Published</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p id="post-visibility-description" className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                      {visibilityDescription[visibility]}
+                    </p>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium flex items-center gap-2">

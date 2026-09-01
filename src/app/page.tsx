@@ -25,6 +25,7 @@ export default async function Page() {
       .from("blog_posts")
       .select("*")
       .eq("published", true)
+      .eq("unlisted", false)
       .order("created_at", { ascending: false }),
   ]);
 

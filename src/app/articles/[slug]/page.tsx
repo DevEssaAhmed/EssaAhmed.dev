@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const supabase = getSupabaseServer();
   const { data } = await supabase
     .from("blog_posts")
-    .select("title, excerpt, image_url, created_at")
+    .select("title, excerpt, image_url, created_at, unlisted")
     .eq("slug", slug)
     .eq("published", true)
     .single();
@@ -42,6 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       publishedTime: data.created_at,
       images: data.image_url ? [{ url: data.image_url }] : undefined,
     },
+    robots: data.unlisted ? { index: false, follow: false } : undefined,
   };
 }
 

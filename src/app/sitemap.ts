@@ -59,6 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .from("blog_posts")
         .select("slug, updated_at, created_at")
         .eq("published", true)
+        .eq("unlisted", false)
         .order("created_at", { ascending: false });
 
     const articlePages: MetadataRoute.Sitemap = (articles || []).map(

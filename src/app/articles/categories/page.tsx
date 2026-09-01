@@ -12,12 +12,29 @@ export const metadata = buildPageMetadata({
 
 export default async function Page() {
   const supabase = getSupabaseServer();
-  const { data } = await supabase
-    .from("categories")
-    .select("*")
-    .order("featured", { ascending: false })
-    .order("article_count", { ascending: false });
+  const [{ data: categories }, { data: publicPosts }] = await Promise.all([
+    supabase
+      .from("categories")
+      .select("*")
+      .order("featured", { ascending: false })
+      .order("article_count", { ascending: false }),
+    supabase
+      .from("blog_posts")
+      .select("category_id")
+      .eq("published", true)
+      .eq("unlisted", false),
+  ]);
 
-  return <CategoriesPage initialCategories={data || []} />;
+  const countsByCategory = (publicPosts || []).reduce((counts: Map<string, number>, post: any) => {
+    if (post.category_id) counts.set(post.category_id, (counts.get(post.category_id) || 0) + 1);
+    return counts;
+  }, new Map<string, number>());
+
+  const categoriesWithPublicCounts = (categories || []).map((category: any) => ({
+    ...category,
+    article_count: countsByCategory.get(category.id) || 0,
+  }));
+
+  return <CategoriesPage initialCategories={categoriesWithPublicCounts} />;
 }
 

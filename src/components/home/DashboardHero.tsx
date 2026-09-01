@@ -298,7 +298,7 @@ const HeroRightDashboard: React.FC<{ className?: string }> = ({ className }) => 
             }}
           >
             {/* Decorative floating badge */}
-            <FloatingBadge text="Analytics · 2025" color={palette.violet} style={{ left: 16, top: -18 }} />
+            <FloatingBadge text={`Analytics · ${new Date().getFullYear()}`} color={palette.violet} style={{ left: 16, top: -18 }} />
 
             {/* KPI Row (staggered: top-left slides from top, top-right slides from top but opposite) */}
             <motion.div

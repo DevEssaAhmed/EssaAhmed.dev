@@ -44,6 +44,7 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
         .select("*")
         .eq("series_id", seriesData.id)
         .eq("published", true)
+        .eq("unlisted", false)
         .order("series_order", { ascending: true })
         .order("created_at", { ascending: true });
 

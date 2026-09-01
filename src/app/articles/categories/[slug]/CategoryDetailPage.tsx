@@ -39,6 +39,7 @@ const CategoryDetailPage = () => {
         .select("*")
         .eq("category_id", categoryData.id)
         .eq("published", true)
+        .eq("unlisted", false)
         .order("created_at", { ascending: false });
 
       if (articlesError) throw articlesError;
