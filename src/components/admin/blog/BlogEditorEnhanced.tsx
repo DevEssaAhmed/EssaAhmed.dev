@@ -25,6 +25,7 @@ import {
   Save,
   Eye,
   EyeOff,
+  Copy,
   Settings,
   Image as ImageIcon,
   Hash,
@@ -383,6 +384,7 @@ const BlogEditorEnhanced: React.FC = () => {
   useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
 
   const visibility = getPostVisibility(formData);
+  const articlePath = formData.slug.trim() ? `/articles/${formData.slug.trim()}` : '';
 
   const setVisibility = (nextVisibility: PostVisibility) => {
     setFormData((prev) => ({
@@ -390,6 +392,16 @@ const BlogEditorEnhanced: React.FC = () => {
       published: nextVisibility !== 'draft',
       unlisted: nextVisibility === 'unlisted',
     }));
+  };
+
+  const copyArticleLink = async () => {
+    if (!articlePath) return;
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}${articlePath}`);
+      toast({ title: 'Article link copied' });
+    } catch {
+      toast({ title: 'Could not copy article link', variant: 'destructive' });
+    }
   };
 
   const handleImageUpload = (urls: string[]) => { if (urls.length > 0) setFormData(prev => ({ ...prev, image_url: urls[0] })); };
@@ -431,9 +443,17 @@ const BlogEditorEnhanced: React.FC = () => {
       <Button variant={focusMode ? 'default' : 'outline'} size="sm" onClick={() => setFocusMode((v) => !v)} className="gap-2 hidden md:inline-flex">
         <Focus className="w-4 h-4" /> {focusMode ? 'Exit Focus' : 'Focus'}
       </Button>
-      <Button variant="outline" size="sm" className="gap-2" disabled={!formData.title}>
-        <Eye className="w-4 h-4" /> Preview
-      </Button>
+      {visibility !== 'draft' && articlePath ? (
+        <Button asChild variant="outline" size="sm" className="gap-2">
+          <Link href={articlePath} target="_blank" rel="noopener noreferrer">
+            <Eye className="w-4 h-4" /> View Article
+          </Link>
+        </Button>
+      ) : (
+        <Button variant="outline" size="sm" className="gap-2" disabled>
+          <Eye className="w-4 h-4" /> View Article
+        </Button>
+      )}
       <Button size="sm" onClick={() => handleSave('draft', false)} disabled={isSaving || !formData.title} className="gap-2">
         <Save className="w-4 h-4" /> Save Draft
       </Button>
@@ -548,6 +568,17 @@ const BlogEditorEnhanced: React.FC = () => {
                       {visibilityDescription[visibility]}
                     </p>
                   </div>
+                  {visibility === 'unlisted' && articlePath ? (
+                    <div>
+                      <Label htmlFor="unlisted-article-link" className="text-sm font-medium">Direct link</Label>
+                      <div className="mt-1 flex gap-2">
+                        <Input id="unlisted-article-link" value={articlePath} readOnly className="font-mono text-xs" />
+                        <Button type="button" variant="outline" size="icon" onClick={copyArticleLink} aria-label="Copy unlisted article link">
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : null}
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium flex items-center gap-2">
                       Reading Time
