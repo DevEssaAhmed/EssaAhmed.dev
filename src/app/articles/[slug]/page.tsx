@@ -1,4 +1,4 @@
-﻿import ArticleDetailPageEnhanced from "./ArticleDetailPageEnhanced";
+import ArticleDetailPageEnhanced from "./ArticleDetailPageEnhanced";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -59,6 +59,6 @@ export default async function Page({ params }: PageProps) {
 
   if (!data) notFound();
 
-  return <ArticleDetailPageEnhanced initialArticle={data} />;
+  return <ArticleDetailPageEnhanced initialArticle={(data as unknown) as any} />;
 }
 

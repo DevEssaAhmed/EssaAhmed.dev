@@ -43,7 +43,7 @@ const ReadingProgressBar = () => {
   const scaleX = useSpring(scrollYProgress, { stiffness: 200, damping: 40 });
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-violet-500 to-pink-500 origin-left z-[1001]"
+      className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-champagne via-white to-blue-200 origin-left z-[1001]"
       style={{ scaleX }}
     />
   );
@@ -68,7 +68,7 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
         .single();
       if (error) throw error;
       if (!data) throw new Error("Article not found");
-      setArticle(data as Article);
+      setArticle((data as unknown) as Article);
       await supabase.from("blog_posts").update({ views: (data.views || 0) + 1 }).eq("id", data.id);
     } catch (error) {
       console.error("Error fetching article:", error);
@@ -143,7 +143,7 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
             <div className="absolute bottom-6 left-6 flex flex-wrap gap-2">
               {(article.tags || []).slice(0, 4).map((tag) => (
                 <Link key={tag} href={`/articles/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}>
-                  <Badge className="bg-background/80 backdrop-blur-sm text-foreground border border-border/60 hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
+                  <Badge className="bg-surface-high/90 backdrop-blur-sm text-foreground border border-border hover:border-champagne/40 hover:text-champagne transition-colors cursor-pointer font-mono text-xs">
                     #{tag}
                   </Badge>
                 </Link>
@@ -156,7 +156,7 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
 
           {/* Article actions */}
           <div className="mb-6 flex items-center justify-between gap-3">
-            <Button asChild variant="ghost" className="-ml-2 text-muted-foreground hover:text-foreground">
+            <Button asChild variant="ghost" className="-ml-2 text-muted-foreground hover:text-champagne transition-colors">
               <Link href="/articles">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Articles
@@ -173,27 +173,27 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
           </div>
 
           {/* Article Metadata */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-5">
+          <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm font-mono text-muted-foreground mb-5">
             <div className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{new Date(article.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</div>
-            <div className="flex items-center gap-1.5 text-primary font-medium"><Clock className="w-4 h-4" />{readingTime}</div>
+            <div className="flex items-center gap-1.5 text-champagne font-medium"><Clock className="w-4 h-4 text-champagne" />{readingTime}</div>
             <div className="flex items-center gap-1.5"><Eye className="w-4 h-4" />{(article.views || 0).toLocaleString()} views</div>
             <div className="flex items-center gap-1.5"><Heart className="w-4 h-4" />{article.likes || 0} likes</div>
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6 bg-gradient-primary bg-clip-text text-transparent">
+          <h1 className="font-display font-bold text-white tracking-tight text-3xl sm:text-4xl lg:text-5xl leading-tight mb-6">
             {article.title}
           </h1>
 
           {/* Excerpt */}
-          <p className="text-xl text-muted-foreground leading-relaxed mb-10 border-l-4 border-primary/40 pl-5">
+          <p className="text-lg sm:text-xl text-slate-300 leading-relaxed mb-10 border-l-2 border-champagne pl-5 font-light">
             {article.excerpt}
           </p>
 
           {/* Video Player */}
           {article.video_url && (
-            <div className="mb-10 rounded-xl overflow-hidden border border-border/50 shadow-sm">
-              <div className="aspect-video bg-muted">
+            <div className="mb-10 rounded-xl overflow-hidden border border-border bg-surface-low shadow-sm">
+              <div className="aspect-video bg-surface-container">
                 {article.video_type === 'youtube' || article.video_url.includes('youtube') || article.video_url.includes('youtu.be') ? (
                   <iframe
                     src={`https://www.youtube.com/embed/${article.video_url.includes('watch?v=') ? article.video_url.split('watch?v=')[1]?.split('&')[0] : article.video_url.split('/').pop()}`}
@@ -217,17 +217,17 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
           )}
 
           {/* Article Body */}
-          <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
+          <div className="prose prose-lg dark:prose-invert max-w-none mb-12 prose-headings:font-display prose-headings:tracking-tight prose-headings:text-white prose-p:text-slate-300 prose-p:leading-relaxed prose-a:text-champagne hover:prose-a:underline prose-code:text-champagne prose-code:font-mono prose-pre:bg-surface-high prose-pre:border prose-pre:border-border prose-strong:text-white prose-blockquote:border-champagne prose-blockquote:text-slate-300">
             <MarkdownRenderer content={article.content || ""} />
           </div>
 
           {/* Tags row */}
           {(article.tags || []).length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-10 pt-8 border-t border-border/50">
+            <div className="flex flex-wrap gap-2 mb-10 pt-8 border-t border-border">
               <span className="text-sm text-muted-foreground mr-2 self-center">Filed under:</span>
               {(article.tags || []).map((tag) => (
                 <Link key={tag} href={`/articles/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}>
-                  <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <Badge variant="secondary" className="cursor-pointer font-mono text-xs bg-surface-high text-muted-foreground border border-border hover:border-champagne/40 hover:text-champagne transition-colors">
                     #{tag}
                   </Badge>
                 </Link>
@@ -236,29 +236,29 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
           )}
 
           {/* Share Buttons */}
-          <div className="flex items-center gap-3 mb-14 pb-8 border-b border-border/50">
+          <div className="flex items-center gap-3 mb-14 pb-8 border-b border-border">
             <span className="text-sm text-muted-foreground font-medium">Share this article:</span>
-            <Button size="sm" variant="outline" onClick={() => handleShare("twitter")} className="gap-2 rounded-full hover:bg-sky-500/10 hover:border-sky-500/50 hover:text-sky-500 transition-all">
+            <Button size="sm" variant="outline" onClick={() => handleShare("twitter")} className="gap-2 rounded-full border-border hover:border-champagne/40 hover:bg-surface-high text-muted-foreground hover:text-foreground transition-all">
               <Twitter className="w-3.5 h-3.5" />Twitter
             </Button>
-            <Button size="sm" variant="outline" onClick={() => handleShare("linkedin")} className="gap-2 rounded-full hover:bg-blue-600/10 hover:border-blue-600/50 hover:text-blue-600 transition-all">
+            <Button size="sm" variant="outline" onClick={() => handleShare("linkedin")} className="gap-2 rounded-full border-border hover:border-champagne/40 hover:bg-surface-high text-muted-foreground hover:text-foreground transition-all">
               <Linkedin className="w-3.5 h-3.5" />LinkedIn
             </Button>
-            <Button size="sm" variant="outline" onClick={() => handleShare("copy")} className="gap-2 rounded-full hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all">
+            <Button size="sm" variant="outline" onClick={() => handleShare("copy")} className="gap-2 rounded-full border-border hover:border-champagne/40 hover:bg-surface-high text-muted-foreground hover:text-foreground transition-all">
               <Link2 className="w-3.5 h-3.5" />Copy Link
             </Button>
           </div>
 
           {/* Author Card */}
           {profile && (
-            <Card className="mb-14 border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
+            <Card className="mb-14 border border-border bg-surface-low overflow-hidden">
               <CardContent className="p-6 flex items-center gap-5">
                 {profile.avatar_url && (
-                  <img src={profile.avatar_url} alt={profile.name} className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 shrink-0" />
+                  <OptimizedImage src={profile.avatar_url} alt={profile.name || "Author"} width={64} height={64} className="w-16 h-16 rounded-full object-cover border border-champagne/30 shrink-0" />
                 )}
                 <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-0.5">Written by</p>
-                  <h3 className="font-bold text-lg">{profile.name}</h3>
+                  <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-0.5">Written by</p>
+                  <h3 className="font-display font-bold text-lg text-white">{profile.name}</h3>
                   <p className="text-sm text-muted-foreground line-clamp-2">{profile.bio}</p>
                 </div>
               </CardContent>

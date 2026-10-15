@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -261,40 +261,45 @@ const DiaryPage = ({
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-surface relative overflow-hidden">
       <Navigation />
 
-      <div className="pointer-events-none absolute inset-0 opacity-40">
-        <div className="absolute -top-16 -left-16 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute top-1/4 right-0 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
-      </div>
+      {/* Subtle executive radial highlight */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(243,232,210,0.04),rgba(255,255,255,0))]" />
 
-      <main className="pt-24 pb-16 relative">
+      <main className="pt-24 pb-16 relative z-10">
         <div className="max-w-4xl mx-auto px-6">
           <header className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4">
+            <Badge variant="secondary" className="mb-4 bg-surface-container border border-border text-platinum font-mono text-xs">
               Private Writing, Publicly Shared
             </Badge>
-            <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
+            <h1 className="text-4xl lg:text-5xl font-display font-bold text-white mb-4">
               Diary
             </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-ink-soft text-lg max-w-2xl mx-auto font-sans">
               A running timeline of moments, lessons, and experiments from real life.
             </p>
-            <div className="mt-6 inline-flex rounded-full border border-border bg-card p-1">
+            <div className="mt-6 inline-flex rounded-full border border-border bg-surface-container p-1">
               <Button
                 size="sm"
-                variant={viewMode === "year" ? "default" : "ghost"}
-                className="rounded-full"
+                variant="ghost"
+                className={`rounded-full px-4 h-8 text-xs font-mono transition-all ${
+                  viewMode === "year"
+                    ? "bg-champagne text-surface-lowest font-medium hover:bg-champagne/90"
+                    : "text-ink-soft hover:text-white"
+                }`}
                 onClick={() => handleModeChange("year")}
               >
                 Year View
               </Button>
               <Button
                 size="sm"
-                variant={viewMode === "timeline" ? "default" : "ghost"}
-                className="rounded-full"
+                variant="ghost"
+                className={`rounded-full px-4 h-8 text-xs font-mono transition-all ${
+                  viewMode === "timeline"
+                    ? "bg-champagne text-surface-lowest font-medium hover:bg-champagne/90"
+                    : "text-ink-soft hover:text-white"
+                }`}
                 onClick={() => handleModeChange("timeline")}
               >
                 Timeline View
@@ -303,8 +308,12 @@ const DiaryPage = ({
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Button
                 size="sm"
-                variant={selectedYear === null ? "default" : "outline"}
-                className="rounded-full"
+                variant="ghost"
+                className={`rounded-full px-3.5 h-7 text-xs font-mono transition-all ${
+                  selectedYear === null
+                    ? "bg-champagne text-surface-lowest font-medium hover:bg-champagne/90"
+                    : "border border-border bg-surface-container text-ink-soft hover:text-white hover:border-champagne/40"
+                }`}
                 onClick={() => handleYearChange(null)}
               >
                 All Years
@@ -313,8 +322,12 @@ const DiaryPage = ({
                 <Button
                   key={year}
                   size="sm"
-                  variant={selectedYear === year ? "default" : "outline"}
-                  className="rounded-full"
+                  variant="ghost"
+                  className={`rounded-full px-3.5 h-7 text-xs font-mono transition-all ${
+                    selectedYear === year
+                      ? "bg-champagne text-surface-lowest font-medium hover:bg-champagne/90"
+                      : "border border-border bg-surface-container text-ink-soft hover:text-white hover:border-champagne/40"
+                  }`}
                   onClick={() => handleYearChange(year)}
                 >
                   {year}
@@ -336,9 +349,9 @@ const DiaryPage = ({
               ))}
             </div>
           ) : entries.length === 0 ? (
-            <Card className="border-dashed">
+            <Card className="border border-border bg-surface-low rounded-2xl">
               <CardContent className="py-14 text-center">
-                <p className="text-muted-foreground">
+                <p className="text-ink-soft font-sans">
                   No diary entries yet. Add entries from your admin panel.
                 </p>
               </CardContent>
@@ -346,8 +359,8 @@ const DiaryPage = ({
           ) : viewMode === "year" ? (
             <section className="space-y-10">
               {groupedByYear.length === 0 ? (
-                <Card className="border-dashed">
-                  <CardContent className="py-10 text-center text-muted-foreground">
+                <Card className="border border-border bg-surface-low rounded-2xl">
+                  <CardContent className="py-10 text-center text-ink-soft font-sans">
                     {selectedYear
                       ? `No entries for ${selectedYear} yet.`
                       : "No entries available."}
@@ -357,7 +370,7 @@ const DiaryPage = ({
                 groupedByYear.map((group) => (
                   <article key={group.year}>
                     <div className="mb-4">
-                      <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold bg-primary text-primary-foreground shadow-soft">
+                      <span className="inline-flex items-center rounded-full px-3.5 py-1 text-xs font-mono font-semibold bg-surface-container border border-champagne/30 text-champagne shadow-sm">
                         {group.year}
                       </span>
                     </div>
@@ -373,17 +386,17 @@ const DiaryPage = ({
                         return (
                           <Card
                             key={entry.id}
-                            className="group border-border/60 hover:shadow-soft transition-all duration-300 bg-card/95 backdrop-blur-sm overflow-hidden"
+                            className="group border border-border hover:border-champagne/30 hover:bg-surface-container/60 transition-all duration-300 bg-surface-low rounded-2xl overflow-hidden"
                           >
                             <CardContent className="p-6">
-                              <h2 className="text-lg font-semibold mb-2">{entry.title}</h2>
+                              <h2 className="text-lg font-display font-semibold text-white mb-2 group-hover:text-champagne transition-colors">{entry.title}</h2>
                               <div className="flex items-start gap-4">
-                                <p className="text-muted-foreground leading-relaxed whitespace-pre-line flex-1">
+                                <p className="text-ink-soft leading-relaxed whitespace-pre-line flex-1 font-sans">
                                   {displayedContent}
                                 </p>
                                 {entry.image_url && (
                                   <div className="hidden sm:block shrink-0">
-                                    <div className="w-20 h-20 rounded-lg overflow-hidden border border-border">
+                                    <div className="w-20 h-20 rounded-xl overflow-hidden border border-border">
                                       <OptimizedImage
                                         src={entry.image_url}
                                         alt={entry.image_alt || entry.title}
@@ -397,7 +410,7 @@ const DiaryPage = ({
                               </div>
                               {entry.image_url && (
                                 <div className="sm:hidden mt-3">
-                                  <div className="w-full h-36 rounded-lg overflow-hidden border border-border">
+                                  <div className="w-full h-36 rounded-xl overflow-hidden border border-border">
                                     <OptimizedImage
                                       src={entry.image_url}
                                       alt={entry.image_alt || entry.title}
@@ -414,7 +427,7 @@ const DiaryPage = ({
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => toggleExpanded(entry.id)}
-                                  className="mt-3 h-auto px-0 text-primary hover:text-primary"
+                                  className="mt-3 h-auto px-0 text-champagne hover:text-champagne-dim font-mono text-xs"
                                 >
                                   {isExpanded ? "Show less" : "Read more"}
                                   <ChevronDown
@@ -436,12 +449,12 @@ const DiaryPage = ({
               {hasMore && (
                 <div ref={sentinelRef} className="py-8 flex justify-center">
                   {loadingMore ? (
-                    <div className="inline-flex items-center text-sm text-muted-foreground">
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <div className="inline-flex items-center text-xs font-mono text-ink-muted">
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin text-champagne" />
                       Loading more entries...
                     </div>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Scroll to load more</span>
+                    <span className="text-xs font-mono text-ink-muted">Scroll to load more</span>
                   )}
                 </div>
               )}
@@ -463,7 +476,7 @@ const DiaryPage = ({
                     <div key={entry.id} className="relative">
                       {shouldShowYear && (
                         <div className="sticky top-20 z-10 w-fit ml-0 md:mx-auto mb-4">
-                          <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold bg-primary text-primary-foreground shadow-soft">
+                          <span className="inline-flex items-center rounded-full px-3.5 py-1 text-xs font-mono font-semibold bg-surface-container border border-champagne/30 text-champagne shadow-sm">
                             {new Date(entry.entry_date).getFullYear()}
                           </span>
                         </div>
@@ -471,7 +484,7 @@ const DiaryPage = ({
 
                       {shouldShowMonth && (
                         <div className="mb-4 ml-10 md:ml-0 md:text-center">
-                          <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-muted text-muted-foreground">
+                          <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-mono bg-surface-container border border-border text-ink-soft">
                             {formatMonthYear(entry.entry_date)}
                           </span>
                         </div>
@@ -483,25 +496,25 @@ const DiaryPage = ({
                         }`}
                       >
                         <div
-                          className={`absolute top-7 w-3 h-3 rounded-full bg-primary ring-4 ring-background ${
+                          className={`absolute top-7 w-3 h-3 rounded-full bg-champagne ring-4 ring-surface ${
                             alignedRight
                               ? "left-3 md:left-[-1.65rem]"
                               : "left-3 md:left-auto md:right-[-1.65rem]"
                           }`}
                         />
 
-                        <Card className="group border-border/60 hover:shadow-glow transition-all duration-300 hover:-translate-y-1 bg-card/95 backdrop-blur-sm overflow-hidden">
+                        <Card className="group border border-border hover:border-champagne/30 transition-all duration-300 hover:-translate-y-0.5 bg-surface-low rounded-2xl overflow-hidden">
                           <CardContent className="p-0">
-                            <div className="h-1 w-full bg-gradient-primary" />
+                            <div className="h-0.5 w-full bg-champagne/20 group-hover:bg-champagne/60 transition-colors" />
                             <div className="p-6">
-                              <div className="inline-flex items-center text-xs text-muted-foreground mb-3">
-                                <CalendarDays className="w-3 h-3 mr-1" />
+                              <div className="inline-flex items-center text-xs font-mono text-ink-muted mb-3">
+                                <CalendarDays className="w-3.5 h-3.5 mr-1 text-champagne" />
                                 {formatEntryDate(entry.entry_date)}
                               </div>
-                              <h2 className="text-xl font-semibold mb-2">{entry.title}</h2>
+                              <h2 className="text-xl font-display font-semibold text-white mb-2 group-hover:text-champagne transition-colors">{entry.title}</h2>
 
                               <div className="flex items-start gap-4">
-                                <p className="text-muted-foreground leading-relaxed whitespace-pre-line flex-1">
+                                <p className="text-ink-soft leading-relaxed whitespace-pre-line flex-1 font-sans">
                                   {displayedContent}
                                 </p>
                                 {entry.image_url && (
@@ -539,7 +552,7 @@ const DiaryPage = ({
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => toggleExpanded(entry.id)}
-                                  className="mt-3 h-auto px-0 text-primary hover:text-primary"
+                                  className="mt-3 h-auto px-0 text-champagne hover:text-champagne-dim font-mono text-xs"
                                 >
                                   {isExpanded ? "Show less" : "Read more"}
                                   <ChevronDown
@@ -561,12 +574,12 @@ const DiaryPage = ({
               {hasMore && (
                 <div ref={sentinelRef} className="py-8 flex justify-center">
                   {loadingMore ? (
-                    <div className="inline-flex items-center text-sm text-muted-foreground">
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <div className="inline-flex items-center text-xs font-mono text-ink-muted">
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin text-champagne" />
                       Loading more entries...
                     </div>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Scroll to load more</span>
+                    <span className="text-xs font-mono text-ink-muted">Scroll to load more</span>
                   )}
                 </div>
               )}

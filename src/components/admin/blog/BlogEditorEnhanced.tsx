@@ -277,7 +277,6 @@ const BlogEditorEnhanced: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
     // Empty deps is intentional — we use handleSaveRef to access the latest save fn
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const createNewSeries = async () => {
@@ -377,8 +376,7 @@ const BlogEditorEnhanced: React.FC = () => {
       if (!isAutoSave) toast({ title: 'Error saving blog post', description: error.message, variant: 'destructive' });
       console.error('Save error:', error);
     } finally { setIsSaving(false); }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, formData, blockNoteContent, selectedTags, debouncedFormData, debouncedBlockNoteContent, debouncedTags]);
+  }, [id, formData, blockNoteContent, selectedTags, debouncedFormData, debouncedBlockNoteContent, debouncedTags, navigate, toast]);
 
   // Keep the ref always pointing at the latest handleSave
   useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);

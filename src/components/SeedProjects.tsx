@@ -381,7 +381,7 @@ export default function SeedProjects({ onSeedComplete }: SeedProjectsProps = {})
         if (project.category_name && !categoryMap.has(project.category_name)) {
           const { data, error } = await supabase
             .from('categories')
-            .upsert({ name: project.category_name }, { onConflict: 'name' })
+            .upsert({ name: project.category_name, slug: project.category_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') }, { onConflict: 'name' })
             .select()
             .single();
           
@@ -419,7 +419,7 @@ export default function SeedProjects({ onSeedComplete }: SeedProjectsProps = {})
             for (const tagName of tags) {
               const { data: tagData } = await supabase
                 .from('tags')
-                .upsert({ name: tagName }, { onConflict: 'name' })
+                .upsert({ name: tagName, slug: tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') }, { onConflict: 'name' })
                 .select()
                 .single();
               

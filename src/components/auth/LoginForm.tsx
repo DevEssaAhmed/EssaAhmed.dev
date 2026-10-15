@@ -50,7 +50,7 @@ const LoginForm = () => {
         <Card className="bg-card/50 backdrop-blur-md border-primary/20 shadow-glow">
           <CardHeader className="text-center space-y-4">
             <div className="w-16 h-16 mx-auto bg-gradient-primary rounded-2xl flex items-center justify-center shadow-soft">
-              <Lock className="w-8 h-8 text-white" />
+              <Lock className="w-8 h-8 text-[#090c13]" />
             </div>
             <div>
               <CardTitle className="text-2xl bg-gradient-primary bg-clip-text text-transparent">
@@ -124,7 +124,7 @@ const LoginForm = () => {
               
               <Button
                 type="submit"
-                className="w-full h-12 bg-gradient-primary hover:shadow-glow transition-all duration-300 text-white font-medium"
+                className="w-full h-12 bg-gradient-primary hover:shadow-glow transition-all duration-300 text-[#090c13] font-medium"
                 disabled={isLoading}
               >
                 {isLoading ? (

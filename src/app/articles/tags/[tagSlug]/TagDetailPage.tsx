@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { OptimizedImage } from "@/components/OptimizedImage";
 import React, { useState, useEffect } from 'react';
@@ -131,7 +131,7 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
 
       // Extracted blog posts
       const blogPostsWithTags = blogPostTagData?.map(item => item.blog_posts).filter(Boolean) || [];
-      setBlogPosts(blogPostsWithTags.flat());
+      setBlogPosts(blogPostsWithTags.flat() as unknown as BlogPost[]);
 
       const publicPostIds = (blogPostTagData || []).map((item) => item.blog_post_id);
       if (publicPostIds.length > 0) {
@@ -172,12 +172,12 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
   }, [fetchTagContent, tagSlug, initialTagName]);
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-surface">
         <Navigation />
-        <div className="pt-20 flex items-center justify-center">
+        <div className="pt-20 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-muted-foreground">Loading tag content...</p>
+            <div className="w-8 h-8 border-2 border-champagne/20 border-t-champagne rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-ink-soft font-mono text-sm">Loading tag content...</p>
           </div>
         </div>
       </div>
@@ -185,7 +185,7 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-surface">
       <SEO
         title={`#${tagName} - Tag`}
         description={`Explore ${blogPosts.length} articles tagged with "${tagName}"`}
@@ -197,23 +197,23 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
         <div className="max-w-7xl mx-auto px-6 py-12">
           {/* Header */}
           <div className="mb-12">
-            <Button asChild variant="ghost" className="mb-6 hover:shadow-soft transition-all duration-300">
+            <Button asChild variant="ghost" className="mb-6 rounded-xl border border-border bg-surface-container text-ink-soft hover:text-white hover:border-champagne/40 transition-all duration-200 font-mono text-xs">
               <Link href="/articles/tags">
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className="w-4 h-4 mr-2 text-champagne" />
                 Back to All Tags
               </Link>
             </Button>
 
             <div className="text-center">
               <div className="flex items-center justify-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center text-white font-bold text-2xl shadow-soft">
+                <div className="w-16 h-16 rounded-2xl bg-surface-container border border-champagne/30 flex items-center justify-center text-champagne font-bold text-2xl shadow-sm">
                   <Hash className="w-8 h-8" />
                 </div>
                 <div className="text-left">
-                  <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  <h1 className="text-4xl lg:text-5xl font-display font-bold text-white">
                     #{tagName}
                   </h1>
-                  <p className="text-lg text-muted-foreground mt-2">
+                  <p className="text-sm font-mono text-ink-soft mt-1">
                     {blogPosts.length} {blogPosts.length === 1 ? 'item' : 'items'} tagged
                   </p>
                 </div>
@@ -221,25 +221,25 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
 
               {/* Search */}
               <div className="max-w-md mx-auto relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-ink-muted w-4 h-4" />
                 <Input
                   placeholder="Search within tagged content..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-11 rounded-lg bg-surface-container border-border text-foreground placeholder:text-ink-muted focus-visible:outline-none focus-visible:border-champagne/60 font-mono text-sm"
                 />
               </div>
 
               {/* Related Tags */}
               {relatedTags.length > 0 && (
                 <div className="mt-8">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-3">Related Tags</h3>
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-ink-muted mb-3">Related Tags</h3>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {relatedTags.slice(0, 10).map((tag) => (
                       <Link key={tag.name} href={tagToHref(tag.name)}>
                         <Badge
-                          variant="secondary"
-                          className="hover:bg-primary hover:text-primary-foreground cursor-pointer transition-colors"
+                          variant="outline"
+                          className="border border-border bg-surface-container text-platinum hover:border-champagne/40 hover:text-champagne cursor-pointer transition-colors font-mono text-xs"
                         >
                           #{tag.name} ({tag.count})
                         </Badge>
@@ -257,9 +257,9 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredBlogPosts.map((post) => (
                   <Link key={post.id} href={`/articles/${post.slug}`} className="block">
-                    <Card className="bg-card/50 backdrop-blur-sm hover:shadow-glow transition-all duration-300 cursor-pointer flex flex-col h-full border-border/50">
+                    <Card className="bg-surface-low border border-border hover:border-champagne/40 hover:bg-surface-container/60 transition-all duration-300 cursor-pointer flex flex-col h-full rounded-2xl overflow-hidden">
                       {post.image_url && (
-                        <div className="aspect-video overflow-hidden rounded-t-lg">
+                        <div className="aspect-video overflow-hidden">
                           <OptimizedImage
                             src={post.image_url}
                             alt={post.title}
@@ -270,28 +270,36 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
                       <CardContent className="p-6 flex flex-col flex-grow">
                         <div className="flex flex-wrap gap-2 mb-3">
                           {post.tags?.slice(0, 3).map((tag, i) => (
-                            <Badge key={i} variant={tag.toLowerCase() === tagName.toLowerCase() ? "default" : "secondary"} className="text-xs">
-                              {tag}
+                            <Badge
+                              key={i}
+                              variant="outline"
+                              className={`text-xs font-mono border ${
+                                tag.toLowerCase() === tagName.toLowerCase()
+                                  ? "bg-champagne/10 border-champagne/40 text-champagne font-medium"
+                                  : "bg-surface-container border-border text-ink-soft"
+                              }`}
+                            >
+                              #{tag}
                             </Badge>
                           ))}
                         </div>
-                        <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">{post.title}</h3>
-                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3 flex-grow">{post.excerpt}</p>
+                        <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2 text-white group-hover:text-champagne transition-colors">{post.title}</h3>
+                        <p className="text-ink-soft text-sm mb-4 line-clamp-3 flex-grow font-sans">{post.excerpt}</p>
 
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground pt-4 border-t border-border/50">
+                        <div className="flex items-center gap-4 text-xs font-mono text-ink-muted pt-4 border-t border-border">
                           <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
+                            <Calendar className="w-3.5 h-3.5 text-champagne/70" />
                             {new Date(post.created_at).toLocaleDateString()}
                           </div>
                           {post.views && (
                             <div className="flex items-center gap-1">
-                              <Eye className="w-3 h-3" />
+                              <Eye className="w-3.5 h-3.5 text-champagne/70" />
                               {post.views}
                             </div>
                           )}
                           {post.likes && (
                             <div className="flex items-center gap-1">
-                              <Heart className="w-3 h-3" />
+                              <Heart className="w-3.5 h-3.5 text-champagne/70" />
                               {post.likes}
                             </div>
                           )}
@@ -302,23 +310,22 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="w-full relative overflow-hidden rounded-3xl border border-border/50 bg-background/50 p-12 text-center shadow-sm mt-8">
-                <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+              <div className="w-full relative overflow-hidden rounded-2xl border border-border bg-surface-low p-12 text-center shadow-sm mt-8">
                 <div className="relative z-10 flex flex-col items-center justify-center">
-                  <div className="w-24 h-24 mb-6 rounded-full bg-primary/10 flex items-center justify-center ring-8 ring-primary/5">
-                    {searchTerm ? <Search className="w-10 h-10 text-primary" /> : <Tag className="w-10 h-10 text-primary" />}
+                  <div className="w-20 h-20 mb-6 rounded-2xl bg-surface-container border border-champagne/30 flex items-center justify-center mx-auto">
+                    {searchTerm ? <Search className="w-10 h-10 text-champagne" /> : <Tag className="w-10 h-10 text-champagne" />}
                   </div>
-                  <h3 className="text-3xl font-bold tracking-tight mb-3">No Articles Found</h3>
-                  <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-8">
+                  <h3 className="text-2xl font-display font-bold text-white mb-3">No Articles Found</h3>
+                  <p className="text-base text-ink-soft max-w-lg mx-auto mb-8 font-sans">
                     {searchTerm
                       ? 'Try adjusting your search terms or filters.'
-                      : <>There are currently no articles published with the <span className="text-foreground font-medium">#{tagName}</span> tag.</>}
+                      : <>There are currently no articles published with the <span className="text-white font-medium">#{tagName}</span> tag.</>}
                   </p>
                   <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <Button asChild className="bg-gradient-primary hover:shadow-glow transition-all duration-300 rounded-xl px-8 h-12">
+                    <Button asChild className="bg-champagne text-surface-lowest hover:bg-champagne/90 font-medium rounded-xl px-8 h-12 transition-all duration-200">
                       <Link href="/articles">Read Latest Articles</Link>
                     </Button>
-                    <Button asChild variant="outline" className="rounded-xl px-8 h-12 hover:bg-muted transition-all duration-300">
+                    <Button asChild variant="outline" className="rounded-xl px-8 h-12 border border-border bg-surface-container text-platinum hover:bg-surface-high transition-all duration-200">
                       <Link href="/articles/tags">Browse All Tags</Link>
                     </Button>
                   </div>
@@ -329,10 +336,10 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
 
           {/* Related Tags */}
           {relatedTags.length > 0 && (
-            <Card className="mt-12 bg-card/50 backdrop-blur-sm border-border/50">
+            <Card className="mt-12 bg-surface-low border border-border rounded-2xl">
               <CardHeader>
-                <CardTitle>Related Tags</CardTitle>
-                <CardDescription>Other tags commonly used with &quot;{tagName}&quot;</CardDescription>
+                <CardTitle className="font-display font-bold text-white">Related Tags</CardTitle>
+                <CardDescription className="text-ink-soft font-sans">Other tags commonly used with &quot;{tagName}&quot;</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -340,9 +347,9 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
                     <Link key={tag.name} href={tagToHref(tag.name)}>
                       <Badge
                         variant="outline"
-                        className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                        className="cursor-pointer border border-border bg-surface-container text-platinum hover:border-champagne/40 hover:text-champagne transition-colors font-mono text-xs"
                       >
-                        {tag.name} ({tag.count})
+                        #{tag.name} ({tag.count})
                       </Badge>
                     </Link>
                   ))}

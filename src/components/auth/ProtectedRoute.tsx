@@ -18,7 +18,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         <Card className="bg-card/50 backdrop-blur-md border-primary/20">
           <CardContent className="p-8 text-center">
             <div className="w-12 h-12 mx-auto mb-4 bg-gradient-primary rounded-xl flex items-center justify-center">
-              <Lock className="w-6 h-6 text-white" />
+              <Lock className="w-6 h-6 text-[#090c13]" />
             </div>
             <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4" />
             <p className="text-muted-foreground">Checking authentication...</p>

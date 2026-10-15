@@ -143,7 +143,7 @@ const HeroSection = () => {
                 variant="ghost" 
                 size="icon" 
                 className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                onClick={() => window.open(profile.github_url, '_blank')}
+                onClick={() => window.open(profile.github_url || '', '_blank')}
               >
                 <Github className="w-5 h-5" />
               </Button>
@@ -153,7 +153,7 @@ const HeroSection = () => {
                 variant="ghost" 
                 size="icon" 
                 className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                onClick={() => window.open(profile.linkedin_url, '_blank')}
+                onClick={() => window.open(profile.linkedin_url || '', '_blank')}
               >
                 <Linkedin className="w-5 h-5" />
               </Button>
@@ -163,7 +163,7 @@ const HeroSection = () => {
                 variant="ghost" 
                 size="icon" 
                 className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                onClick={() => window.open(profile.website_url, '_blank')}
+                onClick={() => window.open(profile.website_url || '', '_blank')}
               >
                 <Globe className="w-5 h-5" />
               </Button>

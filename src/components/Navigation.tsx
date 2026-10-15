@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
@@ -8,61 +8,52 @@ import { Button } from '@/components/ui/button';
 import {
   Menu,
   X,
-  Sun,
-  Moon,
   Home,
   Box,
   BookOpen,
-  Layers,
-  Tag,
   Info,
+  Network,
+  User,
 } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { HashLink } from '@/lib/hash-link-compat';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+
 const NavIcon = ({ name }: { name: string }) => {
-  const map: Record<string, any> = { Home, Box, BookOpen, Layers, Tag, Info };
+  const map: Record<string, any> = { Home, Box, BookOpen, Info };
   const Cmp = map[name] || Home;
-  return <Cmp className='w-4.5 h-4.5' />;
+  return <Cmp className='w-4 h-4' />;
 };
+
+const navItems = [
+  { name: 'Home', path: '/', icon: 'Home' },
+  { name: 'Projects', path: '/projects', icon: 'Box' },
+  { name: 'Articles', path: '/articles', icon: 'BookOpen' },
+  { name: 'About', path: '/about', icon: 'Info' },
+];
 
 const Navigation = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const location = useLocation();
-  const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
   const { profile } = useProfile();
   const prefersReducedMotion = useReducedMotion();
 
-  const isHome = location.pathname === '/';
+  const isActivePath = (path: string) =>
+    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close mobile menu on route change
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
 
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          setScrolled(window.scrollY > 10);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    // Set initial state immediately (important when navigating back to home)
-    onScroll();
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
+  // Handle escape key
   useEffect(() => {
     if (!isOpen) return;
 
@@ -72,6 +63,17 @@ const Navigation = memo(() => {
 
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
+
+  // Close mobile menu if window resizes to desktop breakpoint (>= 768px)
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [isOpen]);
 
   // Lock body scroll when mobile menu is open
@@ -86,30 +88,18 @@ const Navigation = memo(() => {
     };
   }, [isOpen]);
 
-  const navItems = [
-    { name: 'Home', path: '/', icon: 'Home' },
-    { name: 'Projects', path: '/projects', icon: 'Box' },
-    { name: 'Articles', path: '/articles', icon: 'BookOpen' },
-    { name: 'About', path: '/about', icon: 'Info' },
-  ];
-
-  const navBase =
-    isHome && !scrolled
-      ? 'bg-transparent border-transparent'
-      : 'bg-background/70 backdrop-blur-xl border-b border-border';
-
   // IMPORTANT: AnimatePresence expects ReactElements, not a ReactPortal.
   // So we portal a subtree that contains AnimatePresence.
   const mobileMenu =
-    typeof document !== 'undefined'
+    mounted && typeof document !== 'undefined'
       ? createPortal(
         <AnimatePresence mode='wait'>
           {isOpen ? (
             <>
-              {/* Backdrop */}
+              {/* Backdrop with touch lock */}
               <motion.div
                 key='mobile-nav-backdrop'
-                className='fixed inset-0 bg-black/60 backdrop-blur-sm'
+                className='fixed inset-0 bg-black/75 backdrop-blur-sm touch-none'
                 style={{ zIndex: 9998 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -122,11 +112,11 @@ const Navigation = memo(() => {
               {/* Menu Panel */}
               <motion.div
                 key='mobile-nav-panel'
-                className='fixed top-0 right-0 bottom-0 w-[320px] max-w-[85vw] bg-background border-l border-border shadow-2xl'
+                className='fixed top-0 right-0 bottom-0 h-full w-[320px] max-w-[85vw] bg-surface border-l border-border shadow-2xl flex flex-col'
                 style={{ zIndex: 9999 }}
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
+                initial={prefersReducedMotion ? { opacity: 0 } : { x: '100%' }}
+                animate={prefersReducedMotion ? { opacity: 1 } : { x: 0 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { x: '100%' }}
                 transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', damping: 30, stiffness: 300 }}
                 id='mobile-navigation'
                 role='dialog'
@@ -134,19 +124,26 @@ const Navigation = memo(() => {
                 aria-label='Mobile navigation menu'
               >
                 <div className='h-full flex flex-col overflow-hidden'>
-                  {/* Header */}
-                  <div className='flex items-center justify-between p-4 border-b border-border bg-muted/30'>
+                  {/* Drawer Header (64px / h-16) */}
+                  <div className='h-16 flex items-center justify-between px-5 border-b border-border bg-surface-low shrink-0'>
                     <div className='flex items-center gap-3'>
-                      <div className='w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center'>
-                        <Menu className='w-5 h-5 text-primary' />
+                      <div className='w-9 h-9 rounded-md bg-surface-high border border-border flex items-center justify-center text-champagne'>
+                        <Network className='w-[18px] h-[18px]' />
                       </div>
-                      <span className='font-bold text-base text-foreground'>Menu</span>
+                      <div className='flex flex-col'>
+                        <span className='font-display text-sm font-semibold text-platinum'>
+                          {profile?.name || 'Essa Ahmed'}
+                        </span>
+                        <span className='font-mono text-[10px] uppercase tracking-[0.2em] text-champagne-dim'>
+                          Analytics Engineer
+                        </span>
+                      </div>
                     </div>
                     <Button
                       variant='ghost'
                       size='icon'
                       onClick={() => setIsOpen(false)}
-                      className='hover:bg-muted rounded-xl'
+                      className='hover:bg-surface-high text-platinum hover:text-white rounded-lg'
                       aria-label='Close navigation menu'
                     >
                       <X className='w-5 h-5' />
@@ -154,35 +151,37 @@ const Navigation = memo(() => {
                   </div>
 
                   {/* Navigation Items */}
-                  <div className='flex-1 overflow-y-auto overscroll-contain p-3 space-y-1'>
+                  <div className='flex-1 overflow-y-auto overscroll-contain p-4 space-y-1.5'>
+                    <div className='px-2 py-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-ink-soft'>
+                      Navigation
+                    </div>
                     {navItems.map((item) => {
-                      const isActive = location.pathname === item.path;
+                      const isActive = isActivePath(item.path);
                       return (
                         <Link
                           key={item.name}
-                          onClick={() => {
-                            setIsOpen(false);
-                          }}
+                          onClick={() => setIsOpen(false)}
                           href={item.path}
-                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${isActive
-                              ? 'bg-primary/10 text-primary'
-                              : 'hover:bg-muted text-foreground/80 hover:text-foreground'
+                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border ${isActive
+                              ? 'bg-surface-high border-border text-champagne font-medium'
+                              : 'border-transparent hover:bg-surface-container text-platinum/70 hover:text-white'
                             }`}
+                          aria-current={isActive ? 'page' : undefined}
                         >
                           <div
                             className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${isActive
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted/50'
+                                ? 'bg-champagne text-[#090c13] shadow-sm'
+                                : 'bg-surface-container border border-border text-platinum/80'
                               }`}
                           >
                             <NavIcon name={item.icon} />
                           </div>
-                          <span className='text-sm font-medium'>{item.name}</span>
+                          <span className='text-sm tracking-wide'>{item.name}</span>
                           {isActive && (
                             <motion.div
-                              className='ml-auto w-1.5 h-1.5 rounded-full bg-primary'
+                              className='ml-auto w-2 h-2 rounded-full bg-champagne'
                               layoutId='activeDot'
-                              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                              transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', damping: 20, stiffness: 300 }}
                             />
                           )}
                         </Link>
@@ -190,29 +189,26 @@ const Navigation = memo(() => {
                     })}
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className='p-4 border-t border-border bg-muted/30 space-y-2'>
-                    <HashLink smooth to='/#contact' className='block'>
+                  {/* Drawer Footer / Action Buttons */}
+                  <div className='p-4 border-t border-border bg-surface-low space-y-2 shrink-0'>
+                    <HashLink smooth to='/#contact' className='block' onClick={() => setIsOpen(false)}>
                       <Button
                         size='default'
-                        className='w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium transition-all'
-                        onClick={() => setIsOpen(false)}
-                        aria-label='Contact me for hiring'
+                        className='w-full bg-champagne hover:bg-white text-[#090c13] rounded-lg font-semibold transition-all'
+                        aria-label='Get in touch'
                       >
-                        Hire Me
+                        Get in Touch
                       </Button>
                     </HashLink>
-                    {user && (
-                      <Button asChild size='default' variant='outline' className='w-full rounded-xl font-medium border-border hover:bg-muted transition-all'>
-                        <Link
-                          href='/admin'
-                          onClick={() => setIsOpen(false)}
-                          aria-label='Go to admin dashboard'
-                        >
-                          Admin Panel
-                        </Link>
-                      </Button>
-                    )}
+                    <Button asChild size='default' variant='outline' className='w-full rounded-lg font-medium border-border bg-surface-container hover:bg-surface-high text-platinum hover:text-white transition-all'>
+                      <Link
+                        href='/admin'
+                        onClick={() => setIsOpen(false)}
+                        aria-label={user ? 'Go to admin dashboard' : 'Go to admin login'}
+                      >
+                        {user ? 'Admin Panel' : 'Admin Login'}
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               </motion.div>
@@ -226,102 +222,97 @@ const Navigation = memo(() => {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000] isolate text-foreground transition-all duration-300 ${navBase}`}
+        className='fixed top-0 left-0 right-0 z-[1000] isolate text-foreground bg-surface/80 backdrop-blur-2xl border-b border-border'
+        aria-label="Main Navigation"
       >
-        <div className='max-w-7xl mx-auto px-4 sm:px-6'>
-          <div className='flex items-center justify-between h-16'>
-            {/* Logo */}
+        <div className='h-16 md:h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between'>
+          {/* Brand + availability */}
+          <div className='flex items-center gap-8 min-w-0'>
             <Link
               href='/'
-              className='font-extrabold text-lg sm:text-xl bg-gradient-primary bg-clip-text text-transparent tracking-tight hover:scale-[1.02] transition-transform truncate max-w-[150px] sm:max-w-none'
+              className='flex items-center gap-3 group min-w-0'
               aria-label="Navigate to home page"
             >
-              {profile?.name || 'Portfolio'}
+              <div className='w-9 h-9 shrink-0 rounded-md bg-surface-high border border-border flex items-center justify-center text-champagne group-hover:border-champagne/40 transition-colors'>
+                <Network className='w-[19px] h-[19px]' />
+              </div>
+              <div className='flex flex-col min-w-0'>
+                <span className='font-display text-[15px] font-semibold text-platinum tracking-tight truncate'>
+                  {profile?.name || 'Essa Ahmed'}
+                </span>
+                <span className='font-mono text-[11px] text-champagne-dim tracking-wider uppercase'>
+                  Analytics Engineer
+                </span>
+              </div>
             </Link>
+            <div className='hidden xl:flex items-center gap-2 pl-4 border-l border-border'>
+              <span className='w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse' />
+              <span className='font-mono text-[11px] text-ink-soft tracking-wide'>
+                Available for enterprise analytics roles &amp; advisory
+              </span>
+            </div>
+          </div>
 
+          <div className='flex items-center gap-8'>
             {/* Desktop Navigation */}
-            <div className='hidden lg:flex items-center gap-1'>
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  className='group relative text-foreground/80 hover:text-primary font-medium transition-all duration-300 text-sm tracking-wide px-2 xl:px-3 py-2 rounded-lg hover:bg-primary/5'
-                  aria-label={`Navigate to ${item.name}`}
-                >
-                  <span className='absolute inset-x-2 -bottom-[1px] h-px bg-gradient-primary opacity-0 group-hover:opacity-80 transition-opacity' />
-                  <span className='hidden xl:inline'>{item.name.toUpperCase()}</span>
-                  <span className='xl:hidden'>{item.name}</span>
-                </Link>
-              ))}
-            </div>
-
-            {/* Theme toggle & CTAs */}
-            <div className='hidden lg:flex items-center gap-2'>
-              <Button
-                variant='ghost'
-                size='icon'
-                onClick={toggleTheme}
-                className='hover:bg-primary/10 hover:text-primary transition-all duration-300 rounded-lg'
-                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-              >
-                {theme === 'dark' ? (
-                  <Sun className='w-5 h-5' />
-                ) : (
-                  <Moon className='w-5 h-5' />
-                )}
-              </Button>
-              <HashLink smooth to='/#contact'>
-                <Button
-                  size='sm'
-                  className='bg-gradient-primary hover:shadow-soft transition-all duration-300 rounded-lg'
-                  aria-label="Contact me for hiring"
-                >
-                  <span className='hidden xl:inline'>Hire Me</span>
-                  <span className='xl:hidden'>Hire</span>
-                </Button>
-              </HashLink>
-              {user && (
-                <Button asChild size='sm' variant='outline' className='hover:shadow-soft transition-all duration-300 rounded-lg'>
-                  <Link href='/admin' aria-label="Go to admin dashboard">
-                    Admin
+            <div className='hidden md:flex items-center gap-7'>
+              {navItems.map((item) => {
+                const active = isActivePath(item.path);
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.path}
+                    className={`text-[13px] font-medium tracking-wide pb-1 transition-colors ${active
+                        ? 'text-champagne border-b-2 border-champagne'
+                        : 'text-platinum/70 hover:text-white border-b-2 border-transparent'
+                      }`}
+                    aria-label={`Navigate to ${item.name}`}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    {item.name}
                   </Link>
-                </Button>
-              )}
+                );
+              })}
             </div>
 
-            {/* Mobile toggles */}
-            <div className='flex items-center gap-2 lg:hidden'>
-              <Button
-                variant='ghost'
-                size='icon'
-                onClick={toggleTheme}
-                className='hover:bg-primary/10 hover:text-primary transition-all duration-300 rounded-lg'
-                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            {/* Desktop CTAs */}
+            <div className='hidden md:flex items-center gap-3'>
+              <HashLink smooth to='/#contact'>
+                <span
+                  className='inline-flex px-4 py-2 rounded-lg bg-surface-high border border-border hover:border-champagne/40 text-platinum text-[13px] font-medium tracking-wide transition-all'
+                  aria-label="Get in touch"
+                >
+                  Get in Touch
+                </span>
+              </HashLink>
+              <Link
+                href='/admin'
+                className='w-8 h-8 rounded-full bg-surface-high border border-border flex items-center justify-center text-ink-soft hover:text-champagne transition-colors'
+                aria-label={user ? 'Go to admin dashboard' : 'Admin login'}
               >
-                {theme === 'dark' ? (
-                  <Sun className='w-4 h-4' />
-                ) : (
-                  <Moon className='w-4 h-4' />
-                )}
-              </Button>
+                <User className='w-[17px] h-[17px]' />
+              </Link>
+            </div>
+
+            {/* Mobile toggle */}
+            <div className='flex items-center gap-2 md:hidden'>
               <Button
                 variant='ghost'
                 size='icon'
                 onClick={() => setIsOpen(!isOpen)}
-                className='rounded-lg relative z-50'
+                className='rounded-lg relative z-50 text-foreground hover:bg-surface-high hover:text-champagne transition-colors'
                 aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 aria-controls='mobile-navigation'
                 aria-expanded={isOpen}
               >
                 {isOpen ? (
-                  <X className='w-5 h-5' />
+                  <X className='w-5 h-5 text-champagne' />
                 ) : (
-                  <Menu className='w-5 h-5' />
+                  <Menu className='w-5 h-5 text-platinum' />
                 )}
               </Button>
             </div>
           </div>
-
         </div>
         {mobileMenu}
       </nav>
@@ -332,8 +323,3 @@ const Navigation = memo(() => {
 Navigation.displayName = 'Navigation';
 
 export default Navigation;
-
-
-
-
-

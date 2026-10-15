@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 export default {
 	darkMode: ["class"],
@@ -62,7 +63,66 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				/* Executive Editorial design tokens (Stitch) */
+				surface: '#07090e',
+				'surface-dim': '#07090e',
+				'surface-canvas': '#05060a',
+				'surface-container-lowest': '#030407',
+				'surface-container-low': '#0b0e16',
+				'surface-container': '#0f131d',
+				'surface-container-high': '#161b26',
+				'surface-container-highest': '#1c2230',
+				'surface-card': '#0c0f17',
+				'surface-overlay': '#101624',
+				'surface-bright': '#222a3d',
+				'surface-variant': '#1a2130',
+				'surface-lowest': '#030407',
+				'surface-low': '#0b0e16',
+				'surface-high': '#161b26',
+				'surface-highest': '#1c2230',
+				champagne: '#f3e8d2',
+				'champagne-dim': '#c2b49c',
+				platinum: '#e2e8f0',
+				'metric-highlight': '#60A5FA',
+				metric: '#60A5FA',
+				'border-subtle': 'rgba(255, 255, 255, 0.07)',
+				'border-active': '#60A5FA',
+				'text-primary': '#F8FAFC',
+				'text-muted': '#64748b',
+				'on-surface': '#dae2fd',
+				'on-surface-variant': '#9ba3b8',
+				'brand-accent-glow': 'rgba(59, 130, 246, 0.12)',
+				lavender: '#d0bcff',
+				tertiary: {
+					DEFAULT: '#34d399',
+					container: '#00a572'
+				},
+				'tertiary-container': '#00a572',
+				ink: {
+					muted: '#64748b',
+					soft: '#9ba3b8'
 				}
+			},
+			borderColor: {
+				subtle: 'rgba(255, 255, 255, 0.07)',
+			},
+			fontFamily: {
+				sans: ['var(--font-inter)', 'sans-serif'],
+				display: ['var(--font-jakarta)', 'sans-serif'],
+				mono: ['var(--font-jetbrains-mono)', 'monospace'],
+				'font-sans': ['var(--font-inter)', 'sans-serif'],
+				'font-display': ['var(--font-jakarta)', 'sans-serif'],
+				'font-mono': ['var(--font-jetbrains-mono)', 'monospace'],
+				'headline-lg': ['Plus Jakarta Sans', 'Space Grotesk', 'sans-serif'],
+				'headline-md': ['Plus Jakarta Sans', 'Space Grotesk', 'sans-serif'],
+				'headline-sm': ['Plus Jakarta Sans', 'sans-serif'],
+				'display-xl': ['Plus Jakarta Sans', 'Space Grotesk', 'sans-serif'],
+				'body-lg': ['Inter', 'sans-serif'],
+				'body-md': ['Inter', 'sans-serif'],
+				'body-sm': ['Inter', 'sans-serif'],
+				'label-code': ['JetBrains Mono', 'monospace'],
+				'label-kpi': ['Plus Jakarta Sans', 'JetBrains Mono', 'sans-serif']
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -135,5 +195,14 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		plugin(({ addBase }) => {
+			addBase({
+				':root': {
+					'--font-jetbrains-mono': 'var(--font-mono)',
+				},
+			});
+		}),
+	],
 } satisfies Config;

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -22,34 +22,25 @@ type CategoriesPageProps = {
   initialCategories?: Category[];
 };
 
-const CARD_ACCENTS = [
-  "from-primary/20 to-violet-500/10",
-  "from-sky-500/15 to-primary/10",
-  "from-emerald-500/15 to-teal-500/5",
-  "from-amber-500/15 to-orange-500/5",
-  "from-rose-500/15 to-pink-500/5",
-  "from-indigo-500/15 to-primary/10",
-];
-
 const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } };
 
 const CategoriesPage = ({ initialCategories = [] }: CategoriesPageProps) => {
   const categories = useMemo(() => initialCategories, [initialCategories]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-surface">
       <Navigation />
       <div className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
-              <Folder className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container border border-border text-platinum text-xs font-mono mb-6">
+              <Folder className="w-3.5 h-3.5 text-champagne" />
               <span>{categories.length} Categories</span>
             </div>
-            <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
+            <h1 className="text-4xl lg:text-6xl font-display font-bold text-white mb-4">
               Categories
             </h1>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8">
+            <p className="text-lg text-ink-soft max-w-xl mx-auto mb-8 font-sans">
               Articles organized by topic, use case, and technical focus area.
             </p>
             <ArticlesSubNav />
@@ -61,36 +52,36 @@ const CategoriesPage = ({ initialCategories = [] }: CategoriesPageProps) => {
             initial="hidden"
             animate="show"
           >
-            {categories.map((category, index) => (
+            {categories.map((category) => (
               <motion.div key={category.id} variants={fadeUp}>
                 <Link href={`/articles/categories/${category.slug}`} className="group block h-full">
-                  <div className="relative h-full rounded-2xl border border-border/50 bg-card/50 overflow-hidden hover:border-primary/40 hover:shadow-soft transition-all duration-300 hover:-translate-y-1">
-                    <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${CARD_ACCENTS[index % CARD_ACCENTS.length]} opacity-80`} />
+                  <div className="relative h-full rounded-2xl border border-border bg-surface-low overflow-hidden hover:border-champagne/40 hover:bg-surface-container/60 transition-all duration-300 hover:-translate-y-1">
+                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-champagne/20 group-hover:bg-champagne/60 transition-colors" />
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-4">
-                        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${CARD_ACCENTS[index % CARD_ACCENTS.length]} flex items-center justify-center border border-border/40`}>
-                          <Folder className="w-5 h-5 text-primary" />
+                        <div className="w-11 h-11 rounded-xl bg-surface-container border border-border flex items-center justify-center text-champagne">
+                          <Folder className="w-5 h-5" />
                         </div>
                         {category.featured && (
-                          <Badge className="bg-primary/10 text-primary border border-primary/20 font-medium">
+                          <Badge className="bg-surface-container text-champagne border border-champagne/30 text-xs font-mono">
                             Featured
                           </Badge>
                         )}
                       </div>
 
-                      <h2 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                      <h2 className="text-lg font-display font-bold text-white mb-2 group-hover:text-champagne transition-colors">
                         {category.name}
                       </h2>
-                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-5">
+                      <p className="text-sm text-ink-soft leading-relaxed line-clamp-2 mb-5 font-sans">
                         {category.description || "Explore articles in this category."}
                       </p>
 
                       <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <BookOpen className="w-3.5 h-3.5" />
+                        <div className="flex items-center gap-1.5 text-ink-muted font-mono">
+                          <BookOpen className="w-3.5 h-3.5 text-champagne/70" />
                           <span>{category.article_count || 0} article{category.article_count !== 1 ? "s" : ""}</span>
                         </div>
-                        <span className="flex items-center gap-1 text-primary font-medium opacity-0 group-hover:opacity-100 translate-x-[-4px] group-hover:translate-x-0 transition-all duration-200">
+                        <span className="flex items-center gap-1 text-champagne font-mono text-xs opacity-0 group-hover:opacity-100 translate-x-[-4px] group-hover:translate-x-0 transition-all duration-200">
                           Explore <ArrowRight className="w-3.5 h-3.5" />
                         </span>
                       </div>
@@ -102,15 +93,14 @@ const CategoriesPage = ({ initialCategories = [] }: CategoriesPageProps) => {
           </motion.div>
 
           {categories.length === 0 && (
-            <div className="w-full relative overflow-hidden rounded-3xl border border-border/50 bg-background/50 p-16 text-center mt-8">
-              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+            <div className="w-full relative overflow-hidden rounded-2xl border border-border bg-surface-low p-16 text-center mt-8">
               <div className="relative z-10 flex flex-col items-center">
-                <div className="w-20 h-20 mb-5 rounded-full bg-primary/10 flex items-center justify-center ring-8 ring-primary/5">
-                  <Folder className="w-9 h-9 text-primary" />
+                <div className="w-20 h-20 mb-5 rounded-2xl bg-surface-container border border-champagne/30 flex items-center justify-center mx-auto">
+                  <Folder className="w-9 h-9 text-champagne" />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">No Categories Yet</h3>
-                <p className="text-muted-foreground mb-6">Categories will appear here once articles are organized.</p>
-                <Link href="/articles" className="text-primary font-medium hover:underline flex items-center gap-1">
+                <h3 className="text-2xl font-display font-bold text-white mb-2">No Categories Yet</h3>
+                <p className="text-ink-soft mb-6 font-sans">Categories will appear here once articles are organized.</p>
+                <Link href="/articles" className="text-champagne font-mono text-xs hover:underline inline-flex items-center gap-1">
                   Browse all articles <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>

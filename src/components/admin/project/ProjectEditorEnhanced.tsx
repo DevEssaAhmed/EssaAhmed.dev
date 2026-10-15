@@ -210,7 +210,7 @@ const ProjectEditorEnhanced: React.FC = () => {
         const payload = {
           title: debouncedFormData.title,
           description: markdownString,
-          description_jsonb: debouncedBlockNoteContent,
+          description_jsonb: debouncedBlockNoteContent as any,
           image_url: debouncedFormData.image_url || null,
           additional_images: additionalImagesArray,
           featured: debouncedFormData.featured,
@@ -230,13 +230,13 @@ const ProjectEditorEnhanced: React.FC = () => {
         if (id) {
           const { error } = await supabase
             .from('projects')
-            .update(payload)
+            .update(payload as any)
             .eq('id', id);
           if (error) throw error;
         } else {
           const { data: insertData, error } = await supabase
             .from('projects')
-            .insert([payload])
+            .insert([payload as any])
             .select('id')
             .single();
           if (error) throw error;
@@ -273,8 +273,7 @@ const ProjectEditorEnhanced: React.FC = () => {
       debouncedTags,
       navigate,
       toast,
-      // NOTE: isSaving intentionally excluded — including it makes useCallback recreate
-      // `handleSave` every save cycle, which re-triggers the keyboard listener useEffect.
+      isSaving,
     ]
   );
 
@@ -467,18 +466,18 @@ const ProjectEditorEnhanced: React.FC = () => {
 
   const actions = (
     <div className='flex flex-wrap items-center gap-3'>
-      <Button asChild variant='ghost' size='sm'>
+      <Button asChild variant='ghost' size='sm' className='text-muted-foreground hover:text-foreground hover:bg-surface-high transition-colors'>
         <Link href="/admin">
           <ArrowLeft className='w-4 h-4 mr-2' />
           Back
         </Link>
       </Button>
-      <div className='hidden md:flex items-center gap-2'>
+      <div className='hidden md:flex items-center gap-2 px-2.5 py-1 rounded-full bg-surface-low border border-border'>
         <div
-          className={`w-2 h-2 rounded-full transition-colors ${isSaving ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'
+          className={`w-2 h-2 rounded-full transition-colors ${isSaving ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'
             }`}
         />
-        <span className='text-xs text-muted-foreground'>
+        <span className='text-xs text-muted-foreground font-mono'>
           {isSaving
             ? 'Saving…'
             : lastSavedAt
@@ -492,24 +491,36 @@ const ProjectEditorEnhanced: React.FC = () => {
         variant='outline'
         size='sm'
         onClick={() => setShowSettings(!showSettings)}
+        className={cn(
+          'border-border bg-surface-low hover:bg-surface-high text-foreground transition-colors',
+          showSettings && 'bg-surface-high border-champagne/40 text-champagne'
+        )}
       >
         <Settings className='w-4 h-4 mr-2' />
         Settings
       </Button>
       <Button
-        variant='outline'
         size='sm'
         onClick={() => handleSave(false)}
         disabled={isSaving}
+        className='bg-champagne hover:bg-white text-[#090c13] font-semibold transition-all shadow-sm'
       >
-        <Save className='w-4 h-4 mr-2' />
+        {isSaving ? (
+          <Loader2 className='w-4 h-4 mr-2 animate-spin' />
+        ) : (
+          <Save className='w-4 h-4 mr-2' />
+        )}
         Save
       </Button>
       <Button
-        variant={focusMode ? 'default' : 'outline'}
         size='sm'
         onClick={() => setFocusMode((v) => !v)}
-        className='hidden md:inline-flex'
+        className={cn(
+          'hidden md:inline-flex transition-colors',
+          focusMode
+            ? 'bg-champagne hover:bg-white text-[#090c13] font-semibold'
+            : 'border border-border bg-surface-low hover:bg-surface-high text-foreground'
+        )}
       >
         <Focus className='w-4 h-4 mr-2' />
         {focusMode ? 'Exit Focus' : 'Focus'}
@@ -542,7 +553,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
               placeholder='Project Title'
-              className='text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight border-none bg-transparent px-0 h-auto py-2 placeholder:text-muted-foreground/30 focus-visible:ring-0 focus-visible:ring-offset-0 leading-tight'
+              className='text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight border-none bg-transparent px-0 h-auto py-2 placeholder:text-muted-foreground/30 focus-visible:ring-0 focus-visible:ring-offset-0 leading-tight text-foreground font-display'
             />
 
             <div className="prose prose-neutral dark:prose-invert max-w-none">
@@ -561,18 +572,23 @@ const ProjectEditorEnhanced: React.FC = () => {
         {/* Floating Sidebar */}
         <div
           className={cn(
-            'w-full lg:w-[300px] shrink-0 space-y-6 transition-all duration-500',
-            focusMode ? 'opacity-0 translate-x-8 pointer-events-none hidden' : 'opacity-100 translate-x-0 block'
+            'w-full lg:w-[320px] shrink-0 space-y-6 transition-all duration-500',
+            focusMode
+              ? 'opacity-0 translate-x-8 pointer-events-none hidden'
+              : cn(
+                  'opacity-100 translate-x-0',
+                  showSettings ? 'block' : 'hidden lg:block'
+                )
           )}
         >
           <div className="sticky top-24 space-y-6 pb-24">
-            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
+            <Card className='bg-surface-low border border-border shadow-xl overflow-hidden rounded-2xl'>
               <CardContent className='p-5 space-y-4'>
-                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2'>
-                  <Folder className='w-3.5 h-3.5' /> Publishing
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 font-mono'>
+                  <Folder className='w-3.5 h-3.5 text-champagne' /> Publishing
                 </h3>
                 <div className='flex items-center justify-between'>
-                  <span className='text-sm text-muted-foreground'>
+                  <span className='text-sm text-foreground/80'>
                     Featured
                   </span>
                   <Switch
@@ -585,23 +601,23 @@ const ProjectEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
+            <Card className='bg-surface-low border border-border shadow-xl overflow-hidden rounded-2xl'>
               <CardContent className='p-6 space-y-6'>
-                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2'>
-                  <Tag className='w-3.5 h-3.5' /> Category & Tags
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 font-mono'>
+                  <Tag className='w-3.5 h-3.5 text-champagne' /> Category & Tags
                 </h3>
                 <div>
-                  <Label>Select Category</Label>
+                  <Label className='text-xs font-mono uppercase tracking-wider text-muted-foreground'>Select Category</Label>
                   <Select
                     value={formData.category_id}
                     onValueChange={handleCategoryChange}
                   >
-                    <SelectTrigger className='mt-1'>
+                    <SelectTrigger className='mt-1 bg-surface-lowest border-border text-foreground hover:border-champagne/40 focus:ring-champagne/20'>
                       <SelectValue placeholder='Choose a category' />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className='bg-surface-container border-border text-foreground'>
                       {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
+                        <SelectItem key={c.id} value={c.id} className='focus:bg-surface-high focus:text-foreground cursor-pointer'>
                           {c.name}
                         </SelectItem>
                       ))}
@@ -609,7 +625,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label>Or Create New</Label>
+                  <Label className='text-xs font-mono uppercase tracking-wider text-muted-foreground'>Or Create New</Label>
                   <div className='flex gap-2 mt-1'>
                     <Input
                       value={formData.category_name}
@@ -620,31 +636,35 @@ const ProjectEditorEnhanced: React.FC = () => {
                         }))
                       }
                       placeholder='New category name'
+                      className='bg-surface-lowest border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-champagne/20 focus-visible:border-champagne/40'
                     />
                     <Button
                       type='button'
                       size='sm'
                       onClick={handleCreateNewCategory}
                       disabled={!formData.category_name.trim()}
+                      className='bg-champagne hover:bg-white text-[#090c13] font-semibold transition-all shrink-0'
                     >
                       <Plus className='w-4 h-4' />
                     </Button>
                   </div>
                 </div>
                 <div>
-                  <Label>Technologies &amp; Tags</Label>
+                  <Label className='text-xs font-mono uppercase tracking-wider text-muted-foreground'>Technologies &amp; Tags</Label>
                   <div className='flex gap-2 mt-1'>
                     <Input
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={handleKeyPress}
                       placeholder='Add tag and press Enter'
+                      className='bg-surface-lowest border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-champagne/20 focus-visible:border-champagne/40'
                     />
                     <Button
                       type='button'
                       size='sm'
                       onClick={handleAddTag}
                       disabled={!tagInput.trim()}
+                      className='bg-champagne hover:bg-white text-[#090c13] font-semibold transition-all shrink-0'
                     >
                       <Plus className='w-4 h-4' />
                     </Button>
@@ -654,12 +674,12 @@ const ProjectEditorEnhanced: React.FC = () => {
                       <Badge
                         key={tag}
                         variant='secondary'
-                        className='flex items-center gap-1'
+                        className='flex items-center gap-1 bg-surface-high border border-border text-ink-soft hover:text-white font-mono text-xs'
                       >
                         {tag}
                         <button
                           type='button'
-                          className='ml-1 rounded-full hover:bg-destructive/20 p-0.5'
+                          className='ml-1 rounded-full hover:bg-destructive/20 hover:text-destructive p-0.5 transition-colors'
                           onClick={() => handleRemoveTag(tag)}
                         >
                           <X className='h-3 w-3' />
@@ -671,14 +691,14 @@ const ProjectEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
+            <Card className='bg-surface-low border border-border shadow-xl overflow-hidden rounded-2xl'>
               <CardContent className='p-6 space-y-4'>
-                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2'>
-                  <LinkIcon className='w-3.5 h-3.5' /> Links
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 font-mono'>
+                  <LinkIcon className='w-3.5 h-3.5 text-champagne' /> Links
                 </h3>
-                <div className='space-y-2'>
+                <div className='space-y-3'>
                   <div>
-                    <Label>Live Demo URL</Label>
+                    <Label className='text-xs font-mono uppercase tracking-wider text-muted-foreground'>Live Demo URL</Label>
                     <Input
                       type='url'
                       placeholder='https://example.com'
@@ -689,10 +709,11 @@ const ProjectEditorEnhanced: React.FC = () => {
                           demo_url: e.target.value,
                         }))
                       }
+                      className='bg-surface-lowest border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-champagne/20 focus-visible:border-champagne/40 mt-1'
                     />
                   </div>
                   <div>
-                    <Label>GitHub URL</Label>
+                    <Label className='text-xs font-mono uppercase tracking-wider text-muted-foreground'>GitHub URL</Label>
                     <Input
                       type='url'
                       placeholder='https://github.com/your/repo'
@@ -703,16 +724,17 @@ const ProjectEditorEnhanced: React.FC = () => {
                           github_url: e.target.value,
                         }))
                       }
+                      className='bg-surface-lowest border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-champagne/20 focus-visible:border-champagne/40 mt-1'
                     />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
+            <Card className='bg-surface-low border border-border shadow-xl overflow-hidden rounded-2xl'>
               <CardContent className='p-6 space-y-4'>
-                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2'>
-                  <Play className='w-3.5 h-3.5' /> Demo Video
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 font-mono'>
+                  <Play className='w-3.5 h-3.5 text-champagne' /> Demo Video
                 </h3>
                 <FileUpload
                   label='Demo Video'
@@ -728,10 +750,10 @@ const ProjectEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
+            <Card className='bg-surface-low border border-border shadow-xl overflow-hidden rounded-2xl'>
               <CardContent className='p-6 space-y-6'>
-                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2'>
-                  <Folder className='w-3.5 h-3.5' /> Media
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 font-mono'>
+                  <Folder className='w-3.5 h-3.5 text-champagne' /> Media
                 </h3>
                 <div className='space-y-2'>
                   {formData.image_url ? (
@@ -739,7 +761,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                       <OptimizedImage
                         src={formData.image_url}
                         alt='Featured'
-                        className='rounded-lg w-full object-cover aspect-video border bg-muted'
+                        className='rounded-lg w-full object-cover aspect-video border border-border bg-surface-lowest'
                         onError={(e: any) => {
                           (e.currentTarget as HTMLImageElement).src =
                             'https://via.placeholder.com/300';
@@ -758,7 +780,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                     </div>
                   ) : (
                     <div className='space-y-2'>
-                      <div className='border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/50 transition-colors'>
+                      <div className='border-2 border-dashed border-border rounded-xl p-4 text-center hover:border-champagne/50 transition-colors bg-surface-lowest/50'>
                         <input
                           type='file'
                           id='image-upload'
@@ -773,9 +795,9 @@ const ProjectEditorEnhanced: React.FC = () => {
                             }`}
                         >
                           {isUploading ? (
-                            <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
+                            <Loader2 className='h-6 w-6 animate-spin text-champagne' />
                           ) : (
-                            <Upload className='h-6 w-6 text-muted-foreground' />
+                            <Upload className='h-6 w-6 text-muted-foreground hover:text-champagne transition-colors' />
                           )}
                           <p className='text-xs font-medium text-muted-foreground'>
                             {isUploading ? 'Uploading...' : 'Click to upload'}
@@ -792,10 +814,12 @@ const ProjectEditorEnhanced: React.FC = () => {
                             e.key === 'Enter' && handleAddImageUrl()
                           }
                           disabled={isUploading}
+                          className='bg-surface-lowest border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-champagne/20 focus-visible:border-champagne/40'
                         />
                         <Button
                           onClick={handleAddImageUrl}
                           disabled={!urlInput.trim() || isUploading}
+                          className='bg-champagne hover:bg-white text-[#090c13] font-semibold transition-all shrink-0'
                         >
                           <Plus className='h-4 w-4' />
                         </Button>
@@ -805,8 +829,8 @@ const ProjectEditorEnhanced: React.FC = () => {
                 </div>
 
                 <div className='border-t border-border pt-4'>
-                  <Label>Additional Images</Label>
-                  <div className='mt-1'>
+                  <Label className='text-xs font-mono uppercase tracking-wider text-muted-foreground'>Additional Images</Label>
+                  <div className='mt-2'>
                     <FileUpload
                       label='Additional Images'
                       uploadType='image'
@@ -833,12 +857,12 @@ const ProjectEditorEnhanced: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className='bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden'>
+            <Card className='bg-surface-low border border-border shadow-xl overflow-hidden rounded-2xl'>
               <CardContent className='p-6'>
-                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-4'>SEO Overrides</h3>
+                <h3 className='text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-4 font-mono'>SEO Overrides</h3>
                 <div className='space-y-4'>
                   <div>
-                    <Label>OG Title</Label>
+                    <Label className='text-xs font-mono uppercase tracking-wider text-muted-foreground'>OG Title</Label>
                     <Input
                       value={formData.og_title}
                       onChange={(e) =>
@@ -848,10 +872,11 @@ const ProjectEditorEnhanced: React.FC = () => {
                         }))
                       }
                       placeholder='Custom title for social shares'
+                      className='bg-surface-lowest border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-champagne/20 focus-visible:border-champagne/40 mt-1'
                     />
                   </div>
                   <div>
-                    <Label>OG Description</Label>
+                    <Label className='text-xs font-mono uppercase tracking-wider text-muted-foreground'>OG Description</Label>
                     <Textarea
                       value={formData.og_description}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
@@ -862,10 +887,11 @@ const ProjectEditorEnhanced: React.FC = () => {
                       }
                       rows={3}
                       placeholder='Custom description for social shares'
+                      className='bg-surface-lowest border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-champagne/20 focus-visible:border-champagne/40 mt-1'
                     />
                   </div>
                   <div>
-                    <Label>OG Image URL</Label>
+                    <Label className='text-xs font-mono uppercase tracking-wider text-muted-foreground'>OG Image URL</Label>
                     <Input
                       value={formData.og_image}
                       onChange={(e) =>
@@ -875,6 +901,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                         }))
                       }
                       placeholder='https://...'
+                      className='bg-surface-lowest border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-champagne/20 focus-visible:border-champagne/40 mt-1'
                     />
                   </div>
                 </div>

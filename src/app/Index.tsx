@@ -3,50 +3,36 @@
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import Link from "next/link";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, TrendingUp, Users, FolderOpen, Globe, Linkedin, Github, Mail } from "lucide-react";
+import {
+  ArrowRight,
+  AtSign,
+  Globe,
+  Layers,
+  Link as LinkIcon,
+  Mail,
+  ShieldCheck,
+  Terminal,
+  Timer,
+  Users,
+} from "lucide-react";
 import { useProfile } from "@/contexts/ProfileContext";
-import TabNavigation from "@/components/TabNavigation";
 import Reveal from "@/components/ui/reveal";
-import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import FeaturedWork from "@/components/home/FeaturedWork";
+import CapabilitiesSection from "@/components/home/CapabilitiesSection";
 
 import dynamic from "next/dynamic";
 
-const DashboardHero = dynamic(() => import("@/components/home/DashboardHero"), {
-  loading: () => <Skeleton className="h-full w-full" />
-});
 const OptimizedContactForm = dynamic(() => import("@/components/OptimizedContactForm"), {
   loading: () => (
-    <div className="rounded-xl border p-6">
+    <div className="rounded-2xl border border-border p-8 bg-surface-low">
       <Skeleton className="h-6 w-1/2 mb-4" />
       <Skeleton className="h-10 w-full mb-3" />
       <Skeleton className="h-10 w-full" />
     </div>
-  )
+  ),
 });
-
-// Breakpoint matches the `lg` Tailwind breakpoint (1024px) used to show the dashboard
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener('resize', checkMobile, { passive: true });
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-  return isMobile;
-};
-
-/* Rotating role titles for the hero */
-const ROLES = [
-  "Analytics Engineer",
-  "Data Storyteller",
-  "Dashboard Architect",
-  "Decision Systems Builder",
-];
 
 interface IndexProps {
   initialProjects?: any[];
@@ -54,41 +40,11 @@ interface IndexProps {
   initialArticles?: any[];
 }
 
-const Index = ({ initialProjects, initialProjectCategories, initialArticles }: IndexProps) => {
+const Index = (_props: IndexProps) => {
   const { profile } = useProfile();
-  const isMobile = useIsMobile();
-  const prefersReducedMotion = useReducedMotion();
 
-  const heroRef = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress } = useScroll();
-  const motionDisabled = Boolean(prefersReducedMotion);
-
-  const opacity = useTransform(scrollYProgress, [0, 0.25], [1, isMobile || motionDisabled ? 1 : 0]);
-
-  /* Role rotator state */
-  const [roleIndex, setRoleIndex] = useState(0);
-  useEffect(() => {
-    if (motionDisabled) return;
-    const id = setInterval(() => setRoleIndex((i) => (i + 1) % ROLES.length), 3000);
-    return () => clearInterval(id);
-  }, [motionDisabled]);
-
-  const fadeInUp = {
-    initial: { opacity: 0, y: isMobile ? 16 : 40 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: isMobile || motionDisabled ? 0.2 : 0.5, ease: "easeOut" }
-  };
-
-  const staggerContainer = {
-    animate: {
-      transition: {
-        staggerChildren: isMobile || motionDisabled ? 0 : 0.08
-      }
-    }
-  };
-
-  /* Social proof counts — derived from profile or sensible defaults */
-  const stats = useMemo(() => {
+  /* KPI strip — values come from the profile when present, otherwise design defaults */
+  const kpis = useMemo(() => {
     const profileStats = profile?.stats;
     const parsed = profileStats
       ? typeof profileStats === "string"
@@ -98,350 +54,276 @@ const Index = ({ initialProjects, initialProjectCategories, initialArticles }: I
 
     return [
       {
-        icon: FolderOpen,
+        eyebrow: "Production",
+        icon: Layers,
+        iconClass: "text-champagne-dim",
         value: parsed?.projectsLed?.value || "15+",
-        label: "Projects Led",
+        title: "Projects Led",
+        caption: "End-to-end telemetry architecture",
       },
       {
-        icon: TrendingUp,
+        eyebrow: "Engineering",
+        icon: Timer,
+        iconClass: "text-blue-200",
         value: parsed?.hoursAnalyzed?.value || "500+",
-        label: "Hours Analyzed",
+        title: "Hours Analyzed",
+        caption: "Automated defect & query profiling",
       },
       {
+        eyebrow: "Stakeholders",
         icon: Users,
+        iconClass: "text-tertiary",
         value: parsed?.clientsServed?.value || "50+",
-        label: "Clients Served",
+        title: "Clients Served",
+        caption: "Global manufacturing & SaaS operations",
+      },
+      {
+        eyebrow: "Reliability",
+        icon: ShieldCheck,
+        iconClass: "text-lavender",
+        value: "99.8%",
+        title: "Data Accuracy SLA",
+        badge: `Analytics · ${new Date().getFullYear()} Ready`,
       },
     ];
   }, [profile?.stats]);
 
+  const email = profile?.email || "essaahmedsiddiqui@gmail.com";
+  const location = profile?.location || "Karachi, Pakistan · Open to Worldwide Remote";
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <main id="main-content" role="main" aria-label="Main content">
+      <main id="main-content" role="main" aria-label="Main content" className="w-full pt-20 bg-background">
+        <div className="flex flex-col w-full relative">
+          {/* Editorial atmospheric gradient mesh */}
+          <div className="absolute top-0 inset-x-0 h-[720px] pointer-events-none overflow-hidden -z-0" aria-hidden="true">
+            <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/15 via-indigo-950/10 to-transparent blur-[140px]" />
+            <div className="absolute top-[5%] right-[10%] w-[400px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#b89f72]/10 to-transparent blur-[160px]" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:48px_48px]" />
+          </div>
 
-        {/* ══════════════════════ HERO ══════════════════════ */}
-        <motion.section
-          ref={heroRef}
-          className="relative pt-28 sm:pt-32 pb-20 px-4 sm:px-6 overflow-hidden min-h-[90vh] flex items-center"
-          initial="initial"
-          animate="animate"
-          variants={staggerContainer}
-          style={{ opacity: isMobile ? 1 : opacity }}
-          aria-label="Hero section"
-        >
-          {/* Background layers */}
-          <div className="absolute inset-0 bg-hero-spotlight" />
-          <div className="absolute inset-0 bg-grid-slate opacity-[0.15] mask-soft" />
-
-          {/* Floating orbs — CSS-only animations */}
-          <div
-            className="absolute top-20 left-10 w-32 h-32 bg-gradient-primary rounded-full blur-3xl opacity-20 animate-float pointer-events-none"
-            aria-hidden="true"
-          />
-          <div
-            className="absolute top-40 right-20 w-24 h-24 bg-gradient-accent rounded-full blur-2xl opacity-15 animate-float-delay pointer-events-none"
-            aria-hidden="true"
-          />
-          <div
-            className="absolute bottom-20 left-1/3 w-40 h-40 rounded-full blur-3xl opacity-10 animate-float-delay pointer-events-none"
-            style={{ background: 'hsl(var(--warm-accent))' }}
-            aria-hidden="true"
-          />
-
-          <motion.div className="relative max-w-6xl mx-auto w-full" variants={fadeInUp}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-              {/* ─── Left copy ─── */}
-              <motion.div className="lg:col-span-7" variants={fadeInUp}>
-                <Reveal>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/30 px-3 py-1 text-xs text-muted-foreground mb-6 hover:translate-y-[-1px] transition-smooth backdrop-blur-sm">
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          {/* ══════════ HERO: EXECUTIVE EDITORIAL ══════════ */}
+          <section
+            className="w-full max-w-7xl mx-auto px-6 lg:px-12 pt-20 pb-20 relative"
+            aria-label="Hero section"
+          >
+            <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
+              <Reveal>
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-high border border-border mb-10">
+                  <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" />
+                  <span className="font-mono text-[12px] tracking-wider uppercase text-ink-soft">
                     Available for analytics roles &amp; projects
-                    <Sparkles className="w-3 h-3 ml-1 animate-spin-slow" />
-                  </div>
-                </Reveal>
+                  </span>
+                </div>
+              </Reveal>
 
-                {/* Rotating role subtitle */}
-                <Reveal delay={60}>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2 h-6">
-                    <span>Hi, I'm {profile?.name || "—"} —</span>
-                    <span className="relative inline-block w-48 h-5 overflow-hidden">
-                      <AnimatePresence mode="wait">
-                        <motion.span
-                          key={roleIndex}
-                          className="absolute left-0 text-primary font-medium"
-                          initial={{ y: 14, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          exit={{ y: -14, opacity: 0 }}
-                          transition={{ duration: motionDisabled ? 0 : 0.3 }}
-                        >
-                          {ROLES[roleIndex]}
-                        </motion.span>
-                      </AnimatePresence>
-                    </span>
-                  </div>
-                </Reveal>
+              <Reveal delay={60}>
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="font-mono text-xs uppercase tracking-[0.25em] text-champagne-dim">
+                    Hi, I&apos;m {profile?.name || "Essa Ahmed"}
+                  </span>
+                  <span className="w-4 h-px bg-border" />
+                  <span className="font-mono text-xs uppercase tracking-[0.2em] text-ink-soft">Analytics Engineer</span>
+                </div>
+              </Reveal>
 
-                <Reveal delay={60}>
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] font-[family-name:var(--font-jakarta)]">
-                    I engineer decision systems,
-                    <span className="block bg-gradient-primary bg-clip-text text-transparent bg-gradient-animated mt-1">
-                      focusing on data reliability and creating impact.
-                    </span>
-                  </h1>
-                </Reveal>
+              <Reveal delay={90}>
+                <h1 className="font-display text-4xl sm:text-5xl lg:text-[62px] font-bold tracking-[-0.03em] leading-[1.12] text-foreground mb-8 max-w-4xl">
+                  I engineer{" "}
+                  <span className="text-white font-extrabold underline decoration-champagne/40 decoration-2 underline-offset-8">
+                    decision systems
+                  </span>
+                  , focusing on data reliability and{" "}
+                  <span className="bg-gradient-to-r from-champagne via-white to-blue-200 bg-clip-text text-transparent">
+                    creating impact.
+                  </span>
+                </h1>
+              </Reveal>
 
-                <Reveal delay={120}>
-                  <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed">
-                    From raw data to dashboards and decision systems—built with accuracy, automation, and scale in mind.
-                  </p>
-                </Reveal>
-
-                {/* CTA buttons */}
-                <Reveal delay={200}>
-                  <div className="mt-8 flex flex-col sm:flex-row flex-wrap items-center gap-3">
-                    <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} className="relative">
-                      <Button asChild size="lg" className="bg-gradient-primary hover:shadow-glow transition-all duration-300 relative overflow-hidden rounded-xl px-6">
-                        <Link href="/projects">
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                            initial={{ x: '-100%' }}
-                            whileHover={{ x: '100%' }}
-                            transition={{ duration: 0.6 }}
-                          />
-                          <span className="relative z-10">View Case Studies</span>
-                          <ArrowRight className="w-4 h-4 ml-2 relative z-10" />
-                        </Link>
-                      </Button>
-                    </motion.div>
-
-                    <span className="hidden sm:inline text-xs text-muted-foreground/50 font-medium">or</span>
-
-                    <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}>
-                      <Button
-                        asChild
-                        size="lg"
-                        variant="outline"
-                        className="rounded-xl px-6 border-border/50 hover:border-primary/50 transition-all duration-300 relative overflow-hidden group"
-                      >
-                        <Link href="/about">
-                          <span className="absolute inset-0 bg-gradient-primary opacity-0 group-hover:opacity-[0.06] transition-opacity duration-300 rounded-xl" />
-                          <span className="relative z-10">Contact</span>
-                        </Link>
-                      </Button>
-                    </motion.div>
-                  </div>
-                </Reveal>
-
-                {/* Social proof strip */}
-                <Reveal delay={300}>
-                  <div className="mt-10 flex flex-wrap items-center gap-6 sm:gap-8 border-t border-border/30 pt-6">
-                    {stats.map((stat) => {
-                      const Icon = stat.icon;
-                      return (
-                        <div key={stat.label} className="flex items-center gap-2.5 group">
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                            <Icon className="w-4 h-4 text-primary" />
-                          </div>
-                          <div>
-                            <div className="text-sm font-bold text-foreground leading-tight">{stat.value}</div>
-                            <div className="text-[11px] text-muted-foreground leading-tight">{stat.label}</div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </Reveal>
-              </motion.div>
-
-              {/* ─── Right dashboard visual ─── */}
-              <motion.div className="lg:col-span-5 hidden md:block" variants={fadeInUp}>
-                <Reveal delay={120}>
-                  <motion.div
-                    className="aspect-[4/3] rounded-2xl overflow-hidden border bg-card shadow-glow relative group"
-                    initial={{ rotateY: -4, rotateX: 2 }}
-                    whileHover={{ scale: 1.02, y: -5, rotateY: 0, rotateX: 0 }}
-                    transition={{ duration: 0.5, type: "spring", stiffness: 120, damping: 15 }}
-                    style={{ transformStyle: 'preserve-3d', perspective: 1200 }}
-                  >
-                    {/* Floating badge */}
-                    <motion.div
-                      className="absolute top-4 left-4 z-10"
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Badge className="bg-gradient-primary text-white shadow-soft relative overflow-hidden">
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                          animate={{ x: ['-100%', '100%'] }}
-                          transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                        />
-                        <span className="relative z-10 flex items-center gap-1">
-                          <TrendingUp className="w-3 h-3" />
-                          Analytics · {new Date().getFullYear()}
-                        </span>
-                      </Badge>
-                    </motion.div>
-
-                    {/* Hover glow */}
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-primary opacity-0 rounded-2xl"
-                      whileHover={{ opacity: 0.1 }}
-                      transition={{ duration: 0.3 }}
-                    />
-
-                    <Suspense fallback={<Skeleton className="h-full w-full" />}>
-                      <DashboardHero />
-                    </Suspense>
-                  </motion.div>
-                </Reveal>
-              </motion.div>
-            </div>
-          </motion.div>
-        </motion.section>
-
-        {/* Section divider */}
-        <div className="section-divider" />
-
-        {/* ══════════════════════ TABS ══════════════════════ */}
-        <motion.section
-          className="py-20 px-4 sm:px-6 bg-surface-1"
-          initial={{ opacity: 0, y: isMobile ? 20 : 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: isMobile || motionDisabled ? 0.2 : 0.6, ease: "easeOut" }}
-          viewport={{ once: true }}
-          aria-label="Featured content sections"
-        >
-          <div className="max-w-6xl mx-auto">
-            <Reveal>
-              <div className="text-center mb-4">
-                <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-3">
-                  Featured Work
-                </h2>
-                <p className="text-muted-foreground max-w-xl mx-auto">
-                  Selected projects, articles, and a bit about me.
+              <Reveal delay={120}>
+                <p className="text-base sm:text-lg text-ink-soft max-w-2xl font-light leading-relaxed mb-12">
+                  From raw data to dashboards and decision systems—built with accuracy, automation, and scale in mind.
                 </p>
+              </Reveal>
+
+              <Reveal delay={160}>
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <Link
+                    href="/projects"
+                    className="px-7 py-3.5 rounded-lg bg-champagne text-[#090c13] font-display text-sm font-semibold tracking-wide hover:bg-white transition-all shadow-[0_1px_20px_rgba(243,232,210,0.15)] flex items-center gap-2 group"
+                  >
+                    <span>View Case Studies</span>
+                    <ArrowRight className="w-[18px] h-[18px] group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  <a
+                    href="#contact"
+                    className="px-7 py-3.5 rounded-lg bg-surface-container border border-border text-foreground hover:border-champagne/40 text-sm font-medium tracking-wide transition-colors flex items-center gap-2"
+                  >
+                    <Mail className="w-[18px] h-[18px] text-champagne-dim" />
+                    <span>Contact</span>
+                  </a>
+                </div>
+              </Reveal>
+            </div>
+          </section>
+
+          {/* ══════════ EXECUTIVE KPI STRIP ══════════ */}
+          <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 mb-28 relative" aria-label="Key metrics">
+            <Reveal>
+              <div className="rounded-2xl bg-surface-low border border-border grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-border shadow-2xl backdrop-blur-sm">
+                {kpis.map((kpi) => {
+                  const Icon = kpi.icon;
+                  return (
+                    <div key={kpi.title} className="p-6 sm:p-8 flex flex-col justify-between">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="font-mono text-[11px] uppercase tracking-widest text-ink-muted">
+                          {kpi.eyebrow}
+                        </span>
+                        <Icon className={`w-[19px] h-[19px] ${kpi.iconClass}`} />
+                      </div>
+                      <div>
+                        <div className="font-display text-4xl lg:text-[44px] font-bold text-white tracking-tight mb-2">
+                          {kpi.value}
+                        </div>
+                        <div className="text-[14px] font-medium text-foreground">{kpi.title}</div>
+                        {kpi.caption && (
+                          <div className="text-[12px] text-ink-muted mt-1">{kpi.caption}</div>
+                        )}
+                        {kpi.badge && (
+                          <div className="inline-flex items-center gap-2 mt-2 px-2.5 py-0.5 rounded bg-surface-high border border-border font-mono text-[11px] text-champagne">
+                            <span className="w-1.5 h-1.5 rounded-full bg-champagne" />
+                            <span>{kpi.badge}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </Reveal>
-            <Reveal>
-              <TabNavigation
-                className="py-8"
-                initialProjects={initialProjects}
-                initialProjectCategories={initialProjectCategories}
-                initialArticles={initialArticles}
-              />
-            </Reveal>
-          </div>
-        </motion.section>
+          </section>
 
-        {/* Section divider */}
-        <div className="section-divider" />
+          {/* ══════════ FEATURED WORK ══════════ */}
+          <FeaturedWork />
 
-        {/* ══════════════════════ CONTACT ══════════════════════ */}
-        <motion.section
-          id="contact"
-          className="py-20 px-4 sm:px-6"
-          initial={{ opacity: 0, y: isMobile ? 20 : 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: isMobile || motionDisabled ? 0.2 : 0.6, ease: "easeOut" }}
-          viewport={{ once: true, margin: "-100px" }}
-          aria-labelledby="contact-heading"
-        >
-          <div className="max-w-5xl mx-auto">
+          {/* ══════════ DECISION SYSTEMS ARCHITECTURE ══════════ */}
+          <CapabilitiesSection />
+
+          {/* ══════════ CONTACT ══════════ */}
+          <section
+            id="contact"
+            className="w-full max-w-7xl mx-auto px-6 lg:px-12 mb-28 scroll-mt-24"
+            aria-labelledby="contact-heading"
+          >
             <Reveal>
-              <div className="text-center mb-10">
-                <h2 id="contact-heading" className="text-3xl lg:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-3">
+              <div className="text-center max-w-2xl mx-auto mb-16">
+                <div className="eyebrow mb-3 justify-center">Engagement &amp; Inquiry</div>
+                <h2
+                  id="contact-heading"
+                  className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white"
+                >
                   Get In Touch
                 </h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                <p className="text-sm sm:text-base text-ink-soft mt-2 font-light">
                   Have a project in mind or want to collaborate? I&apos;d love to hear from you!
                 </p>
               </div>
             </Reveal>
 
-            {/* Split layout: info sidebar + form */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
-              {/* Info sidebar */}
-              <Reveal delay={60}>
-                <div className="lg:col-span-2 space-y-6">
-                  <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 shadow-card">
-                    <h3 className="text-lg font-semibold text-foreground mb-3">Let&apos;s Build Something Together</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-                      Whether it&apos;s a data pipeline, an analytics dashboard, or a full decision system — I&apos;m here to help turn your data into impact.
-                    </p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+              {/* Consultation brief */}
+              <div className="lg:col-span-5">
+                <Reveal delay={60} className="h-full">
+                  <div className="h-full p-8 lg:p-10 rounded-2xl bg-surface-low border border-border flex flex-col justify-between shadow-xl">
+                    <div>
+                      <h3 className="font-display text-xl lg:text-2xl font-bold text-white tracking-tight mb-4">
+                        Let&apos;s Build Something Together
+                      </h3>
+                      <p className="text-[14px] text-ink-soft font-light leading-relaxed mb-8">
+                        Whether it&apos;s a data pipeline, an analytics dashboard, or a full decision system — I&apos;m here
+                        to help turn your data into impact.
+                      </p>
 
-                    {/* Quick links */}
-                    <div className="space-y-3">
-                      {profile?.email && (
+                      <div className="flex flex-col gap-4">
                         <a
-                          href={`mailto:${profile.email}`}
-                          className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                          href={`mailto:${email}`}
+                          className="flex items-center gap-4 p-4 rounded-xl bg-surface-container border border-border hover:border-champagne/30 transition-all group"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                            <Mail className="w-4 h-4 text-primary" />
+                          <div className="w-10 h-10 rounded-lg bg-surface-high flex items-center justify-center text-champagne group-hover:bg-champagne group-hover:text-[#090c13] transition-colors">
+                            <AtSign className="w-5 h-5" />
                           </div>
-                          {profile.email}
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-mono text-[11px] text-ink-muted uppercase tracking-wider">Direct Email</span>
+                            <span className="font-display text-sm text-white truncate mt-0.5">{email}</span>
+                          </div>
                         </a>
-                      )}
-                      {profile?.linkedin_url && (
-                        <a
-                          href={profile.linkedin_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                            <Linkedin className="w-4 h-4 text-primary" />
+                        <div className="flex items-center gap-4 p-4 rounded-xl bg-surface-container border border-border">
+                          <div className="w-10 h-10 rounded-lg bg-surface-high flex items-center justify-center text-tertiary">
+                            <Globe className="w-5 h-5" />
                           </div>
-                          LinkedIn
-                        </a>
-                      )}
-                      {profile?.github_url && (
-                        <a
-                          href={profile.github_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                            <Github className="w-4 h-4 text-primary" />
+                          <div className="flex flex-col">
+                            <span className="font-mono text-[11px] text-ink-muted uppercase tracking-wider">Location</span>
+                            <span className="font-display text-sm text-white mt-0.5">{location}</span>
                           </div>
-                          GitHub
-                        </a>
-                      )}
-                      {profile?.location && (
-                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Globe className="w-4 h-4 text-primary" />
-                          </div>
-                          {profile.location}
                         </div>
-                      )}
+                      </div>
+                    </div>
+
+                    <div className="mt-10 pt-6 border-t border-border flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        {profile?.linkedin_url && (
+                          <a
+                            href={profile.linkedin_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 rounded-lg bg-surface-container border border-border text-ink-soft hover:text-white transition-colors flex items-center gap-1.5 font-mono text-xs"
+                          >
+                            <LinkIcon className="w-[15px] h-[15px]" />
+                            <span>LinkedIn</span>
+                          </a>
+                        )}
+                        {profile?.github_url && (
+                          <a
+                            href={profile.github_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 rounded-lg bg-surface-container border border-border text-ink-soft hover:text-white transition-colors flex items-center gap-1.5 font-mono text-xs"
+                          >
+                            <Terminal className="w-[15px] h-[15px]" />
+                            <span>GitHub</span>
+                          </a>
+                        )}
+                      </div>
+                      <span className="font-mono text-[12px] text-tertiary flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" />
+                        <span>Online</span>
+                      </span>
                     </div>
                   </div>
-                </div>
-              </Reveal>
+                </Reveal>
+              </div>
 
-              {/* Contact form */}
-              <div className="lg:col-span-3">
-                <Reveal delay={120}>
-                  <Suspense fallback={
-                    <div className="rounded-xl border p-6">
-                      <Skeleton className="h-6 w-1/2 mb-4" />
-                      <Skeleton className="h-10 w-full mb-3" />
-                      <Skeleton className="h-10 w-full" />
-                    </div>
-                  }>
+              {/* Project brief form */}
+              <div className="lg:col-span-7">
+                <Reveal delay={120} className="h-full">
+                  <Suspense
+                    fallback={
+                      <div className="rounded-2xl border border-border p-8 bg-surface-low">
+                        <Skeleton className="h-6 w-1/2 mb-4" />
+                        <Skeleton className="h-10 w-full mb-3" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    }
+                  >
                     <OptimizedContactForm />
                   </Suspense>
                 </Reveal>
               </div>
             </div>
-          </div>
-        </motion.section>
-
+          </section>
+        </div>
       </main>
 
       <OptimizedFooter />

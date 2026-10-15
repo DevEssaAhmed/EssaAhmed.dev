@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,7 +94,15 @@ const SEOSettings: React.FC = () => {
         }
         setSettings(defaultSEOSettings);
       } else {
-        setSettings({ ...defaultSEOSettings, ...existingSettings });
+        const merged: any = { ...defaultSEOSettings };
+        if (existingSettings) {
+          Object.entries(existingSettings).forEach(([k, v]) => {
+            if (v !== null && v !== undefined) {
+              merged[k] = v;
+            }
+          });
+        }
+        setSettings(merged as SEOSettingsData);
       }
     } catch (error) {
       toast({ title: 'SEO settings load failed', description: 'Falling back to in-memory defaults.', variant: 'destructive' });

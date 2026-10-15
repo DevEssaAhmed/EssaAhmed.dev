@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { OptimizedImage } from "@/components/OptimizedImage";
 import Navigation from "@/components/Navigation";
@@ -24,10 +24,10 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-surface">
         <Navigation />
         <div className="pt-20 flex items-center justify-center min-h-[60vh]">
-          <div className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <div className="w-10 h-10 border-2 border-champagne/20 border-t-champagne rounded-full animate-spin" />
         </div>
       </div>
     );
@@ -35,10 +35,10 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-surface">
         <Navigation />
         <div className="pt-20 flex items-center justify-center min-h-[60vh]">
-          <p className="text-muted-foreground">Profile not found.</p>
+          <p className="text-ink-soft">Profile not found.</p>
         </div>
       </div>
     );
@@ -58,7 +58,7 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-surface">
       <Navigation />
       <SEO
         title={`About ${fullName}`}
@@ -72,10 +72,9 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
 
         {/* Hero section */}
         <section className="relative py-16 px-6 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
-          <div className="absolute top-10 right-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(243,232,210,0.05),rgba(255,255,255,0))] pointer-events-none" />
 
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto relative z-10">
             <motion.div
               className="flex flex-col lg:flex-row items-center gap-10"
               variants={stagger}
@@ -84,7 +83,7 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
             >
               {/* Avatar */}
               <motion.div variants={fadeUp} className="shrink-0 relative">
-                <div className="w-36 h-36 rounded-full ring-4 ring-primary/20 ring-offset-4 ring-offset-background overflow-hidden shadow-glow">
+                <div className="w-36 h-36 rounded-full ring-2 ring-champagne/30 ring-offset-4 ring-offset-surface overflow-hidden shadow-sm">
                   <OptimizedImage
                     src={avatar}
                     alt={fullName}
@@ -92,41 +91,41 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
                     loading="eager"
                   />
                 </div>
-                <span className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-4 border-background" />
+                <span className="absolute bottom-2 right-2 w-5 h-5 bg-tertiary rounded-full border-4 border-surface" />
               </motion.div>
 
               {/* Text */}
               <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-                <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-4">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-surface-container border border-border text-platinum text-xs font-mono mb-4">
+                  <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" />
                   Available for Analytics Roles
                 </motion.div>
 
-                <motion.h1 variants={fadeUp} className="text-4xl lg:text-6xl font-extrabold tracking-tight bg-gradient-primary bg-clip-text text-transparent mb-3">
+                <motion.h1 variants={fadeUp} className="text-4xl lg:text-6xl font-display font-bold tracking-tight text-white mb-3">
                   {fullName}
                 </motion.h1>
 
                 {profile.title && (
-                  <motion.p variants={fadeUp} className="text-lg font-medium text-primary mb-4">{profile.title}</motion.p>
+                  <motion.p variants={fadeUp} className="text-lg font-medium text-champagne mb-4">{profile.title}</motion.p>
                 )}
 
                 {bio && (
-                  <motion.p variants={fadeUp} className="text-lg text-muted-foreground max-w-xl mb-6 leading-relaxed">{bio}</motion.p>
+                  <motion.p variants={fadeUp} className="text-lg text-ink-soft max-w-xl mb-6 leading-relaxed font-sans">{bio}</motion.p>
                 )}
 
                 {/* Meta info */}
-                <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground mb-6">
+                <motion.div variants={fadeUp} className="flex flex-wrap justify-center lg:justify-start gap-4 text-sm font-mono text-ink-muted mb-6">
                   {profile.location && (
-                    <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-primary" />{profile.location}</span>
+                    <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-champagne" />{profile.location}</span>
                   )}
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-primary" />
+                    <Calendar className="w-4 h-4 text-champagne" />
                     Member since {new Date(profile.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
                   </span>
                 </motion.div>
 
                 {/* Social Links */}
-                <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-2">
+                <motion.div variants={fadeUp} className="flex flex-wrap justify-center lg:justify-start gap-2">
                   {socialLinks.map((link) => {
                     const Icon = link.icon;
                     return (
@@ -135,9 +134,9 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
                         href={link.href}
                         target={link.href.startsWith("mailto") ? undefined : "_blank"}
                         rel="noopener noreferrer"
-                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border/60 text-sm font-medium transition-all duration-200 ${link.color}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-surface-container text-sm font-mono text-platinum hover:border-champagne/40 hover:text-champagne transition-all duration-200"
                       >
-                        <Icon className="w-4 h-4" />
+                        <Icon className="w-4 h-4 text-champagne" />
                         {link.label}
                         <ExternalLink className="w-3 h-3 opacity-50" />
                       </a>
@@ -161,26 +160,26 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
               whileInView="show"
               viewport={{ once: true }}
             >
-              <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-8">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-primary" />
+              <div className="rounded-2xl border border-border bg-surface-low p-8">
+                <h2 className="text-2xl font-display font-bold text-white mb-6 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-champagne" />
                   My Story
                 </h2>
                 {aboutMarkdown ? (
-                  <div className="prose prose-lg max-w-none dark:prose-invert">
+                  <div className="prose prose-lg max-w-none prose-invert">
                     <MarkdownRenderer content={aboutMarkdown} />
                   </div>
                 ) : bio ? (
-                  <p className="text-muted-foreground leading-relaxed">{bio}</p>
+                  <p className="text-ink-soft leading-relaxed font-sans">{bio}</p>
                 ) : (
-                  <p className="text-muted-foreground italic">No about content yet.</p>
+                  <p className="text-ink-muted italic font-sans">No about content yet.</p>
                 )}
 
-                <div className="mt-8 p-5 rounded-xl border border-primary/20 bg-primary/5">
-                  <p className="text-sm text-muted-foreground mb-2">
+                <div className="mt-8 p-5 rounded-xl border border-border bg-surface-container">
+                  <p className="text-sm text-ink-soft mb-2 font-sans">
                     I keep a quiet public diary of ongoing experiments and reflections.
                   </p>
-                  <Link href="/diary" className="text-sm font-semibold text-primary hover:underline">
+                  <Link href="/diary" className="text-sm font-semibold text-champagne hover:underline">
                     Read the diary {"->"}
                   </Link>
                 </div>
@@ -196,31 +195,31 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
               viewport={{ once: true }}
             >
               {/* Contact info card */}
-              <motion.div variants={fadeUp} className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6">
-                <h3 className="text-base font-semibold mb-4">Contact</h3>
-                <div className="space-y-3">
+              <motion.div variants={fadeUp} className="rounded-2xl border border-border bg-surface-low p-6">
+                <h3 className="text-base font-display font-semibold text-white mb-4">Contact</h3>
+                <div className="space-y-3 font-mono text-sm">
                   {profile.email && (
-                    <a href={`mailto:${profile.email}`} className="flex items-center gap-3 text-sm hover:text-primary transition-colors group">
-                      <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center shrink-0">
-                        <Mail className="w-4 h-4 text-rose-500" />
+                    <a href={`mailto:${profile.email}`} className="flex items-center gap-3 hover:text-champagne transition-colors group">
+                      <div className="w-8 h-8 rounded-lg bg-surface-container border border-border flex items-center justify-center shrink-0">
+                        <Mail className="w-4 h-4 text-champagne" />
                       </div>
-                      <span className="text-muted-foreground group-hover:text-primary transition-colors truncate">{profile.email}</span>
+                      <span className="text-ink-soft group-hover:text-champagne transition-colors truncate">{profile.email}</span>
                     </a>
                   )}
                   {profile.github_url && (
-                    <a href={profile.github_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm hover:text-primary transition-colors group">
-                      <div className="w-8 h-8 rounded-lg bg-gray-500/10 flex items-center justify-center shrink-0">
-                        <Github className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    <a href={profile.github_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-champagne transition-colors group">
+                      <div className="w-8 h-8 rounded-lg bg-surface-container border border-border flex items-center justify-center shrink-0">
+                        <Github className="w-4 h-4 text-champagne" />
                       </div>
-                      <span className="text-muted-foreground group-hover:text-primary transition-colors">GitHub</span>
+                      <span className="text-ink-soft group-hover:text-champagne transition-colors">GitHub</span>
                     </a>
                   )}
                   {profile.linkedin_url && (
-                    <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm hover:text-primary transition-colors group">
-                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-                        <Linkedin className="w-4 h-4 text-blue-500" />
+                    <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-champagne transition-colors group">
+                      <div className="w-8 h-8 rounded-lg bg-surface-container border border-border flex items-center justify-center shrink-0">
+                        <Linkedin className="w-4 h-4 text-champagne" />
                       </div>
-                      <span className="text-muted-foreground group-hover:text-primary transition-colors">LinkedIn</span>
+                      <span className="text-ink-soft group-hover:text-champagne transition-colors">LinkedIn</span>
                     </a>
                   )}
                 </div>
@@ -228,7 +227,7 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
 
               {/* CTA */}
               <motion.div variants={fadeUp}>
-                <Button asChild className="w-full bg-gradient-primary hover:shadow-glow transition-all duration-300 rounded-xl h-12">
+                <Button asChild className="w-full bg-champagne text-surface-lowest hover:bg-champagne/90 font-medium transition-all duration-200 rounded-xl h-12 shadow-sm">
                   <Link href="/#contact">Work With Me</Link>
                 </Button>
               </motion.div>
@@ -244,11 +243,11 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
               whileInView="show"
               viewport={{ once: true }}
             >
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Code className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl font-display font-bold text-white mb-6 flex items-center gap-2">
+                <Code className="w-5 h-5 text-champagne" />
                 Skills & Technologies
               </h2>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5">
                 {skills.map((skill, i) => (
                   <motion.span
                     key={skill}
@@ -256,7 +255,7 @@ const AboutPage = ({ initialProfile }: AboutPageProps) => {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.04 }}
-                    className="px-4 py-2 rounded-full border border-primary/20 bg-primary/10 text-primary text-sm font-medium transition-all hover:-translate-y-0.5 hover:shadow-sm hover:bg-primary/20 cursor-default"
+                    className="px-3.5 py-1.5 rounded-full border border-border bg-surface-container text-platinum text-xs font-mono transition-all hover:border-champagne/40 hover:text-champagne cursor-default"
                   >
                     {skill}
                   </motion.span>
