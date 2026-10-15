@@ -5,9 +5,9 @@ import { buildPageMetadata } from "@/lib/metadata";
 export const revalidate = 120;
 
 export const metadata = buildPageMetadata({
-  title: "Essa Ahmed",
+  title: "Industrial Engineering & Data Analytics",
   description:
-    "Design-forward portfolio and journal showcasing selected work, writing, and analytics systems.",
+    "Explore industrial engineering, quality improvement, Power BI dashboards, data analytics, and automation projects by Essa Ahmed.",
   path: "/",
 });
 
