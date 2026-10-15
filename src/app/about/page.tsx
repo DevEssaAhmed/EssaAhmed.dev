@@ -19,7 +19,7 @@ export default async function Page() {
     .limit(1)
     .single();
 
-  const person = data || {};
+  const person: any = data || {};
   const sameAs = Array.from(
     new Set(
       [
