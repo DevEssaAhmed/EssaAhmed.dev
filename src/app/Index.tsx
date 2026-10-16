@@ -12,9 +12,7 @@ import {
   Layers,
   Link as LinkIcon,
   Mail,
-  ShieldCheck,
   Terminal,
-  Timer,
   Users,
 } from "lucide-react";
 import { useProfile } from "@/contexts/ProfileContext";
@@ -35,58 +33,71 @@ const OptimizedContactForm = dynamic(() => import("@/components/OptimizedContact
 });
 
 interface IndexProps {
-  initialProjects?: any[];
-  initialProjectCategories?: string[];
-  initialArticles?: any[];
+  initialProjects?: PortfolioProject[];
+  projectsLoadError?: boolean;
 }
 
-const Index = (_props: IndexProps) => {
+type PortfolioProject = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  category: string;
+  demoUrl?: string;
+  githubUrl?: string;
+  views: number;
+  likes: number;
+  comments: number;
+  featured?: boolean;
+}
+
+const Index = ({
+  initialProjects = [],
+  projectsLoadError = false,
+}: IndexProps) => {
   const { profile } = useProfile();
 
-  /* KPI strip — values come from the profile when present, otherwise design defaults */
+  // Use live portfolio records instead of invented social-proof numbers.
   const kpis = useMemo(() => {
-    const profileStats = profile?.stats;
-    const parsed = profileStats
-      ? typeof profileStats === "string"
-        ? JSON.parse(profileStats)
-        : profileStats
-      : null;
+    const categories = new Set(
+      initialProjects
+        .map((project) => project.category?.trim())
+        .filter((category) => Boolean(category) && category !== "Uncategorized")
+    );
+    const technologies = new Set(
+      initialProjects.flatMap((project) =>
+        Array.isArray(project.tags) ? project.tags : []
+      )
+    );
 
     return [
       {
-        eyebrow: "Production",
+        eyebrow: "Portfolio",
         icon: Layers,
         iconClass: "text-champagne-dim",
-        value: parsed?.projectsLed?.value || "15+",
-        title: "Projects Led",
-        caption: "End-to-end telemetry architecture",
+        value: String(initialProjects.length),
+        title: "Recent projects",
+        caption: "Records currently listed",
       },
       {
-        eyebrow: "Engineering",
-        icon: Timer,
-        iconClass: "text-blue-200",
-        value: parsed?.hoursAnalyzed?.value || "500+",
-        title: "Hours Analyzed",
-        caption: "Automated defect & query profiling",
-      },
-      {
-        eyebrow: "Stakeholders",
+        eyebrow: "Domains",
         icon: Users,
         iconClass: "text-tertiary",
-        value: parsed?.clientsServed?.value || "50+",
-        title: "Clients Served",
-        caption: "Global manufacturing & SaaS operations",
+        value: String(categories.size),
+        title: "Practice areas",
+        caption: "Categories across this list",
       },
       {
-        eyebrow: "Reliability",
-        icon: ShieldCheck,
-        iconClass: "text-lavender",
-        value: "99.8%",
-        title: "Data Accuracy SLA",
-        badge: `Analytics · ${new Date().getFullYear()} Ready`,
+        eyebrow: "Tools",
+        icon: Terminal,
+        iconClass: "text-blue-200",
+        value: String(technologies.size),
+        title: "Project technologies",
+        caption: "Distinct project tags",
       },
     ];
-  }, [profile?.stats]);
+  }, [initialProjects]);
 
   const email = profile?.email || "essaahmedsiddiqui@gmail.com";
   const location = profile?.location || "Karachi, Pakistan · Open to Worldwide Remote";
@@ -172,7 +183,7 @@ const Index = (_props: IndexProps) => {
           {/* ══════════ EXECUTIVE KPI STRIP ══════════ */}
           <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 mb-28 relative" aria-label="Key metrics">
             <Reveal>
-              <div className="rounded-2xl bg-surface-low border border-border grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-border shadow-2xl backdrop-blur-sm">
+              <div className="rounded-2xl bg-surface-low border border-border grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border shadow-2xl backdrop-blur-sm">
                 {kpis.map((kpi) => {
                   const Icon = kpi.icon;
                   return (
@@ -206,7 +217,7 @@ const Index = (_props: IndexProps) => {
           </section>
 
           {/* ══════════ FEATURED WORK ══════════ */}
-          <FeaturedWork />
+          <FeaturedWork projects={initialProjects} loadError={projectsLoadError} />
 
           {/* ══════════ DECISION SYSTEMS ARCHITECTURE ══════════ */}
           <CapabilitiesSection />
