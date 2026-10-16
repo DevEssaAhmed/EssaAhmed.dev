@@ -1,4 +1,4 @@
-﻿import Index from "./Index";
+import Index from "./Index";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
 
@@ -14,13 +14,21 @@ export const metadata = buildPageMetadata({
 export default async function Page() {
   const supabase = getSupabaseServer();
 
-  const [{ data: projectsData }, { data: categoriesData }, { data: articlesData }] = await Promise.all([
+  // Keep the primary project query independent of optional relationship
+  // embedding. Tags already live on projects.tags in the current database.
+  const [
+    { data: projectsData, error: projectsError },
+    { data: categoriesData, error: categoriesError },
+    { data: articlesData, error: articlesError },
+  ] = await Promise.all([
     supabase
       .from("projects")
-      .select("id,title,description,image_url,featured,views,likes,demo_url,github_url,created_at,categories(name),project_tags(tags(name))")
+      .select(
+        "id,title,description,image_url,featured,views,likes,comments,demo_url,github_url,created_at,tags,category_id"
+      )
       .order("created_at", { ascending: false })
       .limit(6),
-    supabase.from("categories").select("name").order("name"),
+    supabase.from("categories").select("id,name").order("name"),
     supabase
       .from("blog_posts")
       .select("*")
@@ -29,19 +37,44 @@ export default async function Page() {
       .order("created_at", { ascending: false }),
   ]);
 
-  const formattedProjects = (projectsData || []).map((project: any) => ({
+  if (projectsError) {
+    console.error("[home] Failed to load projects from Supabase", {
+      code: projectsError.code,
+      message: projectsError.message,
+      hint: projectsError.hint,
+    });
+  }
+  if (categoriesError) {
+    console.warn("[home] Failed to load project categories", {
+      code: categoriesError.code,
+      message: categoriesError.message,
+    });
+  }
+  if (articlesError) {
+    console.warn("[home] Failed to load articles", {
+      code: articlesError.code,
+      message: articlesError.message,
+    });
+  }
+
+  const categoryNames = new Map(
+    (categoriesData ?? []).map((category) => [category.id, category.name])
+  );
+
+  const formattedProjects = (projectsData ?? []).map((project) => ({
     ...project,
-    tags: (project.project_tags || []).map((pt: any) => pt.tags?.name).filter(Boolean),
+    category:
+      categoryNames.get(project.category_id ?? "") ?? "Uncategorized",
+    tags: Array.isArray(project.tags) ? project.tags : [],
   }));
 
-  const formattedCategories = (categoriesData || []).map((cat: any) => cat.name);
+  const formattedCategories = (categoriesData ?? []).map((category) => category.name);
 
   return (
     <Index
       initialProjects={formattedProjects}
       initialProjectCategories={formattedCategories}
-      initialArticles={articlesData || []}
+      initialArticles={articlesData ?? []}
     />
   );
 }
-
