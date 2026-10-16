@@ -123,8 +123,10 @@ Ensure you have the following installed:
 
    ```env
    NEXT_PUBLIC_SUPABASE_URL="https://your-project-id.supabase.co"
-   NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="sb_publishable_your-key"
    ```
+
+   Existing deployments may keep `NEXT_PUBLIC_SUPABASE_ANON_KEY`; the app accepts either variable. Only use publishable/anon keys in frontend environments—never a service-role or secret key.
 
 4. **Start the development server**
    ```bash
