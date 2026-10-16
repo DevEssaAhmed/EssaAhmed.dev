@@ -24,9 +24,13 @@ type ProjectItem = {
 
 type ProjectsPageProps = {
   initialProjects?: ProjectItem[];
+  projectsLoadError?: boolean;
 };
 
-const ProjectsPage = ({ initialProjects = [] }: ProjectsPageProps) => {
+const ProjectsPage = ({
+  initialProjects = [],
+  projectsLoadError = false,
+}: ProjectsPageProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -89,7 +93,7 @@ const ProjectsPage = ({ initialProjects = [] }: ProjectsPageProps) => {
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-low border border-border font-mono text-[11px] text-ink-muted">
                 <Database className="w-3.5 h-3.5 text-metric" aria-hidden="true" />
-                Audited Production Deployments
+                Supabase project records
               </span>
             </div>
 
@@ -107,11 +111,14 @@ const ProjectsPage = ({ initialProjects = [] }: ProjectsPageProps) => {
               </div>
               <div className="w-1 h-1 rounded-full bg-border" aria-hidden="true" />
               <div>
-                <span className="text-white font-semibold">{categories.length > 1 ? categories.length - 1 : 1}</span> Technical Disciplines
+                <span className="text-white font-semibold">{categories.length - 1}</span> Technical Disciplines
               </div>
               <div className="w-1 h-1 rounded-full bg-border" aria-hidden="true" />
               <div>
-                <span className="text-tertiary font-semibold">100%</span> Telemetry Verified
+                <span className="text-white font-semibold">
+                  {new Set(initialProjects.flatMap((project) => project.tags ?? [])).size}
+                </span>{" "}
+                Project Tags
               </div>
             </div>
           </header>
