@@ -31,7 +31,7 @@ const websiteJsonLd = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://essaahmed.dev"),
-  title: "Essa Ahmed | Portfolio & Data Analytics",
+  title: "Essa Ahmed",
   description: "Portfolio of Essa Ahmed, an industrial and manufacturing engineer working across quality improvement, data analytics, Power BI dashboards, and automation.",
   applicationName: "Essa Ahmed",
   authors: [{ name: "Essa Ahmed" }],
@@ -52,11 +52,11 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-touch-icon.svg" }],
   },
   openGraph: {
-    title: "Essa Ahmed - Portfolio & Blog",
+    title: "Essa Ahmed",
     description:
       "Industrial engineering, quality improvement, data analytics, dashboards, automation projects, and writing by Essa Ahmed.",
     type: "website",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Essa Ahmed - Portfolio & Blog" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Essa Ahmed" }],
   },
   twitter: {
     card: "summary_large_image",
