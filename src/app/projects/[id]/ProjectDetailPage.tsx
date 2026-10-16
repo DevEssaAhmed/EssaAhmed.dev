@@ -151,7 +151,7 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
     } finally {
       setLoading(false);
     }
-
+  }, [id, navigate]);
 
   useEffect(() => {
     if (initialProject === undefined && id) {
