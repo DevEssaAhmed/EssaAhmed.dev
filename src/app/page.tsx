@@ -5,7 +5,7 @@ import { buildPageMetadata } from "@/lib/metadata";
 export const revalidate = 120;
 
 export const metadata = buildPageMetadata({
-  title: "Industrial Engineering & Data Analytics",
+  title: "Essa Ahmed",
   description:
     "Explore industrial engineering, quality improvement, Power BI dashboards, data analytics, and automation projects by Essa Ahmed.",
   path: "/",
