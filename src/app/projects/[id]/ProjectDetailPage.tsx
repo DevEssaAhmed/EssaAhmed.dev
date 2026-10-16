@@ -96,22 +96,54 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
     try {
       const { data, error } = await supabase
         .from("projects")
-        .select(`*, categories ( id, name, slug )`)
+        .select("*")
         .eq("id", id)
         .single();
       if (error) throw error;
-      if (data) {
-        const md = data.description ? tryConvertJsonToMarkdown(data.description) : "";
-        setProject({ ...data, description: md, originalDescription: data.description });
-        if (id) {
-          const tags = await getProjectTags(id);
-          setProjectTags(tags);
+      if (!data) return;
+
+      let category = null;
+      if (data.category_id) {
+        const { data: categoryData, error: categoryError } = await supabase
+          .from("categories")
+          .select("id,name,slug")
+          .eq("id", data.category_id)
+          .maybeSingle();
+
+        if (categoryError) {
+          console.warn("Could not load project category:", categoryError.message);
+        } else {
+          category = categoryData;
         }
-        await supabase
-          .from("projects")
-          .update({ views: (data.views || 0) + 1 })
-          .eq("id", data.id);
       }
+
+      // Current records keep tags directly on projects.tags. Preserve support
+      // for older rows which used the project_tags junction table.
+      const directTags = Array.isArray(data.tags)
+        ? data.tags.filter(Boolean).map((name: string) => ({ id: name, name }))
+        : [];
+      let resolvedTags = directTags;
+      if (!resolvedTags.length && id) {
+        try {
+          resolvedTags = await getProjectTags(id);
+        } catch (tagError) {
+          console.warn("Could not load related project tags:", tagError);
+        }
+      }
+
+      const md = data.description ? tryConvertJsonToMarkdown(data.description) : "";
+      setProject({
+        ...data,
+        categories: category,
+        description: md,
+        originalDescription: data.description,
+      });
+      setProjectTags(resolvedTags);
+
+      await supabase
+        .from("projects")
+        .update({ views: (data.views || 0) + 1 })
+        .eq("id", data.id);
     } catch (error) {
       console.error("Error fetching project:", error);
       toast.error("Project not found");
@@ -119,7 +151,7 @@ const ProjectDetailPage = ({ initialProject, initialProjectTags }: ProjectDetail
     } finally {
       setLoading(false);
     }
-  }, [id, navigate]);
+
 
   useEffect(() => {
     if (initialProject === undefined && id) {
