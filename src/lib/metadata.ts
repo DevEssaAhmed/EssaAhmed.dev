@@ -13,14 +13,14 @@ type BuildPageMetadataInput = {
   type?: "website" | "article";
 };
 
-export function buildPageMetadata({
-  title,
-  description = SITE_DESCRIPTION,
-  path,
-  image = DEFAULT_IMAGE,
-  type = "website",
-}: BuildPageMetadataInput): Metadata {
-  const absoluteTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
+export function buildPageMetadata(input: BuildPageMetadataInput): Metadata {
+  const {
+    description = SITE_DESCRIPTION,
+    path,
+    image = DEFAULT_IMAGE,
+    type = "website",
+  } = input;
+  const absoluteTitle = SITE_NAME;
   const canonical = path.startsWith("/") ? path : `/${path}`;
   const resolvedImage = image || DEFAULT_IMAGE;
 
