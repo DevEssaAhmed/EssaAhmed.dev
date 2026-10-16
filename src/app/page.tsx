@@ -44,7 +44,7 @@ export default async function Page() {
   }
 
   const categoryNames = new Map(
-    (categoriesResult.data ?? []).map((category) => [category.id, category.name])
+    (categoriesResult.data ?? []).map((category) => [category.id, category.name] as const)
   );
 
   const initialProjects = (projectsResult.data ?? []).map((project) => ({
