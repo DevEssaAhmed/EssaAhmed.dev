@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
@@ -35,7 +35,7 @@ export default function PageTransition({
   const prefersReducedMotion = useReducedMotion();
 
   if (prefersReducedMotion) {
-    return <>{children}</>;
+    return <div className="bg-background min-h-screen">{children}</div>;
   }
 
   return (
@@ -46,6 +46,7 @@ export default function PageTransition({
         initial="initial"
         animate="animate"
         exit="exit"
+        className="bg-background min-h-screen"
       >
         {children}
       </motion.div>

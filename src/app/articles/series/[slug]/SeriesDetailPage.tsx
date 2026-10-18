@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
@@ -96,7 +96,7 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
             <Skeleton className="h-64 w-full rounded-2xl mb-6" />
             <div className="space-y-6">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Card key={i}>
+                <Card key={i} className="bg-surface-low border border-border">
                   <CardContent className="p-6">
                     <div className="flex gap-6">
                       <Skeleton className="w-12 h-12 rounded-full" />
@@ -125,7 +125,7 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
             <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
             <h1 className="text-2xl font-bold mb-2">Series Not Found</h1>
             <p className="text-muted-foreground mb-6">This series does not exist.</p>
-            <Button asChild>
+            <Button asChild className="bg-champagne text-[#090c13] hover:bg-champagne/90 font-medium rounded-xl">
               <Link href="/articles/series">
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back to Series
               </Link>
@@ -142,13 +142,13 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
       <Navigation />
       <div className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-12">
-          <Button asChild variant="ghost" className="mb-8">
+          <Button asChild variant="ghost" className="mb-8 text-muted-foreground hover:text-champagne transition-colors">
             <Link href="/articles/series">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Series
             </Link>
           </Button>
 
-          <Card className="mb-10 overflow-hidden">
+          <Card className="mb-10 overflow-hidden bg-surface-low border border-border">
             {series.cover_image && (
               <div className="h-64 w-full">
                 <OptimizedImage src={series.cover_image} alt={series.title} className="w-full h-full object-cover" />
@@ -157,29 +157,29 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
             <CardContent className="p-8">
               <div className="flex items-center gap-3 mb-3">
                 {getStatusIcon(series.status || "active")}
-                <Badge variant="outline">{getStatusText(series.status || "active")}</Badge>
+                <Badge variant="outline" className="border-border bg-surface-high text-xs font-mono text-muted-foreground">{getStatusText(series.status || "active")}</Badge>
               </div>
-              <h1 className="text-4xl font-bold mb-3">{series.title}</h1>
+              <h1 className="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight mb-3">{series.title}</h1>
               {series.description && <p className="text-muted-foreground text-lg">{series.description}</p>}
             </CardContent>
           </Card>
 
           {articles.length === 0 ? (
-            <div className="w-full relative overflow-hidden rounded-3xl border border-border/50 bg-background/50 p-12 text-center shadow-sm">
+            <div className="w-full relative overflow-hidden rounded-3xl border border-border bg-surface-low p-12 text-center shadow-sm">
               <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
               <div className="relative z-10 flex flex-col items-center justify-center">
-                <div className="w-24 h-24 mb-6 rounded-full bg-primary/10 flex items-center justify-center ring-8 ring-primary/5">
-                  <BookOpen className="w-10 h-10 text-primary" />
+                <div className="w-20 h-20 mb-6 rounded-full bg-surface-high border border-border flex items-center justify-center">
+                  <BookOpen className="w-10 h-10 text-champagne" />
                 </div>
-                <h3 className="text-3xl font-bold tracking-tight mb-3">Series Coming Soon</h3>
+                <h3 className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight mb-3">Series Coming Soon</h3>
                 <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-8">
-                  I'm currently outlining and writing articles for the <span className="text-foreground font-medium">{series.title}</span> series. Stay tuned for updates!
+                  I&apos;m currently outlining and writing articles for the <span className="text-foreground font-medium">{series.title}</span> series. Stay tuned for updates!
                 </p>
                 <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <Button asChild className="bg-gradient-primary hover:shadow-glow transition-all duration-300 rounded-xl px-8 h-12">
+                  <Button asChild className="bg-champagne text-[#090c13] hover:bg-champagne/90 font-medium transition-all duration-300 rounded-xl px-8 h-12">
                     <Link href="/articles">Read Latest Articles</Link>
                   </Button>
-                  <Button asChild variant="outline" className="rounded-xl px-8 h-12 hover:bg-muted transition-all duration-300">
+                  <Button asChild variant="outline" className="rounded-xl px-8 h-12 border-border hover:border-champagne/40 hover:bg-surface-high text-foreground transition-all duration-300">
                     <Link href="/articles/series">View All Series</Link>
                   </Button>
                 </div>
@@ -189,16 +189,16 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
             <div className="space-y-4">
               {articles.map((article, index) => (
                 <Link key={article.id} href={`/articles/${article.slug}`} className="block">
-                  <Card className="cursor-pointer hover:shadow-md transition-shadow">
+                  <Card className="group cursor-pointer bg-surface-low border border-border hover:border-champagne/40 transition-all duration-300 hover:-translate-y-0.5">
                     <CardContent className="p-6">
                       <div className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-surface-high border border-border text-champagne flex items-center justify-center font-mono font-semibold shrink-0">
                           {index + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <CardTitle className="mb-2 line-clamp-2">{article.title}</CardTitle>
+                          <CardTitle className="mb-2 line-clamp-2 font-display text-lg text-white group-hover:text-champagne transition-colors">{article.title}</CardTitle>
                           <CardDescription className="mb-3 line-clamp-2">{article.excerpt || "No excerpt available."}</CardDescription>
-                          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-muted-foreground">
                             <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(article.created_at).toLocaleDateString()}</span>
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {article.read_time || 5} min</span>
                             <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {article.views || 0}</span>

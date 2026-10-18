@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,11 +17,7 @@ interface HeroStatsData {
 }
 
 const HeroStatsManager = () => {
-  const [stats, setStats] = useState<HeroStatsData>({
-    projectsLed: { label: 'Projects Led', value: '15+' },
-    hoursAnalyzed: { label: 'Hours Analyzed', value: '500+' },
-    clientsServed: { label: 'Clients Served', value: '50+' }
-  });
+  const [stats, setStats] = useState<HeroStatsData>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [newStatKey, setNewStatKey] = useState('');
@@ -191,7 +187,7 @@ const HeroStatsManager = () => {
                     id={`${key}-label`}
                     value={stat.label}
                     onChange={(e) => updateStat(key, 'label', e.target.value)}
-                    placeholder="e.g. Projects Led"
+                    placeholder="e.g. S&OP Pipelines"
                   />
                 </div>
                 <div>

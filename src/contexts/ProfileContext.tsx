@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,22 +18,18 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 const defaultProfile: Profile = {
   id: "default",
-  name: "Alex Chen",
-  username: "alexchen",
-  title: "Full Stack Developer",
-  bio: "Passionate developer specializing in web applications, data science, and modern technologies. Welcome to my portfolio!",
-  email: "alex@example.com",
+  name: "Essa Ahmed",
+  username: "essaahmed",
+  title: "Workflow Automation, Supply Chain S&OP & Analytics",
+  bio: "Bridging supply chain operations, end-to-end process automation, and decision analytics—turning complex operational data into self-running workflows and clear forecasts.",
+  email: "essaahmedsiddiqui@gmail.com",
   avatar_url: "/placeholder.svg",
-  github_url: "https://github.com/alexchen",
-  linkedin_url: "https://linkedin.com/in/alexchen",
-  website_url: null,
-  location: "San Francisco, CA",
-  skills: ["JavaScript", "React", "Node.js", "Python", "TypeScript", "Vue.js"],
-  stats: {
-    projectsLed: { label: "Projects Led", value: "15+" },
-    hoursAnalyzed: { label: "Hours Analyzed", value: "500+" },
-    clientsServed: { label: "Clients Served", value: "50+" },
-  },
+  github_url: "https://github.com/DevEssaAhmed",
+  linkedin_url: "https://www.linkedin.com/in/essa-ahmed",
+  website_url: "https://essaahmed.dev",
+  location: "Karachi, Pakistan",
+  skills: ["Python", "SQL", "dbt", "Power BI", "Snowflake", "Airflow", "S&OP Modeling", "Next.js"],
+  stats: {},
   about_markdown: null,
   about_content_jsonb: null,
   created_at: new Date().toISOString(),
@@ -46,11 +42,6 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [error, setError] = useState<string | null>(null);
 
   const fetchProfile = useCallback(async () => {
-    if (profile && profile.id !== "default") {
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
@@ -63,7 +54,18 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       if (error) throw error;
 
-      const profileData = data && data.length > 0 ? (data[0] as Profile) : defaultProfile;
+      const raw = data && data.length > 0 ? (data[0] as Profile) : defaultProfile;
+      const profileData: Profile = {
+        ...raw,
+        title:
+          !raw.title || raw.title === "BI Analyst"
+            ? defaultProfile.title
+            : raw.title,
+        stats:
+          raw.stats && typeof raw.stats === "object" && !Array.isArray(raw.stats)
+            ? raw.stats
+            : defaultProfile.stats,
+      };
       setProfile(profileData);
     } catch (err) {
       console.error("Error fetching profile:", err);
@@ -72,7 +74,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } finally {
       setLoading(false);
     }
-  }, [profile]);
+  }, []);
 
   const updateProfile = async (updates: any) => {
     try {

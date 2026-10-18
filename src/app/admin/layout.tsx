@@ -1,11 +1,8 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import AdminProviders from "./AdminProviders";
 
 export const metadata: Metadata = {
-  robots: {
-    index: false,
-    follow: false,
-  },
+  robots: { index: false, follow: false },
 };
 
 export default function AdminLayout({
@@ -15,4 +12,3 @@ export default function AdminLayout({
 }) {
   return <AdminProviders>{children}</AdminProviders>;
 }
-

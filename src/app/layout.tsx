@@ -1,6 +1,7 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import "../index.css";
 import Providers from "./providers";
 import GTMProvider from "@/components/gtm-provider";
@@ -19,6 +20,13 @@ const jakarta = Plus_Jakarta_Sans({
   weight: ["400", "500", "600", "700", "800"],
 });
 
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+  weight: ["400", "500", "700"],
+});
+
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -32,7 +40,8 @@ const websiteJsonLd = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://essaahmed.dev"),
   title: "Essa Ahmed",
-  description: "Portfolio of Essa Ahmed, an industrial and manufacturing engineer working across quality improvement, data analytics, Power BI dashboards, and automation.",
+  description:
+    "Portfolio of Essa Ahmed, an industrial and manufacturing engineer working across quality improvement, data analytics, Power BI dashboards, and automation.",
   applicationName: "Essa Ahmed",
   authors: [{ name: "Essa Ahmed" }],
   robots: {
@@ -48,8 +57,16 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/apple-touch-icon.svg" }],
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", type: "image/x-icon", sizes: "16x16 32x32 48x48 64x64" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-48x48.png", type: "image/png", sizes: "48x48" },
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+    other: [{ rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#374EAE" }],
   },
   openGraph: {
     title: "Essa Ahmed",
@@ -74,8 +91,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${jakarta.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
+        <Script id="theme-initializer" strategy="beforeInteractive">
+          {`(()=>{try{const saved=localStorage.getItem('theme');const theme=saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const root=document.documentElement;root.classList.remove('light','dark');root.classList.add(theme);root.style.colorScheme=theme}catch{const theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(theme)}})()`}
+        </Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -87,8 +111,15 @@ export default function RootLayout({
           href="https://kexmzaaufxbzegurxuqz.supabase.co"
           crossOrigin="anonymous"
         />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        />
       </head>
-      <body suppressHydrationWarning>
+      <body
+        className="bg-surface text-on-surface antialiased selection:bg-primary/20 selection:text-primary min-h-screen transition-colors duration-200"
+        suppressHydrationWarning
+      >
         <Providers>
           <Suspense fallback={null}>
             <GTMPageView />

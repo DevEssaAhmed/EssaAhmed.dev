@@ -3,6 +3,7 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
+import { cleanMarkdownExcerpt } from "@/lib/clean-markdown";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return buildPageMetadata({
     title: data.title,
-    description: data.description || data.title,
+    description: cleanMarkdownExcerpt(data.description || data.title, 160),
     path: `/projects/${id}`,
     image: data.image_url,
   });

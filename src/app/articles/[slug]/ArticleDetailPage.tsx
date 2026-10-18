@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "@/lib/router-compat";
@@ -41,7 +41,7 @@ const ArticleDetailPage = () => {
         .single();
 
       if (data) {
-        setArticle(data as Article);
+        setArticle((data as unknown) as Article);
       } else {
         setArticle({
           title: "Sample Article",

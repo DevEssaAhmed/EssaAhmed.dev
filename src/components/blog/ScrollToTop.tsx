@@ -35,7 +35,7 @@ const ScrollToTop = () => {
       className="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full bg-gradient-primary shadow-glow hover:shadow-xl transition-all duration-300 p-0"
       size="sm"
     >
-      <ArrowUp className="w-5 h-5 text-white" />
+      <ArrowUp className="w-5 h-5 text-[#090c13]" />
     </Button>
   );
 };

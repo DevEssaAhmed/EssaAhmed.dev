@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Link from "next/link";
 import { cn } from '@/lib/utils';
-
 import { useNavigate, useParams } from '@/lib/router-compat';
 import { useDebounce } from '@/hooks/use-debouncer';
 import { Button } from '@/components/ui/button';
@@ -11,8 +10,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 import {
   Select,
   SelectContent,
@@ -24,76 +35,123 @@ import {
   ArrowLeft,
   Save,
   Eye,
-  EyeOff,
   Copy,
-  Settings,
   Image as ImageIcon,
-  Hash,
   Clock,
   Tag,
   Plus,
   X,
   Focus,
+  Sparkles,
+  ExternalLink,
+  Layers,
+  Globe,
+  ChevronDown,
+  ChevronRight,
+  Loader2,
+  Folder,
+  Bookmark,
+  Share2,
+  AlignLeft,
+  BookOpen,
+  Check,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { createOrGetCategory, getAllCategories, associateBlogPostTags, getBlogPostTags } from '@/lib/tagUtils';
+import {
+  createOrGetCategory,
+  getAllCategories,
+  associateBlogPostTags,
+  getBlogPostTags,
+} from '@/lib/tagUtils';
 import FileUpload from '@/components/FileUpload';
-import BlockNoteEditorComponent, { BlockNoteContent, markdownToBlocks, blocksToMarkdown } from '@/components/editor/BlockNoteEditor';
+import BlockNoteEditorComponent, {
+  BlockNoteContent,
+  markdownToBlocks,
+  blocksToMarkdown,
+} from '@/components/editor/BlockNoteEditor';
 import { BlockNoteEditor } from '@blocknote/core';
-import AdminLayout from '@/components/admin/layout/AdminLayout';
 import { PerformanceSkeleton } from '@/components/ui/performance-skeleton';
+import {
+  extractArticleExternalMeta,
+  encodeArticleExternalMeta,
+} from '@/data/externalArticlesStore';
 
-// Helpers for OG auto-generation
-const stripMarkdown = (md: string) => md
-  .replace(/```[\s\S]*?```/g, ' ')
-  .replace(/`[^`]*`/g, ' ')
-  .replace(/(!)?\[[^\]]*\]\([^)]*\)/g, ' ')
-  .replace(/[#>*_~`-]+/g, ' ')
-  .replace(/\s+/g, ' ')
-  .trim();
+type PostVisibility = 'draft' | 'unlisted' | 'published';
+
+const stripMarkdown = (md: string) =>
+  md
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/(!)?\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/[#>*_~`-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 
 const firstImageFromMarkdown = (md: string): string | null => {
   const m = md.match(/!\[[^\]]*\]\(([^)]+)\)/);
   return m ? m[1] : null;
 };
 
-type PostVisibility = 'draft' | 'unlisted' | 'published';
+const DOMAIN_PILLARS = [
+  'Workflow Automation',
+  'Supply Chain & Demand Planning',
+  'Analytics & Decision Systems',
+] as const;
 
-const getPostVisibility = (post: { published: boolean; unlisted: boolean }): PostVisibility => {
-  if (!post.published) return 'draft';
-  return post.unlisted ? 'unlisted' : 'published';
-};
-
-const visibilityDescription: Record<PostVisibility, string> = {
-  draft: 'Only visible in the admin area.',
-  unlisted: 'Available by direct link, but hidden from public listings and search engines.',
-  published: 'Visible on the site and included in public listings.',
-};
+const PLATFORMS = [
+  'On Site',
+  'Medium',
+  'dev.to',
+  'freeCodeCamp',
+  'Substack',
+  'Hashnode',
+] as const;
 
 const BlogEditorEnhanced: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
+  const [seoDrawerOpen, setSeoDrawerOpen] = useState(false);
+  const [showCoverModal, setShowCoverModal] = useState(false);
+  const [coverUrlInput, setCoverUrlInput] = useState('');
+  const [showSeoOverrides, setShowSeoOverrides] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+
+  // External / Entry Mode States
+  const [entryMode, setEntryMode] = useState<'internal' | 'external'>('internal');
+  const [platform, setPlatform] = useState<string>('On Site');
+  const [externalUrl, setExternalUrl] = useState<string>('');
+  const [pillar, setPillar] = useState<string>('Analytics & Decision Systems');
+
+  // Supabase categories & series
   const [categories, setCategories] = useState<any[]>([]);
   const [series, setSeries] = useState<any[]>([]);
-  const [tagInput, setTagInput] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [blockNoteContent, setBlockNoteContent] = useState<BlockNoteContent>([]);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [showNewSeriesDialog, setShowNewSeriesDialog] = useState(false);
   const [newSeries, setNewSeries] = useState({ title: '', slug: '', description: '' });
 
+  // Tags
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
+
+  // BlockNote Editor
+  const editorRef = useRef<BlockNoteEditor | null>(null);
+  const [contentLoading, setContentLoading] = useState(!!id);
+  const [blockNoteContent, setBlockNoteContent] = useState<BlockNoteContent>([]);
+
+  // Base Form Data
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
     excerpt: '',
     image_url: '',
     video_url: '',
-    video_type: 'youtube',
+    video_type: '',
     category_id: '',
     category_name: '',
     series_id: '',
@@ -105,50 +163,91 @@ const BlogEditorEnhanced: React.FC = () => {
     og_description: '',
     og_image: '',
   });
+
   const formDataRef = useRef(formData);
   formDataRef.current = formData;
+  const entryModeRef = useRef(entryMode);
+  entryModeRef.current = entryMode;
+  const externalUrlRef = useRef(externalUrl);
+  externalUrlRef.current = externalUrl;
+  const platformRef = useRef(platform);
+  platformRef.current = platform;
+  const pillarRef = useRef(pillar);
+  pillarRef.current = pillar;
 
-  // BlockNote editor reference
-  const editorRef = useRef<BlockNoteEditor | null>(null);
-  const [contentLoading, setContentLoading] = useState(!!id);
-
-  // Stable ref to latest handleSave, used by the Ctrl+S listener to avoid stale closures
-  const handleSaveRef = useRef<((visibility: PostVisibility, isAutoSave?: boolean) => Promise<void>) | null>(null);
-
-  // Stable callback for onEditorReady — must be at component scope to avoid
-  // creating a new function reference on every render, which triggers focus loss.
   const onEditorReady = useCallback((editor: BlockNoteEditor) => {
     editorRef.current = editor;
   }, []);
 
-  // Last save timestamp for display
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
-  // Debounced mirrors for autosave behavior
+  // Debounced values for autosave
   const debouncedBlockNoteContent = useDebounce(blockNoteContent, 3000);
   const debouncedFormData = useDebounce(formData, 3000);
   const debouncedTags = useDebounce(selectedTags, 3000);
+  const debouncedEntryMode = useDebounce(entryMode, 3000);
+  const debouncedExternalUrl = useDebounce(externalUrl, 3000);
+  const debouncedPlatform = useDebounce(platform, 3000);
+  const debouncedPillar = useDebounce(pillar, 3000);
 
-  // Track last saved version (seeded by fetchProject to prevent spurious saves on load)
   const [lastSaved, setLastSaved] = useState<{
     formData: typeof formData;
     content: BlockNoteContent;
     tags: string[];
+    entryMode: 'internal' | 'external';
+    externalUrl: string;
+    platform: string;
+    pillar: string;
   } | null>(null);
 
+  // Calculate live word count & reading time
+  const wordCount = useMemo(() => {
+    const text = blockNoteContent
+      .map((block: any) => {
+        if (Array.isArray(block.content)) {
+          return block.content.map((c: any) => c.text || '').join(' ');
+        }
+        return '';
+      })
+      .join(' ')
+      .trim();
+    if (!text) return 0;
+    return text.split(/\s+/).filter(Boolean).length;
+  }, [blockNoteContent]);
+
+  const readingTime = useMemo(() => {
+    return Math.max(1, Math.ceil(wordCount / 200));
+  }, [wordCount]);
+
   const loadCategories = useCallback(async () => {
-    try { const allCategories = await getAllCategories(); setCategories(allCategories || []); }
-    catch (err) { console.error('Error loading categories', err); setCategories([]); }
+    try {
+      const allCategories = await getAllCategories();
+      setCategories(allCategories || []);
+    } catch (err) {
+      console.error('Error loading categories', err);
+      setCategories([]);
+    }
   }, []);
 
   const loadSeries = useCallback(async () => {
     try {
-      const { data: seriesData, error: seriesError } = await supabase.from('series').select('*').order('title');
-      if (seriesError) { console.error('Error fetching series:', seriesError); } else { setSeries(seriesData || []); }
-    } catch (error) { console.error('Error loading series:', error); setSeries([]); }
+      const { data: seriesData, error: seriesError } = await supabase
+        .from('series')
+        .select('*')
+        .order('title');
+      if (seriesError) {
+        console.error('Error fetching series:', seriesError);
+      } else {
+        setSeries(seriesData || []);
+      }
+    } catch (error) {
+      console.error('Error loading series:', error);
+      setSeries([]);
+    }
   }, []);
 
   const fetchBlogPost = useCallback(async () => {
+    if (!id) return;
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -158,19 +257,27 @@ const BlogEditorEnhanced: React.FC = () => {
         .single();
       if (error) throw error;
 
+      // Extract external article metadata
+      const externalMeta = extractArticleExternalMeta(data);
+      const isExt = externalMeta.isExternal;
+      setEntryMode(isExt ? 'external' : 'internal');
+      setExternalUrl(externalMeta.externalUrl || '');
+      setPlatform(externalMeta.platform || 'On Site');
+      setPillar(externalMeta.pillar || 'Analytics & Decision Systems');
+
       const loadedFormData = {
         title: data.title || '',
         slug: data.slug || '',
         excerpt: data.excerpt || '',
         image_url: data.image_url || '',
         video_url: data.video_url || '',
-        video_type: data.video_type || 'youtube',
+        video_type: data.video_type || '',
         category_id: data.category_id || '',
         category_name: '',
         series_id: data.series_id || '',
         series_order: data.series_order || 1,
-        published: data.published || false,
-        unlisted: data.unlisted || false,
+        published: Boolean(data.published),
+        unlisted: Boolean(data.unlisted),
         reading_time: data.reading_time || 5,
         og_title: (data as any).og_title || '',
         og_description: (data as any).og_description || '',
@@ -179,27 +286,18 @@ const BlogEditorEnhanced: React.FC = () => {
       setFormData(loadedFormData);
 
       let loadedTags: string[] = [];
-      if (id) {
-        const tags = await getBlogPostTags(id);
-        loadedTags = tags.map((tag: any) => tag.name as string);
-        setSelectedTags(loadedTags);
-      }
+      const tags = await getBlogPostTags(id);
+      loadedTags = tags.map((tag: any) => tag.name as string);
+      setSelectedTags(loadedTags);
 
-      // Load content - check if BlockNote format (array) or old Yoopta format (object)
+      // Load BlockNote content
       let contentToSet: BlockNoteContent = [];
       const contentJsonb = data.content_jsonb;
       const contentMd = data.content;
 
       if (contentJsonb && Array.isArray(contentJsonb) && contentJsonb.length > 0) {
-        // Already BlockNote format
         contentToSet = contentJsonb as BlockNoteContent;
-      } else if (contentJsonb && typeof contentJsonb === 'object' && !Array.isArray(contentJsonb) && Object.keys(contentJsonb).length > 0) {
-        // Old Yoopta format - convert from markdown
-        if (contentMd && contentMd.trim()) {
-          contentToSet = markdownToBlocks(contentMd) as BlockNoteContent;
-        }
       } else if (contentMd && contentMd.trim()) {
-        // Just markdown
         contentToSet = markdownToBlocks(contentMd) as BlockNoteContent;
       }
 
@@ -208,13 +306,28 @@ const BlogEditorEnhanced: React.FC = () => {
       }
       setContentLoading(false);
 
-      // Seed lastSaved so the first debounce tick doesn't trigger a spurious autosave
-      setLastSaved({ formData: loadedFormData, content: contentToSet, tags: loadedTags });
+      // Seed lastSaved snapshot
+      setLastSaved({
+        formData: loadedFormData,
+        content: contentToSet,
+        tags: loadedTags,
+        entryMode: isExt ? 'external' : 'internal',
+        externalUrl: externalMeta.externalUrl || '',
+        platform: externalMeta.platform || 'On Site',
+        pillar: externalMeta.pillar || 'Analytics & Decision Systems',
+      });
     } catch (error: any) {
       console.error('Fetch post error:', error);
-      toast({ title: 'Error loading blog post', description: error.message, variant: 'destructive' });
-      navigate('/admin');
-    } finally { setIsLoading(false); setContentLoading(false); }
+      toast({
+        title: 'Error loading blog post',
+        description: error.message,
+        variant: 'destructive',
+      });
+      navigate('/admin?tab=blogs');
+    } finally {
+      setIsLoading(false);
+      setContentLoading(false);
+    }
   }, [id, navigate, toast]);
 
   useEffect(() => {
@@ -223,470 +336,1208 @@ const BlogEditorEnhanced: React.FC = () => {
     if (id) void fetchBlogPost();
   }, [id, loadCategories, loadSeries, fetchBlogPost]);
 
+  // Auto-generate slug from title for new posts
   useEffect(() => {
-    if (formData.title && !id) {
-      const slug = formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      setFormData(prev => ({ ...prev, slug }));
+    if (formData.title && !id && !formData.slug) {
+      const generatedSlug = formData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      setFormData((prev) => ({ ...prev, slug: generatedSlug }));
     }
-  }, [formData.title, id]);
+  }, [formData.title, id, formData.slug]);
 
-  const handleAddTag = () => { if (tagInput.trim() && !selectedTags.includes(tagInput.trim())) { setSelectedTags(prev => [...prev, tagInput.trim()]); setTagInput(''); } };
-  const handleRemoveTag = (tagToRemove: string) => { setSelectedTags(prev => prev.filter(tag => tag !== tagToRemove)); };
-  const handleKeyPress = (e: React.KeyboardEvent) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); } };
-
-  // Autosave: fire when debounced state differs from lastSaved snapshot.
-  // NOTE: isSaving is intentionally excluded from deps — adding it causes a
-  // re-run loop (save starts → isSaving=true → effect reruns → isSaving=false → effect reruns)
-  useEffect(() => {
-    if (!id) return;
-    if (!lastSaved) return; // not seeded yet, skip
-
-    const hasChanges =
-      JSON.stringify(debouncedFormData) !== JSON.stringify(lastSaved.formData) ||
-      JSON.stringify(debouncedBlockNoteContent) !== JSON.stringify(lastSaved.content) ||
-      JSON.stringify(debouncedTags) !== JSON.stringify(lastSaved.tags);
-
-    if (hasChanges && debouncedFormData.title.trim()) {
-      const snapshot = {
-        formData: debouncedFormData,
-        content: debouncedBlockNoteContent,
-        tags: debouncedTags,
-      };
-      // Update lastSaved immediately to prevent double-fires while the async save runs
-      setLastSaved(snapshot);
-      (async () => {
-        try {
-          if (handleSaveRef.current) await handleSaveRef.current(getPostVisibility(debouncedFormData), true);
-        } catch (err) {
-          console.error('Autosave error:', err);
-        }
-      })();
+  // Handle Fetch OpenGraph Metadata
+  const handleImportExternal = async () => {
+    const rawUrl = externalUrl.trim();
+    if (!rawUrl) {
+      toast({
+        title: 'Please enter an external URL first',
+        description: 'Provide an article link from Medium, Dev.to, Substack, etc.',
+        variant: 'destructive',
+      });
+      return;
     }
 
-  }, [id, debouncedFormData, debouncedBlockNoteContent, debouncedTags, lastSaved]);
-
-  // Ctrl/Cmd+S keyboard shortcut - uses a ref to always call the latest handleSave
-  // without needing it in the deps array (avoids stale closures / [object Event] error)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-        e.preventDefault();
-        if (handleSaveRef.current) handleSaveRef.current(getPostVisibility(formDataRef.current), false).catch(console.error);
+    setIsImporting(true);
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        throw new Error('Please sign in as an administrator before importing an article.');
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-    // Empty deps is intentional — we use handleSaveRef to access the latest save fn
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+      const res = await fetch('/api/articles/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ url: rawUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to import metadata');
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        title: data.title || prev.title,
+        slug: data.slug || prev.slug,
+        excerpt: data.excerpt || prev.excerpt,
+        image_url: data.image_url || prev.image_url,
+        reading_time: data.reading_time || prev.reading_time,
+        og_title: data.title || prev.og_title,
+        og_description: data.excerpt || prev.og_description,
+        og_image: data.image_url || prev.og_image,
+      }));
+
+      if (data.platform) {
+        setPlatform(data.platform);
+      }
+      setEntryMode('external');
+
+      toast({
+        title: 'Metadata imported successfully!',
+        description: `Imported "${data.title}" from ${data.platform || 'source'}.`,
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Import failed',
+        description: err.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleAddTag = () => {
+    const val = tagInput.trim();
+    if (val && !selectedTags.includes(val)) {
+      setSelectedTags((prev) => [...prev, val]);
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setSelectedTags((prev) => prev.filter((t) => t !== tagToRemove));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    }
+  };
 
   const createNewSeries = async () => {
-    if (!newSeries.title) return;
+    if (!newSeries.title.trim()) return;
     try {
-      const seriesSlug = newSeries.slug || newSeries.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      const { data, error } = await supabase.from('series').insert([{ title: newSeries.title, slug: seriesSlug, description: newSeries.description, status: 'active' }]).select().single();
+      const seriesSlug =
+        newSeries.slug ||
+        newSeries.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      const { data, error } = await supabase
+        .from('series')
+        .insert([
+          {
+            title: newSeries.title.trim(),
+            slug: seriesSlug,
+            description: newSeries.description,
+            status: 'active',
+          },
+        ])
+        .select()
+        .single();
       if (error) {
         console.error('Error creating series:', error);
-        const mockId = (series.length + 1).toString();
-        const newSeriesItem = { id: mockId, title: newSeries.title, slug: seriesSlug, description: newSeries.description };
-        setSeries(prev => [...prev, newSeriesItem]);
-        setFormData(prev => ({ ...prev, series_id: mockId }));
-        toast({ title: 'Series created successfully (demo mode)' });
+        toast({ title: 'Error creating series', description: error.message, variant: 'destructive' });
       } else {
-        setSeries(prev => [...prev, data]);
-        setFormData(prev => ({ ...prev, series_id: data.id }));
+        setSeries((prev) => [...prev, data]);
+        setFormData((prev) => ({ ...prev, series_id: data.id }));
         toast({ title: 'Series created successfully' });
       }
       setShowNewSeriesDialog(false);
       setNewSeries({ title: '', slug: '', description: '' });
-    } catch (error) {
-      console.error('Error creating series:', error);
-      toast({ title: 'Error creating series', description: 'Please try again', variant: 'destructive' });
+    } catch (error: any) {
+      toast({ title: 'Error creating series', description: error.message, variant: 'destructive' });
     }
   };
 
-  const estimateReadingTime = (markdown: string): number => {
-    const words = markdown.trim().split(/\s+/).filter(Boolean).length;
-    return Math.max(1, Math.ceil(words / 200));
-  };
+  // Main Save function
+  const handleSave = useCallback(
+    async (visibilityOverride?: PostVisibility, isAutoSave = false) => {
+      const currentForm = isAutoSave ? debouncedFormData : formData;
+      const currentContent = isAutoSave ? debouncedBlockNoteContent : blockNoteContent;
+      const currentTags = isAutoSave ? debouncedTags : selectedTags;
+      const currentMode = isAutoSave ? debouncedEntryMode : entryMode;
+      const currentExtUrl = isAutoSave ? debouncedExternalUrl : externalUrl;
+      const currentPlat = isAutoSave ? debouncedPlatform : platform;
+      const currentPill = isAutoSave ? debouncedPillar : pillar;
 
-  const handleSave = useCallback(async (visibility: PostVisibility, isAutoSave = false) => {
-    const dataToSave = isAutoSave ? debouncedFormData : formData;
-    const contentToSave = isAutoSave ? debouncedBlockNoteContent : blockNoteContent;
-    const tagsToSave = isAutoSave ? debouncedTags : selectedTags;
+      if (!currentForm.title.trim()) return;
+      setIsSaving(true);
 
-    if (!dataToSave.title.trim()) return;
-    setIsSaving(true);
-    try {
-      const md = editorRef.current ? await blocksToMarkdown(editorRef.current) : '';
-      const readingTime = estimateReadingTime(md);
+      try {
+        const md = editorRef.current ? await blocksToMarkdown(editorRef.current) : '';
+        const calculatedReadingTime = Math.max(1, Math.ceil(md.split(/\s+/).filter(Boolean).length / 200));
 
-      // Auto-generate OG if empty
-      const autoOgTitle = dataToSave.title;
-      const autoOgDescription = (dataToSave.excerpt || stripMarkdown(md)).slice(0, 160);
-      const autoOgImage = dataToSave.image_url || firstImageFromMarkdown(md) || '';
+        // Determine published/unlisted state
+        const targetPublished =
+          visibilityOverride !== undefined
+            ? visibilityOverride !== 'draft'
+            : currentForm.published;
+        const targetUnlisted =
+          visibilityOverride !== undefined
+            ? visibilityOverride === 'unlisted'
+            : currentForm.unlisted;
 
-      const blogData: any = {
-        title: dataToSave.title,
-        slug: dataToSave.slug,
-        excerpt: dataToSave.excerpt,
-        content: md,
-        content_jsonb: contentToSave,
-        image_url: dataToSave.image_url,
-        video_url: dataToSave.video_url,
-        video_type: dataToSave.video_type,
-        category_id: dataToSave.category_id || null,
-        series_id: dataToSave.series_id || null,
-        series_order: dataToSave.series_order,
-        published: visibility !== 'draft',
-        unlisted: visibility === 'unlisted',
-        reading_time: readingTime,
-        og_title: dataToSave.og_title || autoOgTitle,
-        og_description: dataToSave.og_description || autoOgDescription,
-        og_image: dataToSave.og_image || autoOgImage || null,
-      };
+        // Auto-generate OG if empty
+        const autoOgTitle = currentForm.title;
+        const autoOgDescription = (currentForm.excerpt || stripMarkdown(md)).slice(0, 160);
+        const autoOgImage = currentForm.image_url || firstImageFromMarkdown(md) || '';
 
-      if (id) {
-        const { error } = await supabase.from('blog_posts').update(blogData).eq('id', id);
-        if (error) throw error;
-        await associateBlogPostTags(id, tagsToSave);
-        setLastSavedAt(new Date());
-        if (!isAutoSave) toast({ title: 'Blog post updated successfully!' });
-      } else {
-        const { data, error } = await supabase.from('blog_posts').insert([blogData]).select().single();
-        if (error) throw error;
-        await associateBlogPostTags(data.id, tagsToSave);
-        setLastSavedAt(new Date());
-        if (!isAutoSave) {
-          toast({ title: 'Blog post created successfully!' });
-          navigate(`/admin/blog/edit/${data.id}`);
-        }
-      }
+        // Store external article metadata in its dedicated columns; video fields remain video-only.
+        const encoded = encodeArticleExternalMeta({
+          isExternal: currentMode === 'external',
+          externalUrl: currentExtUrl.trim(),
+          platform: currentPlat,
+          pillar: currentPill,
+        });
+        const legacyArticleMetaInVideoFields =
+          currentForm.video_type.startsWith('external:') ||
+          currentForm.video_type.startsWith('internal|');
 
-      if (!isAutoSave) {
-        const savedFormData = {
-          ...dataToSave,
-          published: visibility !== 'draft',
-          unlisted: visibility === 'unlisted',
-          reading_time: readingTime,
+        const blogData: any = {
+          title: currentForm.title.trim(),
+          slug: currentForm.slug.trim(),
+          excerpt: currentForm.excerpt,
+          content: md,
+          content_jsonb: currentContent,
+          image_url: currentForm.image_url || null,
+          is_external: encoded.is_external,
+          external_url: encoded.external_url,
+          platform: encoded.platform,
+          pillar: encoded.pillar,
+          video_url: legacyArticleMetaInVideoFields ? null : currentForm.video_url || null,
+          video_type: legacyArticleMetaInVideoFields ? null : currentForm.video_type || null,
+          category_id: currentForm.category_id || null,
+          series_id: currentForm.series_id || null,
+          series_order: currentForm.series_order,
+          published: targetPublished,
+          unlisted: targetUnlisted,
+          reading_time: currentForm.reading_time || calculatedReadingTime,
+          og_title: currentForm.og_title || autoOgTitle,
+          og_description: currentForm.og_description || autoOgDescription,
+          og_image: currentForm.og_image || autoOgImage || null,
         };
-        setFormData(savedFormData);
-        setLastSaved({ formData: savedFormData, content: contentToSave, tags: tagsToSave });
+
+        let savedId = id;
+        if (id) {
+          const { error } = await supabase.from('blog_posts').update(blogData).eq('id', id);
+          if (error) throw error;
+          await associateBlogPostTags(id, currentTags);
+        } else {
+          const { data, error } = await supabase
+            .from('blog_posts')
+            .insert([blogData])
+            .select()
+            .single();
+          if (error) throw error;
+          savedId = data.id;
+          await associateBlogPostTags(data.id, currentTags);
+        }
+
+        setLastSavedAt(new Date());
+
+        const updatedFormState = {
+          ...currentForm,
+          published: targetPublished,
+          unlisted: targetUnlisted,
+          reading_time: blogData.reading_time,
+          video_type: legacyArticleMetaInVideoFields ? '' : currentForm.video_type,
+          video_url: legacyArticleMetaInVideoFields ? '' : currentForm.video_url,
+        };
+
+        setFormData(updatedFormState);
+        setLastSaved({
+          formData: updatedFormState,
+          content: currentContent,
+          tags: currentTags,
+          entryMode: currentMode,
+          externalUrl: currentExtUrl,
+          platform: currentPlat,
+          pillar: currentPill,
+        });
+
+        if (!isAutoSave) {
+          toast({
+            title: id ? 'Article updated successfully!' : 'Article created successfully!',
+            description: targetPublished ? 'Post is published and live.' : 'Draft saved.',
+          });
+          if (!id && savedId) {
+            navigate(`/admin/blog/edit/${savedId}`, { replace: true });
+          }
+        }
+      } catch (error: any) {
+        console.error('Save error:', error);
+        if (!isAutoSave) {
+          toast({
+            title: 'Error saving article',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
+      } finally {
+        setIsSaving(false);
       }
-    } catch (error: any) {
-      if (!isAutoSave) toast({ title: 'Error saving blog post', description: error.message, variant: 'destructive' });
-      console.error('Save error:', error);
-    } finally { setIsSaving(false); }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, formData, blockNoteContent, selectedTags, debouncedFormData, debouncedBlockNoteContent, debouncedTags]);
+    },
+    [
+      id,
+      formData,
+      blockNoteContent,
+      selectedTags,
+      entryMode,
+      externalUrl,
+      platform,
+      pillar,
+      debouncedFormData,
+      debouncedBlockNoteContent,
+      debouncedTags,
+      debouncedEntryMode,
+      debouncedExternalUrl,
+      debouncedPlatform,
+      debouncedPillar,
+      navigate,
+      toast,
+    ]
+  );
 
-  // Keep the ref always pointing at the latest handleSave
-  useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
 
-  const visibility = getPostVisibility(formData);
-  const articlePath = formData.slug.trim() ? `/articles/${formData.slug.trim()}` : '';
+  // Keyboard shortcut: Ctrl/Cmd + S
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        handleSaveRef.current?.(undefined, false)?.catch(console.error);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
-  const setVisibility = (nextVisibility: PostVisibility) => {
-    setFormData((prev) => ({
-      ...prev,
-      published: nextVisibility !== 'draft',
-      unlisted: nextVisibility === 'unlisted',
-    }));
-  };
+  // Autosave when debounced values change
+  useEffect(() => {
+    if (!id || !lastSaved) return;
+
+    const hasChanges =
+      JSON.stringify(debouncedFormData) !== JSON.stringify(lastSaved.formData) ||
+      JSON.stringify(debouncedBlockNoteContent) !== JSON.stringify(lastSaved.content) ||
+      JSON.stringify(debouncedTags) !== JSON.stringify(lastSaved.tags) ||
+      debouncedEntryMode !== lastSaved.entryMode ||
+      debouncedExternalUrl !== lastSaved.externalUrl ||
+      debouncedPlatform !== lastSaved.platform ||
+      debouncedPillar !== lastSaved.pillar;
+
+    if (hasChanges && debouncedFormData.title.trim()) {
+      setLastSaved({
+        formData: debouncedFormData,
+        content: debouncedBlockNoteContent,
+        tags: debouncedTags,
+        entryMode: debouncedEntryMode,
+        externalUrl: debouncedExternalUrl,
+        platform: debouncedPlatform,
+        pillar: debouncedPillar,
+      });
+      handleSaveRef.current?.(undefined, true)?.catch(console.error);
+    }
+  }, [
+    id,
+    debouncedFormData,
+    debouncedBlockNoteContent,
+    debouncedTags,
+    debouncedEntryMode,
+    debouncedExternalUrl,
+    debouncedPlatform,
+    debouncedPillar,
+    lastSaved,
+  ]);
 
   const copyArticleLink = async () => {
-    if (!articlePath) return;
+    if (!formData.slug) return;
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}${articlePath}`);
-      toast({ title: 'Article link copied' });
+      await navigator.clipboard.writeText(`${window.location.origin}/articles/${formData.slug}`);
+      toast({ title: 'Article link copied to clipboard!' });
     } catch {
-      toast({ title: 'Could not copy article link', variant: 'destructive' });
+      toast({ title: 'Failed to copy link', variant: 'destructive' });
     }
   };
 
-  const handleImageUpload = (urls: string[]) => { if (urls.length > 0) setFormData(prev => ({ ...prev, image_url: urls[0] })); };
-  const handleVideoUpload = (urls: string[]) => { if (urls.length > 0) { setFormData(prev => ({ ...prev, video_url: urls[0], video_type: urls[0].includes('youtube') || urls[0].includes('vimeo') ? 'external' : 'file' })); } };
+  const currentVisibility: PostVisibility = !formData.published
+    ? 'draft'
+    : formData.unlisted
+    ? 'unlisted'
+    : 'published';
 
   if (isLoading) {
     return (
-      <AdminLayout title="Blog Editor" subtitle="Loading..." fullWidthContent={focusMode}>
-        <PerformanceSkeleton variant="editor" className="animate-fade-up" />
-      </AdminLayout>
+      <div className="min-h-screen bg-surface text-white p-8">
+        <PerformanceSkeleton variant="editor" />
+      </div>
     );
   }
 
-  const actions = (
-    <div className="flex items-center gap-2">
-      <Button asChild variant="ghost" size="sm" className="gap-2">
-        <Link href="/admin">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </Link>
-      </Button>
-      <div className="hidden md:flex items-center gap-2 mr-2">
-        <div
-          className={`w-2 h-2 rounded-full transition-colors ${isSaving ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'
-            }`}
-        />
-        <span className='text-xs text-muted-foreground mr-4'>
-          {isSaving
-            ? 'Saving…'
-            : lastSavedAt
-              ? `Saved at ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
-              : id
-                ? 'Saved'
-                : 'Ready'}
-        </span>
-      </div>
-      <Button variant="outline" size="sm" onClick={() => setShowSettings(!showSettings)} className="gap-2">
-        <Settings className="w-4 h-4" /> Settings
-      </Button>
-      <Button variant={focusMode ? 'default' : 'outline'} size="sm" onClick={() => setFocusMode((v) => !v)} className="gap-2 hidden md:inline-flex">
-        <Focus className="w-4 h-4" /> {focusMode ? 'Exit Focus' : 'Focus'}
-      </Button>
-      {visibility !== 'draft' && articlePath ? (
-        <Button asChild variant="outline" size="sm" className="gap-2">
-          <Link href={articlePath} target="_blank" rel="noopener noreferrer">
-            <Eye className="w-4 h-4" /> View Article
-          </Link>
-        </Button>
-      ) : (
-        <Button variant="outline" size="sm" className="gap-2" disabled>
-          <Eye className="w-4 h-4" /> View Article
-        </Button>
-      )}
-      <Button size="sm" onClick={() => handleSave('draft', false)} disabled={isSaving || !formData.title} className="gap-2">
-        <Save className="w-4 h-4" /> Save Draft
-      </Button>
-      <Button variant="outline" size="sm" onClick={() => handleSave('unlisted', false)} disabled={isSaving || !formData.title} className="gap-2">
-        <EyeOff className="w-4 h-4" /> {visibility === 'published' ? 'Unlist' : 'Save Unlisted'}
-      </Button>
-      {visibility !== 'published' && (
-        <Button size="sm" onClick={() => handleSave('published', false)} disabled={isSaving || !formData.title} className="gap-2">
-          <Save className="w-4 h-4" /> Publish
-        </Button>
-      )}
-    </div>
-  );
-
   return (
-    <AdminLayout title="Blog Editor" subtitle={id ? 'Editing post' : 'Create new post'} actions={actions} fullWidthContent={focusMode}>
-      <div
+    <div className="min-h-screen bg-surface text-white selection:bg-white/20 antialiased font-sans">
+      {/* 1. TOP STICKY ACTION BAR (h-14) */}
+      <header className="sticky top-0 z-40 h-14 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/30 px-4 sm:px-6 flex items-center justify-between gap-3">
+        {/* Left: Back + Save Status + Word Count & Reading Time */}
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={() => navigate('/admin?tab=blogs')}
+            className="group inline-flex items-center gap-2 text-xs font-mono text-white/60 hover:text-white transition-colors px-2 py-1.5 rounded-md hover:bg-white/5 shrink-0"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="hidden sm:inline">Back to All Articles Database</span>
+            <span className="sm:hidden">All Articles</span>
+          </button>
+
+          <div className="h-4 w-px bg-white/10 hidden sm:block shrink-0" />
+
+          {/* Live Save Status Badge */}
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/[0.03] border border-outline-variant/30 text-xs font-mono text-white/60 shrink-0">
+            <span
+              className={cn(
+                "w-2 h-2 rounded-full transition-colors",
+                isSaving ? "bg-amber-400 animate-pulse" : "bg-emerald-400"
+              )}
+            />
+            <span className="truncate">
+              {isSaving
+                ? "Saving…"
+                : lastSavedAt
+                ? `Saved ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                : id
+                ? "Saved"
+                : "Draft"}
+            </span>
+          </div>
+
+          {/* Live Word Count & Reading Time */}
+          <div className="hidden lg:flex items-center gap-1.5 text-xs font-mono text-white/40 shrink-0">
+            <Clock className="w-3 h-3 text-white/30" />
+            <span>{wordCount} words</span>
+            <span>·</span>
+            <span>{readingTime} min read</span>
+          </div>
+        </div>
+
+        {/* Right: Focus Mode + SEO Drawer + Save Draft + Publish */}
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setFocusMode((v) => !v)}
+            className={cn(
+              "h-8 px-2.5 text-xs font-mono border transition-all",
+              focusMode
+                ? "bg-white/15 text-white border-white/30"
+                : "text-white/60 hover:text-white border-outline-variant/30 hover:bg-white/5"
+            )}
+          >
+            <Focus className="w-3.5 h-3.5 mr-1.5" />
+            <span className="hidden sm:inline">{focusMode ? "Exit Focus" : "Focus Mode"}</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setSeoDrawerOpen(true)}
+            className="h-8 px-2.5 text-xs font-mono text-white/60 hover:text-white border border-outline-variant/30 hover:bg-white/5"
+          >
+            <Sparkles className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
+            <span>SEO</span>
+          </Button>
+
+          {currentVisibility !== 'draft' && formData.slug && (
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2.5 text-xs font-mono text-white/60 hover:text-white border border-outline-variant/30 hover:bg-white/5 hidden md:inline-flex"
+            >
+              <Link href={`/articles/${formData.slug}`} target="_blank" rel="noopener noreferrer">
+                <Eye className="w-3.5 h-3.5 mr-1.5" />
+                <span>View</span>
+              </Link>
+            </Button>
+          )}
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => handleSave('draft', false)}
+            disabled={isSaving || !formData.title.trim()}
+            className="h-8 px-3 text-xs font-mono text-white/70 hover:text-white border border-outline-variant/30 hover:bg-white/5"
+          >
+            <Save className="w-3.5 h-3.5 mr-1.5" />
+            <span className="hidden sm:inline">Save Draft</span>
+            <span className="sm:hidden">Draft</span>
+          </Button>
+
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => handleSave('published', false)}
+            disabled={isSaving || !formData.title.trim()}
+            className="h-8 px-4 text-xs font-semibold bg-white text-black hover:bg-white/90 shadow-sm transition-all"
+          >
+            {currentVisibility === 'published' ? 'Update Post' : 'Publish'}
+          </Button>
+        </div>
+      </header>
+
+      {/* 2. CENTERED DOCUMENT CONTAINER */}
+      <main
         className={cn(
-          'flex flex-col lg:flex-row gap-8 lg:gap-12 relative max-w-7xl mx-auto transition-all duration-500 ease-in-out',
-          focusMode ? 'opacity-100 max-w-4xl' : ''
+          "max-w-4xl mx-auto px-4 sm:px-8 py-8 transition-all duration-300",
+          focusMode && "py-12"
         )}
       >
-        {/* Main Document Area */}
-        <div className={cn(
-          'flex-1 min-w-0 transition-all duration-500',
-          focusMode ? 'mx-auto w-full' : ''
-        )}>
-          <div className={cn('space-y-8', focusMode ? 'py-12' : 'py-6')}>
-            <Input
-              placeholder="Post Title"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight border-none bg-transparent px-0 h-auto py-2 placeholder:text-muted-foreground/30 focus-visible:ring-0 focus-visible:ring-offset-0 leading-tight"
+        {/* Cover Banner */}
+        {formData.image_url ? (
+          <div className="relative group w-full rounded-2xl overflow-hidden aspect-[21/8] max-h-64 mb-6 border border-outline-variant/30 bg-surface-container-low">
+            <img
+              src={formData.image_url}
+              alt="Featured Cover"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
+              <span className="text-xs font-mono text-white/70 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/10">
+                Featured Cover Image
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowCoverModal(true)}
+                  className="h-7 text-xs bg-black/70 hover:bg-black text-white border border-white/15"
+                >
+                  Change Cover
+                </Button>
+                <Button
+                  size="sm"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setFormData((p) => ({ ...p, image_url: '' }))}
+                  className="h-7 text-xs bg-red-500/20 hover:bg-red-500/40 text-red-200 border border-red-500/30"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          !focusMode && (
+            <div className="mb-4">
+              <button
+                type="button"
+                onClick={() => setShowCoverModal(true)}
+                className="inline-flex items-center gap-2 text-xs font-mono text-white/40 hover:text-white/80 py-1.5 px-3 rounded-lg border border-dashed border-white/15 hover:border-white/30 hover:bg-white/[0.02] transition-colors"
+              >
+                <ImageIcon className="w-3.5 h-3.5 text-white/40" />
+                <span>Add Cover Image</span>
+              </button>
+            </div>
+          )
+        )}
 
-            <div className="prose prose-neutral dark:prose-invert max-w-none">
-              <BlockNoteEditorComponent
-                initialContent={blockNoteContent}
-                loading={contentLoading}
-                onChange={setBlockNoteContent}
-                onEditorReady={onEditorReady}
-                placeholder="Press '/' for commands..."
-                className="min-h-[60vh]"
+        {/* Large Notion Editable Title */}
+        <input
+          type="text"
+          value={formData.title}
+          onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
+          placeholder="Untitled Article..."
+          className="w-full bg-transparent border-none px-0 py-2 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white placeholder:text-white/20 focus-visible:ring-0 focus-visible:outline-none leading-tight tracking-tight"
+        />
+
+        {/* Slug Preview directly under title */}
+        <div className="flex items-center gap-2 mt-1 mb-4 text-xs font-mono text-white/40">
+          <span>/articles/</span>
+          <input
+            type="text"
+            value={formData.slug}
+            onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))}
+            placeholder="article-slug"
+            className="bg-transparent border-b border-transparent hover:border-white/20 focus:border-white/40 text-white/80 focus:text-white focus-visible:outline-none px-1 py-0.5 transition-colors font-mono"
+          />
+          {formData.slug && (
+            <button
+              type="button"
+              onClick={copyArticleLink}
+              title="Copy public URL"
+              className="p-1 text-white/40 hover:text-white transition-colors"
+            >
+              <Copy className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* 3. COMPACT NOTION INLINE PAGE PROPERTIES TABLE */}
+        <div
+          className={cn(
+            "border-y border-white/10 py-4 my-6 space-y-4 transition-all",
+            focusMode && "hidden"
+          )}
+        >
+          {/* Entry Mode */}
+          <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
+              <BookOpen className="w-3.5 h-3.5 text-white/40" />
+              <span>Entry Mode</span>
+            </div>
+            <div className="flex-1">
+              <div className="inline-flex p-1 rounded-lg bg-white/[0.04] border border-outline-variant/30">
+                <button
+                  type="button"
+                  onClick={() => setEntryMode('internal')}
+                  className={cn(
+                    "px-3 py-1 text-xs rounded-md font-mono transition-all",
+                    entryMode === 'internal'
+                      ? "bg-white/15 text-white font-medium shadow-sm"
+                      : "text-white/50 hover:text-white"
+                  )}
+                >
+                  📝 Internal BlockNote Article
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEntryMode('external')}
+                  className={cn(
+                    "px-3 py-1 text-xs rounded-md font-mono transition-all",
+                    entryMode === 'external'
+                      ? "bg-white/15 text-white font-medium shadow-sm"
+                      : "text-white/50 hover:text-white"
+                  )}
+                >
+                  🔗 External Redirect Article
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Publication Platform */}
+          <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
+              <Globe className="w-3.5 h-3.5 text-white/40" />
+              <span>Platform</span>
+            </div>
+            <div className="flex-1 flex flex-wrap gap-1.5">
+              {PLATFORMS.map((plat) => (
+                <button
+                  key={plat}
+                  type="button"
+                  onClick={() => setPlatform(plat)}
+                  className={cn(
+                    "px-2.5 py-1 text-xs rounded-md font-mono transition-all border",
+                    platform === plat
+                      ? "bg-white/15 text-white border-white/30 font-medium shadow-sm"
+                      : "bg-white/[0.02] text-white/50 border-white/[0.06] hover:text-white hover:border-white/15"
+                  )}
+                >
+                  {plat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* External Source URL + Fetch OpenGraph Metadata */}
+          <div className="flex flex-col sm:flex-row sm:items-start py-1 gap-2 sm:gap-4">
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50 pt-1.5">
+              <ExternalLink className="w-3.5 h-3.5 text-white/40" />
+              <span>External URL</span>
+            </div>
+            <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <Input
+                type="url"
+                value={externalUrl}
+                onChange={(e) => setExternalUrl(e.target.value)}
+                placeholder="https://medium.com/@username/article-slug..."
+                className="h-8 bg-white/[0.03] border-white/10 text-xs font-mono text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-white/20"
+              />
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleImportExternal}
+                disabled={isImporting || !externalUrl.trim()}
+                className="h-8 px-3 text-xs font-mono shrink-0 bg-white/5 hover:bg-white/10 text-white border-white/15"
+              >
+                {isImporting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    <span>Fetching…</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
+                    <span>Fetch OpenGraph Metadata</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* Domain Pillar */}
+          <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
+              <Layers className="w-3.5 h-3.5 text-white/40" />
+              <span>Domain Pillar</span>
+            </div>
+            <div className="flex-1 flex flex-wrap gap-1.5">
+              {DOMAIN_PILLARS.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPillar(p)}
+                  className={cn(
+                    "px-2.5 py-1 text-xs rounded-md font-mono transition-all border",
+                    pillar === p
+                      ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 font-medium shadow-sm"
+                      : "bg-white/[0.02] text-white/50 border-white/[0.06] hover:text-white hover:border-white/15"
+                  )}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Category & Series */}
+          <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
+              <Folder className="w-3.5 h-3.5 text-white/40" />
+              <span>Category</span>
+            </div>
+            <div className="flex-1 flex flex-wrap items-center gap-2">
+              <Select
+                value={formData.category_id || 'none'}
+                onValueChange={(val) => setFormData((p) => ({ ...p, category_id: val === 'none' ? '' : val }))}
+              >
+                <SelectTrigger className="w-48 h-8 bg-white/[0.03] border-white/10 text-xs text-white">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#121214] border-white/10 text-white">
+                  <SelectItem value="none">No Category</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Inline Create Category */}
+              <div className="flex items-center gap-1.5">
+                <Input
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="New category name"
+                  className="h-8 w-36 bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/30"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={!newCategoryName.trim()}
+                  onClick={async () => {
+                    if (!newCategoryName.trim()) return;
+                    try {
+                      const newCat = await createOrGetCategory(newCategoryName);
+                      if (newCat) {
+                        setCategories((prev) => [...prev, newCat]);
+                        setFormData((prev) => ({ ...prev, category_id: newCat.id }));
+                        setNewCategoryName('');
+                        toast({ title: 'Category created!' });
+                      }
+                    } catch {
+                      toast({ title: 'Failed to create category', variant: 'destructive' });
+                    }
+                  }}
+                  className="h-8 px-2 text-xs border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Series */}
+          <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
+              <Bookmark className="w-3.5 h-3.5 text-white/40" />
+              <span>Series</span>
+            </div>
+            <div className="flex-1 flex flex-wrap items-center gap-2">
+              <Select
+                value={formData.series_id || 'none'}
+                onValueChange={(val) => setFormData((p) => ({ ...p, series_id: val === 'none' ? '' : val }))}
+              >
+                <SelectTrigger className="w-48 h-8 bg-white/[0.03] border-white/10 text-xs text-white">
+                  <SelectValue placeholder="Select Series" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#121214] border-white/10 text-white">
+                  <SelectItem value="none">No Series</SelectItem>
+                  {series.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowNewSeriesDialog(true)}
+                className="h-8 px-2.5 text-xs font-mono border-white/10 bg-white/5 hover:bg-white/10 text-white"
+              >
+                <Plus className="w-3.5 h-3.5 mr-1" />
+                <span>New Series</span>
+              </Button>
+
+              {formData.series_id && formData.series_id !== 'none' && (
+                <div className="flex items-center gap-1.5 ml-2">
+                  <span className="text-xs font-mono text-white/40">Order:</span>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={formData.series_order}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        series_order: parseInt(e.target.value) || 1,
+                      }))
+                    }
+                    className="w-14 h-8 bg-white/[0.03] border-white/10 text-xs text-center text-white"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Visibility */}
+          <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
+              <Eye className="w-3.5 h-3.5 text-white/40" />
+              <span>Visibility</span>
+            </div>
+            <div className="flex-1 flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="published-toggle"
+                  checked={formData.published}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({ ...prev, published: checked }))
+                  }
+                />
+                <Label htmlFor="published-toggle" className="text-xs font-mono cursor-pointer text-white/80">
+                  Published
+                </Label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="unlisted-toggle"
+                  checked={formData.unlisted}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({ ...prev, unlisted: checked }))
+                  }
+                />
+                <Label htmlFor="unlisted-toggle" className="text-xs font-mono cursor-pointer text-white/80">
+                  Unlisted
+                </Label>
+              </div>
+
+              <Badge
+                variant="outline"
+                className={cn(
+                  "font-mono text-xs capitalize ml-auto",
+                  currentVisibility === 'published' && "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+                  currentVisibility === 'unlisted' && "bg-amber-500/10 text-amber-400 border-amber-500/30",
+                  currentVisibility === 'draft' && "bg-white/5 text-white/50 border-white/10"
+                )}
+              >
+                {currentVisibility}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="flex flex-col sm:flex-row sm:items-start py-1 gap-2 sm:gap-4">
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50 pt-1.5">
+              <Tag className="w-3.5 h-3.5 text-white/40" />
+              <span>Tags</span>
+            </div>
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="Add a tag..."
+                  className="h-8 max-w-xs bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/30"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAddTag}
+                  disabled={!tagInput.trim() || selectedTags.includes(tagInput.trim())}
+                  className="h-8 px-2.5 text-xs font-mono border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" />
+                  <span>Add</span>
+                </Button>
+              </div>
+              {selectedTags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {selectedTags.map((t) => (
+                    <Badge
+                      key={t}
+                      variant="secondary"
+                      className="gap-1 bg-white/[0.06] hover:bg-white/10 text-white/80 border border-white/10 text-xs font-mono"
+                    >
+                      <span>{t}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(t)}
+                        className="hover:text-red-400 p-0.5 rounded transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Excerpt */}
+          <div className="flex flex-col sm:flex-row sm:items-start py-1 gap-2 sm:gap-4">
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50 pt-1.5">
+              <AlignLeft className="w-3.5 h-3.5 text-white/40" />
+              <span>Excerpt</span>
+            </div>
+            <div className="flex-1">
+              <Textarea
+                value={formData.excerpt}
+                onChange={(e) => setFormData((p) => ({ ...p, excerpt: e.target.value }))}
+                placeholder="Brief summary used on article cards and social previews..."
+                rows={2}
+                className="bg-white/[0.03] border-white/10 text-white text-xs sm:text-sm placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-white/20 resize-y"
               />
             </div>
           </div>
-        </div>
 
-        {/* Floating Sidebar */}
-        <div
-          className={cn(
-            'w-full lg:w-[300px] shrink-0 space-y-6 transition-all duration-500',
-            focusMode ? 'opacity-0 translate-x-8 pointer-events-none hidden' : 'opacity-100 translate-x-0 block'
-          )}
-        >
-          <div className="sticky top-24 space-y-6 pb-24 animate-slide-in-right">
+          {/* Collapsible SEO & OpenGraph Overrides */}
+          <div className="pt-2 border-t border-white/[0.06]">
+            <button
+              type="button"
+              onClick={() => setShowSeoOverrides(!showSeoOverrides)}
+              className="flex items-center gap-2 text-xs font-mono text-white/50 hover:text-white transition-colors py-1"
+            >
+              {showSeoOverrides ? (
+                <ChevronDown className="w-3.5 h-3.5 text-white/40" />
+              ) : (
+                <ChevronRight className="w-3.5 h-3.5 text-white/40" />
+              )}
+              <span>SEO & OpenGraph Overrides ({formData.og_title || formData.og_description ? 'Customized' : 'Default'})</span>
+            </button>
 
-            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden animate-scale-in delay-300">
-              <CardContent className="p-6">
-                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 mb-4">
-                  <Hash className="w-3.5 h-3.5" /> Post Settings
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Slug</Label>
-                    <Input value={formData.slug} onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))} className="mt-1" placeholder="blog-post-slug" />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Excerpt (Optional)</Label>
-                    <Textarea
-                      value={formData.excerpt}
-                      onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
-                      className="mt-1"
-                      placeholder="Brief summary used on article cards..."
-                      rows={3}
-                    />
-                  </div>
+            {showSeoOverrides && (
+              <div className="mt-3 pl-4 sm:pl-6 border-l border-white/10 space-y-3 pt-1">
+                <div>
+                  <Label className="text-xs font-mono text-white/50">OG Title</Label>
+                  <Input
+                    value={formData.og_title}
+                    onChange={(e) => setFormData((p) => ({ ...p, og_title: e.target.value }))}
+                    placeholder={formData.title || "Social title..."}
+                    className="h-8 mt-1 bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/25"
+                  />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden animate-scale-in delay-300">
-              <CardContent className="p-6">
-                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 mb-4">
-                  <Clock className="w-3.5 h-3.5" /> Publishing
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <Label htmlFor="post-visibility" className="text-sm font-medium">Visibility</Label>
-                    <Badge
-                      variant={visibility === 'published' ? 'default' : 'secondary'}
-                      className={cn(
-                        "transition-all duration-200",
-                        visibility === 'published' && "bg-gradient-primary text-primary-foreground shadow-glow"
-                      )}
-                    >
-                      {visibility === 'unlisted' ? 'Unlisted' : visibility === 'published' ? 'Published' : 'Draft'}
-                    </Badge>
-                  </div>
-                  <div>
-                    <Select value={visibility} onValueChange={(value) => setVisibility(value as PostVisibility)}>
-                      <SelectTrigger id="post-visibility" aria-describedby="post-visibility-description">
-                        <SelectValue placeholder="Choose visibility" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="unlisted">Unlisted</SelectItem>
-                        <SelectItem value="published">Published</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p id="post-visibility-description" className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                      {visibilityDescription[visibility]}
-                    </p>
-                  </div>
-                  {visibility === 'unlisted' && articlePath ? (
-                    <div>
-                      <Label htmlFor="unlisted-article-link" className="text-sm font-medium">Direct link</Label>
-                      <div className="mt-1 flex gap-2">
-                        <Input id="unlisted-article-link" value={articlePath} readOnly className="font-mono text-xs" />
-                        <Button type="button" variant="outline" size="icon" onClick={copyArticleLink} aria-label="Copy unlisted article link">
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ) : null}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium flex items-center gap-2">
-                      Reading Time
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        value={formData.reading_time}
-                        onChange={(e) => setFormData(prev => ({ ...prev, reading_time: parseInt(e.target.value) || 5 }))}
-                        className="w-16 h-8 text-center border-muted focus:border-primary/50 transition-colors"
-                        min="1"
-                      />
-                      <span className="text-sm text-muted-foreground">min</span>
-                    </div>
-                  </div>
+                <div>
+                  <Label className="text-xs font-mono text-white/50">OG Description</Label>
+                  <Textarea
+                    value={formData.og_description}
+                    onChange={(e) => setFormData((p) => ({ ...p, og_description: e.target.value }))}
+                    placeholder={formData.excerpt || "Social description..."}
+                    rows={2}
+                    className="mt-1 bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/25"
+                  />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden">
-              <CardContent className="p-6">
-                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 mb-4">
-                  <Tag className="w-3.5 h-3.5" /> Categories & Series
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium">Category</Label>
-                    <Select value={formData.category_id || 'none'} onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value === 'none' ? '' : value }))}>
-                      <SelectTrigger className="mt-1"><SelectValue placeholder="Select category" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">No Category</SelectItem>
-                        {categories.map((category: any) => (<SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium">Create New Category</Label>
-                    <div className="flex gap-2 mt-1"><Input value={formData.category_name} onChange={(e) => setFormData(prev => ({ ...prev, category_name: e.target.value }))} placeholder="Category name" className="flex-1" /><Button size="sm" variant="outline" onClick={async () => { if (!formData.category_name.trim()) return; try { const newCategory = await createOrGetCategory(formData.category_name); if (newCategory) { setCategories(prev => [...prev, newCategory]); setFormData(prev => ({ ...prev, category_id: newCategory.id, category_name: '' })); toast({ title: 'Category created successfully!' }); } } catch { toast({ title: 'Error creating category', description: 'Failed to create new category', variant: 'destructive' }); } }} disabled={!formData.category_name.trim()}><Plus className="w-4 h-4" /></Button></div>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium">Series (Optional)</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Select value={formData.series_id || 'none'} onValueChange={(value) => setFormData(prev => ({ ...prev, series_id: value === 'none' ? '' : value }))}>
-                        <SelectTrigger><SelectValue placeholder="Select a series" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">No Series</SelectItem>
-                          {series.map((s) => (<SelectItem key={s.id} value={s.id}>{s.title}</SelectItem>))}
-                        </SelectContent>
-                      </Select>
-                      <Dialog open={showNewSeriesDialog} onOpenChange={setShowNewSeriesDialog}>
-                        <DialogTrigger asChild><Button type="button" variant="outline" size="sm"><Plus className="w-4 h-4" /></Button></DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader><DialogTitle>Create New Series</DialogTitle></DialogHeader>
-                          <div className="space-y-4">
-                            <div><Label htmlFor="series-title">Title *</Label><Input id="series-title" value={newSeries.title} onChange={(e) => setNewSeries({ ...newSeries, title: e.target.value })} required /></div>
-                            <div><Label htmlFor="series-description">Description</Label><Textarea id="series-description" value={newSeries.description} onChange={(e) => setNewSeries({ ...newSeries, description: e.target.value })} rows={3} /></div>
-                            <div className="flex gap-2 pt-4"><Button onClick={createNewSeries} className="flex-1">Create Series</Button><Button type="button" variant="outline" onClick={() => setShowNewSeriesDialog(false)}>Cancel</Button></div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                    {formData.series_id && formData.series_id !== 'none' && (<div className="mt-2"><Label className="text-sm">Order in Series</Label><Input type="number" min="1" value={formData.series_order} onChange={(e) => setFormData(prev => ({ ...prev, series_order: parseInt(e.target.value) || 1 }))} className="mt-1" /></div>)}
-                  </div>
+                <div>
+                  <Label className="text-xs font-mono text-white/50">OG Image URL</Label>
+                  <Input
+                    value={formData.og_image}
+                    onChange={(e) => setFormData((p) => ({ ...p, og_image: e.target.value }))}
+                    placeholder={formData.image_url || "https://..."}
+                    className="h-8 mt-1 bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/25"
+                  />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden">
-              <CardContent className="p-6">
-                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 mb-4">
-                  <Hash className="w-3.5 h-3.5" /> Tags
-                </h3>
-                <div className="flex gap-2 mb-3"><Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleKeyPress} placeholder="Add a tag..." className="flex-1" /><Button size="sm" variant="outline" onClick={handleAddTag} disabled={!tagInput.trim() || selectedTags.includes(tagInput.trim())}><Plus className="w-4 h-4" /></Button></div>
-                <div className="flex flex-wrap gap-2">{selectedTags.map((tag, index) => (<Badge key={index} variant="secondary" className="gap-1">{tag}<button onClick={() => handleRemoveTag(tag)} className="ml-1 hover:text-destructive"><X className="w-3 h-3" /></button></Badge>))}</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden">
-              <CardContent className="p-6">
-                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-2 mb-4">
-                  <ImageIcon className="w-3.5 h-3.5" /> Media
-                </h3>
-                <div className="space-y-4">
-                  <FileUpload label="Featured Image" uploadType="image" onUploadComplete={handleImageUpload} maxFiles={1} existingFiles={formData.image_url ? [formData.image_url] : []} simultaneousMode={true} urlInputPlaceholder="https://example.com/image.jpg" enableImageEditing={true} />
-                  <FileUpload label="Video (Optional)" uploadType="video" onUploadComplete={handleVideoUpload} maxFiles={1} existingFiles={formData.video_url ? [formData.video_url] : []} simultaneousMode={true} urlInputPlaceholder="https://youtube.com/watch?v=... or direct video URL" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-background/60 backdrop-blur-xl border-border/50 shadow-sm overflow-hidden">
-              <CardContent className="p-6">
-                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-4">SEO Overrides</h3>
-                <div className="space-y-4">
-                  <div><Label>OG Title</Label><Input value={formData.og_title} onChange={(e) => setFormData(prev => ({ ...prev, og_title: e.target.value }))} placeholder="Custom title for social shares" /></div>
-                  <div><Label>OG Description</Label><Textarea value={formData.og_description} onChange={(e) => setFormData(prev => ({ ...prev, og_description: e.target.value }))} rows={3} placeholder="Custom description for social shares" /></div>
-                  <div><Label>OG Image URL</Label><Input value={formData.og_image} onChange={(e) => setFormData(prev => ({ ...prev, og_image: e.target.value }))} placeholder="https://..." /></div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            )}
           </div>
         </div>
-      </div>
-    </AdminLayout>
+
+        {/* 4. DISTRACTION-FREE @BLOCKNOTE/REACT SLASH-COMMAND CANVAS */}
+        <section className="pt-4 min-h-[60vh]">
+          {entryMode === 'external' && (
+            <div className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-200 text-xs sm:text-sm flex items-start gap-3">
+              <ExternalLink className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-blue-300">External Redirect Article</p>
+                <p className="text-blue-200/80 mt-0.5 leading-relaxed">
+                  Readers who click this article on your portfolio will be redirected to{" "}
+                  <span className="font-mono underline font-medium">
+                    {externalUrl || "the external source URL"}
+                  </span>
+                  . You can still use this BlockNote canvas below to write your synopsis, outline, or cross-post content.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="prose prose-invert max-w-none">
+            <BlockNoteEditorComponent
+              initialContent={blockNoteContent}
+              loading={contentLoading}
+              onChange={setBlockNoteContent}
+              onEditorReady={onEditorReady}
+              placeholder="Press '/' for commands..."
+              className="min-h-[60vh]"
+            />
+          </div>
+        </section>
+      </main>
+
+      {/* COVER IMAGE MODAL */}
+      <Dialog open={showCoverModal} onOpenChange={setShowCoverModal}>
+        <DialogContent className="bg-[#121214] border-white/10 text-white max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-base font-display">Featured Cover Image</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <FileUpload
+              label="Upload Cover Image"
+              uploadType="image"
+              onUploadComplete={(urls) => {
+                if (urls.length > 0) {
+                  setFormData((p) => ({ ...p, image_url: urls[0] }));
+                  setShowCoverModal(false);
+                }
+              }}
+              maxFiles={1}
+              existingFiles={formData.image_url ? [formData.image_url] : []}
+              simultaneousMode={true}
+              urlInputPlaceholder="https://images.unsplash.com/..."
+            />
+            <div className="pt-2 border-t border-white/10">
+              <Label className="text-xs font-mono text-white/50">Or Paste Image URL Directly</Label>
+              <div className="flex gap-2 mt-1.5">
+                <Input
+                  type="url"
+                  placeholder="https://example.com/cover.jpg"
+                  value={coverUrlInput}
+                  onChange={(e) => setCoverUrlInput(e.target.value)}
+                  className="h-8 bg-white/[0.03] border-white/10 text-xs text-white"
+                />
+                <Button
+                  size="sm"
+                  type="button"
+                  onClick={() => {
+                    if (coverUrlInput.trim()) {
+                      setFormData((p) => ({ ...p, image_url: coverUrlInput.trim() }));
+                      setCoverUrlInput('');
+                      setShowCoverModal(false);
+                    }
+                  }}
+                  className="h-8 px-3 text-xs bg-white text-black hover:bg-white/90"
+                >
+                  Apply
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* CREATE NEW SERIES MODAL */}
+      <Dialog open={showNewSeriesDialog} onOpenChange={setShowNewSeriesDialog}>
+        <DialogContent className="bg-[#121214] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-display">Create New Article Series</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            <div>
+              <Label className="text-xs font-mono text-white/60">Title *</Label>
+              <Input
+                value={newSeries.title}
+                onChange={(e) => setNewSeries((p) => ({ ...p, title: e.target.value }))}
+                placeholder="e.g. S&OP Masterclass"
+                className="h-8 mt-1 bg-white/[0.03] border-white/10 text-xs text-white"
+              />
+            </div>
+            <div>
+              <Label className="text-xs font-mono text-white/60">Slug (Optional)</Label>
+              <Input
+                value={newSeries.slug}
+                onChange={(e) => setNewSeries((p) => ({ ...p, slug: e.target.value }))}
+                placeholder="sop-masterclass"
+                className="h-8 mt-1 bg-white/[0.03] border-white/10 text-xs text-white"
+              />
+            </div>
+            <div>
+              <Label className="text-xs font-mono text-white/60">Description</Label>
+              <Textarea
+                value={newSeries.description}
+                onChange={(e) => setNewSeries((p) => ({ ...p, description: e.target.value }))}
+                rows={3}
+                placeholder="A dedicated deep-dive into..."
+                className="mt-1 bg-white/[0.03] border-white/10 text-xs text-white"
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                onClick={createNewSeries}
+                className="flex-1 h-8 text-xs bg-white text-black hover:bg-white/90"
+              >
+                Create Series
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowNewSeriesDialog(false)}
+                className="h-8 text-xs border-white/10 bg-white/5 hover:bg-white/10 text-white"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* SEO DRAWER */}
+      <Sheet open={seoDrawerOpen} onOpenChange={setSeoDrawerOpen}>
+        <SheetContent side="right" className="bg-[#121214] border-l border-white/10 text-white w-full sm:max-w-md p-6 space-y-6">
+          <SheetHeader>
+            <SheetTitle className="text-lg font-display flex items-center gap-2 text-white">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              SEO & Social Sharing Preview
+            </SheetTitle>
+            <SheetDescription className="text-xs font-mono text-white/50">
+              Customize how this article appears on Google, LinkedIn, Twitter, and messaging apps.
+            </SheetDescription>
+          </SheetHeader>
+
+          {/* Live Preview Card */}
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden p-3 space-y-2">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-white/40">Search & Social Card Preview</span>
+            <div className="aspect-[1.91/1] w-full bg-black/40 rounded-lg overflow-hidden border border-white/5 relative flex items-center justify-center">
+              {formData.og_image || formData.image_url ? (
+                <img
+                  src={formData.og_image || formData.image_url}
+                  alt="OG Preview"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="text-center p-4">
+                  <Share2 className="w-6 h-6 text-white/20 mx-auto mb-1" />
+                  <span className="text-xs font-mono text-white/30">No OG image configured</span>
+                </div>
+              )}
+            </div>
+            <div className="space-y-1 pt-1">
+              <p className="text-xs font-mono text-white/40 truncate">
+                {window?.location?.hostname || 'essaahmed.dev'} › articles › {formData.slug || 'slug'}
+              </p>
+              <h4 className="text-sm font-semibold text-white line-clamp-1">
+                {formData.og_title || formData.title || 'Untitled Post'}
+              </h4>
+              <p className="text-xs text-white/60 line-clamp-2 leading-relaxed">
+                {formData.og_description || formData.excerpt || 'No description provided.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4 pt-2">
+            <div>
+              <div className="flex justify-between items-center">
+                <Label className="text-xs font-mono text-white/70">OG Title</Label>
+                <span className="text-[10px] font-mono text-white/40">
+                  {(formData.og_title || formData.title).length}/60 chars
+                </span>
+              </div>
+              <Input
+                value={formData.og_title}
+                onChange={(e) => setFormData((p) => ({ ...p, og_title: e.target.value }))}
+                placeholder={formData.title || 'Defaults to article title'}
+                className="h-8 mt-1.5 bg-white/[0.03] border-white/10 text-xs text-white"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center">
+                <Label className="text-xs font-mono text-white/70">OG Description</Label>
+                <span className="text-[10px] font-mono text-white/40">
+                  {(formData.og_description || formData.excerpt).length}/160 chars
+                </span>
+              </div>
+              <Textarea
+                value={formData.og_description}
+                onChange={(e) => setFormData((p) => ({ ...p, og_description: e.target.value }))}
+                placeholder={formData.excerpt || 'Defaults to excerpt or opening paragraph'}
+                rows={3}
+                className="mt-1.5 bg-white/[0.03] border-white/10 text-xs text-white leading-relaxed"
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs font-mono text-white/70">OG Image URL</Label>
+              <Input
+                value={formData.og_image}
+                onChange={(e) => setFormData((p) => ({ ...p, og_image: e.target.value }))}
+                placeholder={formData.image_url || 'Defaults to cover image'}
+                className="h-8 mt-1.5 bg-white/[0.03] border-white/10 text-xs text-white"
+              />
+            </div>
+
+            <Button
+              type="button"
+              onClick={() => {
+                setSeoDrawerOpen(false);
+                toast({ title: 'SEO overrides saved in draft!' });
+              }}
+              className="w-full h-8 text-xs font-mono bg-white text-black hover:bg-white/90 mt-4"
+            >
+              Done
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 };
 
 export default BlogEditorEnhanced;
-
-
-
-

@@ -1,148 +1,260 @@
-﻿"use client";
+"use client";
 
-import { useMemo, useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Eye, Heart, ArrowRight, FileText } from "lucide-react";
-import { OptimizedImage } from "@/components/OptimizedImage";
-import ArticlesSubNav from "@/components/ArticlesSubNav";
-import { motion } from "framer-motion";
+import OptimizedFooter from "@/components/OptimizedFooter";
+import {
+  extractArticleExternalMeta,
+  type ArticlePlatform,
+} from "@/data/externalArticlesStore";
+import { useAuth } from "@/contexts/AuthContext";
 
-type ArticlesPageProps = {
+interface ArticlesPageProps {
   initialArticles?: any[];
-};
+}
 
-const ArticlesPage = ({ initialArticles = [] }: ArticlesPageProps) => {
-  const [selectedTag, setSelectedTag] = useState("All");
-  const articles = initialArticles;
+const PILLAR_FILTERS = [
+  "All",
+  "Workflow Automation",
+  "Supply Chain & Demand Planning",
+  "Analytics & Decision Systems",
+] as const;
 
-  const allTags = useMemo(
-    () => ["All", ...new Set(articles.flatMap((article: any) => article.tags || []))],
-    [articles]
-  );
-  const filteredArticles =
-    selectedTag === "All"
-      ? articles
-      : articles.filter((article: any) => article.tags?.includes(selectedTag));
+const PLATFORM_FILTERS: Array<"All" | ArticlePlatform> = [
+  "All",
+  "On Site",
+  "Medium",
+  "dev.to",
+  "freeCodeCamp",
+  "Substack",
+];
+
+export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps) {
+  const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPillar, setSelectedPillar] = useState<string>("All");
+  const [selectedPlatform, setSelectedPlatform] = useState<string>("All");
+
+  // Strictly use real published articles from Supabase (never inject fake sample articles on public site)
+  const unifiedArticles = useMemo(() => {
+    return (initialArticles || []).map((post: any) => {
+      const extMeta = extractArticleExternalMeta(post);
+      return {
+        ...post,
+        _isExternal: extMeta.isExternal && Boolean(extMeta.externalUrl),
+        _externalUrl: extMeta.externalUrl || "",
+        _platform: (extMeta.platform || "On Site") as ArticlePlatform,
+        _pillar: extMeta.pillar || "Analytics & Decision Systems",
+      };
+    });
+  }, [initialArticles]);
+
+  const filteredArticles = useMemo(() => {
+    return unifiedArticles.filter((article) => {
+      const q = searchTerm.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        article.title?.toLowerCase().includes(q) ||
+        article.excerpt?.toLowerCase().includes(q);
+      const matchesPillar =
+        selectedPillar === "All" || article._pillar === selectedPillar;
+      const matchesPlatform =
+        selectedPlatform === "All" || article._platform === selectedPlatform;
+      return matchesSearch && matchesPillar && matchesPlatform;
+    });
+  }, [unifiedArticles, searchTerm, selectedPillar, selectedPlatform]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-surface text-on-surface selection:bg-primary/30 selection:text-primary flex flex-col justify-between transition-colors duration-200">
       <Navigation />
-      <div className="pt-20">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-6">
-              <FileText className="w-4 h-4" />
-              Fresh writing, notes, and long-form thinking
+
+      <main id="main-content" tabIndex={-1} className="max-w-[1080px] w-full mx-auto px-4 sm:px-6 pt-12 pb-20">
+        {/* SECTION 1: HERO & FILTER BAR */}
+        <section className="pb-10 border-b border-outline-variant/20">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant/30 text-primary text-label-sm font-label-sm uppercase tracking-wider mb-4">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span>Technical Writing · Field Essays</span>
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-display font-extrabold tracking-tight text-on-surface mb-3">
+                Articles &amp; External Writing
+              </h1>
+              <p className="text-on-surface-variant font-body-lg text-body-lg max-w-2xl leading-relaxed">
+                Deep dives on Python workflow automation, supply chain S&amp;OP demand forecasting, and executive BI architectures—published here and across Medium, dev.to &amp; Substack.
+              </p>
             </div>
-            <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">Articles & Insights</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">Thoughts, tutorials, and insights about data science, analytics, and technology</p>
-            <ArticlesSubNav />
-          </div>
 
-          <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {allTags.map((tag) => (
-              <Button
-                key={tag}
-                variant={selectedTag === tag ? "default" : "outline"}
-                onClick={() => setSelectedTag(tag)}
-                className={`transition-all duration-300 ${selectedTag === tag ? "bg-gradient-primary shadow-soft scale-105" : "hover:bg-primary/5 hover:border-primary/30"}`}
+            {user && (
+              <Link
+                href="/admin/blog/new"
+                className="px-4 py-2.5 rounded-full bg-primary/15 border border-primary/30 text-primary text-xs font-code hover:bg-primary/25 transition-colors self-start md:self-end shrink-0"
               >
-                {tag}
-              </Button>
-            ))}
+                + Write or Import Article →
+              </Link>
+            )}
           </div>
 
-          {filteredArticles.length > 0 ? (
-            <motion.div
-              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-              variants={{ show: { transition: { staggerChildren: 0.09 } } }}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-40px" }}
-            >
-              {filteredArticles.map((article) => (
-                <motion.div
-                  key={article.id}
-                  variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                >
-                  <Link href={`/articles/${article.slug}`} className="block h-full">
-                    <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer h-full hover:-translate-y-1 border-border/50 overflow-hidden">
-                      <div className="relative overflow-hidden rounded-t-lg">
-                        <OptimizedImage
-                          src={article.image_url || "/placeholder.svg"}
-                          alt={article.title}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                      </div>
-                      <CardHeader>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <Calendar className="w-4 h-4" />
-                          {new Date(article.created_at).toLocaleDateString()}
-                          <Clock className="w-4 h-4 ml-2" />
-                          {article.reading_time || 5} min read
-                        </div>
-                        <CardTitle className="group-hover:text-primary transition-colors leading-snug">{article.title}</CardTitle>
-                        <CardDescription className="line-clamp-2">{article.excerpt}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {article.tags?.slice(0, 3).map((tag: string) => (
-                            <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
-                          ))}
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1"><Eye className="w-4 h-4" />{article.views || 0}</div>
-                          <div className="flex items-center gap-1"><Heart className="w-4 h-4" />{article.likes || 0}</div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <div className="w-full relative overflow-hidden rounded-3xl border border-border/50 bg-background/50 p-12 text-center shadow-sm my-8">
-              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
-              <div className="relative z-10 flex flex-col items-center justify-center">
-                <div className="w-24 h-24 mb-6 rounded-full bg-primary/10 flex items-center justify-center ring-8 ring-primary/5">
-                  <FileText className="w-10 h-10 text-primary" />
+          {unifiedArticles.length > 0 && (
+            <div className="mt-8 space-y-4">
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="relative w-full md:w-96">
+                  <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">
+                    search
+                  </span>
+                  <input
+                    type="text"
+                    aria-label="Search articles"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search articles by topic, tool, or title..."
+                    className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/30 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary"
+                  />
                 </div>
-                <h3 className="text-3xl font-bold tracking-tight mb-3">No Articles Found</h3>
-                <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-8">
-                  {selectedTag === "All"
-                    ? "I&apos;m currently writing new content. Check back soon for fresh articles."
-                    : `There are currently no articles published under the "${selectedTag}" tag.`}
-                </p>
-                {selectedTag !== "All" && (
-                  <Button onClick={() => setSelectedTag("All")} className="bg-gradient-primary hover:shadow-glow transition-all duration-300 rounded-xl px-8 h-12">
-                    View All Articles
-                  </Button>
-                )}
+
+                {/* Platform Filter Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto no-scrollbar">
+                  {PLATFORM_FILTERS.map((plat) => (
+                    <button
+                      key={plat}
+                      type="button"
+                      aria-pressed={selectedPlatform === plat}
+                      onClick={() => setSelectedPlatform(plat)}
+                      className={
+                        selectedPlatform === plat
+                          ? "min-h-11 px-3 py-1.5 rounded-full bg-on-surface text-surface text-xs font-semibold whitespace-nowrap"
+                          : "min-h-11 px-3 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs whitespace-nowrap transition-colors"
+                      }
+                    >
+                      {plat === "All" ? "All Platforms" : plat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pillar Filter Pills */}
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+                {PILLAR_FILTERS.map((pillar) => (
+                  <button
+                    key={pillar}
+                    type="button"
+                    aria-pressed={selectedPillar === pillar}
+                    onClick={() => setSelectedPillar(pillar)}
+                    className={
+                      selectedPillar === pillar
+                        ? "min-h-11 px-3.5 py-1.5 rounded-full bg-primary/15 border border-primary/40 text-primary text-xs font-semibold whitespace-nowrap"
+                        : "min-h-11 px-3.5 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs whitespace-nowrap transition-colors"
+                    }
+                  >
+                    {pillar}
+                  </button>
+                ))}
               </div>
             </div>
           )}
+        </section>
 
-          <div className="text-center mt-12">
-            <Button asChild variant="outline" size="lg" className="hover:bg-primary/5 hover:border-primary/30 transition-all duration-300">
-              <Link href="/articles">
-                Browse the archive
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-      <Footer />
+        {/* SECTION 2: ARTICLES LIST */}
+        <section className="pt-10">
+          {filteredArticles.length === 0 ? (
+            <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-12 text-center">
+              <p className="text-on-surface font-headline-sm mb-2">
+                {unifiedArticles.length === 0
+                  ? "No articles published yet"
+                  : "No matching articles found"}
+              </p>
+              <p className="text-on-surface-variant text-sm max-w-md mx-auto">
+                {unifiedArticles.length === 0
+                  ? "New technical essays and external publications will appear here as soon as they are published."
+                  : "Try adjusting your search query or clearing your platform/pillar filters."}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {filteredArticles.map((article) => {
+                const isExternal = article._isExternal;
+                const platform = article._platform;
+                const href = isExternal
+                  ? article._externalUrl
+                  : `/articles/${encodeURIComponent(article.slug || article.id)}`;
+                const formattedDate = article.created_at
+                  ? new Date(article.created_at).toLocaleDateString("en-US", {
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : "Recent";
+
+                const badgeClass =
+                  platform === "Medium"
+                    ? "bg-secondary/10 border-secondary/30 text-secondary"
+                    : platform === "dev.to"
+                    ? "bg-tertiary-container/20 border-tertiary-container/40 text-tertiary"
+                    : "bg-primary/10 border-primary/30 text-primary";
+
+                const cardContent = (
+                  <>
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <span
+                          className={`px-2.5 py-1 rounded-full border text-label-sm font-label-sm font-semibold ${badgeClass}`}
+                        >
+                          {isExternal ? `${platform} ↗` : "On Site"}
+                        </span>
+                        {article.reading_time ? (
+                          <span className="text-on-surface-variant text-label-sm font-code">
+                            {article.reading_time} min read
+                          </span>
+                        ) : null}
+                      </div>
+                      <h2 className="text-headline-sm font-headline-sm text-on-surface group-hover:text-primary transition-colors leading-snug">
+                        {article.title}
+                      </h2>
+                      <p className="text-on-surface-variant font-body-md text-body-md mt-3 leading-relaxed line-clamp-3">
+                        {article.excerpt}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between pt-6 mt-4 border-t border-outline-variant/20 text-on-surface-variant text-label-sm font-code">
+                      <span>{formattedDate}</span>
+                      {isExternal ? (
+                        <span className="material-symbols-outlined text-on-surface text-[16px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                          north_east
+                        </span>
+                      ) : (
+                        <span className="text-primary font-label-sm font-medium flex items-center gap-1 group-hover:underline">
+                          Read Article →
+                        </span>
+                      )}
+                    </div>
+                  </>
+                );
+
+                return isExternal ? (
+                  <a
+                    key={article.id}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
+                  >
+                    {cardContent}
+                  </a>
+                ) : (
+                  <Link
+                    key={article.id}
+                    href={href}
+                    className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
+                  >
+                    {cardContent}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </main>
+
+      <OptimizedFooter />
     </div>
   );
-};
-
-export default ArticlesPage;
-
+}

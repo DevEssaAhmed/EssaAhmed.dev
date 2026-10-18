@@ -18,11 +18,14 @@ export async function generateMetadata({ params }: Props) {
     .single();
 
   if (!data) {
-    return buildPageMetadata({
-      title: "Category Not Found",
-      description: "The requested category could not be found.",
-      path: `/articles/categories/${slug}`,
-    });
+    return {
+      ...buildPageMetadata({
+        title: "Category Not Found",
+        description: "The requested category could not be found.",
+        path: `/articles/categories/${slug}`,
+      }),
+      robots: { index: false, follow: false },
+    };
   }
 
   return buildPageMetadata({

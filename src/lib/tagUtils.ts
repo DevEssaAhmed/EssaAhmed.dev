@@ -4,8 +4,8 @@ export interface Tag {
   id: string;
   name: string;
   slug: string;
-  description?: string;
-  color?: string;
+  description?: string | null;
+  color?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -14,9 +14,11 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
-  description?: string;
-  color?: string;
-  featured?: boolean;
+  description?: string | null;
+  color?: string | null;
+  featured?: boolean | null;
+  icon?: string | null;
+  article_count?: number | null;
 }
 
 // Generate slug from text

@@ -1,139 +1,231 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 export default {
-	darkMode: ["class"],
-	content: [
-		"./pages/**/*.{ts,tsx}",
-		"./components/**/*.{ts,tsx}",
-		"./app/**/*.{ts,tsx}",
-		"./src/**/*.{ts,tsx}",
-	],
-	prefix: "",
-	theme: {
-		container: {
-			center: true,
-			padding: '2rem',
-			screens: {
-				'2xl': '1400px'
-			}
-		},
-		extend: {
-			colors: {
-				border: 'hsl(var(--border))',
-				input: 'hsl(var(--input))',
-				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
-				foreground: 'hsl(var(--foreground))',
-				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))',
-					glow: 'hsl(var(--primary-glow))'
-				},
-				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
-				},
-				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
-				},
-				muted: {
-					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
-				},
-				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
-				},
-				popover: {
-					DEFAULT: 'hsl(var(--popover))',
-					foreground: 'hsl(var(--popover-foreground))'
-				},
-				card: {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))'
-				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
-				}
-			},
-			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
-			},
-			backgroundImage: {
-				'gradient-primary': 'var(--gradient-primary)',
-				'gradient-secondary': 'var(--gradient-secondary)',
-				'gradient-accent': 'var(--gradient-accent)',
-				'gradient-hero': 'var(--gradient-hero)',
-			},
-			boxShadow: {
-				'soft': 'var(--shadow-soft)',
-				'glow': 'var(--shadow-glow)',
-				'card': 'var(--shadow-card)',
-			},
-			transitionTimingFunction: {
-				'smooth': 'var(--transition-smooth)',
-				'spring': 'var(--transition-spring)',
-			},
-			keyframes: {
-				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
-				},
-				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
-				},
-				'fade-up': {
-					from: {
-						opacity: '0',
-						transform: 'translateY(20px)'
-					},
-					to: {
-						opacity: '1',
-						transform: 'translateY(0)'
-					}
-				},
-				'scale-in': {
-					from: {
-						opacity: '0',
-						transform: 'scale(0.95)'
-					},
-					to: {
-						opacity: '1',
-						transform: 'scale(1)'
-					}
-				},
-				'spin-slow': {
-					from: { transform: 'rotate(0deg)' },
-					to: { transform: 'rotate(360deg)' }
-				}
-			},
-			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-up': 'fade-up 0.6s ease-out',
-				'scale-in': 'scale-in 0.3s ease-out',
-				'spin-slow': 'spin-slow 4s linear infinite'
-			}
-		}
-	},
-	plugins: [require("tailwindcss-animate")],
+  darkMode: ["class"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
+  prefix: "",
+  theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "rgb(var(--stitch-background) / <alpha-value>)",
+        "on-background": "rgb(var(--stitch-on-background) / <alpha-value>)",
+        foreground: "hsl(var(--foreground))",
+
+        /* Stitch Light & Dark Adaptive Tokens */
+        surface: "rgb(var(--stitch-surface) / <alpha-value>)",
+        "surface-dim": "rgb(var(--stitch-surface-dim) / <alpha-value>)",
+        "surface-bright": "rgb(var(--stitch-surface-bright) / <alpha-value>)",
+        "surface-container-lowest": "rgb(var(--stitch-surface-container-lowest) / <alpha-value>)",
+        "surface-container-low": "rgb(var(--stitch-surface-container-low) / <alpha-value>)",
+        "surface-container": "rgb(var(--stitch-surface-container) / <alpha-value>)",
+        "surface-container-high": "rgb(var(--stitch-surface-container-high) / <alpha-value>)",
+        "surface-container-highest": "rgb(var(--stitch-surface-container-highest) / <alpha-value>)",
+        "surface-variant": "rgb(var(--stitch-surface-variant) / <alpha-value>)",
+        "on-surface": "rgb(var(--stitch-on-surface) / <alpha-value>)",
+        "on-surface-variant": "rgb(var(--stitch-on-surface-variant) / <alpha-value>)",
+        outline: "rgb(var(--stitch-outline) / <alpha-value>)",
+        "outline-variant": "rgb(var(--stitch-outline-variant) / <alpha-value>)",
+
+        primary: {
+          DEFAULT: "rgb(var(--stitch-primary) / <alpha-value>)",
+          foreground: "rgb(var(--stitch-on-primary) / <alpha-value>)",
+          container: "rgb(var(--stitch-primary-container) / <alpha-value>)",
+        },
+        "on-primary": "rgb(var(--stitch-on-primary) / <alpha-value>)",
+        "primary-container": "rgb(var(--stitch-primary-container) / <alpha-value>)",
+        "on-primary-container": "rgb(var(--stitch-on-primary-container) / <alpha-value>)",
+        "primary-fixed": "rgb(var(--stitch-primary-fixed) / <alpha-value>)",
+        "primary-fixed-dim": "rgb(var(--stitch-primary-fixed-dim) / <alpha-value>)",
+        "on-primary-fixed": "rgb(var(--stitch-on-primary-fixed) / <alpha-value>)",
+        "on-primary-fixed-variant": "rgb(var(--stitch-on-primary-fixed-variant) / <alpha-value>)",
+
+        secondary: {
+          DEFAULT: "rgb(var(--stitch-secondary) / <alpha-value>)",
+          foreground: "rgb(var(--stitch-on-secondary) / <alpha-value>)",
+          container: "rgb(var(--stitch-secondary-container) / <alpha-value>)",
+        },
+        "on-secondary": "rgb(var(--stitch-on-secondary) / <alpha-value>)",
+        "secondary-container": "rgb(var(--stitch-secondary-container) / <alpha-value>)",
+        "on-secondary-container": "rgb(var(--stitch-on-secondary-container) / <alpha-value>)",
+        "secondary-fixed": "rgb(var(--stitch-secondary-fixed) / <alpha-value>)",
+        "secondary-fixed-dim": "rgb(var(--stitch-secondary-fixed-dim) / <alpha-value>)",
+        "on-secondary-fixed": "rgb(var(--stitch-on-secondary-fixed) / <alpha-value>)",
+        "on-secondary-fixed-variant": "rgb(var(--stitch-on-secondary-fixed-variant) / <alpha-value>)",
+
+        tertiary: {
+          DEFAULT: "rgb(var(--stitch-tertiary) / <alpha-value>)",
+          foreground: "rgb(var(--stitch-on-tertiary) / <alpha-value>)",
+          container: "rgb(var(--stitch-tertiary-container) / <alpha-value>)",
+        },
+        "on-tertiary": "rgb(var(--stitch-on-tertiary) / <alpha-value>)",
+        "tertiary-container": "rgb(var(--stitch-tertiary-container) / <alpha-value>)",
+        "on-tertiary-container": "rgb(var(--stitch-on-tertiary-container) / <alpha-value>)",
+        "tertiary-fixed": "rgb(var(--stitch-tertiary-fixed) / <alpha-value>)",
+        "tertiary-fixed-dim": "rgb(var(--stitch-tertiary-fixed-dim) / <alpha-value>)",
+        "on-tertiary-fixed": "rgb(var(--stitch-on-tertiary-fixed) / <alpha-value>)",
+        "on-tertiary-fixed-variant": "rgb(var(--stitch-on-tertiary-fixed-variant) / <alpha-value>)",
+
+        error: "rgb(var(--stitch-error) / <alpha-value>)",
+        "on-error": "rgb(var(--stitch-on-error) / <alpha-value>)",
+        "error-container": "rgb(var(--stitch-error-container) / <alpha-value>)",
+        "on-error-container": "rgb(var(--stitch-on-error-container) / <alpha-value>)",
+        "inverse-surface": "rgb(var(--stitch-inverse-surface) / <alpha-value>)",
+        "inverse-on-surface": "rgb(var(--stitch-inverse-on-surface) / <alpha-value>)",
+        "inverse-primary": "rgb(var(--stitch-inverse-primary) / <alpha-value>)",
+        "surface-tint": "rgb(var(--stitch-surface-tint) / <alpha-value>)",
+
+        /* Legacy compatibility aliases */
+        "surface-lowest": "rgb(var(--stitch-surface-container-lowest) / <alpha-value>)",
+        "surface-low": "rgb(var(--stitch-surface-container-low) / <alpha-value>)",
+        "surface-high": "rgb(var(--stitch-surface-container-high) / <alpha-value>)",
+        "surface-highest": "rgb(var(--stitch-surface-container-highest) / <alpha-value>)",
+        "surface-card": "rgb(var(--stitch-surface-container-low) / <alpha-value>)",
+        "surface-overlay": "rgb(var(--stitch-surface-container) / <alpha-value>)",
+        "text-primary": "rgb(var(--stitch-on-surface) / <alpha-value>)",
+        "text-muted": "rgb(var(--stitch-on-surface-variant) / <alpha-value>)",
+
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar-background))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          primary: "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+          ring: "hsl(var(--sidebar-ring))",
+        },
+      },
+      spacing: {
+        gutter: "1.5rem",
+        "space-md": "1rem",
+        "margin-sm": "1rem",
+        "gutter-sm": "1rem",
+        margin: "1.5rem",
+        "space-xs": "0.25rem",
+        "gutter-lg": "2rem",
+        "margin-lg": "4rem",
+        "space-xl": "2.5rem",
+        "space-sm": "0.5rem",
+        "space-lg": "1.5rem",
+      },
+      fontFamily: {
+        sans: ["var(--font-inter)", "Inter", "sans-serif"],
+        display: ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
+        "font-sans": ["var(--font-inter)", "Inter", "sans-serif"],
+        "font-display": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        "font-mono": ["var(--font-mono)", "JetBrains Mono", "monospace"],
+        "headline-lg": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        "headline-md": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        "headline-sm": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        "display-lg": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        "display-xl": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        "display-mobile": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        "headline-lg-mobile": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        "body-lg": ["var(--font-inter)", "Inter", "sans-serif"],
+        "body-md": ["var(--font-inter)", "Inter", "sans-serif"],
+        "body-sm": ["var(--font-inter)", "Inter", "sans-serif"],
+        "label-md": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        "label-sm": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+        code: ["var(--font-mono)", "JetBrains Mono", "monospace"],
+        "code-sm": ["var(--font-mono)", "JetBrains Mono", "monospace"],
+        "label-code": ["var(--font-mono)", "JetBrains Mono", "monospace"],
+        "label-kpi": ["var(--font-jakarta)", "Plus Jakarta Sans", "sans-serif"],
+      },
+      fontSize: {
+        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.03em", fontWeight: "700" }],
+        "headline-lg": ["40px", { lineHeight: "48px", letterSpacing: "-0.035em", fontWeight: "700" }],
+        "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.025em", fontWeight: "600" }],
+        "headline-sm": ["18px", { lineHeight: "26px", letterSpacing: "-0.015em", fontWeight: "600" }],
+        "body-lg": ["16px", { lineHeight: "26px", letterSpacing: "-0.015em", fontWeight: "400" }],
+        "body-md": ["14px", { lineHeight: "22px", letterSpacing: "-0.01em", fontWeight: "400" }],
+        "label-md": ["13px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "600" }],
+        "label-sm": ["11px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }],
+        code: ["12px", { lineHeight: "18px", letterSpacing: "0em", fontWeight: "500" }],
+        "code-sm": ["12px", { lineHeight: "16px", letterSpacing: "-0.01em", fontWeight: "400" }],
+        "display-mobile": ["36px", { lineHeight: "42px", letterSpacing: "-0.035em", fontWeight: "800" }],
+        "headline-lg-mobile": ["28px", { lineHeight: "34px", letterSpacing: "-0.03em", fontWeight: "700" }],
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "fade-up": {
+          from: { opacity: "0", transform: "translateY(20px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.95)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        "spin-slow": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-up": "fade-up 0.6s ease-out",
+        "scale-in": "scale-in 0.3s ease-out",
+        "spin-slow": "spin-slow 4s linear infinite",
+      },
+    },
+  },
+  plugins: [
+    require("tailwindcss-animate"),
+    plugin(({ addBase }) => {
+      addBase({
+        ":root": {
+          "--font-jetbrains-mono": "var(--font-mono)",
+        },
+      });
+    }),
+  ],
 } satisfies Config;

@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
-import { useParams as useNextParams, usePathname, useRouter } from "next/navigation";
+import { useParams as useNextParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, {
   ReactElement,
   ReactNode,
@@ -39,6 +39,7 @@ type LocationShape = {
 };
 
 const ParamsContext = createContext<Params>({});
+const EMPTY_PARAMS: Params = {};
 
 const normalizePath = (path: string): string => {
   if (!path) return "/";
@@ -100,24 +101,26 @@ export const Route = (_props: RouteProps) => null;
 
 export const Routes = ({ children }: { children: ReactNode }) => {
   const pathname = normalizePath(usePathname() || "/");
-  const routeElements = React.Children.toArray(children) as ReactElement<RouteProps>[];
 
   const result = useMemo(() => {
+    const routeElements = React.Children.toArray(children) as ReactElement<RouteProps>[];
     for (const element of routeElements) {
-      const match = matchRoute(element.props.path, pathname);
-      if (match.matched) {
-        return {
-          element: element.props.element,
-          params: match.params,
-        };
+      if (React.isValidElement<RouteProps>(element) && element.props?.path) {
+        const match = matchRoute(element.props.path, pathname);
+        if (match.matched) {
+          return {
+            element: element.props.element,
+            params: match.params,
+          };
+        }
       }
     }
 
     return {
       element: null,
-      params: {},
+      params: EMPTY_PARAMS,
     };
-  }, [routeElements, pathname]);
+  }, [children, pathname]);
 
   return <ParamsContext.Provider value={result.params}>{result.element}</ParamsContext.Provider>;
 };
@@ -155,16 +158,16 @@ export const useNavigate = () => {
 
 export const useLocation = (): LocationShape => {
   const pathname = usePathname() || "/";
-  const [locationState, setLocationState] = useState({ search: "", hash: "" });
+  const searchParams = useSearchParams();
+  const [hash, setHash] = useState("");
+  const [fallbackSearch, setFallbackSearch] = useState("");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const syncLocation = () => {
-      setLocationState({
-        search: window.location.search || "",
-        hash: window.location.hash || "",
-      });
+      setHash(window.location.hash || "");
+      setFallbackSearch(window.location.search || "");
     };
 
     syncLocation();
@@ -177,11 +180,19 @@ export const useLocation = (): LocationShape => {
     };
   }, []);
 
+  const search = useMemo(() => {
+    if (searchParams) {
+      const searchString = searchParams.toString();
+      return searchString ? `?${searchString}` : "";
+    }
+    return fallbackSearch;
+  }, [searchParams, fallbackSearch]);
+
   return useMemo(() => ({
     pathname,
-    search: locationState.search,
-    hash: locationState.hash,
-  }), [pathname, locationState.search, locationState.hash]);
+    search,
+    hash,
+  }), [pathname, search, hash]);
 };
 
 export const LinkAdapter = ({ to, replace, children, ...props }: LinkProps) => {
@@ -211,4 +222,6 @@ export const Navigate = ({
 
   return null;
 };
+
+export { HashLink, NavHashLink } from "./hash-link-compat";
 

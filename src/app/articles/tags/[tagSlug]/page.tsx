@@ -21,11 +21,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .single();
 
   if (!tagData) {
-    return buildPageMetadata({
-      title: "Tag Not Found",
-      description: "The requested tag could not be found.",
-      path: `/articles/tags/${resolvedParams.tagSlug}`,
-    });
+    return {
+      ...buildPageMetadata({
+        title: "Tag Not Found",
+        description: "The requested tag could not be found.",
+        path: `/articles/tags/${resolvedParams.tagSlug}`,
+      }),
+      robots: { index: false, follow: false },
+    };
   }
 
   return buildPageMetadata({

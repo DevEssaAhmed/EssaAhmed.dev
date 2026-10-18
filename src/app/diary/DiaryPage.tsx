@@ -1,583 +1,373 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { CalendarDays, ChevronDown, Loader2 } from "lucide-react";
+import Link from "next/link";
 import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import OptimizedFooter from "@/components/OptimizedFooter";
 import { supabase } from "@/integrations/supabase/client";
-import { OptimizedImage } from "@/components/OptimizedImage";
+import type { Database } from "@/integrations/supabase/types";
+import { useAuth } from "@/contexts/AuthContext";
 
-type DiaryEntry = {
-  id: string;
-  entry_date: string;
-  title: string;
-  content: string;
-  excerpt: string | null;
-  image_url: string | null;
-  image_alt: string | null;
-  is_published: boolean;
-  created_at: string;
-};
+type DiaryEntry = Database["public"]["Tables"]["diary_entries"]["Row"];
+type ViewMode = "year" | "timeline";
 
-type DiaryPageProps = {
+const PAGE_SIZE = 10;
+
+interface DiaryPageProps {
   initialEntries?: DiaryEntry[];
-  initialViewMode?: "year" | "timeline";
-  initialYear?: number | null;
-};
+  initialViewMode?: ViewMode;
+  initialYear?: number | "all" | null;
+}
 
-const PAGE_SIZE = 20;
+function formatReadableDate(isoDate: string): string {
+  try {
+    return new Date(`${isoDate}T00:00:00`).toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    });
+  } catch {
+    return isoDate;
+  }
+}
 
-const formatEntryDate = (date: string) =>
-  new Date(date).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-
-const formatMonthYear = (date: string) =>
-  new Date(date).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-  });
-
-const toPreview = (entry: DiaryEntry): string => {
-  if (entry.excerpt && entry.excerpt.trim()) return entry.excerpt.trim();
-  const trimmed = entry.content.trim();
-  if (trimmed.length <= 280) return trimmed;
-  return `${trimmed.slice(0, 280).trim()}...`;
-};
-
-const parseYearFromParam = (value: string | null): number | null => {
-  if (!value) return null;
-  const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed < 1900 || parsed > 2100) return null;
-  return parsed;
-};
-
-const DiaryPage = ({
+export default function DiaryPage({
   initialEntries = [],
   initialViewMode = "year",
-  initialYear = null,
-}: DiaryPageProps) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [viewMode, setViewMode] = useState<"year" | "timeline">(initialViewMode);
-  const [selectedYear, setSelectedYear] = useState<number | null>(initialYear);
+  initialYear = "all",
+}: DiaryPageProps) {
+  const { user } = useAuth();
   const [entries, setEntries] = useState<DiaryEntry[]>(initialEntries);
-  const [offset, setOffset] = useState(initialEntries.length);
-  const [hasMore, setHasMore] = useState(initialEntries.length === PAGE_SIZE);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [initialLoading, setInitialLoading] = useState(false);
-  const seenIds = useRef(new Set(initialEntries.map((entry) => entry.id)));
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const initialBootstrapped = useRef(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(initialEntries.length >= PAGE_SIZE);
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
+  const [selectedYear, setSelectedYear] = useState<number | "all">(initialYear ?? "all");
+  const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({});
+  const [page, setPage] = useState<number>(0);
+
+  const hasHydratedRef = useRef<boolean>(false);
 
   const availableYears = useMemo(() => {
     const years = Array.from(
-      new Set(entries.map((entry) => new Date(entry.entry_date).getFullYear()))
+      new Set(entries.map((entry) => new Date(`${entry.entry_date}T00:00:00`).getFullYear()))
     ).sort((a, b) => b - a);
-
-    if (selectedYear && !years.includes(selectedYear)) {
-      years.unshift(selectedYear);
-    }
     return years;
-  }, [entries, selectedYear]);
+  }, [entries]);
 
-  const buildFilteredQuery = useCallback(
-    (start: number, end: number) => {
-      let query = supabase
-        .from("diary_entries")
-        .select("*")
-        .eq("is_published", true)
-        .order("entry_date", { ascending: false })
-        .order("created_at", { ascending: false });
+  const fetchEntries = useCallback(
+    async (pageIndex: number, append: boolean) => {
+      try {
+        if (append) setLoadingMore(true);
+        else setLoading(true);
 
-      if (selectedYear) {
-        query = query
-          .gte("entry_date", `${selectedYear}-01-01`)
-          .lte("entry_date", `${selectedYear}-12-31`);
+        let query = supabase
+          .from("diary_entries")
+          .select("*")
+          .eq("is_published", true)
+          .order("entry_date", { ascending: false })
+          .order("created_at", { ascending: false })
+          .range(pageIndex * PAGE_SIZE, pageIndex * PAGE_SIZE + PAGE_SIZE - 1);
+
+        if (selectedYear !== "all") {
+          const startDate = `${selectedYear}-01-01`;
+          const endDate = `${selectedYear}-12-31`;
+          query = query.gte("entry_date", startDate).lte("entry_date", endDate);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        const nextRows = data || [];
+        setHasMore(nextRows.length === PAGE_SIZE);
+        setEntries((prev) => (append ? [...prev, ...nextRows] : nextRows));
+      } catch {
+        // Keep current entries on transient error
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-
-      return query.range(start, end);
     },
     [selectedYear]
   );
 
-  const syncUrlState = useCallback(
-    (nextViewMode: "year" | "timeline", nextYear: number | null) => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      if (nextViewMode === "timeline") {
-        params.set("view", "timeline");
-      } else {
-        params.delete("view");
-      }
-
-      if (nextYear) {
-        params.set("year", String(nextYear));
-      } else {
-        params.delete("year");
-      }
-
-      const nextQuery = params.toString();
-      const nextUrl = nextQuery ? `/diary?${nextQuery}` : "/diary";
-      router.replace(nextUrl, { scroll: false });
-    },
-    [router, searchParams]
-  );
-
   useEffect(() => {
-    const qpView = searchParams.get("view");
-    const qpYear = parseYearFromParam(searchParams.get("year"));
-
-    const normalizedView: "year" | "timeline" =
-      qpView === "timeline" ? "timeline" : "year";
-    setViewMode(normalizedView);
-    setSelectedYear(qpYear);
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (!initialBootstrapped.current) {
-      initialBootstrapped.current = true;
-      return;
+    if (!hasHydratedRef.current) {
+      hasHydratedRef.current = true;
+      if (initialEntries.length > 0) return;
     }
+    setPage(0);
+    fetchEntries(0, false);
+  }, [fetchEntries, initialEntries.length]);
 
-    const loadInitial = async () => {
-      setInitialLoading(true);
-      try {
-        const { data, error } = await buildFilteredQuery(0, PAGE_SIZE - 1);
-
-        if (error) throw error;
-        const rows = (data || []) as DiaryEntry[];
-        seenIds.current = new Set(rows.map((row) => row.id));
-        setEntries(rows);
-        setOffset(rows.length);
-        setHasMore(rows.length === PAGE_SIZE);
-      } catch (error) {
-        console.error("Failed to load diary entries:", error);
-        setEntries([]);
-        setHasMore(false);
-      } finally {
-        setInitialLoading(false);
-      }
-    };
-
-    void loadInitial();
-  }, [buildFilteredQuery]);
-
-  const loadMore = useCallback(async () => {
-    if (!hasMore || loadingMore) return;
-
-    setLoadingMore(true);
-    try {
-      const { data, error } = await buildFilteredQuery(offset, offset + PAGE_SIZE - 1);
-
-      if (error) throw error;
-
-      const rows = (data || []) as DiaryEntry[];
-      const deduped = rows.filter((row) => !seenIds.current.has(row.id));
-
-      deduped.forEach((row) => seenIds.current.add(row.id));
-      setEntries((prev) => [...prev, ...deduped]);
-      setOffset((prev) => prev + rows.length);
-      setHasMore(rows.length === PAGE_SIZE);
-    } catch (error) {
-      console.error("Failed to load more diary entries:", error);
-      setHasMore(false);
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [buildFilteredQuery, hasMore, loadingMore, offset]);
-
-  useEffect(() => {
-    if (!hasMore || initialLoading) return;
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      (entriesList) => {
-        const target = entriesList[0];
-        if (target.isIntersecting) {
-          void loadMore();
-        }
-      },
-      { rootMargin: "320px 0px" }
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [hasMore, initialLoading, loadMore]);
-
-  const timeline = useMemo(() => {
-    return entries.map((entry, index) => {
-      const previous = entries[index - 1];
-      const currentDate = new Date(entry.entry_date);
-      const prevDate = previous ? new Date(previous.entry_date) : null;
-
-      const shouldShowYear =
-        !previous || currentDate.getFullYear() !== prevDate?.getFullYear();
-
-      const shouldShowMonth =
-        !previous ||
-        currentDate.getFullYear() !== prevDate?.getFullYear() ||
-        currentDate.getMonth() !== prevDate?.getMonth();
-
-      return { entry, shouldShowYear, shouldShowMonth };
+  const groupedByYear = useMemo(() => {
+    const map = new Map<number, DiaryEntry[]>();
+    entries.forEach((entry) => {
+      const year = new Date(`${entry.entry_date}T00:00:00`).getFullYear();
+      const list = map.get(year) || [];
+      list.push(entry);
+      map.set(year, list);
     });
+    return Array.from(map.entries()).sort((a, b) => b[0] - a[0]);
   }, [entries]);
 
   const toggleExpanded = (id: string) => {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const groupedByYear = useMemo(() => {
-    const groups = new Map<number, DiaryEntry[]>();
-    for (const entry of entries) {
-      const year = new Date(entry.entry_date).getFullYear();
-      if (!groups.has(year)) {
-        groups.set(year, []);
-      }
-      groups.get(year)?.push(entry);
-    }
-
-    return Array.from(groups.entries())
-      .sort((a, b) => b[0] - a[0])
-      .map(([year, items]) => ({ year, items }));
-  }, [entries]);
-
-  const handleModeChange = (mode: "year" | "timeline") => {
-    setViewMode(mode);
-    syncUrlState(mode, selectedYear);
-  };
-
-  const handleYearChange = (year: number | null) => {
-    setSelectedYear(year);
-    syncUrlState(viewMode, year);
+    setExpandedMap((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-surface text-on-surface selection:bg-primary/30 selection:text-primary flex flex-col justify-between transition-colors duration-200">
       <Navigation />
 
-      <div className="pointer-events-none absolute inset-0 opacity-40">
-        <div className="absolute -top-16 -left-16 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute top-1/4 right-0 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
-      </div>
-
-      <main className="pt-24 pb-16 relative">
-        <div className="max-w-4xl mx-auto px-6">
-          <header className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4">
-              Private Writing, Publicly Shared
-            </Badge>
-            <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
-              Diary
-            </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              A running timeline of moments, lessons, and experiments from real life.
-            </p>
-            <div className="mt-6 inline-flex rounded-full border border-border bg-card p-1">
-              <Button
-                size="sm"
-                variant={viewMode === "year" ? "default" : "ghost"}
-                className="rounded-full"
-                onClick={() => handleModeChange("year")}
-              >
-                Year View
-              </Button>
-              <Button
-                size="sm"
-                variant={viewMode === "timeline" ? "default" : "ghost"}
-                className="rounded-full"
-                onClick={() => handleModeChange("timeline")}
-              >
-                Timeline View
-              </Button>
+      <main id="main-content" tabIndex={-1} className="w-full max-w-[1080px] mx-auto px-4 sm:px-6 pt-12 pb-20">
+        {/* SECTION 1: HERO & CONTROLS */}
+        <section className="pb-10 border-b border-outline-variant/20">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant/30 text-secondary text-label-sm font-label-sm uppercase tracking-wider mb-4">
+                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+                <span>Personal Log · Field Notes</span>
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-display font-extrabold tracking-tight text-on-surface mb-3">
+                Personal Diary &amp; Field Notes
+              </h1>
+              <p className="text-on-surface-variant font-body-lg text-body-lg max-w-2xl leading-relaxed">
+                Unfiltered notes on engineering systems, supply chain architecture lessons, travel reflections, and continuous learning.
+              </p>
             </div>
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <Button
-                size="sm"
-                variant={selectedYear === null ? "default" : "outline"}
-                className="rounded-full"
-                onClick={() => handleYearChange(null)}
+
+            {user && (
+              <Link
+                href="/admin/diary/new"
+                className="px-4 py-2.5 rounded-full bg-primary/15 border border-primary/30 text-primary text-xs font-code hover:bg-primary/25 transition-colors self-start md:self-end shrink-0"
               >
-                All Years
-              </Button>
-              {availableYears.map((year) => (
-                <Button
-                  key={year}
-                  size="sm"
-                  variant={selectedYear === year ? "default" : "outline"}
-                  className="rounded-full"
-                  onClick={() => handleYearChange(year)}
+                + New Diary Entry →
+              </Link>
+            )}
+          </div>
+
+          {/* Filter & View Mode Toolbar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 mt-8">
+            {/* Year Filter Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <button
+                type="button"
+                aria-pressed={selectedYear === "all"}
+                onClick={() => setSelectedYear("all")}
+                className={
+                  selectedYear === "all"
+                    ? "min-h-11 px-3.5 py-1.5 rounded-full bg-on-surface text-surface text-xs font-semibold transition-all"
+                    : "min-h-11 px-3.5 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs transition-all"
+                }
+              >
+                All Years ({entries.length})
+              </button>
+              {availableYears.map((yr) => (
+                <button
+                  key={yr}
+                  type="button"
+                  aria-pressed={selectedYear === yr}
+                  onClick={() => setSelectedYear(yr)}
+                  className={
+                    selectedYear === yr
+                      ? "min-h-11 px-3.5 py-1.5 rounded-full bg-on-surface text-surface text-xs font-semibold transition-all"
+                      : "min-h-11 px-3.5 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs transition-all"
+                  }
                 >
-                  {year}
-                </Button>
+                  {yr}
+                </button>
               ))}
             </div>
-          </header>
 
-          {initialLoading ? (
-            <div className="space-y-6">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="border-border/60">
-                  <CardContent className="p-6 space-y-3">
-                    <div className="h-4 w-44 rounded bg-muted" />
-                    <div className="h-6 w-3/5 rounded bg-muted" />
-                    <div className="h-4 w-full rounded bg-muted" />
-                  </CardContent>
-                </Card>
+            {/* View Toggle */}
+            <div className="inline-flex items-center p-1 rounded-xl bg-surface-container-low border border-outline-variant/30">
+              <button
+                type="button"
+                aria-pressed={viewMode === "year"}
+                onClick={() => setViewMode("year")}
+                className={`min-h-11 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  viewMode === "year"
+                    ? "bg-surface-container-high text-on-surface shadow-sm"
+                    : "text-on-surface-variant hover:text-on-surface"
+                }`}
+              >
+                By Year
+              </button>
+              <button
+                type="button"
+                aria-pressed={viewMode === "timeline"}
+                onClick={() => setViewMode("timeline")}
+                className={`min-h-11 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  viewMode === "timeline"
+                    ? "bg-surface-container-high text-on-surface shadow-sm"
+                    : "text-on-surface-variant hover:text-on-surface"
+                }`}
+              >
+                Timeline View
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 2: DIARY ENTRIES */}
+        <section className="pt-10">
+          {loading ? (
+            <div className="space-y-4">
+              {[0, 1].map((i) => (
+                <div
+                  key={i}
+                  className="h-40 rounded-2xl bg-surface-container-low border border-outline-variant/20 animate-pulse"
+                />
               ))}
             </div>
           ) : entries.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="py-14 text-center">
-                <p className="text-muted-foreground">
-                  No diary entries yet. Add entries from your admin panel.
-                </p>
-              </CardContent>
-            </Card>
+            <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-12 text-center">
+              <p className="text-on-surface font-headline-sm mb-1">No diary entries published yet</p>
+              <p className="text-on-surface-variant text-sm">
+                Field notes and personal reflections will appear here once published.
+              </p>
+            </div>
           ) : viewMode === "year" ? (
-            <section className="space-y-10">
-              {groupedByYear.length === 0 ? (
-                <Card className="border-dashed">
-                  <CardContent className="py-10 text-center text-muted-foreground">
-                    {selectedYear
-                      ? `No entries for ${selectedYear} yet.`
-                      : "No entries available."}
-                  </CardContent>
-                </Card>
-              ) : (
-                groupedByYear.map((group) => (
-                  <article key={group.year}>
-                    <div className="mb-4">
-                      <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold bg-primary text-primary-foreground shadow-soft">
-                        {group.year}
-                      </span>
-                    </div>
-                    <div className="space-y-3">
-                      {group.items.map((entry) => {
-                        const preview = toPreview(entry);
-                        const fullContent = entry.content.trim();
-                        const isExpanded = !!expanded[entry.id];
-                        const hasExpandableContent = fullContent.length > preview.length;
-                        const displayedContent =
-                          isExpanded || !hasExpandableContent ? fullContent : preview;
+            <div className="space-y-12">
+              {groupedByYear.map(([year, yearEntries]) => (
+                <div key={year} className="space-y-5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl font-display font-bold text-on-surface">{year}</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-surface-container border border-outline-variant/30 text-xs font-code text-on-surface-variant">
+                      {yearEntries.length} {yearEntries.length === 1 ? "entry" : "entries"}
+                    </span>
+                    <div className="flex-1 h-px bg-outline-variant/20" />
+                  </div>
 
-                        return (
-                          <Card
-                            key={entry.id}
-                            className="group border-border/60 hover:shadow-soft transition-all duration-300 bg-card/95 backdrop-blur-sm overflow-hidden"
-                          >
-                            <CardContent className="p-6">
-                              <h2 className="text-lg font-semibold mb-2">{entry.title}</h2>
-                              <div className="flex items-start gap-4">
-                                <p className="text-muted-foreground leading-relaxed whitespace-pre-line flex-1">
-                                  {displayedContent}
-                                </p>
-                                {entry.image_url && (
-                                  <div className="hidden sm:block shrink-0">
-                                    <div className="w-20 h-20 rounded-lg overflow-hidden border border-border">
-                                      <OptimizedImage
-                                        src={entry.image_url}
-                                        alt={entry.image_alt || entry.title}
-                                        width={80}
-                                        height={80}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                              {entry.image_url && (
-                                <div className="sm:hidden mt-3">
-                                  <div className="w-full h-36 rounded-lg overflow-hidden border border-border">
-                                    <OptimizedImage
-                                      src={entry.image_url}
-                                      alt={entry.image_alt || entry.title}
-                                      width={640}
-                                      height={320}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </div>
-                                </div>
-                              )}
-                              {hasExpandableContent && (
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => toggleExpanded(entry.id)}
-                                  className="mt-3 h-auto px-0 text-primary hover:text-primary"
-                                >
-                                  {isExpanded ? "Show less" : "Read more"}
-                                  <ChevronDown
-                                    className={`w-4 h-4 ml-1 transition-transform ${
-                                      isExpanded ? "rotate-180" : ""
-                                    }`}
-                                  />
-                                </Button>
-                              )}
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  </article>
-                ))
-              )}
+                  <div className="space-y-4">
+                    {yearEntries.map((entry) => {
+                      const isExpanded = Boolean(expandedMap[entry.id]);
+                      const wordCount = (entry.content || "").trim().split(/\s+/).filter(Boolean).length;
+                      const readMins = Math.max(1, Math.ceil(wordCount / 200));
 
-              {hasMore && (
-                <div ref={sentinelRef} className="py-8 flex justify-center">
-                  {loadingMore ? (
-                    <div className="inline-flex items-center text-sm text-muted-foreground">
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Loading more entries...
-                    </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">Scroll to load more</span>
-                  )}
-                </div>
-              )}
-            </section>
-          ) : (
-            <section className="relative">
-              <div className="absolute left-3 top-0 bottom-0 w-px bg-border md:left-1/2 md:-translate-x-1/2" />
-
-              <div className="space-y-4">
-                {timeline.map(({ entry, shouldShowYear, shouldShowMonth }, index) => {
-                  const alignedRight = index % 2 === 0;
-                  const preview = toPreview(entry);
-                  const fullContent = entry.content.trim();
-                  const isExpanded = !!expanded[entry.id];
-                  const hasExpandableContent = fullContent.length > preview.length;
-                  const displayedContent = isExpanded || !hasExpandableContent ? fullContent : preview;
-
-                  return (
-                    <div key={entry.id} className="relative">
-                      {shouldShowYear && (
-                        <div className="sticky top-20 z-10 w-fit ml-0 md:mx-auto mb-4">
-                          <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold bg-primary text-primary-foreground shadow-soft">
-                            {new Date(entry.entry_date).getFullYear()}
-                          </span>
-                        </div>
-                      )}
-
-                      {shouldShowMonth && (
-                        <div className="mb-4 ml-10 md:ml-0 md:text-center">
-                          <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-muted text-muted-foreground">
-                            {formatMonthYear(entry.entry_date)}
-                          </span>
-                        </div>
-                      )}
-
-                      <div
-                        className={`relative pl-10 md:pl-0 ${
-                          alignedRight ? "md:ml-auto md:w-[48%]" : "md:mr-auto md:w-[48%]"
-                        }`}
-                      >
-                        <div
-                          className={`absolute top-7 w-3 h-3 rounded-full bg-primary ring-4 ring-background ${
-                            alignedRight
-                              ? "left-3 md:left-[-1.65rem]"
-                              : "left-3 md:left-auto md:right-[-1.65rem]"
-                          }`}
-                        />
-
-                        <Card className="group border-border/60 hover:shadow-glow transition-all duration-300 hover:-translate-y-1 bg-card/95 backdrop-blur-sm overflow-hidden">
-                          <CardContent className="p-0">
-                            <div className="h-1 w-full bg-gradient-primary" />
-                            <div className="p-6">
-                              <div className="inline-flex items-center text-xs text-muted-foreground mb-3">
-                                <CalendarDays className="w-3 h-3 mr-1" />
-                                {formatEntryDate(entry.entry_date)}
-                              </div>
-                              <h2 className="text-xl font-semibold mb-2">{entry.title}</h2>
-
-                              <div className="flex items-start gap-4">
-                                <p className="text-muted-foreground leading-relaxed whitespace-pre-line flex-1">
-                                  {displayedContent}
-                                </p>
-                                {entry.image_url && (
-                                  <div className="hidden sm:block shrink-0">
-                                    <div className="w-24 h-24 rounded-xl overflow-hidden border border-border rotate-[-2deg] group-hover:rotate-0 transition-transform duration-300">
-                                      <OptimizedImage
-                                        src={entry.image_url}
-                                        alt={entry.image_alt || entry.title}
-                                        width={96}
-                                        height={96}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                      />
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-
-                              {entry.image_url && (
-                                <div className="sm:hidden mt-4">
-                                  <div className="w-full h-40 rounded-xl overflow-hidden border border-border">
-                                    <OptimizedImage
-                                      src={entry.image_url}
-                                      alt={entry.image_alt || entry.title}
-                                      width={640}
-                                      height={320}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </div>
-                                </div>
-                              )}
-
-                              {hasExpandableContent && (
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => toggleExpanded(entry.id)}
-                                  className="mt-3 h-auto px-0 text-primary hover:text-primary"
-                                >
-                                  {isExpanded ? "Show less" : "Read more"}
-                                  <ChevronDown
-                                    className={`w-4 h-4 ml-1 transition-transform ${
-                                      isExpanded ? "rotate-180" : ""
-                                    }`}
-                                  />
-                                </Button>
+                      return (
+                        <article
+                          key={entry.id}
+                          className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 sm:p-8 hover:border-outline-variant/60 transition-all"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <div className="flex items-center gap-2.5 text-xs font-code">
+                              <span className="px-2.5 py-1 rounded-md bg-primary/10 border border-primary/25 text-primary font-semibold">
+                                {formatReadableDate(entry.entry_date)}
+                              </span>
+                              {(entry as any).topic_tag && (
+                                <span className="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/30 text-on-surface-variant">
+                                  {(entry as any).topic_tag}
+                                </span>
                               )}
                             </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                            <div className="flex items-center gap-3 text-xs font-code text-outline">
+                              <span>{readMins} min read</span>
+                              {user && (
+                                <Link
+                                  href={`/admin/diary/edit/${entry.id}`}
+                                  className="text-primary hover:underline"
+                                >
+                                  Edit →
+                                </Link>
+                              )}
+                            </div>
+                          </div>
 
-              {hasMore && (
-                <div ref={sentinelRef} className="py-8 flex justify-center">
-                  {loadingMore ? (
-                    <div className="inline-flex items-center text-sm text-muted-foreground">
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Loading more entries...
-                    </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">Scroll to load more</span>
-                  )}
+                          <h2 className="text-xl sm:text-2xl font-display font-bold text-on-surface tracking-tight mb-3">
+                            {entry.title || formatReadableDate(entry.entry_date)}
+                          </h2>
+
+                          {entry.image_url && (
+                            <div className="my-4 rounded-xl overflow-hidden border border-outline-variant/30 max-h-80">
+                              <img
+                                src={entry.image_url}
+                                alt={entry.image_alt || entry.title || "Diary photo"}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            </div>
+                          )}
+
+                          <div
+                            className={`text-on-surface-variant font-body-lg text-body-lg leading-relaxed whitespace-pre-line ${
+                              !isExpanded && (entry.content || "").length > 360 ? "line-clamp-4" : ""
+                            }`}
+                          >
+                            {entry.content}
+                          </div>
+
+                          {(entry.content || "").length > 360 && (
+                            <button
+                              type="button"
+                              onClick={() => toggleExpanded(entry.id)}
+                              className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                            >
+                              <span>{isExpanded ? "Show less" : "Read full entry"}</span>
+                              <span className="material-symbols-outlined text-[15px]">
+                                {isExpanded ? "expand_less" : "expand_more"}
+                              </span>
+                            </button>
+                          )}
+                        </article>
+                      );
+                    })}
+                  </div>
                 </div>
-              )}
-            </section>
+              ))}
+            </div>
+          ) : (
+            <div className="relative pl-6 sm:pl-8 border-l border-outline-variant/30 space-y-8">
+              {entries.map((entry) => (
+                <article
+                  key={entry.id}
+                  className="relative rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 sm:p-8"
+                >
+                  <span className="absolute -left-[31px] sm:-left-[39px] top-7 w-3.5 h-3.5 rounded-full bg-secondary ring-4 ring-surface" />
+                  <div className="flex items-center justify-between gap-2 text-xs font-code text-outline mb-2">
+                    <span className="text-secondary font-semibold">
+                      {formatReadableDate(entry.entry_date)}
+                    </span>
+                    {user && (
+                      <Link
+                        href={`/admin/diary/edit/${entry.id}`}
+                        className="text-primary hover:underline"
+                      >
+                        Edit →
+                      </Link>
+                    )}
+                  </div>
+                  <h2 className="text-xl font-display font-bold text-on-surface mb-2">
+                    {entry.title || formatReadableDate(entry.entry_date)}
+                  </h2>
+                  <p className="text-on-surface-variant font-body-md text-body-md leading-relaxed whitespace-pre-line">
+                    {entry.content}
+                  </p>
+                </article>
+              ))}
+            </div>
           )}
-        </div>
+
+          {hasMore && (
+            <div className="pt-8 text-center">
+              <button
+                type="button"
+                disabled={loadingMore}
+                onClick={() => {
+                  const next = page + 1;
+                  setPage(next);
+                  fetchEntries(next, true);
+                }}
+                className="px-6 py-2.5 rounded-full bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/40 text-xs font-semibold text-on-surface transition-all"
+              >
+                {loadingMore ? "Loading..." : "Load Older Entries"}
+              </button>
+            </div>
+          )}
+        </section>
       </main>
 
-      <Footer />
+      <OptimizedFooter />
     </div>
   );
-};
-
-export default DiaryPage;
+}

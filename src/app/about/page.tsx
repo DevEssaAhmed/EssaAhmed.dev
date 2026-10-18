@@ -1,4 +1,4 @@
-﻿import AboutPage from "./AboutPage";
+import AboutPage from "./AboutPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
 
@@ -13,7 +13,7 @@ export const metadata = buildPageMetadata({
 export default async function Page() {
   const supabase = getSupabaseServer();
   const { data } = await supabase
-    .from("profile_settings")
+    .from("profile")
     .select("*")
     .order("updated_at", { ascending: false })
     .limit(1)

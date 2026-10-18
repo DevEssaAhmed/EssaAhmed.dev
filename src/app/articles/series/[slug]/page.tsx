@@ -21,11 +21,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .single();
 
   if (!series) {
-    return buildPageMetadata({
-      title: "Series Not Found",
-      description: "The requested series could not be found.",
-      path: `/articles/series/${slug}`,
-    });
+    return {
+      ...buildPageMetadata({
+        title: "Series Not Found",
+        description: "The requested series could not be found.",
+        path: `/articles/series/${slug}`,
+      }),
+      robots: { index: false, follow: false },
+    };
   }
 
   return buildPageMetadata({

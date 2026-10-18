@@ -15,11 +15,7 @@ interface HeroStatsData {
 const HeroSection = () => {
   const { profile, loading } = useProfile();
   
-  const defaultStats: HeroStatsData = {
-    projectsLed: { label: 'Projects Led', value: '15+' },
-    hoursAnalyzed: { label: 'Hours Analyzed', value: '500+' },
-    clientsServed: { label: 'Clients Served', value: '50+' }
-  };
+  const defaultStats: HeroStatsData = {};
 
   if (loading) {
     return (
@@ -143,7 +139,7 @@ const HeroSection = () => {
                 variant="ghost" 
                 size="icon" 
                 className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                onClick={() => window.open(profile.github_url, '_blank')}
+                onClick={() => window.open(profile.github_url || '', '_blank')}
               >
                 <Github className="w-5 h-5" />
               </Button>
@@ -153,7 +149,7 @@ const HeroSection = () => {
                 variant="ghost" 
                 size="icon" 
                 className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                onClick={() => window.open(profile.linkedin_url, '_blank')}
+                onClick={() => window.open(profile.linkedin_url || '', '_blank')}
               >
                 <Linkedin className="w-5 h-5" />
               </Button>
@@ -163,7 +159,7 @@ const HeroSection = () => {
                 variant="ghost" 
                 size="icon" 
                 className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
-                onClick={() => window.open(profile.website_url, '_blank')}
+                onClick={() => window.open(profile.website_url || '', '_blank')}
               >
                 <Globe className="w-5 h-5" />
               </Button>
