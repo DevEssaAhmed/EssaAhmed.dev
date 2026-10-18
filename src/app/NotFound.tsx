@@ -35,11 +35,11 @@ const NotFound = () => {
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="mb-6 relative"
           >
-            <div className="text-[120px] font-display font-extrabold leading-none text-champagne select-none tracking-tight">
+            <div className="text-[120px] font-display font-extrabold leading-none text-primary select-none tracking-tight">
               404
             </div>
             {/* Decorative subtle glow behind the number */}
-            <div className="absolute inset-0 bg-champagne/10 rounded-full blur-3xl -z-10 scale-75" />
+            <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl -z-10 scale-75" />
           </motion.div>
 
           <motion.div
@@ -47,13 +47,13 @@ const NotFound = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
           >
-            <h1 className="text-2xl font-display font-bold text-white mb-3">Page Not Found</h1>
-            <p className="text-ink-soft mb-3 leading-relaxed font-sans">
+            <h1 className="text-2xl font-display font-bold text-foreground mb-3">Page Not Found</h1>
+            <p className="text-muted-foreground mb-3 leading-relaxed font-sans">
               The page you&apos;re looking for doesn&apos;t exist or has been moved.
             </p>
-            <div className="inline-flex items-center gap-1.5 text-xs text-ink-muted bg-surface-container border border-border rounded-lg px-3 py-1.5 mb-8 font-mono">
-              <span className="text-ink-soft">Path:</span>
-              <code className="text-champagne">{location.pathname}</code>
+            <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-surface-container border border-border rounded-lg px-3 py-1.5 mb-8 font-mono">
+              <span className="text-muted-foreground">Path:</span>
+              <code className="text-primary">{location.pathname}</code>
             </div>
           </motion.div>
 
@@ -68,14 +68,14 @@ const NotFound = () => {
               <Link
                 key={href}
                 href={href}
-                className="group flex flex-col items-center gap-2 p-4 rounded-2xl border border-border bg-surface-low hover:border-champagne/40 hover:bg-surface-container transition-all duration-200 hover:-translate-y-0.5"
+                className="group flex flex-col items-center gap-2 p-4 rounded-2xl border border-border bg-surface-low hover:border-primary/40 hover:bg-surface-container transition-all duration-200 hover:-translate-y-0.5"
               >
-                <div className="w-10 h-10 rounded-xl bg-surface-container border border-border flex items-center justify-center group-hover:border-champagne/30 transition-colors">
-                  <Icon className="w-5 h-5 text-champagne" />
+                <div className="w-10 h-10 rounded-xl bg-surface-container border border-border flex items-center justify-center group-hover:border-primary/30 transition-colors">
+                  <Icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <div className="text-sm font-display font-semibold text-white">{label}</div>
-                  <div className="text-xs text-ink-muted font-sans">{description}</div>
+                  <div className="text-sm font-display font-semibold text-foreground">{label}</div>
+                  <div className="text-xs text-muted-foreground font-sans">{description}</div>
                 </div>
               </Link>
             ))}
@@ -90,9 +90,9 @@ const NotFound = () => {
               variant="ghost"
               size="sm"
               onClick={() => navigate(-1)}
-              className="text-ink-soft hover:text-white gap-2 font-mono text-xs rounded-xl"
+              className="text-muted-foreground hover:text-foreground gap-2 font-mono text-xs rounded-xl"
             >
-              <ArrowLeft className="w-4 h-4 text-champagne" />
+              <ArrowLeft className="w-4 h-4 text-primary" />
               Go back
             </Button>
           </motion.div>

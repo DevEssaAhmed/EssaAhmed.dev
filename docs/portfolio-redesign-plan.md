@@ -1,8 +1,10 @@
 # Portfolio Redesign Plan — "Signal Field"
 
-**Status:** discovery complete; earlier Signal Field design rejected. Three new concept boards (Workshop, Journal, Data Studio) are under review. The visual choices below are provisional until a direction is selected. Light and dark themes plus blog archive/article designs are required for launch.  
+**Status:** historical discovery notes; this is not the active visual specification. Signal Field was not selected. The current public design follows the Obsidian Kinetic system and screens in [docs/stitch/README.md](stitch/README.md).
 **Working branch:** `codex/portfolio-redesign`  
 **North star:** turn the site from a generic analytics dashboard into a memorable, credible case-study portfolio for an analytics engineer and decision-systems builder.
+
+> Archived planning reference. For the current design direction and route coverage, use [the Stitch source-of-truth index](stitch/README.md).
 
 ## 1. What we are building
 

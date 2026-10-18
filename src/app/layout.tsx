@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import "../index.css";
 import Providers from "./providers";
 import GTMProvider from "@/components/gtm-provider";
@@ -28,21 +29,30 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://essaahmed.dev"),
-  title: "Essa Ahmed",
-  description: "Explore articles, projects, and analytics-driven insights.",
+  title: "Essa Ahmed — Workflow Automation, Supply Chain S&OP & Analytics",
+  description:
+    "Portfolio of Essa Ahmed — engineering workflow automation pipelines, supply chain demand planning (S&OP) models, and executive analytics systems.",
   applicationName: "Essa Ahmed",
   authors: [{ name: "Essa Ahmed" }],
   manifest: "/site.webmanifest",
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/apple-touch-icon.svg" }],
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", type: "image/x-icon", sizes: "16x16 32x32 48x48 64x64" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-48x48.png", type: "image/png", sizes: "48x48" },
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+    other: [{ rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#374EAE" }],
   },
   openGraph: {
-    title: "Essa Ahmed - Portfolio & Blog",
+    title: "Essa Ahmed — Workflow Automation, Supply Chain S&OP & Analytics",
     description:
-      "Design-forward portfolio and journal. Data visualizations, projects, and writing.",
+      "Workflow automation pipelines, supply chain demand planning models, and executive analytics systems.",
     type: "website",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Essa Ahmed - Portfolio & Blog" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Essa Ahmed Portfolio" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -60,15 +70,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${jakarta.variable} ${jetbrainsMono.variable} bg-[#07090e]`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${jakarta.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
+        <Script id="theme-initializer" strategy="beforeInteractive">
+          {`(()=>{try{const saved=localStorage.getItem('theme');const theme=saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const root=document.documentElement;root.classList.remove('light','dark');root.classList.add(theme);root.style.colorScheme=theme}catch{const theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(theme)}})()`}
+        </Script>
         <link
           rel="preconnect"
           href="https://kexmzaaufxbzegurxuqz.supabase.co"
           crossOrigin="anonymous"
         />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        />
       </head>
-      <body className="bg-[#07090e] text-[#F8FAFC] antialiased selection:bg-champagne/20 selection:text-champagne min-h-screen" suppressHydrationWarning>
+      <body
+        className="bg-surface text-on-surface antialiased selection:bg-primary/20 selection:text-primary min-h-screen transition-colors duration-200"
+        suppressHydrationWarning
+      >
         <Providers>
           <Suspense fallback={null}>
             <GTMPageView />

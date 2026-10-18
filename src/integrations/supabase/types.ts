@@ -1,4 +1,10 @@
-export type Json = any;
+﻿export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
@@ -46,13 +52,17 @@ export type Database = {
           content_jsonb: Json | null
           created_at: string
           excerpt: string | null
+          external_url: string | null
           featured_image_url: string | null
           id: string
           image_url: string | null
+          is_external: boolean
           likes: number | null
           og_description: string | null
           og_image: string | null
           og_title: string | null
+          pillar: string | null
+          platform: string | null
           published: boolean | null
           reading_time: number | null
           series_id: string | null
@@ -72,13 +82,17 @@ export type Database = {
           content_jsonb?: Json | null
           created_at?: string
           excerpt?: string | null
+          external_url?: string | null
           featured_image_url?: string | null
           id?: string
           image_url?: string | null
+          is_external?: boolean
           likes?: number | null
           og_description?: string | null
           og_image?: string | null
           og_title?: string | null
+          pillar?: string | null
+          platform?: string | null
           published?: boolean | null
           reading_time?: number | null
           series_id?: string | null
@@ -98,13 +112,17 @@ export type Database = {
           content_jsonb?: Json | null
           created_at?: string
           excerpt?: string | null
+          external_url?: string | null
           featured_image_url?: string | null
           id?: string
           image_url?: string | null
+          is_external?: boolean
           likes?: number | null
           og_description?: string | null
           og_image?: string | null
           og_title?: string | null
+          pillar?: string | null
+          platform?: string | null
           published?: boolean | null
           reading_time?: number | null
           series_id?: string | null
@@ -220,6 +238,7 @@ export type Database = {
           image_url: string | null
           is_published: boolean
           title: string
+          topic_tag: string | null
           updated_at: string
         }
         Insert: {
@@ -232,6 +251,7 @@ export type Database = {
           image_url?: string | null
           is_published?: boolean
           title: string
+          topic_tag?: string | null
           updated_at?: string
         }
         Update: {
@@ -244,6 +264,7 @@ export type Database = {
           image_url?: string | null
           is_published?: boolean
           title?: string
+          topic_tag?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -604,6 +625,72 @@ export type Database = {
           name?: string
           slug?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      travel_highlights: {
+        Row: {
+          city_name: string
+          country_code: string
+          country_name: string
+          cover_image_url: string | null
+          created_at: string
+          essay_blocks: Json
+          essay_title: string | null
+          flag: string
+          id: string
+          instagram_highlight_url: string | null
+          is_published: boolean
+          lat: number
+          lng: number
+          month: string
+          slug: string
+          story_slides: Json
+          subtitle: string | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          city_name: string
+          country_code?: string
+          country_name: string
+          cover_image_url?: string | null
+          created_at?: string
+          essay_blocks?: Json
+          essay_title?: string | null
+          flag?: string
+          id: string
+          instagram_highlight_url?: string | null
+          is_published?: boolean
+          lat?: number
+          lng?: number
+          month?: string
+          slug: string
+          story_slides?: Json
+          subtitle?: string | null
+          updated_at?: string
+          year?: number
+        }
+        Update: {
+          city_name?: string
+          country_code?: string
+          country_name?: string
+          cover_image_url?: string | null
+          created_at?: string
+          essay_blocks?: Json
+          essay_title?: string | null
+          flag?: string
+          id?: string
+          instagram_highlight_url?: string | null
+          is_published?: boolean
+          lat?: number
+          lng?: number
+          month?: string
+          slug?: string
+          story_slides?: Json
+          subtitle?: string | null
+          updated_at?: string
+          year?: number
         }
         Relationships: []
       }

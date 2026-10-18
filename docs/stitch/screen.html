@@ -1,829 +1,295 @@
-<!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="web_standard" name="shell-type"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0" rel="stylesheet"/>
-<style>
-    @layer base {
-      html, body { margin:0; padding:0; background-color: #07090e; }
-      body { overscroll-behavior: none; }
-      main > :first-child { margin-top:0 !important; }
-      main > :last-child { margin-bottom:0 !important; }
-    }
-    ::-webkit-scrollbar { display:none; }
-  </style>
+<!DOCTYPE html><html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Essa Ahmed | Analytics &amp; Data Engineer</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
-          colors: {
-            "surface-tint": "#adc6ff",
-            "surface-container-highest": "#1c2230",
-            "on-surface-variant": "#9ba3b8",
-            "primary-fixed-dim": "#adc6ff",
-            "tertiary-fixed-dim": "#4edea3",
-            "on-primary-container": "#00285d",
-            "on-secondary-container": "#c4abff",
-            "text-primary": "#F8FAFC",
-            "surface-container-high": "#161b26",
-            "surface-bright": "#222a3d",
-            "inverse-on-surface": "#283044",
-            "secondary-container": "#2e2150",
-            "secondary": "#d0bcff",
-            "on-primary-fixed-variant": "#004395",
-            "surface-card": "#0c0f17",
-            "brand-accent-glow": "rgba(59, 130, 246, 0.12)",
-            "on-error-container": "#ffdad6",
-            "on-surface": "#dae2fd",
-            "tertiary-fixed": "#6ffbbe",
-            "secondary-fixed-dim": "#d0bcff",
-            "error": "#ffb4ab",
-            "on-secondary": "#3c0091",
-            "on-tertiary-container": "#00311f",
-            "surface": "#07090e",
-            "metric-highlight": "#60A5FA",
-            "surface-canvas": "#05060a",
-            "on-primary-fixed": "#001a42",
-            "surface-container": "#0f131d",
-            "on-tertiary": "#003824",
-            "primary-container": "#1d3258",
-            "on-secondary-fixed-variant": "#5516be",
+          "colors": {
+            "on-primary-fixed-variant": "#474649",
             "on-tertiary-fixed": "#002113",
-            "text-muted": "#64748b",
-            "background": "#07090e",
-            "surface-container-lowest": "#030407",
-            "outline-variant": "#2a3142",
-            "on-error": "#690005",
-            "inverse-surface": "#dae2fd",
-            "surface-variant": "#1a2130",
-            "tertiary": "#34d399",
-            "surface-container-low": "#0b0e16",
-            "border-subtle": "rgba(255, 255, 255, 0.07)",
+            "on-surface-variant": "#47464a",
+            "surface": "#fbf8ff",
+            "inverse-primary": "#c8c6c8",
+            "tertiary-fixed-dim": "#4edea3",
+            "on-secondary-container": "#fefcff",
+            "secondary": "#0051d5",
+            "error-container": "#ffdad6",
+            "surface-container-lowest": "#ffffff",
+            "surface-variant": "#e3e1ec",
+            "primary": "#000000",
+            "inverse-surface": "#2f3038",
+            "primary-fixed-dim": "#c8c6c8",
+            "on-background": "#1a1b22",
+            "secondary-fixed": "#dbe1ff",
+            "tertiary-container": "#002113",
+            "on-tertiary": "#ffffff",
+            "surface-container": "#eeedf7",
+            "on-secondary-fixed": "#00174b",
+            "on-primary-fixed": "#1c1b1d",
+            "tertiary": "#000000",
+            "secondary-fixed-dim": "#b4c5ff",
+            "surface-bright": "#fbf8ff",
+            "tertiary-fixed": "#6ffbbe",
+            "outline": "#78767b",
+            "primary-container": "#1c1b1d",
+            "on-error-container": "#93000a",
+            "secondary-container": "#316bf3",
+            "on-primary-container": "#858386",
+            "surface-container-low": "#f4f2fd",
+            "error": "#ba1a1a",
+            "background": "#FAFAFA",
+            "primary-fixed": "#e5e1e4",
+            "on-tertiary-container": "#009668",
+            "on-secondary-fixed-variant": "#003ea8",
+            "on-secondary": "#ffffff",
             "on-tertiary-fixed-variant": "#005236",
-            "on-primary": "#031733",
-            "tertiary-container": "#00a572",
-            "secondary-fixed": "#e9ddff",
-            "inverse-primary": "#005ac2",
-            "border-active": "#60A5FA",
-            "outline": "#4a5369",
-            "primary-fixed": "#d8e2ff",
-            "surface-overlay": "#101624",
-            "on-background": "#dae2fd",
-            "error-container": "#93000a",
-            "primary": "#bfdbfe",
-            "on-secondary-fixed": "#23005c",
-            "surface-dim": "#07090e",
-            "champagne": "#f3e8d2",
-            "champagne-dim": "#c2b49c",
-            "platinum": "#e2e8f0"
+            "surface-dim": "#dad9e3",
+            "surface-container-high": "#e8e7f1",
+            "outline-variant": "#c8c5ca",
+            "on-error": "#ffffff",
+            "on-primary": "#ffffff",
+            "on-surface": "#1a1b22",
+            "surface-tint": "#5f5e60",
+            "inverse-on-surface": "#f1effa",
+            "surface-container-highest": "#e3e1ec"
           },
-          fontFamily: {
-            "headline-lg": ["Plus Jakarta Sans", "Space Grotesk", "sans-serif"],
-            "headline-md": ["Plus Jakarta Sans", "Space Grotesk", "sans-serif"],
-            "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
-            "display-xl": ["Plus Jakarta Sans", "Space Grotesk", "sans-serif"],
-            "body-lg": ["Inter", "sans-serif"],
-            "body-md": ["Inter", "sans-serif"],
-            "body-sm": ["Inter", "sans-serif"],
-            "label-code": ["JetBrains Mono", "monospace"],
-            "label-kpi": ["Plus Jakarta Sans", "JetBrains Mono", "sans-serif"]
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "3xl": "1.5rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-mobile": "1rem",
+            "margin": "2rem",
+            "gutter": "1.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "gutter-mobile": "1rem",
+            "space-xl": "2.5rem"
+          },
+          "fontFamily": {
+            "display-lg": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "code-sm": ["JetBrains Mono"],
+            "label-sm": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "display-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "headline-md": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "code-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "500" }],
+            "display-lg-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }]
           }
         }
       }
     }
   </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 1.15rem;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  </style>
 </head>
-<body class="bg-surface font-body-md text-on-surface selection:bg-primary/20 selection:text-white antialiased">
-<!-- NAVIGATION -->
-<header class="fixed top-0 w-full z-50 bg-[#07090e]/80 backdrop-blur-2xl border-b border-border-subtle">
-<div class="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
-<div class="flex items-center gap-8">
-<a class="flex items-center gap-3 group" data-path="home" href="#">
-<div class="w-9 h-9 rounded-md bg-surface-container-high border border-border-subtle flex items-center justify-center text-champagne group-hover:border-champagne/40 transition-colors">
-<span class="material-symbols-outlined text-[19px]">hub</span>
-</div>
-<div class="flex flex-col">
-<span class="font-headline-sm text-[15px] font-semibold text-text-primary tracking-tight">Essa Ahmed</span>
-<span class="font-label-code text-[11px] text-champagne-dim tracking-wider uppercase">Analytics Engineer</span>
-</div>
+<body class="text-[#111827] antialiased selection:bg-amber-100 selection:text-amber-900 min-h-screen relative overflow-x-hidden bg-surface">
+<!-- Subtle Ambient Top Spotlight Glow -->
+<div class="pointer-events-none fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[420px] bg-[radial-gradient(ellipse_at_top,_rgba(245,158,11,0.07),_rgba(37,99,235,0.04)_40%,_transparent_75%)] -z-10"></div>
+<!-- 1. FLOATING GLASS PILL NAVBAR (TopNavBar Shared Anchor) -->
+<header class="sticky top-4 z-50 px-4 w-full">
+<nav class="bg-white/90 backdrop-blur-md border rounded-full my-4 mx-auto max-w-4xl shadow-[0_4px_20px_-4px_rgba(28,25,23,0.06)] flex items-center justify-between px-4 py-2 transition-transform duration-100 ease-out border-zinc-200">
+<!-- Brand Anchor -->
+<a class="flex items-center gap-2.5 pl-1 focus:outline-none" href="#hero">
+<span class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary font-headline-sm text-label-sm font-bold">EA</span>
+<span class="text-headline-sm font-headline-sm text-on-surface tracking-tight font-bold">Essa Ahmed</span>
 </a>
-<div class="hidden xl:flex items-center gap-2 pl-4 border-l border-border-subtle">
-<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
-<span class="font-label-code text-[11px] text-on-surface-variant tracking-wide">Available for enterprise analytics roles &amp; advisory</span>
-</div>
-</div>
-<div class="flex items-center gap-8">
-<nav class="hidden md:flex items-center gap-7">
-<a class="text-[13px] font-medium tracking-wide text-champagne border-b-2 border-champagne pb-1" data-path="home" href="#">Home</a>
-<a class="text-[13px] font-medium tracking-wide text-on-surface-variant hover:text-white transition-colors pb-1" data-path="projects" href="#featured-work">Projects</a>
-<a class="text-[13px] font-medium tracking-wide text-on-surface-variant hover:text-white transition-colors pb-1" data-path="articles" href="#">Articles</a>
-<a class="text-[13px] font-medium tracking-wide text-on-surface-variant hover:text-white transition-colors pb-1" data-path="about" href="#">About</a>
-</nav>
-<div class="flex items-center gap-3">
-<a class="px-4 py-2 rounded-lg bg-surface-container-high border border-border-subtle hover:border-champagne/40 text-text-primary text-[13px] font-medium tracking-wide transition-all" data-path="contact" href="#contact-section">
-            Get in Touch
-          </a>
-<div class="w-8 h-8 rounded-full bg-surface-container-high border border-border-subtle flex items-center justify-center text-on-surface-variant">
-<span class="material-symbols-outlined text-[17px]">person</span>
-</div>
-</div>
-</div>
-</div>
-</header>
-<main class="w-full pt-20 bg-surface min-h-[calc(100vh-80px)]">
-<div class="flex flex-col w-full relative">
-<!-- Editorial Atmospheric Gradient Mesh -->
-<div class="absolute top-0 inset-x-0 h-[720px] pointer-events-none overflow-hidden -z-10">
-<div class="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/15 via-indigo-950/10 to-transparent blur-[140px]"></div>
-<div class="absolute top-[5%] right-[10%] w-[400px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#b89f72]/10 to-transparent blur-[160px]"></div>
-<div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:48px_48px]"></div>
-</div>
-<!-- HERO: EXECUTIVE EDITORIAL -->
-<section class="w-full max-w-7xl mx-auto px-6 lg:px-12 pt-20 pb-20 relative">
-<div class="max-w-4xl mx-auto flex flex-col items-center text-center">
-<!-- Executive Availability Pill -->
-<div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-high border border-border-subtle mb-10">
-<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
-<span class="font-label-code text-[12px] tracking-wider uppercase text-on-surface-variant">Available for analytics roles &amp; projects</span>
-</div>
-<!-- Identity Label -->
-<div class="flex items-center gap-3 mb-6">
-<span class="font-label-code text-xs uppercase tracking-[0.25em] text-champagne-dim">Hi, I'm Essa Ahmed</span>
-<span class="w-4 h-[1px] bg-border-subtle"></span>
-<span class="font-label-code text-xs uppercase tracking-[0.2em] text-on-surface-variant">Analytics Engineer</span>
-</div>
-<!-- Main Authoritative Headline -->
-<h1 class="font-headline-lg text-4xl sm:text-5xl lg:text-[62px] font-bold tracking-[-0.03em] leading-[1.12] text-text-primary mb-8 max-w-4xl">
-            I engineer <span class="text-white font-extrabold underline decoration-champagne/40 decoration-2 underline-offset-8">decision systems</span>, focusing on data reliability and <span class="bg-gradient-to-r from-champagne via-white to-primary bg-clip-text text-transparent">creating impact.</span>
-</h1>
-<!-- Executive Subtitle -->
-<p class="font-body-lg text-base sm:text-lg text-on-surface-variant max-w-2xl font-light leading-relaxed mb-12">
-            From raw data to dashboards and decision systems—built with accuracy, automation, and scale in mind.
-          </p>
-<!-- Executive Action Buttons -->
-<div class="flex flex-wrap items-center justify-center gap-4">
-<a class="px-7 py-3.5 rounded-lg bg-champagne text-[#090c13] font-headline-sm text-sm font-semibold tracking-wide hover:bg-white transition-all shadow-[0_1px_20px_rgba(243,232,210,0.15)] flex items-center gap-2 group" href="#featured-work">
-<span>View Case Studies</span>
-<span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-</a>
-<a class="px-7 py-3.5 rounded-lg bg-surface-container border border-border-subtle text-text-primary hover:border-champagne/40 text-sm font-medium tracking-wide transition-colors flex items-center gap-2" href="#contact-section">
-<span class="material-symbols-outlined text-[18px] text-champagne-dim">mail</span>
-<span>Contact</span>
-</a>
-</div>
-</div>
-</section>
-<!-- EXECUTIVE KPI STRIP (Refined Hairline Dividers) -->
-<section class="w-full max-w-7xl mx-auto px-6 lg:px-12 mb-28">
-<div class="rounded-2xl bg-surface-container-low border border-border-subtle grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-border-subtle shadow-2xl backdrop-blur-sm">
-<!-- Metric 1 -->
-<div class="p-8 flex flex-col justify-between">
-<div class="flex items-center justify-between mb-4">
-<span class="font-label-code text-[11px] uppercase tracking-widest text-text-muted">PRODUCTION</span>
-<span class="material-symbols-outlined text-champagne-dim text-[19px]">layers</span>
-</div>
-<div>
-<div class="font-label-kpi text-4xl lg:text-[44px] font-bold text-white tracking-tight mb-2">15+</div>
-<div class="text-[14px] font-medium text-text-primary">Projects Led</div>
-<div class="font-body-sm text-[12px] text-text-muted mt-1">End-to-end telemetry architecture</div>
-</div>
-</div>
-<!-- Metric 2 -->
-<div class="p-8 flex flex-col justify-between">
-<div class="flex items-center justify-between mb-4">
-<span class="font-label-code text-[11px] uppercase tracking-widest text-text-muted">ENGINEERING</span>
-<span class="material-symbols-outlined text-primary text-[19px]">timer</span>
-</div>
-<div>
-<div class="font-label-kpi text-4xl lg:text-[44px] font-bold text-white tracking-tight mb-2">500+</div>
-<div class="text-[14px] font-medium text-text-primary">Hours Analyzed</div>
-<div class="font-body-sm text-[12px] text-text-muted mt-1">Automated defect &amp; query profiling</div>
-</div>
-</div>
-<!-- Metric 3 -->
-<div class="p-8 flex flex-col justify-between">
-<div class="flex items-center justify-between mb-4">
-<span class="font-label-code text-[11px] uppercase tracking-widest text-text-muted">STAKEHOLDERS</span>
-<span class="material-symbols-outlined text-tertiary text-[19px]">group_work</span>
-</div>
-<div>
-<div class="font-label-kpi text-4xl lg:text-[44px] font-bold text-white tracking-tight mb-2">50+</div>
-<div class="text-[14px] font-medium text-text-primary">Clients Served</div>
-<div class="font-body-sm text-[12px] text-text-muted mt-1">Global manufacturing &amp; SaaS operations</div>
-</div>
-</div>
-<!-- Metric 4 -->
-<div class="p-8 flex flex-col justify-between">
-<div class="flex items-center justify-between mb-4">
-<span class="font-label-code text-[11px] uppercase tracking-widest text-text-muted">RELIABILITY</span>
-<span class="material-symbols-outlined text-secondary text-[19px]">verified</span>
-</div>
-<div>
-<div class="font-label-kpi text-4xl lg:text-[44px] font-bold text-white tracking-tight mb-2">99.8%</div>
-<div class="text-[14px] font-medium text-text-primary">Data Accuracy SLA</div>
-<div class="inline-flex items-center gap-2 mt-2 px-2.5 py-0.5 rounded bg-surface-container-high border border-border-subtle font-label-code text-[11px] text-champagne">
-<span class="w-1.5 h-1.5 rounded-full bg-champagne"></span>
-<span>Analytics · 2026 Ready</span>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- FEATURED WORK SECTION (Editorial Wide Showcase) -->
-<section class="w-full max-w-7xl mx-auto px-6 lg:px-12 mb-32" id="featured-work">
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 pb-8 border-b border-border-subtle">
-<div>
-<div class="flex items-center gap-2 font-label-code text-xs uppercase tracking-[0.25em] text-champagne-dim mb-3">
-<span class="w-1.5 h-1.5 rounded-full bg-champagne"></span>
-<span>PORTFOLIO SHOWCASE</span>
-</div>
-<h2 class="font-headline-lg text-3xl sm:text-4xl font-bold tracking-tight text-white">Featured Work</h2>
-<p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-2 font-light">Selected projects, articles, and a bit about me.</p>
-</div>
-<!-- Filter Tabs -->
-<div class="flex items-center gap-1.5 bg-surface-container-high p-1.5 rounded-lg border border-border-subtle">
-<button class="px-3.5 py-1.5 rounded-md bg-surface-container text-white text-xs font-medium border border-border-subtle shadow-sm transition-colors" id="filter-all">All</button>
-<button class="px-3.5 py-1.5 rounded-md text-on-surface-variant hover:text-white text-xs font-medium transition-colors" id="filter-bi">Business Intelligence</button>
-<button class="px-3.5 py-1.5 rounded-md text-on-surface-variant hover:text-white text-xs font-medium transition-colors" id="filter-pipelines">Data Pipelines</button>
-<button class="px-3.5 py-1.5 rounded-md text-on-surface-variant hover:text-white text-xs font-medium transition-colors" id="filter-auto">Automation</button>
-</div>
-</div>
-<!-- Editorial Split-Panel Case Studies Grid -->
-<div class="flex flex-col gap-10">
-<!-- CASE STUDY 1: 4-Wheel Vendor Defect Analysis -->
-<article class="group rounded-2xl bg-surface-container-low border border-border-subtle hover:border-border-active/40 transition-all duration-500 overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-12">
-<!-- Left Editorial Summary & Metrics -->
-<div class="lg:col-span-6 p-8 lg:p-12 flex flex-col justify-between order-2 lg:order-1">
-<div>
-<div class="flex flex-wrap items-center gap-2.5 mb-6">
-<span class="px-3 py-1 rounded-full bg-surface-container-high border border-border-subtle font-label-code text-[11px] text-champagne tracking-wider">Executive Telemetry</span>
-<span class="px-2.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary font-label-code text-[11px]">Featured</span>
-<span class="px-2.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-label-code text-[11px]">BI</span>
-</div>
-<h3 class="font-headline-md text-2xl lg:text-[26px] font-bold text-white tracking-tight group-hover:text-champagne transition-colors mb-4 leading-snug">
-                  4-Wheel Vendor Defect Analysis – Executive Quality Review
-                </h3>
-<p class="font-body-md text-[14px] lg:text-[15px] text-on-surface-variant leading-relaxed mb-6 font-light">
-                  This presentation and interactive cockpit were prepared for senior automotive management to analyze vendor-related defects across production batches, identify non-conformance patterns, and tighten supplier accountability contracts.
-                </p>
-<!-- Executive Highlights -->
-<div class="grid grid-cols-2 gap-4 py-5 my-6 border-y border-border-subtle">
-<div>
-<span class="block font-label-code text-[11px] uppercase tracking-wider text-text-muted">PRIMARY IMPACT</span>
-<span class="font-headline-sm text-sm font-semibold text-white mt-1 block">Contract Accountability</span>
-</div>
-<div>
-<span class="block font-label-code text-[11px] uppercase tracking-wider text-text-muted">RESOLUTION SPEED</span>
-<span class="font-headline-sm text-sm font-semibold text-tertiary mt-1 block">Root Cause Slicing &lt; 3s</span>
-</div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-4">
-<div class="flex items-center gap-4 font-label-code text-xs text-text-muted">
-<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary">visibility</span> 2</span>
-<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-metric-highlight">favorite</span> 0</span>
-</div>
-<a class="inline-flex items-center gap-2 text-champagne hover:text-white font-medium text-sm transition-colors group/link" href="#">
-<span>Explore Analysis</span>
-<span class="material-symbols-outlined text-[18px] group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
-</a>
-</div>
-</div>
-<!-- Right Visual Mockup Panel -->
-<div class="lg:col-span-6 bg-surface-container-lowest p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-l border-border-subtle relative overflow-hidden order-1 lg:order-2">
-<div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none"></div>
-<div class="flex justify-between items-center relative z-10 mb-8">
-<span class="font-label-code text-[11px] tracking-wider uppercase text-text-muted">Top 5 Worst Performing Vendors</span>
-<span class="font-label-code text-[11px] text-tertiary-fixed-dim">FY 2024-25 vs FY 2025-26</span>
-</div>
-<!-- Elegant Bar Chart Visualization -->
-<div class="relative z-10 w-full flex flex-col gap-3">
-<div class="flex justify-between items-end h-40 px-6 gap-4 border-b border-border-subtle pb-2">
-<div class="flex-1 bg-surface-container-highest rounded-t flex flex-col justify-end items-center h-[42%] group-hover:h-[46%] transition-all">
-<span class="font-label-code text-[10px] text-text-muted mb-1.5">V1</span>
-</div>
-<div class="flex-1 bg-surface-container-highest rounded-t flex flex-col justify-end items-center h-[65%] group-hover:h-[68%] transition-all">
-<span class="font-label-code text-[10px] text-text-muted mb-1.5">V2</span>
-</div>
-<div class="flex-1 bg-gradient-to-t from-blue-700 to-primary rounded-t flex flex-col justify-end items-center h-[90%] group-hover:h-[94%] transition-all shadow-[0_0_20px_rgba(191,219,254,0.2)]">
-<span class="font-label-code text-[10px] text-[#031733] font-bold mb-1.5">V3</span>
-</div>
-<div class="flex-1 bg-surface-container-highest rounded-t flex flex-col justify-end items-center h-[55%]">
-<span class="font-label-code text-[10px] text-text-muted mb-1.5">V4</span>
-</div>
-<div class="flex-1 bg-surface-container-high rounded-t flex flex-col justify-end items-center h-[30%]">
-<span class="font-label-code text-[10px] text-text-muted mb-1.5">V5</span>
-</div>
-</div>
-<div class="flex justify-between font-label-code text-[11px] text-text-muted pt-2">
-<span>Production Line Telemetry</span>
-<span class="text-champagne font-mono">Defect Index High: V3</span>
-</div>
-</div>
-</div>
-</article>
-<!-- CASE STUDY 2: Suzuki Manufacturing QA Dashboard -->
-<article class="group rounded-2xl bg-surface-container-low border border-border-subtle hover:border-border-active/40 transition-all duration-500 overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-12">
-<!-- Left Visual Mockup Panel -->
-<div class="lg:col-span-6 bg-surface-container-lowest p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-border-subtle relative overflow-hidden">
-<div class="absolute inset-0 bg-gradient-to-tr from-metric-highlight/5 via-transparent to-transparent pointer-events-none"></div>
-<div class="flex justify-between items-center relative z-10 mb-8">
-<span class="font-label-code text-[11px] tracking-wider uppercase text-text-muted">Pareto Failure Distribution</span>
-<span class="font-label-code text-[11px] text-tertiary">Real-time Slicing</span>
-</div>
-<!-- Pareto Component Failure Breakdown -->
-<div class="relative z-10 flex flex-col gap-4">
-<div class="space-y-3">
-<div>
-<div class="flex justify-between font-label-code text-[12px] mb-1.5">
-<span class="text-text-primary">BOLT WITH WASHER [CHASSIS]</span>
-<span class="text-error font-semibold">41.2%</span>
-</div>
-<div class="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden">
-<div class="h-full bg-error rounded-full w-[41.2%]"></div>
-</div>
-</div>
-<div>
-<div class="flex justify-between font-label-code text-[12px] mb-1.5">
-<span class="text-text-primary">NOZZLE WASHER &amp; HOSE OUTL</span>
-<span class="text-primary font-semibold">27.6%</span>
-</div>
-<div class="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden">
-<div class="h-full bg-primary rounded-full w-[27.6%]"></div>
-</div>
-</div>
-<div>
-<div class="flex justify-between font-label-code text-[12px] mb-1.5">
-<span class="text-text-primary">COVER, AIR LOWER HARNESS</span>
-<span class="text-metric-highlight font-semibold">16.4%</span>
-</div>
-<div class="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden">
-<div class="h-full bg-metric-highlight rounded-full w-[16.4%]"></div>
-</div>
-</div>
-</div>
-<div class="flex justify-between font-label-code text-[11px] text-text-muted pt-2 border-t border-border-subtle">
-<span>Root Cause Drilldown</span>
-<span class="text-champagne">Tier-1 Assembly Plant</span>
-</div>
-</div>
-</div>
-<!-- Right Editorial Summary & Metrics -->
-<div class="lg:col-span-6 p-8 lg:p-12 flex flex-col justify-between">
-<div>
-<div class="flex flex-wrap items-center gap-2.5 mb-6">
-<span class="px-3 py-1 rounded-full bg-surface-container-high border border-border-subtle font-label-code text-[11px] text-metric-highlight tracking-wider">High-Volume Manufacturing</span>
-<span class="px-2.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary font-label-code text-[11px]">Featured</span>
-<span class="px-2.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-label-code text-[11px]">Quality Eng</span>
-</div>
-<h3 class="font-headline-md text-2xl lg:text-[26px] font-bold text-white tracking-tight group-hover:text-champagne transition-colors mb-4 leading-snug">
-                  Case Study: Suzuki Manufacturing Quality Assurance Dashboard
-                </h3>
-<p class="font-body-md text-[14px] lg:text-[15px] text-on-surface-variant leading-relaxed mb-6 font-light">
-                  In a high-volume manufacturing environment, identifying the root cause of defects is vital. Designed an interactive operational control room dashboard isolating assembly line faults, part defects, and component failure rates.
-                </p>
-<!-- Executive Highlights -->
-<div class="grid grid-cols-2 gap-4 py-5 my-6 border-y border-border-subtle">
-<div>
-<span class="block font-label-code text-[11px] uppercase tracking-wider text-text-muted">OPERATIONAL SCOPE</span>
-<span class="font-headline-sm text-sm font-semibold text-white mt-1 block">Full Assembly Plant</span>
-</div>
-<div>
-<span class="block font-label-code text-[11px] uppercase tracking-wider text-text-muted">MONITORING</span>
-<span class="font-headline-sm text-sm font-semibold text-tertiary mt-1 block">Component Part Isolation</span>
-</div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-4">
-<div class="flex items-center gap-4 font-label-code text-xs text-text-muted">
-<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary">visibility</span> 67</span>
-<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-metric-highlight">favorite</span> 0</span>
-</div>
-<a class="inline-flex items-center gap-2 text-champagne hover:text-white font-medium text-sm transition-colors group/link" href="#">
-<span>Read Case Study</span>
-<span class="material-symbols-outlined text-[18px] group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
-</a>
-</div>
-</div>
-</article>
-<!-- CASE STUDY 3: Stitching Offline Productivity Dashboard -->
-<article class="group rounded-2xl bg-surface-container-low border border-border-subtle hover:border-border-active/40 transition-all duration-500 overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-12">
-<!-- Left Editorial Summary & Metrics -->
-<div class="lg:col-span-6 p-8 lg:p-12 flex flex-col justify-between order-2 lg:order-1">
-<div>
-<div class="flex flex-wrap items-center gap-2.5 mb-6">
-<span class="px-3 py-1 rounded-full bg-surface-container-high border border-border-subtle font-label-code text-[11px] text-tertiary tracking-wider">Operational Analytics</span>
-<span class="px-2.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-label-code text-[11px]">Power BI</span>
-<span class="px-2.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-label-code text-[11px]">Operations</span>
-</div>
-<h3 class="font-headline-md text-2xl lg:text-[26px] font-bold text-white tracking-tight group-hover:text-champagne transition-colors mb-4 leading-snug">
-                  Stitching Offline Productivity Dashboard
-                </h3>
-<p class="font-body-md text-[14px] lg:text-[15px] text-on-surface-variant leading-relaxed mb-6 font-light">
-                  AGI – Offline Productivity Dashboard. This interactive dashboard was developed in Power BI to monitor real-time industrial sewing throughput, benchmark operator performance against target quotas, and minimize bottleneck downtime.
-                </p>
-<!-- Executive Highlights -->
-<div class="grid grid-cols-2 gap-4 py-5 my-6 border-y border-border-subtle">
-<div>
-<span class="block font-label-code text-[11px] uppercase tracking-wider text-text-muted">THROUGHPUT TARGET</span>
-<span class="font-headline-sm text-sm font-semibold text-tertiary mt-1 block">95.3% SLA Target</span>
-</div>
-<div>
-<span class="block font-label-code text-[11px] uppercase tracking-wider text-text-muted">COVERAGE</span>
-<span class="font-headline-sm text-sm font-semibold text-white mt-1 block">Lines 01 - 12 Continuous</span>
-</div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-4">
-<div class="flex items-center gap-4 font-label-code text-xs text-text-muted">
-<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary">visibility</span> 141</span>
-<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-metric-highlight">favorite</span> 0</span>
-</div>
-<a class="inline-flex items-center gap-2 text-champagne hover:text-white font-medium text-sm transition-colors group/link" href="#">
-<span>View Solution</span>
-<span class="material-symbols-outlined text-[18px] group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
-</a>
-</div>
-</div>
-<!-- Right Visual Mockup Panel -->
-<div class="lg:col-span-6 bg-surface-container-lowest p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-l border-border-subtle relative overflow-hidden order-1 lg:order-2">
-<div class="absolute inset-0 bg-gradient-to-tr from-tertiary/5 via-transparent to-transparent pointer-events-none"></div>
-<div class="flex justify-between items-center relative z-10 mb-6">
-<span class="font-label-code text-[11px] tracking-wider uppercase text-text-muted">AGI Offline Productivity</span>
-<span class="px-2.5 py-0.5 rounded bg-tertiary-container/30 border border-tertiary/30 text-tertiary font-label-code text-[11px] font-semibold">Target: 95.3%</span>
-</div>
-<!-- Run Chart SVG Mockup -->
-<div class="relative z-10 w-full flex flex-col gap-3">
-<div class="relative h-36 flex items-center justify-center">
-<svg class="w-full h-full text-tertiary" fill="none" stroke="currentColor" viewbox="0 0 300 80">
-<path class="drop-shadow-lg" d="M 0,60 Q 50,20 100,45 T 200,15 T 300,28" stroke-width="2.5"></path>
-<path d="M 0,60 Q 50,20 100,45 T 200,15 T 300,28 L 300,80 L 0,80 Z" fill="currentColor" fill-opacity="0.08"></path>
-<line stroke="#4a5369" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="300" y1="40" y2="40"></line>
-</svg>
-</div>
-<div class="flex justify-between font-label-code text-[11px] text-text-muted pt-2 border-t border-border-subtle">
-<span>Shift Telemetry Stream</span>
-<span class="text-tertiary">Line 01 - 12 Throughput</span>
-</div>
-</div>
-</div>
-</article>
-<!-- CASE STUDY 4: Rejection Dashboard Automation -->
-<article class="group rounded-2xl bg-surface-container-low border border-border-subtle hover:border-border-active/40 transition-all duration-500 overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-12">
-<!-- Left Visual Mockup Panel -->
-<div class="lg:col-span-6 bg-surface-container-lowest p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-border-subtle relative overflow-hidden">
-<div class="absolute inset-0 bg-gradient-to-tr from-secondary/5 via-transparent to-transparent pointer-events-none"></div>
-<div class="flex justify-between items-center relative z-10 mb-8">
-<span class="font-label-code text-[11px] tracking-wider uppercase text-text-muted">Automated Ingestion Pipeline</span>
-<span class="font-label-code text-[11px] text-tertiary">Zero Manual Entry</span>
-</div>
-<!-- Grid Telemetry Cards -->
-<div class="relative z-10 flex flex-col gap-4">
-<div class="grid grid-cols-4 gap-3">
-<div class="p-3 rounded-lg bg-surface-container-high border border-border-subtle text-center">
-<span class="block font-label-code text-[10px] text-text-muted uppercase">FABRIC</span>
-<span class="block font-headline-sm text-base font-bold text-white mt-1">18.4K</span>
-</div>
-<div class="p-3 rounded-lg bg-surface-container-high border border-border-subtle text-center">
-<span class="block font-label-code text-[10px] text-text-muted uppercase">STITCH</span>
-<span class="block font-headline-sm text-base font-bold text-white mt-1">7.2K</span>
-</div>
-<div class="p-3 rounded-lg bg-surface-container-high border border-border-subtle text-center">
-<span class="block font-label-code text-[10px] text-text-muted uppercase">WASH</span>
-<span class="block font-headline-sm text-base font-bold text-primary mt-1">3.1K</span>
-</div>
-<div class="p-3 rounded-lg bg-champagne text-[#090c13] text-center shadow-lg">
-<span class="block font-label-code text-[10px] font-bold uppercase">FINISH</span>
-<span class="block font-headline-sm text-base font-bold mt-1">1.0K</span>
-</div>
-</div>
-<div class="flex justify-between font-label-code text-[11px] text-text-muted pt-2 border-t border-border-subtle">
-<span>Defect Categorization Node</span>
-<span class="text-champagne font-mono">Real-time DAG Sink</span>
-</div>
-</div>
-</div>
-<!-- Right Editorial Summary & Metrics -->
-<div class="lg:col-span-6 p-8 lg:p-12 flex flex-col justify-between">
-<div>
-<div class="flex flex-wrap items-center gap-2.5 mb-6">
-<span class="px-3 py-1 rounded-full bg-surface-container-high border border-border-subtle font-label-code text-[11px] text-secondary tracking-wider">Pipeline &amp; ETL Automation</span>
-<span class="px-2.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary font-label-code text-[11px]">Featured</span>
-<span class="px-2.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-label-code text-[11px]">#bi</span>
-</div>
-<h3 class="font-headline-md text-2xl lg:text-[26px] font-bold text-white tracking-tight group-hover:text-champagne transition-colors mb-4 leading-snug">
-                  Rejection Dashboard Automation
-                </h3>
-<p class="font-body-md text-[14px] lg:text-[15px] text-on-surface-variant leading-relaxed mb-6 font-light">
-                  Project: Defect Tracking and Analysis Automation Overview. This project involved transforming a previously manual, spreadsheet-bound defect logging workflow into an automated data pipeline and real-time executive dashboard.
-                </p>
-<!-- Executive Highlights -->
-<div class="grid grid-cols-2 gap-4 py-5 my-6 border-y border-border-subtle">
-<div>
-<span class="block font-label-code text-[11px] uppercase tracking-wider text-text-muted">TRANSFORMATION</span>
-<span class="font-headline-sm text-sm font-semibold text-white mt-1 block">Spreadsheet → Automated</span>
-</div>
-<div>
-<span class="block font-label-code text-[11px] uppercase tracking-wider text-text-muted">HUMAN LATENCY</span>
-<span class="font-headline-sm text-sm font-semibold text-tertiary mt-1 block">Zero Manual Entry</span>
-</div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-4">
-<div class="flex items-center gap-4 font-label-code text-xs text-text-muted">
-<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary">visibility</span> 140</span>
-<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-metric-highlight">favorite</span> 0</span>
-</div>
-<a class="inline-flex items-center gap-2 text-champagne hover:text-white font-medium text-sm transition-colors group/link" href="#">
-<span>View Architecture</span>
-<span class="material-symbols-outlined text-[18px] group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
-</a>
-</div>
-</div>
-</article>
-</div>
-<!-- Center CTA Button -->
-<div class="flex justify-center mt-14">
-<a class="px-8 py-3.5 rounded-lg bg-surface-container-high border border-border-subtle hover:border-champagne/40 text-text-primary hover:text-champagne font-medium text-sm tracking-wide transition-all flex items-center gap-2 group" href="#">
-<span>View All Projects</span>
-<span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_right_alt</span>
-</a>
-</div>
-</section>
-<!-- CORE CAPABILITIES / DECISION SYSTEMS ARCHITECTURE (Editorial 4-Column Layout) -->
-<section class="w-full max-w-7xl mx-auto px-6 lg:px-12 mb-32">
-<div class="p-10 lg:p-14 rounded-3xl bg-surface-container-low border border-border-subtle shadow-2xl relative overflow-hidden">
-<div class="max-w-3xl mb-14">
-<div class="flex items-center gap-2 font-label-code text-xs uppercase tracking-[0.25em] text-champagne-dim mb-3">
-<span class="w-1.5 h-1.5 rounded-full bg-champagne"></span>
-<span>END-TO-END CAPABILITIES</span>
-</div>
-<h2 class="font-headline-lg text-3xl sm:text-4xl font-bold tracking-tight text-white">Decision Systems Architecture</h2>
-<p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-3 font-light leading-relaxed">
-              Bridging the gap between distributed transactional systems and executive strategy with engineered precision.
-            </p>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-<!-- Capability 1 -->
-<div class="p-7 rounded-xl bg-surface-container border border-border-subtle hover:border-champagne/30 transition-all flex flex-col justify-between group">
-<div>
-<div class="w-11 h-11 rounded-lg bg-surface-container-high border border-border-subtle flex items-center justify-center text-champagne mb-6 group-hover:scale-105 transition-transform">
-<span class="material-symbols-outlined text-[22px]">query_stats</span>
-</div>
-<h3 class="font-headline-sm text-base font-semibold text-white mb-2.5">Data Analysis &amp; Modeling</h3>
-<p class="font-body-sm text-[13px] text-on-surface-variant font-light leading-relaxed">
-                  Statistical root cause discovery, anomaly detection, cohort tracking, and predictive trend modeling.
-                </p>
-</div>
-<div class="mt-8 pt-4 border-t border-border-subtle font-label-code text-[11px] text-champagne-dim">
-<span>SQL · dbt · Python</span>
-</div>
-</div>
-<!-- Capability 2 -->
-<div class="p-7 rounded-xl bg-surface-container border border-border-subtle hover:border-champagne/30 transition-all flex flex-col justify-between group">
-<div>
-<div class="w-11 h-11 rounded-lg bg-surface-container-high border border-border-subtle flex items-center justify-center text-primary mb-6 group-hover:scale-105 transition-transform">
-<span class="material-symbols-outlined text-[22px]">terminal</span>
-</div>
-<h3 class="font-headline-sm text-base font-semibold text-white mb-2.5">Python &amp; ETL Pipelines</h3>
-<p class="font-body-sm text-[13px] text-on-surface-variant font-light leading-relaxed">
-                  Automated ingestion, transformation DAGs, error alerting, and multi-source API synchronizations.
-                </p>
-</div>
-<div class="mt-8 pt-4 border-t border-border-subtle font-label-code text-[11px] text-primary">
-<span>Airflow · Pandas · FastAPIs</span>
-</div>
-</div>
-<!-- Capability 3 -->
-<div class="p-7 rounded-xl bg-surface-container border border-border-subtle hover:border-champagne/30 transition-all flex flex-col justify-between group">
-<div>
-<div class="w-11 h-11 rounded-lg bg-surface-container-high border border-border-subtle flex items-center justify-center text-tertiary mb-6 group-hover:scale-105 transition-transform">
-<span class="material-symbols-outlined text-[22px]">database</span>
-</div>
-<h3 class="font-headline-sm text-base font-semibold text-white mb-2.5">Warehouse Architecture</h3>
-<p class="font-body-sm text-[13px] text-on-surface-variant font-light leading-relaxed">
-                  Star-schema modeling, dimensional indexing, query latency minimization, and schema governance.
-                </p>
-</div>
-<div class="mt-8 pt-4 border-t border-border-subtle font-label-code text-[11px] text-tertiary">
-<span>Snowflake · Postgres · BigQuery</span>
-</div>
-</div>
-<!-- Capability 4 -->
-<div class="p-7 rounded-xl bg-surface-container border border-border-subtle hover:border-champagne/30 transition-all flex flex-col justify-between group">
-<div>
-<div class="w-11 h-11 rounded-lg bg-surface-container-high border border-border-subtle flex items-center justify-center text-secondary mb-6 group-hover:scale-105 transition-transform">
-<span class="material-symbols-outlined text-[22px]">bar_chart</span>
-</div>
-<h3 class="font-headline-sm text-base font-semibold text-white mb-2.5">Data Visualization &amp; BI</h3>
-<p class="font-body-sm text-[13px] text-on-surface-variant font-light leading-relaxed">
-                  Executive cockpit development, drill-down operational reports, and low-cognitive-load layouts.
-                </p>
-</div>
-<div class="mt-8 pt-4 border-t border-border-subtle font-label-code text-[11px] text-secondary">
-<span>Power BI · Tableau · Metabase</span>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- EXECUTIVE INQUIRY & CONTACT SECTION -->
-<section class="w-full max-w-7xl mx-auto px-6 lg:px-12 mb-28" id="contact-section">
-<div class="text-center max-w-2xl mx-auto mb-16">
-<div class="flex items-center justify-center gap-2 font-label-code text-xs uppercase tracking-[0.25em] text-champagne-dim mb-3">
-<span class="w-1.5 h-1.5 rounded-full bg-champagne"></span>
-<span>ENGAGEMENT &amp; INQUIRY</span>
-</div>
-<h2 class="font-headline-lg text-3xl sm:text-4xl font-bold tracking-tight text-white">Get In Touch</h2>
-<p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-2 font-light">
-            Have a project in mind or want to collaborate? I'd love to hear from you!
-          </p>
-</div>
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-<!-- Left Column: Executive Consultation Brief -->
-<div class="lg:col-span-5 p-8 lg:p-10 rounded-2xl bg-surface-container-low border border-border-subtle flex flex-col justify-between shadow-xl">
-<div>
-<h3 class="font-headline-md text-xl lg:text-2xl font-bold text-white tracking-tight mb-4">Let's Build Something Together</h3>
-<p class="font-body-md text-[14px] text-on-surface-variant font-light leading-relaxed mb-8">
-                Whether it's a data pipeline, an analytics dashboard, or a full decision system — I'm here to help turn your data into impact.
-              </p>
-<div class="flex flex-col gap-4">
-<a class="flex items-center gap-4 p-4 rounded-xl bg-surface-container border border-border-subtle hover:border-champagne/30 transition-all group" href="mailto:essaahmedsiddiqui@gmail.com">
-<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-champagne group-hover:bg-champagne group-hover:text-[#090c13] transition-colors">
-<span class="material-symbols-outlined text-[20px]">alternate_email</span>
-</div>
-<div class="flex flex-col min-w-0">
-<span class="font-label-code text-[11px] text-text-muted uppercase tracking-wider">DIRECT EMAIL</span>
-<span class="font-headline-sm text-sm text-white truncate mt-0.5">essaahmedsiddiqui@gmail.com</span>
-</div>
-</a>
-<div class="flex items-center gap-4 p-4 rounded-xl bg-surface-container border border-border-subtle">
-<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary">
-<span class="material-symbols-outlined text-[20px]">public</span>
-</div>
-<div class="flex flex-col">
-<span class="font-label-code text-[11px] text-text-muted uppercase tracking-wider">LOCATION</span>
-<span class="font-headline-sm text-sm text-white mt-0.5">Karachi, Pakistan · Open to Worldwide Remote</span>
-</div>
-</div>
-</div>
-</div>
-<div class="mt-10 pt-6 border-t border-border-subtle flex items-center justify-between">
-<div class="flex items-center gap-2.5">
-<a class="px-3 py-1.5 rounded-lg bg-surface-container border border-border-subtle text-on-surface-variant hover:text-white transition-colors flex items-center gap-1.5 font-label-code text-xs" href="#">
-<span class="material-symbols-outlined text-[15px]">link</span>
-<span>LinkedIn</span>
-</a>
-<a class="px-3 py-1.5 rounded-lg bg-surface-container border border-border-subtle text-on-surface-variant hover:text-white transition-colors flex items-center gap-1.5 font-label-code text-xs" href="#">
-<span class="material-symbols-outlined text-[15px]">code</span>
-<span>GitHub</span>
-</a>
-</div>
-<span class="font-label-code text-[12px] text-tertiary flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
-<span>Online</span>
-</span>
-</div>
-</div>
-<!-- Right Column: Polished Minimalist Project Brief Form -->
-<div class="lg:col-span-7 p-8 lg:p-10 rounded-2xl bg-surface-container-low border border-border-subtle shadow-xl">
-<div class="flex items-center gap-3.5 mb-8">
-<div class="w-10 h-10 rounded-lg bg-surface-container-high border border-border-subtle text-champagne flex items-center justify-center">
-<span class="material-symbols-outlined text-[20px]">send</span>
-</div>
-<div>
-<h3 class="font-headline-sm text-lg font-bold text-white tracking-tight">Send a Project Brief</h3>
-<p class="font-body-sm text-xs text-on-surface-variant font-light mt-0.5">Responses guaranteed within 24 operational hours</p>
-</div>
-</div>
-<form class="flex flex-col gap-5" id="contact-form" onsubmit="event.preventDefault(); document.getElementById('form-feedback').classList.remove('hidden');">
-<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-<div class="flex flex-col gap-2">
-<label class="font-label-code text-[11px] uppercase tracking-wider text-text-muted" for="name">Your Name</label>
-<input class="w-full px-4 py-3 rounded-lg bg-surface-container border border-border-subtle text-text-primary placeholder:text-text-muted text-sm focus:outline-none focus:border-champagne/60 transition-colors" id="name" placeholder="e.g. Sarah Jenkins" required="" type="text"/>
-</div>
-<div class="flex flex-col gap-2">
-<label class="font-label-code text-[11px] uppercase tracking-wider text-text-muted" for="email">Email Address</label>
-<input class="w-full px-4 py-3 rounded-lg bg-surface-container border border-border-subtle text-text-primary placeholder:text-text-muted text-sm focus:outline-none focus:border-champagne/60 transition-colors" id="email" placeholder="you@example.com" required="" type="email"/>
-</div>
-</div>
-<div class="flex flex-col gap-2">
-<label class="font-label-code text-[11px] uppercase tracking-wider text-text-muted" for="purpose">Project Purpose / Engagement</label>
-<div class="relative">
-<select class="w-full px-4 py-3 rounded-lg bg-surface-container border border-border-subtle text-text-primary text-sm focus:outline-none focus:border-champagne/60 transition-colors appearance-none cursor-pointer" id="purpose">
-<option value="Select purpose">Select purpose</option>
-<option value="Executive BI Dashboard">Executive BI Dashboard Architecture</option>
-<option value="Data Pipeline &amp; ETL">Automated Data Pipeline &amp; ETL</option>
-<option value="Data Modeling &amp; Warehouse">Database &amp; Warehouse Design</option>
-<option value="Full-time Analytics Engineer">Full-time / Consulting Role</option>
-</select>
-<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted text-[19px]">expand_more</span>
-</div>
-</div>
-<div class="flex flex-col gap-2">
-<label class="font-label-code text-[11px] uppercase tracking-wider text-text-muted" for="message">Message / System Requirements</label>
-<textarea class="w-full px-4 py-3 rounded-lg bg-surface-container border border-border-subtle text-text-primary placeholder:text-text-muted text-sm focus:outline-none focus:border-champagne/60 transition-colors resize-none" id="message" placeholder="Tell me about your project, current data stack, timeline, or key objectives..." required="" rows="4"></textarea>
-</div>
-<button class="w-full py-3.5 rounded-lg bg-champagne text-[#090c13] font-headline-sm text-sm font-semibold tracking-wide hover:bg-white transition-all shadow-[0_1px_16px_rgba(243,232,210,0.15)] flex items-center justify-center gap-2 group mt-2" type="submit">
-<span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">send</span>
-<span>Send Message</span>
+<!-- Center Nav Links -->
+<div class="hidden md:flex items-center gap-1">
+<a class="text-on-surface font-label-md text-label-md font-medium px-3 py-1.5 rounded-full bg-surface-container-low transition-colors duration-150" href="#hero">Home</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-on-surface transition-colors duration-150 px-3 py-1.5 rounded-full hover:bg-surface-container-low" href="#projects">Projects</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-on-surface transition-colors duration-150 px-3 py-1.5 rounded-full hover:bg-surface-container-low" href="#capabilities">Articles</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-on-surface transition-colors duration-150 px-3 py-1.5 rounded-full hover:bg-surface-container-low" href="#articles">About</a>
+</div>
+<!-- Trailing Actions & Primary Contact Button -->
+<div class="flex items-center gap-2">
+<div class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-outline-variant/40 bg-surface text-on-surface-variant text-code-sm font-code-sm">
+<span class="">⌘</span><span class="">K</span>
+</div>
+<button aria-label="Toggle theme" class="w-8 h-8 rounded-full border border-outline-variant/30 flex items-center justify-center text-on-surface hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]" data-icon="light_mode">light_mode</span>
 </button>
-<div class="hidden p-4 rounded-lg bg-tertiary-container/20 border border-tertiary/30 text-tertiary font-label-code text-xs text-center" id="form-feedback">
-                Thank you! Your message has been routed to Essa's direct queue. Expect telemetry within 24h.
-              </div>
-</form>
+<a class="bg-primary text-on-primary font-label-md text-label-md px-4 py-1.5 rounded-full active:scale-[0.98] transition-all hover:bg-zinc-800" href="#contact">
+          Contact
+        </a>
+</div>
+</nav>
+</header>
+<!-- 2. HERO SECTION -->
+<section class="max-w-4xl mx-auto pt-16 pb-14 px-6" id="hero">
+<!-- Availability Badge -->
+<div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-[#065F46] font-label-sm text-label-sm font-semibold mb-6 shadow-xs">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+<span class="">Available for new projects</span>
+</div>
+<!-- Hero Title -->
+<h1 class="text-[#0F172A] font-display-lg text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.12]">
+      Hey, I'm Essa Ahmed. I build data pipelines &amp; analytics products.
+    </h1>
+<!-- Hero Subtitle -->
+<p class="text-[#475569] font-body-lg text-lg leading-relaxed mt-5 max-w-2xl">
+      Analytics Engineer turning complex operational data into fast, automated dashboards and decision systems. Focused on idempotent workflows, telemetry pipelines, and developer-grade visual execution.
+    </p>
+<!-- Action Buttons Row -->
+<div class="flex flex-wrap items-center gap-3.5 mt-8"><a class="bg-[#0F172A] hover:bg-[#1E293B] text-white font-label-md text-label-md px-5 py-2.5 rounded-full inline-flex items-center gap-2 shadow-[0_2px_8px_rgba(15,23,42,0.18)] hover:shadow-md transition-all active:scale-[0.98]" href="#projects"><span class="">View Projects</span><span class="text-[#60A5FA]">→</span></a><a class="bg-white border hover:border-[#D6D3CD] text-[#0F172A] font-label-md text-label-md px-5 py-2.5 rounded-full transition-all shadow-xs border-zinc-200" href="#contact">Contact Me</a><div class="flex items-center gap-2 pl-1"><a class="w-9 h-9 rounded-full border border-[#E6E4DF] bg-white flex items-center justify-center text-[#475569] hover:text-[#0F172A] hover:border-[#CBD5E1] transition-colors shadow-xs text-code-sm font-code-sm font-medium" href="https://github.com" rel="noreferrer" target="_blank" title="GitHub Source">&lt;/&gt;</a><button class="w-9 h-9 rounded-full border border-[#E6E4DF] bg-white flex items-center justify-center text-[#475569] hover:text-[#0F172A] hover:border-[#CBD5E1] transition-colors shadow-xs text-code-sm font-code-sm font-medium" title="Command Menu" type="button">⌘</button><a class="w-9 h-9 rounded-full border border-[#E6E4DF] bg-white flex items-center justify-center text-[#475569] hover:text-[#0F172A] hover:border-[#CBD5E1] transition-colors shadow-xs" href="mailto:contact@essa.dev" title="Email"><span class="material-symbols-outlined text-[17px]" data-icon="mail">mail</span></a></div></div>
+</section>
+<!-- 3. SELECTED PROJECTS SECTION -->
+<section class="max-w-5xl mx-auto px-6 py-12" id="projects">
+<!-- Header row -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-8 border-b border-zinc-200/70"><div><h2 class="font-headline-lg text-headline-lg text-[#0F172A] tracking-tight font-bold">Selected Projects</h2><p class="font-body-md text-body-md text-[#64748B] mt-1">Production telemetry pipelines, executive intelligence boards, and data infrastructure.</p></div><div class="flex flex-wrap items-center gap-2"><div class="inline-flex p-1 bg-white rounded-full border shadow-xs border-zinc-200"><button class="bg-[#0F172A] text-white font-label-sm text-label-sm px-3 py-1 rounded-full shadow-xs">All</button><button class="text-[#64748B] hover:text-[#0F172A] font-label-sm text-label-sm px-3 py-1 rounded-full transition-colors">Dashboards</button><button class="text-[#64748B] hover:text-[#0F172A] font-label-sm text-label-sm px-3 py-1 rounded-full transition-colors">Pipelines</button><button class="text-[#64748B] hover:text-[#0F172A] font-label-sm text-label-sm px-3 py-1 rounded-full transition-colors">Automation</button></div><a class="text-label-md font-label-md text-[#2563EB] hover:text-[#1D4ED8] hover:underline pl-2 font-semibold" href="#projects">View all →</a></div></div>
+<!-- 2x2 Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8"><!-- Card 1: Suzuki QA Analytics -->
+<article class="bg-white border border-zinc-200 rounded-2xl p-6 shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-[0_8px_30px_-4px_rgba(28,25,23,0.1)] hover:border-zinc-300 transition-all group flex flex-col justify-between"><div><!-- Obsidian Terminal Telemetry Preview --><div class="bg-[#121316] border border-[#27272A] rounded-xl p-4 mb-5 font-code-sm text-code-sm shadow-inner"><div class="flex items-center justify-between pb-3 mb-3 border-b border-[#27272A]"><span class="text-[#E4E4E7] font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>qa_production_telemetry.dbt</span><span class="bg-emerald-500/10 text-emerald-400 font-label-sm text-label-sm px-2.5 py-0.5 rounded-full border border-emerald-500/20 font-medium">99.8% Healthy</span></div><div class="grid grid-cols-3 gap-2.5 mb-3"><div class="bg-[#18181B] p-2.5 rounded-lg border border-[#27272A]"><div class="text-[#A1A1AA] font-label-sm text-[10px] uppercase tracking-wider">Reporting Lag</div><div class="font-headline-sm text-white font-semibold mt-0.5">3.2m</div><div class="text-emerald-400 font-label-sm text-[10px] font-medium">-85% from 24h</div></div><div class="bg-[#18181B] p-2.5 rounded-lg border border-[#27272A]"><div class="text-[#A1A1AA] font-label-sm text-[10px] uppercase tracking-wider">Defect Rate</div><div class="font-headline-sm text-white font-semibold mt-0.5">0.14%</div><div class="text-emerald-400 font-label-sm text-[10px] font-medium">Within SLA</div></div><div class="bg-[#18181B] p-2.5 rounded-lg border border-[#27272A]"><div class="text-[#A1A1AA] font-label-sm text-[10px] uppercase tracking-wider">Throughput</div><div class="font-headline-sm text-white font-semibold mt-0.5">14.8k</div><div class="text-[#71717A] font-label-sm text-[10px]">units/shift</div></div></div><div class="flex items-end gap-1.5 h-6 pt-1"><div class="flex-1 bg-emerald-950/60 rounded-t h-3"></div><div class="flex-1 bg-emerald-900/60 rounded-t h-4"></div><div class="flex-1 bg-emerald-800/70 rounded-t h-5"></div><div class="flex-1 bg-emerald-600/70 rounded-t h-3.5"></div><div class="flex-1 bg-emerald-500 rounded-t h-6 opacity-90"></div><div class="flex-1 bg-emerald-600/70 rounded-t h-5.5"></div><div class="flex-1 bg-emerald-500 rounded-t h-6 opacity-90"></div></div></div><h3 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold group-hover:text-[#2563EB] transition-colors">Suzuki QA Analytics</h3><p class="font-body-md text-body-md text-[#475569] mt-2 leading-normal">Automated end-to-end defect tracking and production line metrics pipeline reducing reporting lag by 85%.</p></div><div class="flex flex-wrap gap-1.5 mt-5 pt-4 border-t border-zinc-200"><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">Power BI</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">Python</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">SQL</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">dbt</span></div></article>
+<!-- Card 2: Vendor Defect Intelligence -->
+<article class="bg-white border border-zinc-200 rounded-2xl p-6 shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-[0_8px_30px_-4px_rgba(28,25,23,0.1)] hover:border-zinc-300 transition-all group flex flex-col justify-between"><div><!-- Dark UI Preview Box --><div class="bg-[#121316] border border-[#27272A] rounded-xl p-4 mb-5 font-code-sm text-code-sm shadow-inner"><div class="flex items-center justify-between pb-3 mb-3 border-b border-[#27272A]"><span class="text-[#E4E4E7] font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-sky-500"></span>vendor_anomaly_model.py</span><span class="bg-sky-500/10 text-sky-400 font-label-sm text-label-sm px-2.5 py-0.5 rounded-full border border-sky-500/20 font-medium">Snowflake Sync</span></div><div class="space-y-1.5 mb-3 font-code-sm text-xs"><div class="flex items-center justify-between p-1.5 bg-[#18181B] rounded border border-[#27272A]"><span class="text-[#F4F4F5] font-medium">SUPPLIER_044</span><span class="text-[#A1A1AA]">Z-Score: 3.12</span><span class="bg-rose-500/15 text-rose-300 font-label-sm text-[10px] px-2 py-0.5 rounded border border-rose-500/25 font-medium">High Risk</span></div><div class="flex items-center justify-between p-1.5 bg-[#18181B] rounded border border-[#27272A]"><span class="text-[#F4F4F5] font-medium">SUPPLIER_012</span><span class="text-[#A1A1AA]">Z-Score: 0.84</span><span class="bg-emerald-500/10 text-emerald-400 font-label-sm text-[10px] px-2 py-0.5 rounded border border-emerald-500/20 font-medium">Nominal</span></div><div class="flex items-center justify-between p-1.5 bg-[#18181B] rounded border border-[#27272A]"><span class="text-[#F4F4F5] font-medium">SUPPLIER_089</span><span class="text-[#A1A1AA]">Z-Score: 1.15</span><span class="bg-emerald-500/10 text-emerald-400 font-label-sm text-[10px] px-2 py-0.5 rounded border border-emerald-500/20 font-medium">Nominal</span></div></div><div class="flex items-center justify-between text-[#A1A1AA] text-[11px] pt-1.5 border-t border-[#27272A]"><span class="">Auto-triage workflow</span><span class="text-amber-400 font-medium">24,190 records/hr</span></div></div><h3 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold group-hover:text-[#2563EB] transition-colors">Vendor Defect Intelligence</h3><p class="font-body-md text-body-md text-[#475569] mt-2 leading-normal">Statistical anomaly detection pipeline scoring incoming automotive parts with automated supplier triage.</p></div><div class="flex flex-wrap gap-1.5 mt-5 pt-4 border-t border-zinc-200"><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">Python</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">Snowflake</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">SQL</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">Streamlit</span></div></article>
+<!-- Card 3: Stitching Productivity Live -->
+<article class="bg-white border border-zinc-200 rounded-2xl p-6 shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-[0_8px_30px_-4px_rgba(28,25,23,0.1)] hover:border-zinc-300 transition-all group flex flex-col justify-between"><div><!-- Dark UI Preview Box --><div class="bg-[#121316] border border-[#27272A] rounded-xl p-4 mb-5 font-code-sm text-code-sm shadow-inner"><div class="flex items-center justify-between pb-3 mb-3 border-b border-[#27272A]"><span class="text-[#E4E4E7] font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>ws://iot.factory.telemetry/v1</span><span class="bg-emerald-500/10 text-emerald-400 font-label-sm text-label-sm px-2.5 py-0.5 rounded-full border border-emerald-500/20 font-medium">Live</span></div><div class="space-y-3 mb-3"><div><div class="flex justify-between text-xs font-label-sm mb-1 text-[#A1A1AA]"><span class="">Line A Throughput</span><span class="text-white font-semibold">98.2%</span></div><div class="w-full bg-[#27272A] h-2 rounded-full overflow-hidden"><div class="bg-emerald-500 h-full rounded-full" style="width: 98.2%"></div></div></div><div><div class="flex justify-between text-xs font-label-sm mb-1 text-[#A1A1AA]"><span class="">Line B Throughput</span><span class="text-white font-semibold">92.4%</span></div><div class="w-full bg-[#27272A] h-2 rounded-full overflow-hidden"><div class="bg-blue-500 h-full rounded-full" style="width: 92.4%"></div></div></div></div><div class="flex items-center justify-between text-[#A1A1AA] text-[11px] pt-1.5 border-t border-[#27272A]"><span class="">Telemetry: 128 nodes</span><span class="text-sky-400 font-medium">P99 Latency: 14ms</span></div></div><h3 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold group-hover:text-[#2563EB] transition-colors">Stitching Productivity Live</h3><p class="font-body-md text-body-md text-[#475569] mt-2 leading-normal">Real-time production monitoring platform synchronizing IoT line telemetry to executive display boards.</p></div><div class="flex flex-wrap gap-1.5 mt-5 pt-4 border-t border-zinc-200"><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">Next.js</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">Supabase</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">Tailwind CSS</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">PostgreSQL</span></div></article>
+<!-- Card 4: Automated Rejection Pipeline -->
+<article class="bg-white border border-zinc-200 rounded-2xl p-6 shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-[0_8px_30px_-4px_rgba(28,25,23,0.1)] hover:border-zinc-300 transition-all group flex flex-col justify-between"><div><!-- Obsidian DAG Diagram Box --><div class="bg-[#121316] border border-[#27272A] rounded-xl p-4 mb-5 font-code-sm text-code-sm shadow-inner"><div class="flex items-center justify-between pb-3 mb-3 border-b border-[#27272A]"><span class="text-[#E4E4E7] font-medium flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-400"></span>dag: ingest_rejection_logs</span><span class="bg-purple-500/10 text-purple-300 font-label-sm text-label-sm px-2.5 py-0.5 rounded-full border border-purple-500/20 font-medium">Scheduled</span></div><div class="flex items-center justify-between gap-1 py-3 px-1"><div class="bg-[#18181B] px-2.5 py-1.5 rounded-lg border border-[#3F3F46] text-center"><span class="text-[10px] text-[#A1A1AA] block">SRC</span><span class="text-[11px] font-semibold text-[#F4F4F5]">Extract</span></div><span class="text-zinc-500 text-xs">→</span><div class="bg-[#18181B] px-2.5 py-1.5 rounded-lg border border-[#3F3F46] text-center"><span class="text-[10px] text-[#A1A1AA] block">DBT</span><span class="text-[11px] font-semibold text-[#F4F4F5]">Transform</span></div><span class="text-zinc-500 text-xs">→</span><div class="bg-[#18181B] px-2.5 py-1.5 rounded-lg border border-[#3F3F46] text-center"><span class="text-[10px] text-[#A1A1AA] block">BQ</span><span class="text-[11px] font-semibold text-[#F4F4F5]">Load</span></div><span class="text-zinc-500 text-xs">→</span><div class="bg-[#18181B] px-2.5 py-1.5 rounded-lg border border-[#3F3F46] text-center"><span class="text-[10px] text-[#A1A1AA] block">SLK</span><span class="text-[11px] font-semibold text-[#F4F4F5]">Alert</span></div></div><div class="flex items-center justify-between text-[#A1A1AA] text-[11px] pt-2 border-t border-[#27272A] mt-1"><span class="">Execution health</span><span class="text-emerald-400 font-medium">0 Errors / Last 7d</span></div></div><h3 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold group-hover:text-[#2563EB] transition-colors">Automated Rejection Pipeline</h3><p class="font-body-md text-body-md text-[#475569] mt-2 leading-normal">Event-driven ETL engine parsing defect logs, orchestrating warehouse ingestion and slack alerts.</p></div><div class="flex flex-wrap gap-1.5 mt-5 pt-4 border-t border-zinc-200"><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">Airflow</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">dbt</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">Python</span><span class="bg-surface-container-low border border-zinc-200 text-[#334155] font-code-sm text-code-sm px-2.5 py-1 rounded-md font-medium">BigQuery</span></div></article></div>
+</section>
+<!-- 4. CAPABILITIES & TECH STACK -->
+<section class="max-w-5xl mx-auto px-6 py-12" id="capabilities">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-zinc-950 tracking-tight font-bold">Capabilities &amp; Tech Stack</h2>
+<p class="font-body-md text-body-md text-zinc-500 mt-1">Precision-engineered systems built for high throughput, data consistency, and reliable stakeholder reporting.</p>
+</div>
+<!-- 3-column capabilities row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8"><!-- Card A --><div class="p-6 border border-zinc-200 bg-white rounded-2xl shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-md hover:border-zinc-300 transition-all flex flex-col justify-between"><div><div class="w-10 h-10 rounded-xl bg-[#EFF6FF] border border-[#DBEAFE] text-[#2563EB] flex items-center justify-center mb-4 shadow-xs"><span class="material-symbols-outlined" data-icon="schema">schema</span></div><h3 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold">Data Pipeline Architecture</h3><p class="font-body-md text-body-md text-[#475569] mt-2 leading-normal">Zero-loss ingestion, idempotent transformations, scheduled DAGs, and resilient CDC stream pipelines.</p></div><div class="mt-6 pt-4 border-t border-zinc-200/70 flex items-center gap-1.5 text-[#2563EB] font-label-sm text-label-sm font-semibold"><span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span><span class="">Guaranteed Idempotency</span></div></div><!-- Card B --><div class="p-6 border border-zinc-200 bg-white rounded-2xl shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-md hover:border-zinc-300 transition-all flex flex-col justify-between"><div><div class="w-10 h-10 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#059669] flex items-center justify-center mb-4 shadow-xs"><span class="material-symbols-outlined" data-icon="dashboard">dashboard</span></div><h3 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold">Executive Dashboards</h3><p class="font-body-md text-body-md text-[#475569] mt-2 leading-normal">High-speed DAX/SQL queries, sub-second visual renders, actionable KPIs, and clean visual hierarchy for leadership.</p></div><div class="mt-6 pt-4 border-t border-zinc-200/70 flex items-center gap-1.5 text-[#059669] font-label-sm text-label-sm font-semibold"><span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span><span class="">Sub-second Renders</span></div></div><!-- Card C --><div class="p-6 border border-zinc-200 bg-white rounded-2xl shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-md hover:border-zinc-300 transition-all flex flex-col justify-between"><div><div class="w-10 h-10 rounded-xl bg-[#FAF5FF] border border-[#E9D5FF] text-[#9333EA] flex items-center justify-center mb-4 shadow-xs"><span class="material-symbols-outlined" data-icon="precision_manufacturing">precision_manufacturing</span></div><h3 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold">Automated Decision Systems</h3><p class="font-body-md text-body-md text-[#475569] mt-2 leading-normal">Anomaly detection triggers, automated audit logs, webhook notification pipelines, and intelligent part routing.</p></div><div class="mt-6 pt-4 border-t border-zinc-200/70 flex items-center gap-1.5 text-[#9333EA] font-label-sm text-label-sm font-semibold"><span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span><span class="">Automated Triage</span></div></div></div>
+<!-- Full-Width Toolkit Card -->
+<div class="mt-6 bg-white border rounded-2xl p-6 shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] border-zinc-200">
+<div class="text-zinc-400 font-label-sm text-label-sm font-semibold tracking-wider uppercase mb-4">
+        Core Technical Toolkit
+      </div>
+<div class="flex flex-wrap gap-2.5">
+<span class="bg-white border border-zinc-200 px-3.5 py-1.5 rounded-full font-code-sm text-code-sm text-zinc-800 shadow-xs inline-flex items-center gap-2 hover:border-zinc-300">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span> Python
+        </span>
+<span class="bg-white border border-zinc-200 px-3.5 py-1.5 rounded-full font-code-sm text-code-sm text-zinc-800 shadow-xs inline-flex items-center gap-2 hover:border-zinc-300">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span> SQL
+        </span>
+<span class="bg-white border border-zinc-200 px-3.5 py-1.5 rounded-full font-code-sm text-code-sm text-zinc-800 shadow-xs inline-flex items-center gap-2 hover:border-zinc-300">
+<span class="w-2 h-2 rounded-full bg-orange-600"></span> dbt
+        </span>
+<span class="bg-white border border-zinc-200 px-3.5 py-1.5 rounded-full font-code-sm text-code-sm text-zinc-800 shadow-xs inline-flex items-center gap-2 hover:border-zinc-300">
+<span class="w-2 h-2 rounded-full bg-cyan-400"></span> Snowflake
+        </span>
+<span class="bg-white border border-zinc-200 px-3.5 py-1.5 rounded-full font-code-sm text-code-sm text-zinc-800 shadow-xs inline-flex items-center gap-2 hover:border-zinc-300">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span> Power BI
+        </span>
+<span class="bg-white border border-zinc-200 px-3.5 py-1.5 rounded-full font-code-sm text-code-sm text-zinc-800 shadow-xs inline-flex items-center gap-2 hover:border-zinc-300">
+<span class="w-2 h-2 rounded-full bg-teal-500"></span> Airflow
+        </span>
+<span class="bg-white border border-zinc-200 px-3.5 py-1.5 rounded-full font-code-sm text-code-sm text-zinc-800 shadow-xs inline-flex items-center gap-2 hover:border-zinc-300">
+<span class="w-2 h-2 rounded-full bg-zinc-900"></span> Next.js
+        </span>
+<span class="bg-white border border-zinc-200 px-3.5 py-1.5 rounded-full font-code-sm text-code-sm text-zinc-800 shadow-xs inline-flex items-center gap-2 hover:border-zinc-300">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Supabase
+        </span>
+<span class="bg-white border border-zinc-200 px-3.5 py-1.5 rounded-full font-code-sm text-code-sm text-zinc-800 shadow-xs inline-flex items-center gap-2 hover:border-zinc-300">
+<span class="w-2 h-2 rounded-full bg-blue-600"></span> PostgreSQL
+        </span>
+<span class="bg-white border border-zinc-200 px-3.5 py-1.5 rounded-full font-code-sm text-code-sm text-zinc-800 shadow-xs inline-flex items-center gap-2 hover:border-zinc-300">
+<span class="w-2 h-2 rounded-full bg-sky-500"></span> Docker
+        </span>
 </div>
 </div>
 </section>
-<!-- Filter Tabs Script -->
-<script>
-        (function() {
-          const filters = [
-            { id: 'filter-all', active: true },
-            { id: 'filter-bi', active: false },
-            { id: 'filter-pipelines', active: false },
-            { id: 'filter-auto', active: false }
-          ];
-
-          filters.forEach(f => {
-            const btn = document.getElementById(f.id);
-            if (btn) {
-              btn.addEventListener('click', () => {
-                filters.forEach(item => {
-                  const el = document.getElementById(item.id);
-                  if (el) {
-                    el.className = 'px-3.5 py-1.5 rounded-md text-on-surface-variant hover:text-white text-xs font-medium transition-colors';
-                  }
-                });
-                btn.className = 'px-3.5 py-1.5 rounded-md bg-surface-container text-white text-xs font-medium border border-border-subtle shadow-sm transition-colors';
-              });
-            }
-          });
-        })();
-      </script>
+<!-- 5. LATEST WRITING -->
+<section class="max-w-5xl mx-auto px-6 py-12" id="articles">
+<div class="flex items-end justify-between pb-8 border-b border-zinc-200/70">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-zinc-950 tracking-tight font-bold">Latest Writing</h2>
+<p class="font-body-md text-body-md text-zinc-500 mt-1">Deep dives into data pipelines, analytical architectures, and engineering systems.</p>
 </div>
-</main>
-<!-- EDITORIAL ENTERPRISE FOOTER -->
-<footer class="w-full bg-surface-container-lowest border-t border-border-subtle">
-<div class="max-w-7xl mx-auto px-6 lg:px-12 py-16 lg:py-20">
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-16">
-<div class="lg:col-span-2 flex flex-col gap-4">
+<a class="text-label-md font-label-md text-[#2563EB] hover:text-[#1D4ED8] hover:underline font-semibold" href="#articles">Read all articles →</a>
+</div>
+<!-- 3-column blog card grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8"><!-- Article 1 --><article class="bg-white border border-zinc-200 rounded-2xl p-6 shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-md hover:border-zinc-300 transition-all flex flex-col justify-between group"><div><div class="flex items-center justify-between text-[#64748B] font-label-sm text-label-sm mb-4"><span class="bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] px-2.5 py-0.5 rounded-full font-semibold">Engineering</span><span class="">6 min read</span></div><h3 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold group-hover:text-[#2563EB] transition-colors">Building Idempotent Data Pipelines with dbt &amp; SQL</h3><p class="font-body-md text-body-md text-[#475569] mt-2.5 leading-normal">How stateful models fail, implementing deduplication keys, and enforcing zero-side-effect transformations.</p></div><div class="mt-6 pt-4 border-t border-zinc-200/70 font-label-md text-label-md text-[#64748B] group-hover:text-[#2563EB] transition-colors font-medium flex items-center justify-between"><span class="">May 2024</span><span class="">→</span></div></article><!-- Article 2 --><article class="bg-white border border-zinc-200 rounded-2xl p-6 shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-md hover:border-zinc-300 transition-all flex flex-col justify-between group"><div><div class="flex items-center justify-between text-[#64748B] font-label-sm text-label-sm mb-4"><span class="bg-[#EFF6FF] text-[#1E40AF] border border-[#DBEAFE] px-2.5 py-0.5 rounded-full font-semibold">Analytics</span><span class="">4 min read</span></div><h3 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold group-hover:text-[#2563EB] transition-colors">Designing Executive Dashboards That People Actually Use</h3><p class="font-body-md text-body-md text-[#475569] mt-2.5 leading-normal">Moving past vanity charts. A framework for structuring high-leverage KPI hierarchies and rapid query responses.</p></div><div class="mt-6 pt-4 border-t border-zinc-200/70 font-label-md text-label-md text-[#64748B] group-hover:text-[#2563EB] transition-colors font-medium flex items-center justify-between"><span class="">Apr 2024</span><span class="">→</span></div></article><!-- Article 3 --><article class="bg-white border border-zinc-200 rounded-2xl p-6 shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-md hover:border-zinc-300 transition-all flex flex-col justify-between group"><div><div class="flex items-center justify-between text-[#64748B] font-label-sm text-label-sm mb-4"><span class="bg-[#F5F3FF] text-[#5B21B6] border border-[#DDD6FE] px-2.5 py-0.5 rounded-full font-semibold">Architecture</span><span class="">8 min read</span></div><h3 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold group-hover:text-[#2563EB] transition-colors">Sub-Second Data Freshness: Streaming Operational Metrics</h3><p class="font-body-md text-body-md text-[#475569] mt-2.5 leading-normal">Bridging PostgreSQL change streams to modern warehouse engines for real-time factory floor visibility.</p></div><div class="mt-6 pt-4 border-t border-zinc-200/70 font-label-md text-label-md text-[#64748B] group-hover:text-[#2563EB] transition-colors font-medium flex items-center justify-between"><span class="">Feb 2024</span><span class="">→</span></div></article></div>
+</section>
+<!-- 6. CTA CARD & FOOTER -->
+<section class="max-w-5xl mx-auto px-6 pt-6 pb-16" id="contact">
+<!-- CTA Card -->
+<div class="rounded-3xl border bg-gradient-to-b from-white p-8 sm:p-12 md:p-14 shadow-[0_8px_30px_-4px_rgba(28,25,23,0.06)] relative overflow-hidden border-zinc-200 bg-white">
+<div class="relative z-10 max-w-2xl">
+<h2 class="font-display-lg text-3xl sm:text-4xl md:text-5xl text-zinc-950 font-bold tracking-tight">
+          Let's build something together
+        </h2>
+<p class="font-body-lg text-body-lg text-zinc-600 mt-3 leading-relaxed">
+          Available for contract roles, data architecture consulting, and high-impact analytics engineering. Let's discuss your data systems.
+        </p>
+<div class="flex flex-wrap items-center gap-3.5 mt-8">
+<a class="bg-zinc-950 hover:bg-zinc-800 text-white font-label-md text-label-md px-6 py-3 rounded-full inline-flex items-center gap-2 shadow-sm transition-all active:scale-[0.98]" href="mailto:contact@essa.dev">
+<span class="">Get in touch</span>
+<span class="">→</span>
+</a>
+<button class="bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-800 font-code-sm text-code-sm px-4 py-3 rounded-full transition-colors shadow-xs" onclick="navigator.clipboard.writeText('essa@example.com'); this.innerText='Copied to Clipboard!';">
+            essa@example.com
+          </button>
+</div>
+</div>
+</div>
+</section>
+<!-- FOOTER (Shared Component Anchor) -->
+<footer class="w-full border-t bg-surface border-zinc-200">
+<div class="w-full max-w-5xl mx-auto px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-4">
 <div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded-md bg-surface-container-high border border-border-subtle flex items-center justify-center text-champagne">
-<span class="material-symbols-outlined text-[18px]">dataset</span>
+<span class="text-headline-sm font-headline-sm text-on-surface font-bold tracking-tight">Essa Ahmed</span>
+<span class="text-on-surface-variant font-body-sm text-body-sm">© 2025 Essa Ahmed. Built with precision.</span>
 </div>
-<span class="font-headline-sm text-base font-bold text-white tracking-tight">Essa Ahmed</span>
-</div>
-<p class="font-body-md text-xs sm:text-sm text-on-surface-variant font-light max-w-sm leading-relaxed">
-            Senior Analytics Engineer specializing in enterprise decision systems, scalable data transformation, and reliable warehouse modeling. Turning operational data into trusted telemetry.
-          </p>
-<div class="flex items-center gap-2 font-label-code text-xs text-tertiary mt-2">
-<span class="material-symbols-outlined text-[16px]">check_circle</span>
-<span>Production Pipelines Operational</span>
-</div>
-</div>
-<div class="flex flex-col gap-3">
-<span class="font-headline-sm text-sm font-semibold text-white tracking-wide">Navigation</span>
-<ul class="flex flex-col gap-2.5 font-body-sm text-xs text-on-surface-variant font-light">
-<li><a class="hover:text-champagne transition-colors" data-path="home" href="#">Home</a></li>
-<li><a class="hover:text-champagne transition-colors" data-path="projects" href="#featured-work">Data Projects</a></li>
-<li><a class="hover:text-champagne transition-colors" data-path="articles" href="#">Architecture Notes</a></li>
-<li><a class="hover:text-champagne transition-colors" data-path="about" href="#">About &amp; Resume</a></li>
-</ul>
-</div>
-<div class="flex flex-col gap-3">
-<span class="font-headline-sm text-sm font-semibold text-white tracking-wide">Capabilities</span>
-<ul class="flex flex-col gap-2.5 font-body-sm text-xs text-on-surface-variant font-light">
-<li><span class="hover:text-white transition-colors">dbt &amp; Data Modeling</span></li>
-<li><span class="hover:text-white transition-colors">Warehouse Architecture</span></li>
-<li><span class="hover:text-white transition-colors">Telemetry &amp; Metrics Layer</span></li>
-<li><span class="hover:text-white transition-colors">BI &amp; Executive Cockpits</span></li>
-</ul>
-</div>
-<div class="flex flex-col gap-3">
-<span class="font-headline-sm text-sm font-semibold text-white tracking-wide">Connect</span>
-<ul class="flex flex-col gap-2.5 font-body-sm text-xs text-on-surface-variant font-light">
-<li><a class="flex items-center gap-1.5 hover:text-champagne transition-colors" href="#"><span class="material-symbols-outlined text-[16px]">link</span><span>LinkedIn</span></a></li>
-<li><a class="flex items-center gap-1.5 hover:text-champagne transition-colors" href="#"><span class="material-symbols-outlined text-[16px]">terminal</span><span>GitHub</span></a></li>
-<li><a class="flex items-center gap-1.5 hover:text-champagne transition-colors" data-path="contact" href="#contact-section"><span class="material-symbols-outlined text-[16px]">alternate_email</span><span>Email Contact</span></a></li>
-<li><span class="font-label-code text-[11px] text-text-muted mt-1">Timezone: UTC+3</span></li>
-</ul>
-</div>
-</div>
-<div class="pt-8 border-t border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-4 font-label-code text-xs text-text-muted">
-<p>© 2025 Essa Ahmed. Analytics Architecture &amp; Engineering. All rights reserved.</p>
-<div class="flex items-center gap-6">
-<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-champagne"></span><span>Data-first Precision</span></span>
-<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span>99.9% Uptime SLA</span></span>
-</div>
+<div class="flex items-center gap-6 font-label-sm text-label-sm">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="https://github.com" rel="noreferrer" target="_blank">GitHub</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="https://twitter.com" rel="noreferrer" target="_blank">Twitter / X</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="https://linkedin.com" rel="noreferrer" target="_blank">LinkedIn</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="/rss.xml">RSS</a>
 </div>
 </div>
 </footer>
+
+
+
+
 </body></html>
+

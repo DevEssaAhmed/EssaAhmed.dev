@@ -1,38 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
-import Link from "next/link";
-import { Suspense, useMemo } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ArrowRight,
-  AtSign,
-  Globe,
-  Layers,
-  Link as LinkIcon,
-  Mail,
-  ShieldCheck,
-  Terminal,
-  Timer,
-  Users,
-} from "lucide-react";
-import { useProfile } from "@/contexts/ProfileContext";
-import Reveal from "@/components/ui/reveal";
 import FeaturedWork from "@/components/home/FeaturedWork";
 import CapabilitiesSection from "@/components/home/CapabilitiesSection";
-
-import dynamic from "next/dynamic";
-
-const OptimizedContactForm = dynamic(() => import("@/components/OptimizedContactForm"), {
-  loading: () => (
-    <div className="rounded-2xl border border-border p-8 bg-surface-low">
-      <Skeleton className="h-6 w-1/2 mb-4" />
-      <Skeleton className="h-10 w-full mb-3" />
-      <Skeleton className="h-10 w-full" />
-    </div>
-  ),
-});
+import { useProfile } from "@/contexts/ProfileContext";
+import { extractArticleExternalMeta } from "@/data/externalArticlesStore";
 
 interface IndexProps {
   initialProjects?: any[];
@@ -40,292 +15,277 @@ interface IndexProps {
   initialArticles?: any[];
 }
 
-const Index = (_props: IndexProps) => {
+const Index = ({
+  initialProjects = [],
+  initialProjectCategories = [],
+  initialArticles = [],
+}: IndexProps) => {
   const { profile } = useProfile();
-
-  /* KPI strip — values come from the profile when present, otherwise design defaults */
-  const kpis = useMemo(() => {
-    const profileStats = profile?.stats;
-    const parsed = profileStats
-      ? typeof profileStats === "string"
-        ? JSON.parse(profileStats)
-        : profileStats
-      : null;
-
-    return [
-      {
-        eyebrow: "Production",
-        icon: Layers,
-        iconClass: "text-champagne-dim",
-        value: parsed?.projectsLed?.value || "15+",
-        title: "Projects Led",
-        caption: "End-to-end telemetry architecture",
-      },
-      {
-        eyebrow: "Engineering",
-        icon: Timer,
-        iconClass: "text-blue-200",
-        value: parsed?.hoursAnalyzed?.value || "500+",
-        title: "Hours Analyzed",
-        caption: "Automated defect & query profiling",
-      },
-      {
-        eyebrow: "Stakeholders",
-        icon: Users,
-        iconClass: "text-tertiary",
-        value: parsed?.clientsServed?.value || "50+",
-        title: "Clients Served",
-        caption: "Global manufacturing & SaaS operations",
-      },
-      {
-        eyebrow: "Reliability",
-        icon: ShieldCheck,
-        iconClass: "text-lavender",
-        value: "99.8%",
-        title: "Data Accuracy SLA",
-        badge: `Analytics · ${new Date().getFullYear()} Ready`,
-      },
-    ];
-  }, [profile?.stats]);
+  const [copiedEmail, setCopiedEmail] = useState(false);
 
   const email = profile?.email || "essaahmedsiddiqui@gmail.com";
-  const location = profile?.location || "Karachi, Pakistan · Open to Worldwide Remote";
+  const githubUrl = profile?.github_url || "https://github.com/DevEssaAhmed";
+  const linkedinUrl = profile?.linkedin_url || "https://www.linkedin.com/in/essa-ahmed";
+
+  // Strictly use real published articles from Supabase (hide section if 0 published articles)
+  const publishedArticles = (initialArticles || []).slice(0, 3);
+
+  const handleCopyEmail = () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(email);
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 2000);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-surface text-on-surface antialiased relative min-h-screen selection:bg-amber-100 selection:text-amber-900 dark:selection:bg-primary dark:selection:text-on-primary overflow-x-hidden transition-colors duration-200">
+      {/* Background Ambient Spotlight Glow (Warm Amber & Cobalt in Light Mode, Luminous Cones in Dark Mode) */}
+      <div className="pointer-events-none fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[420px] bg-[radial-gradient(ellipse_at_top,_rgba(245,158,11,0.08),_rgba(37,99,235,0.04)_40%,_transparent_75%)] dark:hidden -z-10" />
+      <div className="hidden dark:block fixed top-[-100px] left-[-100px] w-[550px] h-[550px] rounded-full bg-primary/10 blur-[130px] pointer-events-none -z-10" />
+      <div className="hidden dark:block fixed bottom-[-100px] right-[-100px] w-[600px] h-[600px] rounded-full bg-secondary/10 blur-[140px] pointer-events-none -z-10" />
+
+      {/* 1. TOP NAVIGATION BAR */}
       <Navigation />
 
-      <main id="main-content" role="main" aria-label="Main content" className="w-full pt-20 bg-background">
-        <div className="flex flex-col w-full relative">
-          {/* Editorial atmospheric gradient mesh */}
-          <div className="absolute top-0 inset-x-0 h-[720px] pointer-events-none overflow-hidden -z-0" aria-hidden="true">
-            <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/15 via-indigo-950/10 to-transparent blur-[140px]" />
-            <div className="absolute top-[5%] right-[10%] w-[400px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#b89f72]/10 to-transparent blur-[160px]" />
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:48px_48px]" />
+      <main id="main-content" tabIndex={-1} className="w-full">
+        {/* 2. HERO SECTION */}
+        <section
+          className="max-w-[1080px] mx-auto pt-16 pb-14 px-6 text-left flex flex-col items-start gap-6"
+          id="home"
+        >
+          {/* Status Pill */}
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/30 text-secondary text-label-sm font-label-sm tracking-wide">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary" />
+            </span>
+            <span>Available for new projects &amp; consulting</span>
           </div>
 
-          {/* ══════════ HERO: EXECUTIVE EDITORIAL ══════════ */}
-          <section
-            className="w-full max-w-7xl mx-auto px-6 lg:px-12 pt-20 pb-20 relative"
-            aria-label="Hero section"
-          >
-            <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
-              <Reveal>
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-high border border-border mb-10">
-                  <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" />
-                  <span className="font-mono text-[12px] tracking-wider uppercase text-ink-soft">
-                    Available for analytics roles &amp; projects
-                  </span>
-                </div>
-              </Reveal>
+          {/* Main Headline */}
+          <h1 className="text-on-surface font-headline-lg text-4xl sm:text-5xl lg:text-[52px] leading-[1.15] tracking-tight font-extrabold max-w-4xl">
+            Hey, I&apos;m {profile?.name || "Essa Ahmed"}. I build automation workflows, supply chain demand models &amp; analytics systems.
+          </h1>
 
-              <Reveal delay={60}>
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="font-mono text-xs uppercase tracking-[0.25em] text-champagne-dim">
-                    Hi, I&apos;m {profile?.name || "Essa Ahmed"}
-                  </span>
-                  <span className="w-4 h-px bg-border" />
-                  <span className="font-mono text-xs uppercase tracking-[0.2em] text-ink-soft">Analytics Engineer</span>
-                </div>
-              </Reveal>
+          {/* 2-Line Subtitle */}
+          <p className="text-on-surface-variant font-body-lg text-body-lg max-w-3xl leading-relaxed">
+            Bridging supply chain operations, end-to-end process automation, and decision analytics—turning complex operational data into self-running workflows and clear forecasts.
+          </p>
 
-              <Reveal delay={90}>
-                <h1 className="font-display text-4xl sm:text-5xl lg:text-[62px] font-bold tracking-[-0.03em] leading-[1.12] text-foreground mb-8 max-w-4xl">
-                  I engineer{" "}
-                  <span className="text-white font-extrabold underline decoration-champagne/40 decoration-2 underline-offset-8">
-                    decision systems
-                  </span>
-                  , focusing on data reliability and{" "}
-                  <span className="bg-gradient-to-r from-champagne via-white to-blue-200 bg-clip-text text-transparent">
-                    creating impact.
-                  </span>
-                </h1>
-              </Reveal>
-
-              <Reveal delay={120}>
-                <p className="text-base sm:text-lg text-ink-soft max-w-2xl font-light leading-relaxed mb-12">
-                  From raw data to dashboards and decision systems—built with accuracy, automation, and scale in mind.
-                </p>
-              </Reveal>
-
-              <Reveal delay={160}>
-                <div className="flex flex-wrap items-center justify-center gap-4">
-                  <Link
-                    href="/projects"
-                    className="px-7 py-3.5 rounded-lg bg-champagne text-[#090c13] font-display text-sm font-semibold tracking-wide hover:bg-white transition-all shadow-[0_1px_20px_rgba(243,232,210,0.15)] flex items-center gap-2 group"
-                  >
-                    <span>View Case Studies</span>
-                    <ArrowRight className="w-[18px] h-[18px] group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                  <a
-                    href="#contact"
-                    className="px-7 py-3.5 rounded-lg bg-surface-container border border-border text-foreground hover:border-champagne/40 text-sm font-medium tracking-wide transition-colors flex items-center gap-2"
-                  >
-                    <Mail className="w-[18px] h-[18px] text-champagne-dim" />
-                    <span>Contact</span>
-                  </a>
-                </div>
-              </Reveal>
+          {/* Domain Focus Pills (3 Equal Pillars) */}
+          <div className="flex flex-wrap gap-3 pt-2">
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
+              <span className="material-symbols-outlined text-primary text-[18px]">bolt</span>
+              <span>⚡ Process &amp; Workflow Automation</span>
             </div>
-          </section>
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
+              <span className="material-symbols-outlined text-secondary text-[18px]">inventory_2</span>
+              <span>📦 Supply Chain &amp; Demand Planning</span>
+            </div>
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
+              <span className="material-symbols-outlined text-tertiary-fixed-dim text-[18px]">query_stats</span>
+              <span>📊 Executive Analytics &amp; BI</span>
+            </div>
+          </div>
 
-          {/* ══════════ EXECUTIVE KPI STRIP ══════════ */}
-          <section className="w-full max-w-7xl mx-auto px-6 lg:px-12 mb-28 relative" aria-label="Key metrics">
-            <Reveal>
-              <div className="rounded-2xl bg-surface-low border border-border grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-border shadow-2xl backdrop-blur-sm">
-                {kpis.map((kpi) => {
-                  const Icon = kpi.icon;
-                  return (
-                    <div key={kpi.title} className="p-6 sm:p-8 flex flex-col justify-between">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="font-mono text-[11px] uppercase tracking-widest text-ink-muted">
-                          {kpi.eyebrow}
-                        </span>
-                        <Icon className={`w-[19px] h-[19px] ${kpi.iconClass}`} />
-                      </div>
-                      <div>
-                        <div className="font-display text-4xl lg:text-[44px] font-bold text-white tracking-tight mb-2">
-                          {kpi.value}
-                        </div>
-                        <div className="text-[14px] font-medium text-foreground">{kpi.title}</div>
-                        {kpi.caption && (
-                          <div className="text-[12px] text-ink-muted mt-1">{kpi.caption}</div>
-                        )}
-                        {kpi.badge && (
-                          <div className="inline-flex items-center gap-2 mt-2 px-2.5 py-0.5 rounded bg-surface-high border border-border font-mono text-[11px] text-champagne">
-                            <span className="w-1.5 h-1.5 rounded-full bg-champagne" />
-                            <span>{kpi.badge}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </Reveal>
-          </section>
+          {/* Action Buttons Row */}
+          <div className="flex flex-wrap items-center gap-4 pt-3">
+            {initialProjects.length > 0 && (
+              <a
+                className="text-surface bg-on-surface font-label-md text-label-md font-semibold px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2"
+                href="#projects"
+              >
+                <span>Explore Work</span>
+                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </a>
+            )}
+            <a
+              className="bg-surface-container border border-outline-variant/40 text-on-surface font-label-md text-label-md px-6 py-3 rounded-full hover:bg-surface-container-high active:scale-[0.98] transition-all"
+              href="#contact"
+            >
+              Contact Me
+            </a>
+            <div className="flex items-center gap-2.5 ml-1">
+              <a
+                aria-label="GitHub"
+                className="w-11 h-11 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline transition-all"
+                href={githubUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <span className="material-symbols-outlined text-[18px]">code</span>
+              </a>
+              <a
+                aria-label="LinkedIn"
+                className="w-11 h-11 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline transition-all"
+                href={linkedinUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <span className="material-symbols-outlined text-[18px]">work</span>
+              </a>
+              <a
+                aria-label="Email"
+                className="w-11 h-11 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline transition-all"
+                href={`mailto:${email}`}
+              >
+                <span className="material-symbols-outlined text-[18px]">mail</span>
+              </a>
+            </div>
+          </div>
+        </section>
 
-          {/* ══════════ FEATURED WORK ══════════ */}
-          <FeaturedWork />
+        {/* 3. SELECTED PROJECTS (Automatically hidden if 0 projects in Supabase) */}
+        <FeaturedWork
+          initialProjects={initialProjects}
+          initialCategories={initialProjectCategories}
+        />
 
-          {/* ══════════ DECISION SYSTEMS ARCHITECTURE ══════════ */}
-          <CapabilitiesSection />
+        {/* 4. CORE CAPABILITIES & TECH STACK (3 Equal Pillars - NO FAKE METRICS) */}
+        <CapabilitiesSection />
 
-          {/* ══════════ CONTACT ══════════ */}
-          <section
-            id="contact"
-            className="w-full max-w-7xl mx-auto px-6 lg:px-12 mb-28 scroll-mt-24"
-            aria-labelledby="contact-heading"
-          >
-            <Reveal>
-              <div className="text-center max-w-2xl mx-auto mb-16">
-                <div className="eyebrow mb-3 justify-center">Engagement &amp; Inquiry</div>
-                <h2
-                  id="contact-heading"
-                  className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white"
-                >
-                  Get In Touch
+        {/* 5. LATEST WRITING (Dynamically hidden when 0 published articles in Supabase) */}
+        {publishedArticles.length > 0 && (
+          <section className="max-w-[1080px] mx-auto py-12 px-6" id="articles">
+            <div className="flex items-center justify-between pb-8 border-b border-outline-variant/20 mb-8">
+              <div>
+                <h2 className="text-2xl font-headline-md font-bold text-on-surface tracking-tight">
+                  Latest Writing
                 </h2>
-                <p className="text-sm sm:text-base text-ink-soft mt-2 font-light">
-                  Have a project in mind or want to collaborate? I&apos;d love to hear from you!
+                <p className="text-on-surface-variant font-body-md text-body-md mt-1">
+                  Notes on supply chain forecasting, pipeline automation, and executive dashboards.
                 </p>
               </div>
-            </Reveal>
+              <Link
+                className="text-primary text-label-md font-label-md flex items-center gap-1 hover:underline"
+                href="/articles"
+              >
+                <span>Read all articles</span>
+                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </Link>
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-              {/* Consultation brief */}
-              <div className="lg:col-span-5">
-                <Reveal delay={60} className="h-full">
-                  <div className="h-full p-8 lg:p-10 rounded-2xl bg-surface-low border border-border flex flex-col justify-between shadow-xl">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {publishedArticles.map((article) => {
+                const extMeta = extractArticleExternalMeta(article);
+                const isExternal = extMeta.isExternal && Boolean(extMeta.externalUrl);
+                const platform = extMeta.platform || "On Site";
+                const href = isExternal
+                  ? extMeta.externalUrl!
+                  : `/articles/${encodeURIComponent(article.slug || article.id)}`;
+                const formattedDate = article.created_at
+                  ? new Date(article.created_at).toLocaleDateString("en-US", {
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : "Recent";
+
+                const badgeClass =
+                  platform === "Medium"
+                    ? "bg-secondary/10 border-secondary/30 text-secondary"
+                    : platform === "dev.to"
+                    ? "bg-tertiary-container/20 border-tertiary-container/40 text-tertiary"
+                    : "bg-primary/10 border-primary/30 text-primary";
+
+                const cardInner = (
+                  <>
                     <div>
-                      <h3 className="font-display text-xl lg:text-2xl font-bold text-white tracking-tight mb-4">
-                        Let&apos;s Build Something Together
-                      </h3>
-                      <p className="text-[14px] text-ink-soft font-light leading-relaxed mb-8">
-                        Whether it&apos;s a data pipeline, an analytics dashboard, or a full decision system — I&apos;m here
-                        to help turn your data into impact.
-                      </p>
-
-                      <div className="flex flex-col gap-4">
-                        <a
-                          href={`mailto:${email}`}
-                          className="flex items-center gap-4 p-4 rounded-xl bg-surface-container border border-border hover:border-champagne/30 transition-all group"
+                      <div className="flex items-center justify-between mb-4">
+                        <span
+                          className={`px-2.5 py-1 rounded-full border text-label-sm font-label-sm font-semibold ${badgeClass}`}
                         >
-                          <div className="w-10 h-10 rounded-lg bg-surface-high flex items-center justify-center text-champagne group-hover:bg-champagne group-hover:text-[#090c13] transition-colors">
-                            <AtSign className="w-5 h-5" />
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="font-mono text-[11px] text-ink-muted uppercase tracking-wider">Direct Email</span>
-                            <span className="font-display text-sm text-white truncate mt-0.5">{email}</span>
-                          </div>
-                        </a>
-                        <div className="flex items-center gap-4 p-4 rounded-xl bg-surface-container border border-border">
-                          <div className="w-10 h-10 rounded-lg bg-surface-high flex items-center justify-center text-tertiary">
-                            <Globe className="w-5 h-5" />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-mono text-[11px] text-ink-muted uppercase tracking-wider">Location</span>
-                            <span className="font-display text-sm text-white mt-0.5">{location}</span>
-                          </div>
-                        </div>
+                          {isExternal ? `${platform} ↗` : "On Site"}
+                        </span>
+                        {article.reading_time ? (
+                          <span className="text-on-surface-variant text-label-sm font-code">
+                            {article.reading_time} min read
+                          </span>
+                        ) : null}
                       </div>
+                      <h3 className="text-headline-sm font-headline-sm text-on-surface group-hover:text-primary transition-colors leading-snug">
+                        {article.title}
+                      </h3>
+                      <p className="text-on-surface-variant font-body-md text-body-md mt-3 leading-relaxed line-clamp-3">
+                        {article.excerpt}
+                      </p>
                     </div>
-
-                    <div className="mt-10 pt-6 border-t border-border flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        {profile?.linkedin_url && (
-                          <a
-                            href={profile.linkedin_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3 py-1.5 rounded-lg bg-surface-container border border-border text-ink-soft hover:text-white transition-colors flex items-center gap-1.5 font-mono text-xs"
-                          >
-                            <LinkIcon className="w-[15px] h-[15px]" />
-                            <span>LinkedIn</span>
-                          </a>
-                        )}
-                        {profile?.github_url && (
-                          <a
-                            href={profile.github_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3 py-1.5 rounded-lg bg-surface-container border border-border text-ink-soft hover:text-white transition-colors flex items-center gap-1.5 font-mono text-xs"
-                          >
-                            <Terminal className="w-[15px] h-[15px]" />
-                            <span>GitHub</span>
-                          </a>
-                        )}
-                      </div>
-                      <span className="font-mono text-[12px] text-tertiary flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" />
-                        <span>Online</span>
-                      </span>
+                    <div className="flex items-center justify-between pt-6 mt-4 border-t border-outline-variant/20 text-on-surface-variant text-label-sm font-code">
+                      <span>{formattedDate}</span>
+                      {isExternal ? (
+                        <span className="material-symbols-outlined text-on-surface text-[16px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                          north_east
+                        </span>
+                      ) : (
+                        <span className="text-primary font-label-sm font-medium flex items-center gap-1 group-hover:underline">
+                          Read Article →
+                        </span>
+                      )}
                     </div>
-                  </div>
-                </Reveal>
-              </div>
+                  </>
+                );
 
-              {/* Project brief form */}
-              <div className="lg:col-span-7">
-                <Reveal delay={120} className="h-full">
-                  <Suspense
-                    fallback={
-                      <div className="rounded-2xl border border-border p-8 bg-surface-low">
-                        <Skeleton className="h-6 w-1/2 mb-4" />
-                        <Skeleton className="h-10 w-full mb-3" />
-                        <Skeleton className="h-10 w-full" />
-                      </div>
-                    }
+                return isExternal ? (
+                  <a
+                    key={article.id}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
                   >
-                    <OptimizedContactForm />
-                  </Suspense>
-                </Reveal>
-              </div>
+                    {cardInner}
+                  </a>
+                ) : (
+                  <Link
+                    key={article.id}
+                    href={href}
+                    className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
+                  >
+                    {cardInner}
+                  </Link>
+                );
+              })}
             </div>
           </section>
-        </div>
+        )}
+
+        {/* 7. CTA BANNER */}
+        <section className="max-w-[1080px] mx-auto py-12 px-6" id="contact">
+          <div className="rounded-3xl bg-gradient-to-b from-surface-container-low to-surface-container-lowest border border-outline-variant/30 p-10 md:p-14 text-center relative overflow-hidden shadow-2xl">
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-40 bg-primary/20 blur-[90px] pointer-events-none" />
+            <span className="inline-block px-3.5 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-outline text-label-sm font-label-sm uppercase tracking-wider mb-6">
+              • INITIATE ENGAGEMENT
+            </span>
+            <h2 className="text-3xl md:text-4xl font-headline-lg font-bold text-on-surface tracking-tight max-w-2xl mx-auto">
+              Let&apos;s build something resilient together.
+            </h2>
+            <p className="text-on-surface-variant font-body-lg text-body-lg max-w-xl mx-auto mt-4 leading-relaxed">
+              Available for supply chain analytics advisory, custom Python workflow automation, and high-impact executive BI engineering.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
+              <a
+                className="bg-on-surface text-surface font-label-md text-label-md font-semibold px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2 shadow-lg"
+                href={`mailto:${email}`}
+              >
+                <span>Get in touch</span>
+                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </a>
+              <button
+                type="button"
+                className="bg-surface-container border border-outline-variant/40 text-on-surface font-code text-label-md px-5 py-3 rounded-full hover:bg-surface-container-high active:scale-[0.98] transition-all flex items-center gap-2"
+                onClick={handleCopyEmail}
+              >
+                <span>{copiedEmail ? "Copied to clipboard!" : email}</span>
+                <span className="material-symbols-outlined text-[16px] text-outline">
+                  {copiedEmail ? "check" : "content_copy"}
+                </span>
+              </button>
+            </div>
+          </div>
+        </section>
       </main>
 
+      {/* 8. FOOTER */}
       <OptimizedFooter />
     </div>
   );

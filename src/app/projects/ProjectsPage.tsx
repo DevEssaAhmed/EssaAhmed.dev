@@ -1,265 +1,405 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import ProjectCard from "@/components/ProjectCard";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { FolderSearch, Search, X, Layers, Database, Sparkles } from "lucide-react";
+import Navigation from "@/components/Navigation";
+import OptimizedFooter from "@/components/OptimizedFooter";
+import { cleanMarkdownExcerpt } from "@/lib/clean-markdown";
 
-type ProjectItem = {
+interface ProjectItem {
   id: string;
   title: string;
   description: string;
   image: string;
   tags: string[];
   category: string;
-  demoUrl?: string;
-  githubUrl?: string;
-  views: number;
-  likes: number;
-  comments: number;
-};
+  featured?: boolean;
+  demoUrl?: string | null;
+  githubUrl?: string | null;
+}
 
-type ProjectsPageProps = {
+interface ProjectsPageProps {
   initialProjects?: ProjectItem[];
-};
+}
 
-const ProjectsPage = ({ initialProjects = [] }: ProjectsPageProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
+export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps) {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Derive all unique categories from projects
   const categories = useMemo(() => {
-    const cats = new Set<string>();
-    initialProjects.forEach((p) => {
-      if (p.category && p.category.trim() && p.category !== "Uncategorized") {
-        cats.add(p.category.trim());
-      }
-    });
-    return ["All", ...Array.from(cats).sort()];
+    const dynamic = Array.from(
+      new Set(initialProjects.map((p) => p.category).filter(Boolean))
+    );
+    return ["All", ...dynamic];
   }, [initialProjects]);
 
-  // Filter projects by category and search query
   const filteredProjects = useMemo(() => {
-    return initialProjects.filter((p) => {
+    return initialProjects.filter((project) => {
       const matchesCategory =
         selectedCategory === "All" ||
-        p.category?.toLowerCase() === selectedCategory.toLowerCase();
-
-      if (!matchesCategory) return false;
-
-      if (!searchQuery.trim()) return true;
-      const q = searchQuery.toLowerCase().trim();
-      const titleMatch = p.title?.toLowerCase().includes(q);
-      const descMatch = p.description?.toLowerCase().includes(q);
-      const tagMatch = p.tags?.some((t) => t.toLowerCase().includes(q));
-      const catMatch = p.category?.toLowerCase().includes(q);
-
-      return Boolean(titleMatch || descMatch || tagMatch || catMatch);
+        project.category?.toLowerCase() === selectedCategory.toLowerCase();
+      const q = searchTerm.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        project.title?.toLowerCase().includes(q) ||
+        project.description?.toLowerCase().includes(q) ||
+        project.tags?.some((t) => t.toLowerCase().includes(q));
+      return matchesCategory && matchesSearch;
     });
-  }, [initialProjects, selectedCategory, searchQuery]);
+  }, [initialProjects, selectedCategory, searchTerm]);
 
-  const hasActiveFilters = searchQuery.trim() !== "" || selectedCategory !== "All";
+  const flagshipProject = useMemo(
+    () => filteredProjects.find((p) => p.featured) || filteredProjects[0],
+    [filteredProjects]
+  );
 
-  const handleResetFilters = () => {
-    setSearchQuery("");
-    setSelectedCategory("All");
-  };
+  const gridProjects = useMemo(
+    () =>
+      flagshipProject
+        ? filteredProjects.filter((p) => p.id !== flagshipProject.id)
+        : [],
+    [filteredProjects, flagshipProject]
+  );
 
   return (
-    <div className="min-h-screen bg-surface-canvas text-foreground selection:bg-champagne/20 selection:text-champagne relative">
+    <div className="min-h-screen bg-surface text-on-surface selection:bg-primary/30 selection:text-primary flex flex-col justify-between transition-colors duration-200">
       <Navigation />
 
-      {/* Ambient background spotlight */}
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[450px] bg-hero-spotlight pointer-events-none opacity-40"
-        aria-hidden="true"
-      />
+      <main id="main-content" tabIndex={-1} className="max-w-[1080px] w-full mx-auto px-4 md:px-6 pt-12 pb-20">
+        {/* SECTION 1: PAGE HERO & FILTER BAR */}
+        <section className="pb-10">
+          <div className="inline-flex items-center gap-2 border border-secondary/25 bg-secondary/10 text-secondary text-xs font-semibold px-3 py-1 rounded-full mb-4">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary" />
+            </span>
+            <span className="tracking-wider uppercase text-[11px]">
+              SELECTED WORK &amp; CASE STUDIES
+            </span>
+          </div>
 
-      <div className="pt-24 lg:pt-28 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
-          {/* Executive Header */}
-          <header className="mb-12 pb-8 border-b border-border/80">
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-high border border-border font-mono text-[11px] uppercase tracking-wider text-champagne">
-                <Sparkles className="w-3.5 h-3.5 text-champagne" aria-hidden="true" />
-                Case Studies &amp; Data Systems
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-on-surface mb-4 font-display">
+            Projects &amp; Case Studies
+          </h1>
+          <p className="text-on-surface-variant text-base md:text-lg max-w-2xl leading-relaxed mb-8 font-body-lg">
+            Analytics dashboards, workflow automation pipelines, and supply chain demand planning models.
+          </p>
+
+          {/* Filter & Search Bar Row */}
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between w-full pt-2 pb-6 border-b border-outline-variant/20">
+            {/* Search Input */}
+            <div className="relative w-full md:w-96">
+              <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">
+                search
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-low border border-border font-mono text-[11px] text-ink-muted">
-                <Database className="w-3.5 h-3.5 text-metric" aria-hidden="true" />
-                Audited Production Deployments
-              </span>
+              <input
+                type="text"
+                aria-label="Search projects"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search projects by title, stack, or domain..."
+                className="min-h-11 bg-surface-container-low border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-on-surface placeholder:text-outline w-full transition-all duration-150 outline-none"
+              />
             </div>
 
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-4">
-              Featured Projects &amp; Architectures
-            </h1>
-            <p className="text-base sm:text-lg text-ink-soft max-w-3xl font-light leading-relaxed">
-              High-throughput data engineering pipelines, manufacturing quality assurance suites, automated rejection tracking, and executive telemetry dashboards built for enterprise operations.
+            {/* Filter Pill Cluster */}
+            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
+              {categories.map((cat) => {
+                const active = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={
+                      active
+                        ? "min-h-11 bg-on-surface text-surface font-semibold px-3.5 py-1.5 rounded-full text-xs shadow-sm transition-all duration-150 whitespace-nowrap"
+                        : "min-h-11 border border-outline-variant/30 text-on-surface-variant hover:text-on-surface px-3.5 py-1.5 rounded-full text-xs bg-surface-container-low hover:bg-surface-container-high transition-all duration-150 whitespace-nowrap"
+                    }
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {filteredProjects.length === 0 ? (
+          <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-12 text-center my-8">
+            <p className="text-on-surface font-headline-sm mb-2">
+              No matching projects found
             </p>
-
-            {/* Quick Metrics Strip */}
-            <div className="mt-6 pt-6 border-t border-border/40 flex flex-wrap items-center gap-6 text-xs font-mono text-ink-muted">
-              <div>
-                <span className="text-white font-semibold">{initialProjects.length}</span> Published Studies
-              </div>
-              <div className="w-1 h-1 rounded-full bg-border" aria-hidden="true" />
-              <div>
-                <span className="text-white font-semibold">{categories.length > 1 ? categories.length - 1 : 1}</span> Technical Disciplines
-              </div>
-              <div className="w-1 h-1 rounded-full bg-border" aria-hidden="true" />
-              <div>
-                <span className="text-tertiary font-semibold">100%</span> Telemetry Verified
-              </div>
-            </div>
-          </header>
-
-          {initialProjects.length > 0 ? (
-            <div>
-              {/* Search and Category Filter Toolbar */}
-              <div className="mb-10 space-y-4">
-                <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
-                  {/* Category Filter Tabs */}
-                  <div
-                    className="inline-flex flex-wrap p-1.5 rounded-2xl bg-surface-low border border-border gap-1.5"
-                    role="tablist"
-                    aria-label="Filter case studies by category"
-                  >
-                    {categories.map((category) => {
-                      const isActive = selectedCategory === category;
-                      return (
-                        <button
-                          key={category}
-                          role="tab"
-                          aria-selected={isActive}
-                          onClick={() => setSelectedCategory(category)}
-                          className={`font-mono text-xs px-3.5 py-1.5 rounded-xl transition-all duration-200 ${
-                            isActive
-                              ? "bg-champagne text-[#090c13] font-semibold shadow-soft"
-                              : "text-ink-soft hover:text-white hover:bg-surface-high font-normal"
-                          }`}
-                        >
-                          {category}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Search Input Box */}
-                  <div className="relative w-full md:w-80">
-                    <div className="relative flex items-center">
-                      <Search
-                        className="absolute left-3.5 w-4 h-4 text-ink-muted pointer-events-none"
-                        aria-hidden="true"
-                      />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search projects, tags..."
-                        aria-label="Search projects by title, description, or tags"
-                        className="w-full pl-10 pr-9 py-2 rounded-xl bg-surface-low border border-border text-sm text-platinum placeholder:text-ink-muted focus:outline-none focus:border-champagne/60 transition-colors font-sans"
-                      />
-                      {searchQuery && (
-                        <button
-                          onClick={() => setSearchQuery("")}
-                          aria-label="Clear search query"
-                          className="absolute right-3 text-ink-muted hover:text-white transition-colors"
-                        >
-                          <X className="w-3.5 h-3.5" aria-hidden="true" />
-                        </button>
+            <p className="text-on-surface-variant text-sm mb-6">
+              Try clearing your search or selecting another category filter.
+            </p>
+            {(searchTerm || selectedCategory !== "All") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategory("All");
+                }}
+                className="px-4 py-2 rounded-full bg-on-surface text-surface text-xs font-semibold"
+              >
+                Reset Filters
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* SECTION 2: FEATURED FLAGSHIP CASE STUDY (Full-Width Bento Banner) */}
+            {flagshipProject && (
+              <section className="mb-12">
+                <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 md:p-8 shadow-2xl relative overflow-hidden group hover:border-outline-variant/60 transition-all duration-300">
+                  <div className="absolute -top-32 -right-32 w-80 h-80 bg-secondary/10 rounded-full blur-3xl pointer-events-none" />
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    {/* Left 6 Columns: Preview Image or Clean Summary Card */}
+                    <Link
+                      href={`/projects/${flagshipProject.id}`}
+                      className="lg:col-span-6 block bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-inner relative"
+                    >
+                      {flagshipProject.image &&
+                      !flagshipProject.image.includes("placeholder") ? (
+                        <div className="aspect-[16/10] w-full relative overflow-hidden">
+                          <img
+                            src={flagshipProject.image}
+                            alt={flagshipProject.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 via-transparent to-transparent" />
+                          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-code">
+                            {flagshipProject.category && (
+                              <span className="px-2.5 py-1 rounded bg-surface-container-low/90 border border-outline-variant/30 text-on-surface">
+                                {flagshipProject.category}
+                              </span>
+                            )}
+                            {flagshipProject.featured && (
+                              <span className="px-2.5 py-1 rounded bg-secondary/15 border border-secondary/30 text-secondary">
+                                ★ Featured
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-6 aspect-[16/10] flex flex-col justify-between">
+                          <div className="flex items-center justify-between text-xs font-code">
+                            <span className="text-primary font-medium">
+                              {flagshipProject.category}
+                            </span>
+                            {flagshipProject.featured && (
+                              <span className="text-secondary font-medium">
+                                ★ Featured
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-lg font-display font-bold text-on-surface">
+                            {flagshipProject.title}
+                          </div>
+                          <div className="text-xs font-code text-outline">
+                            Case Study
+                          </div>
+                        </div>
                       )}
+                    </Link>
+
+                    {/* Right 6 Columns: Case Study Details */}
+                    <div className="lg:col-span-6 space-y-5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {flagshipProject.featured && (
+                          <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-semibold">
+                            Featured Case Study
+                          </span>
+                        )}
+                        {flagshipProject.category && (
+                          <span className="px-3 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface-variant text-xs font-code">
+                            {flagshipProject.category}
+                          </span>
+                        )}
+                      </div>
+                      <h2 className="text-2xl md:text-3xl font-display font-bold text-on-surface tracking-tight">
+                        <Link
+                          href={`/projects/${flagshipProject.id}`}
+                          className="hover:text-primary transition-colors"
+                        >
+                          {flagshipProject.title}
+                        </Link>
+                      </h2>
+                      <p className="text-on-surface-variant font-body-md text-body-md leading-relaxed line-clamp-3">
+                        {cleanMarkdownExcerpt(flagshipProject.description, 220)}
+                      </p>
+                      {flagshipProject.tags && flagshipProject.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {flagshipProject.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/25 text-on-surface-variant text-label-sm font-code"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex flex-wrap items-center gap-3 pt-2">
+                        <Link
+                          href={`/projects/${flagshipProject.id}`}
+                          className="px-5 py-2.5 rounded-full bg-on-surface text-surface text-xs font-semibold hover:opacity-90 transition-all inline-flex items-center gap-2"
+                        >
+                          <span>Read Case Study</span>
+                          <span className="material-symbols-outlined text-[16px]">
+                            arrow_forward
+                          </span>
+                        </Link>
+                        {flagshipProject.demoUrl && (
+                          <a
+                            href={flagshipProject.demoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2.5 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface text-xs font-medium hover:bg-surface-container-high transition-all inline-flex items-center gap-1.5"
+                          >
+                            <span>Live Demo</span>
+                            <span className="material-symbols-outlined text-[15px]">
+                              north_east
+                            </span>
+                          </a>
+                        )}
+                        {flagshipProject.githubUrl && (
+                          <a
+                            href={flagshipProject.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2.5 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface text-xs font-medium hover:bg-surface-container-high transition-all inline-flex items-center gap-1.5"
+                          >
+                            <span>Source Code</span>
+                            <span className="material-symbols-outlined text-[15px]">
+                              code
+                            </span>
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
+              </section>
+            )}
 
-                {/* Filter Results Summary */}
-                <div className="flex items-center justify-between text-xs font-mono text-ink-muted px-1">
-                  <span>
-                    Showing <strong className="text-white font-medium">{filteredProjects.length}</strong> of{" "}
-                    <strong className="text-white font-medium">{initialProjects.length}</strong> case studies
-                  </span>
-                  {hasActiveFilters && (
-                    <button
-                      onClick={handleResetFilters}
-                      className="text-champagne hover:underline transition-all"
+            {/* SECTION 3: 2-COLUMN PROJECT ARCHIVE BENTO GRID */}
+            {gridProjects.length > 0 && (
+              <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {gridProjects.map((project) => {
+                  const summary = cleanMarkdownExcerpt(project.description, 190);
+                  return (
+                    <div
+                      key={project.id}
+                      className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group"
                     >
-                      Clear active filters
-                    </button>
-                  )}
-                </div>
-              </div>
+                      <div>
+                        <Link
+                          href={`/projects/${project.id}`}
+                          className="block w-full h-48 rounded-xl bg-surface-container-lowest border border-outline-variant/25 mb-6 overflow-hidden relative"
+                        >
+                          {project.image && !project.image.includes("placeholder") ? (
+                            <img
+                              src={project.image}
+                              alt={project.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full p-5 flex flex-col justify-between font-code text-xs">
+                              <div className="flex items-center justify-between text-on-surface-variant">
+                                <span className="flex items-center gap-1.5 text-on-surface font-medium">
+                                  <span className="w-2 h-2 rounded-full bg-primary" />
+                                  {project.category}
+                                </span>
+                              </div>
+                              <div className="text-on-surface-variant text-[11px] line-clamp-2">
+                                {summary}
+                              </div>
+                              <div className="flex items-center justify-between text-[11px] text-outline pt-2 border-t border-outline-variant/20">
+                                <span>Case Study</span>
+                              </div>
+                            </div>
+                          )}
+                        </Link>
 
-              {/* Projects Grid */}
-              {filteredProjects.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
-                  {filteredProjects.map((p) => (
-                    <ProjectCard key={p.id} {...p} />
-                  ))}
-                </div>
-              ) : (
-                /* No search/filter match empty state */
-                <div className="w-full relative overflow-hidden rounded-3xl border border-border bg-surface-low p-12 text-center shadow-xl my-8">
-                  <div className="max-w-md mx-auto flex flex-col items-center justify-center">
-                    <div className="w-20 h-20 mb-5 rounded-2xl bg-surface-high border border-border flex items-center justify-center">
-                      <FolderSearch className="w-9 h-9 text-champagne" aria-hidden="true" />
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <span className="text-label-sm font-code text-primary">
+                            {project.category}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {project.demoUrl && (
+                              <a
+                                href={project.demoUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-on-surface-variant hover:text-on-surface"
+                                title="Live Demo"
+                              >
+                                <span className="material-symbols-outlined text-[16px]">
+                                  open_in_new
+                                </span>
+                              </a>
+                            )}
+                            {project.githubUrl && (
+                              <a
+                                href={project.githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-on-surface-variant hover:text-on-surface"
+                                title="GitHub Repository"
+                              >
+                                <span className="material-symbols-outlined text-[16px]">
+                                  code
+                                </span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        <h3 className="text-headline-sm font-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                          <Link href={`/projects/${project.id}`}>
+                            {project.title}
+                          </Link>
+                        </h3>
+                        <p className="text-on-surface-variant font-body-md text-body-md mt-2 line-clamp-3 leading-relaxed">
+                          {summary}
+                        </p>
+                      </div>
+
+                      <div className="pt-6 mt-4 border-t border-outline-variant/20 flex items-center justify-between gap-3">
+                        <div className="flex flex-wrap gap-1.5">
+                          {project.tags &&
+                            project.tags.slice(0, 4).map((tag) => (
+                              <span
+                                key={tag}
+                                className="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/25 text-on-surface-variant text-label-sm font-code"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                        </div>
+                        <Link
+                          href={`/projects/${project.id}`}
+                          className="text-xs font-semibold text-primary hover:underline shrink-0 flex items-center gap-1"
+                        >
+                          <span>View Case Study</span>
+                          <span className="material-symbols-outlined text-[15px]">
+                            arrow_forward
+                          </span>
+                        </Link>
+                      </div>
                     </div>
-                    <h3 className="font-display text-2xl font-bold tracking-tight text-white mb-2">
-                      No matching case studies
-                    </h3>
-                    <p className="text-sm text-ink-soft leading-relaxed mb-6 font-light">
-                      No projects matched your query &ldquo;{searchQuery}&rdquo; within the &ldquo;{selectedCategory}&rdquo; category.
-                    </p>
-                    <Button
-                      onClick={handleResetFilters}
-                      className="bg-champagne hover:bg-white text-[#090c13] font-semibold rounded-xl px-6 h-11 transition-all"
-                    >
-                      Reset Filters
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Database has 0 projects empty state */
-            <div className="w-full relative overflow-hidden rounded-3xl border border-border bg-surface-low p-12 lg:p-16 text-center shadow-xl my-8">
-              <div className="absolute inset-0 bg-gradient-to-b from-champagne/5 via-transparent to-transparent pointer-events-none" />
-              <div className="relative z-10 flex flex-col items-center justify-center max-w-lg mx-auto">
-                <div className="w-24 h-24 mb-6 rounded-full bg-champagne/10 border border-champagne/20 flex items-center justify-center ring-8 ring-champagne/5">
-                  <FolderSearch className="w-10 h-10 text-champagne" aria-hidden="true" />
-                </div>
-                <h3 className="font-display text-3xl font-bold text-white tracking-tight mb-3">
-                  Projects in Production
-                </h3>
-                <p className="text-base text-ink-soft max-w-md mx-auto mb-8 font-light leading-relaxed">
-                  High-impact analytics and engineering case studies are being actively staged. Explore technical articles and architecture breakdowns in the meantime.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <Button
-                    asChild
-                    className="bg-champagne hover:bg-white text-[#090c13] font-semibold transition-all duration-300 rounded-xl px-8 h-12 shadow-soft"
-                  >
-                    <Link href="/articles">Read Latest Articles</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="bg-surface-high border border-border text-platinum hover:bg-surface-highest hover:text-white rounded-xl px-8 h-12 transition-all duration-300"
-                  >
-                    <Link href="/">Back to Home</Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+                  );
+                })}
+              </section>
+            )}
+          </>
+        )}
+      </main>
 
-      <Footer />
+      <OptimizedFooter />
     </div>
   );
-};
-
-export default ProjectsPage;
+}

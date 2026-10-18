@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { memo } from "react";
@@ -10,7 +10,9 @@ type OptimizedImageProps = {
   width?: number | string;
   height?: number | string;
   priority?: boolean;
+  loading?: "eager" | "lazy";
   sizes?: string;
+  node?: unknown;
   [key: string]: unknown;
 };
 
@@ -23,39 +25,41 @@ const toNumber = (value: number | string | undefined, fallback: number): number 
   return fallback;
 };
 
-export const OptimizedImage = memo(({
-  src,
-  alt = "",
-  className,
-  width,
-  height,
-  priority = false,
-  sizes,
-  ...rest
-}: OptimizedImageProps) => {
-  const resolvedSrc = typeof src === "string" && src.trim() ? src : "/placeholder.svg";
+export const OptimizedImage = memo(
+  ({
+    src,
+    alt = "",
+    className,
+    width,
+    height,
+    priority = false,
+    loading,
+    sizes,
+    node: _node,
+    ...rest
+  }: OptimizedImageProps) => {
+    const resolvedSrc =
+      typeof src === "string" && src.trim() ? src : "/placeholder.svg";
 
-  // Only optimize Supabase-hosted or local images; external URLs stay unoptimized
-  const isOptimizable =
-    resolvedSrc.startsWith("/") ||
-    resolvedSrc.includes("supabase.co");
+    // Only optimize Supabase-hosted or local images; external URLs stay unoptimized
+    const isOptimizable =
+      resolvedSrc.startsWith("/") || resolvedSrc.includes("supabase.co");
 
-  return (
-    <Image
-      src={resolvedSrc}
-      alt={alt}
-      width={toNumber(width, 1200)}
-      height={toNumber(height, 800)}
-      className={className}
-      priority={priority}
-      loading={priority ? undefined : "lazy"}
-      sizes={sizes ?? "100vw"}
-      unoptimized={!isOptimizable}
-      {...(rest as Record<string, unknown>)}
-    />
-  );
-});
+    return (
+      <Image
+        src={resolvedSrc}
+        alt={alt}
+        width={toNumber(width, 1200)}
+        height={toNumber(height, 800)}
+        className={className}
+        priority={priority}
+        loading={priority ? undefined : loading ?? "lazy"}
+        sizes={sizes ?? "100vw"}
+        unoptimized={!isOptimizable}
+        {...(rest as Record<string, unknown>)}
+      />
+    );
+  }
+);
 
 OptimizedImage.displayName = "OptimizedImage";
-
-

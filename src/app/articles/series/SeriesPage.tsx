@@ -58,8 +58,8 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center mb-16">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <BookOpen className="w-8 h-8 text-champagne" />
-              <h1 className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-white">
+              <BookOpen className="w-8 h-8 text-primary" />
+              <h1 className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
                 Article Series
               </h1>
             </div>
@@ -72,13 +72,13 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
           {series.some((s) => s.featured) && (
             <div className="mb-12">
               <div className="flex items-center gap-2 mb-6">
-                <Sparkles className="w-5 h-5 text-champagne" />
-                <h2 className="font-display text-2xl font-bold text-white tracking-tight">Featured Series</h2>
+                <Sparkles className="w-5 h-5 text-primary" />
+                <h2 className="font-display text-2xl font-bold text-foreground tracking-tight">Featured Series</h2>
               </div>
               <div className="grid lg:grid-cols-2 gap-8 mb-8">
                 {series.filter((s) => s.featured).map((seriesItem) => (
                   <Link key={seriesItem.id} href={`/articles/series/${seriesItem.slug}`} className="block">
-                    <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer h-full flex flex-col justify-between hover:-translate-y-1 bg-surface-low border border-border hover:border-champagne/40 overflow-hidden">
+                    <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer h-full flex flex-col justify-between hover:-translate-y-1 bg-surface-low border border-border hover:border-primary/40 overflow-hidden">
                       {(seriesItem.featured_image_url || seriesItem.image_url) && (
                         <div className="relative overflow-hidden rounded-t-lg">
                           <OptimizedImage
@@ -99,7 +99,7 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
                             <span>{getStatusText(seriesItem.status)}</span>
                           </div>
                         </div>
-                        <CardTitle className="group-hover:text-champagne transition-colors text-xl font-display font-bold text-white">
+                        <CardTitle className="group-hover:text-primary transition-colors text-xl font-display font-bold text-foreground">
                           {seriesItem.title}
                         </CardTitle>
                         <CardDescription>
@@ -111,7 +111,7 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
                           <div className="text-sm text-muted-foreground">
                             {seriesItem.article_count} {seriesItem.article_count === 1 ? "article" : "articles"}
                           </div>
-                          <Button size="sm" variant="ghost" className="group-hover:text-champagne text-muted-foreground">
+                          <Button size="sm" variant="ghost" className="group-hover:text-primary text-muted-foreground">
                             <ArrowRight className="w-4 h-4" />
                           </Button>
                         </div>
@@ -124,11 +124,11 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
           )}
 
           <div>
-            <h2 className="font-display text-2xl font-bold text-white tracking-tight mb-6">All Series</h2>
+            <h2 className="font-display text-2xl font-bold text-foreground tracking-tight mb-6">All Series</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {series.filter((s) => !s.featured).map((seriesItem) => (
                 <Link key={seriesItem.id} href={`/articles/series/${seriesItem.slug}`} className="block">
-                  <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer h-full flex flex-col justify-between hover:-translate-y-1 bg-surface-low border border-border hover:border-champagne/40 overflow-hidden">
+                  <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer h-full flex flex-col justify-between hover:-translate-y-1 bg-surface-low border border-border hover:border-primary/40 overflow-hidden">
                     {(seriesItem.featured_image_url || seriesItem.image_url) && (
                       <div className="relative overflow-hidden rounded-t-lg">
                         <OptimizedImage
@@ -144,7 +144,7 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
                         <span>{new Date(seriesItem.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long" })}</span>
                         <span className="inline-flex items-center gap-1 text-xs font-mono">{getStatusIcon(seriesItem.status)} {getStatusText(seriesItem.status)}</span>
                       </div>
-                      <CardTitle className="group-hover:text-champagne transition-colors font-display text-lg font-bold text-white line-clamp-1">
+                      <CardTitle className="group-hover:text-primary transition-colors font-display text-lg font-bold text-foreground line-clamp-1">
                         {seriesItem.title}
                       </CardTitle>
                       <CardDescription className="text-sm">
@@ -157,7 +157,7 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
                         <div className="text-sm text-muted-foreground">
                           {seriesItem.article_count} {seriesItem.article_count === 1 ? "article" : "articles"}
                         </div>
-                        <Button size="sm" variant="ghost" className="group-hover:text-champagne text-muted-foreground">
+                        <Button size="sm" variant="ghost" className="group-hover:text-primary text-muted-foreground">
                           <ArrowRight className="w-4 h-4" />
                         </Button>
                       </div>

@@ -15,11 +15,7 @@ interface HeroStatsData {
 const HeroSection = () => {
   const { profile, loading } = useProfile();
   
-  const defaultStats: HeroStatsData = {
-    projectsLed: { label: 'Projects Led', value: '15+' },
-    hoursAnalyzed: { label: 'Hours Analyzed', value: '500+' },
-    clientsServed: { label: 'Clients Served', value: '50+' }
-  };
+  const defaultStats: HeroStatsData = {};
 
   if (loading) {
     return (

@@ -1,4 +1,4 @@
-﻿import ProjectsPage from "./ProjectsPage";
+import ProjectsPage from "./ProjectsPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
 
@@ -14,7 +14,10 @@ export default async function Page() {
   const supabase = getSupabaseServer();
   const { data } = await supabase
     .from("projects")
-    .select("*, categories(name), project_tags(tags(name))")
+    .select(
+      "id,title,description,image_url,featured,demo_url,github_url,created_at,categories(name),project_tags(tags(name))"
+    )
+    .order("featured", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
 
   const initialProjects = (data || []).map((p: any) => ({
@@ -24,11 +27,9 @@ export default async function Page() {
     image: p.image_url || "/placeholder.svg",
     tags: (p.project_tags || []).map((pt: any) => pt.tags?.name).filter(Boolean),
     category: p.categories?.name || "Uncategorized",
+    featured: Boolean(p.featured),
     demoUrl: p.demo_url,
     githubUrl: p.github_url,
-    views: p.views || 0,
-    likes: p.likes || 0,
-    comments: p.comments || 0,
   }));
 
   return <ProjectsPage initialProjects={initialProjects} />;

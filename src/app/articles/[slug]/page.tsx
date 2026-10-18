@@ -6,17 +6,37 @@ import { buildPageMetadata } from "@/lib/metadata";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
+const UUID_ROUTE_KEY = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+async function getPublishedArticle(supabase: ReturnType<typeof getSupabaseServer>, routeKey: string, includeContent = false): Promise<any> {
+  const fields = includeContent
+    ? "*"
+    : "id,title,slug,excerpt,image_url,created_at,unlisted";
+  const bySlug = await supabase
+    .from("blog_posts")
+    .select(fields as any)
+    .eq("slug", routeKey)
+    .eq("published", true)
+    .maybeSingle();
+
+  if (bySlug.data || !UUID_ROUTE_KEY.test(routeKey)) return bySlug.data;
+
+  const byId = await supabase
+    .from("blog_posts")
+    .select(fields as any)
+    .eq("id", routeKey)
+    .eq("published", true)
+    .maybeSingle();
+
+  return byId.data;
+}
+
 export const revalidate = 120;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const supabase = getSupabaseServer();
-  const { data } = await supabase
-    .from("blog_posts")
-    .select("title, excerpt, image_url, created_at, unlisted")
-    .eq("slug", slug)
-    .eq("published", true)
-    .single();
+  const data = await getPublishedArticle(supabase, slug);
 
   if (!data) {
     return buildPageMetadata({
@@ -30,7 +50,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ...buildPageMetadata({
       title: data.title,
       description: data.excerpt || data.title,
-      path: `/articles/${slug}`,
+      path: `/articles/${data.slug || slug}`,
       image: data.image_url,
       type: "article",
     }),
@@ -38,9 +58,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: data.title,
       description: data.excerpt || data.title,
       type: "article",
-      url: `/articles/${slug}`,
+      url: `/articles/${data.slug || slug}`,
       publishedTime: data.created_at,
-      images: data.image_url ? [{ url: data.image_url }] : undefined,
+      images: [{
+        url: data.image_url || "/og-image.png",
+        alt: `${data.title} | Essa Ahmed`,
+      }],
     },
     robots: data.unlisted ? { index: false, follow: false } : undefined,
   };
@@ -49,16 +72,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
   const supabase = getSupabaseServer();
-
-  const { data } = await supabase
-    .from("blog_posts")
-    .select("*")
-    .eq("slug", slug)
-    .eq("published", true)
-    .single();
+  const data = await getPublishedArticle(supabase, slug, true);
 
   if (!data) notFound();
 
-  return <ArticleDetailPageEnhanced initialArticle={(data as unknown) as any} />;
+  return (
+    <ArticleDetailPageEnhanced
+      initialArticle={{ ...data, slug: data.slug || data.id } as any}
+    />
+  );
 }
 

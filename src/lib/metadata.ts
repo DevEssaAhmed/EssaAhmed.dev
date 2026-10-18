@@ -20,7 +20,13 @@ export function buildPageMetadata({
   image = DEFAULT_IMAGE,
   type = "website",
 }: BuildPageMetadataInput): Metadata {
-  const absoluteTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
+  const titleAlreadyIncludesBrand =
+    title === SITE_NAME ||
+    title.startsWith(`${SITE_NAME} —`) ||
+    title.endsWith(` | ${SITE_NAME}`);
+  const absoluteTitle = titleAlreadyIncludesBrand
+    ? title
+    : `${title} | ${SITE_NAME}`;
   const canonical = path.startsWith("/") ? path : `/${path}`;
   const resolvedImage = image || DEFAULT_IMAGE;
 
@@ -35,7 +41,7 @@ export function buildPageMetadata({
       description,
       url: canonical,
       type,
-      images: resolvedImage ? [{ url: resolvedImage }] : undefined,
+      images: [{ url: resolvedImage, alt: absoluteTitle }],
     },
     twitter: {
       card: "summary_large_image",
