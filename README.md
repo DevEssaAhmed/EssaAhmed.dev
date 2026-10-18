@@ -45,8 +45,10 @@ A responsive portfolio website for presenting professional capabilities, project
 
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your-key
    ```
+
+   Existing deployments may use `NEXT_PUBLIC_SUPABASE_ANON_KEY`; the app accepts either variable. Use only publishable/anon keys in frontend environments, never a service-role or secret key.
 
 4. Apply the SQL files in `supabase/migrations` to your Supabase project in filename order. The included migrations are incremental; provision the base project and article tables before applying them if starting from a blank database. Add your local and deployed URLs to the Supabase Auth redirect URL settings.
 
@@ -73,7 +75,7 @@ Create a user with Supabase Auth, then grant that account the trusted app metada
 
 ## Deployment
 
-Deploy with a host that supports Next.js, such as Vercel. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in the deployment environment, then configure the deployed site URL in Supabase Auth settings.
+Deploy with a host that supports Next.js, such as Vercel. Set `NEXT_PUBLIC_SUPABASE_URL` and either `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` in the deployment environment, then configure the deployed site URL in Supabase Auth settings.
 
 ## Customizing
 

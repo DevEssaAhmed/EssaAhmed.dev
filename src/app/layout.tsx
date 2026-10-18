@@ -27,13 +27,34 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "700"],
 });
 
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://essaahmed.dev/#website",
+  name: "Essa Ahmed",
+  url: "https://essaahmed.dev/",
+  description: "Portfolio of Essa Ahmed covering industrial engineering, quality improvement, data analytics, dashboards, and automation.",
+  inLanguage: "en",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://essaahmed.dev"),
-  title: "Essa Ahmed — Workflow Automation, Supply Chain S&OP & Analytics",
+  title: "Essa Ahmed",
   description:
-    "Portfolio of Essa Ahmed — engineering workflow automation pipelines, supply chain demand planning (S&OP) models, and executive analytics systems.",
+    "Portfolio of Essa Ahmed, an industrial and manufacturing engineer working across quality improvement, data analytics, Power BI dashboards, and automation.",
   applicationName: "Essa Ahmed",
   authors: [{ name: "Essa Ahmed" }],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   manifest: "/site.webmanifest",
   icons: {
     icon: [
@@ -48,11 +69,11 @@ export const metadata: Metadata = {
     other: [{ rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#374EAE" }],
   },
   openGraph: {
-    title: "Essa Ahmed — Workflow Automation, Supply Chain S&OP & Analytics",
+    title: "Essa Ahmed",
     description:
-      "Workflow automation pipelines, supply chain demand planning models, and executive analytics systems.",
+      "Industrial engineering, quality improvement, data analytics, dashboards, automation projects, and writing by Essa Ahmed.",
     type: "website",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Essa Ahmed Portfolio" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Essa Ahmed" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -79,6 +100,12 @@ export default function RootLayout({
         <Script id="theme-initializer" strategy="beforeInteractive">
           {`(()=>{try{const saved=localStorage.getItem('theme');const theme=saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const root=document.documentElement;root.classList.remove('light','dark');root.classList.add(theme);root.style.colorScheme=theme}catch{const theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(theme)}})()`}
         </Script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
         <link
           rel="preconnect"
           href="https://kexmzaaufxbzegurxuqz.supabase.co"

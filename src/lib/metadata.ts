@@ -13,20 +13,15 @@ type BuildPageMetadataInput = {
   type?: "website" | "article";
 };
 
-export function buildPageMetadata({
-  title,
-  description = SITE_DESCRIPTION,
-  path,
-  image = DEFAULT_IMAGE,
-  type = "website",
-}: BuildPageMetadataInput): Metadata {
-  const titleAlreadyIncludesBrand =
-    title === SITE_NAME ||
-    title.startsWith(`${SITE_NAME} —`) ||
-    title.endsWith(` | ${SITE_NAME}`);
-  const absoluteTitle = titleAlreadyIncludesBrand
-    ? title
-    : `${title} | ${SITE_NAME}`;
+export function buildPageMetadata(input: BuildPageMetadataInput): Metadata {
+  const {
+    title,
+    description = SITE_DESCRIPTION,
+    path,
+    image = DEFAULT_IMAGE,
+    type = "website",
+  } = input;
+  const absoluteTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
   const canonical = path.startsWith("/") ? path : `/${path}`;
   const resolvedImage = image || DEFAULT_IMAGE;
 
@@ -41,7 +36,7 @@ export function buildPageMetadata({
       description,
       url: canonical,
       type,
-      images: [{ url: resolvedImage, alt: absoluteTitle }],
+      images: resolvedImage ? [{ url: resolvedImage }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
