@@ -454,14 +454,25 @@ const Navigation = memo(() => {
                 <Link
                   key={item.name}
                   href={item.path}
-                  className={
-                    active
-                      ? "min-h-11 text-on-surface font-semibold bg-surface-container-high/90 border border-outline-variant/30 px-3.5 py-1.5 rounded-full transition-colors duration-150 flex items-center gap-1.5"
-                      : "min-h-11 text-on-surface-variant hover:text-on-surface transition-colors duration-150 flex items-center gap-1.5"
-                  }
+                  className="relative min-h-11 px-3.5 py-1.5 rounded-full transition-colors duration-150 flex items-center gap-1.5 text-on-surface"
                   aria-current={active ? "page" : undefined}
                 >
-                  <span>{item.name}</span>
+                  {active && (
+                    <motion.span
+                      layoutId="activeNavPill"
+                      className="absolute inset-0 bg-surface-container-high/90 border border-outline-variant/30 rounded-full -z-10 shadow-xs"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span
+                    className={
+                      active
+                        ? "text-on-surface font-semibold"
+                        : "text-on-surface-variant hover:text-on-surface"
+                    }
+                  >
+                    {item.name}
+                  </span>
                 </Link>
               );
             })}
@@ -511,19 +522,32 @@ const Navigation = memo(() => {
               <span>⌘K</span>
             </button>
 
-            <button
+            <motion.button
               type="button"
               onClick={toggleTheme}
-              className="w-11 h-11 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
+              className="w-11 h-11 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors overflow-hidden"
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
               title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
             >
-              {theme === "dark" ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-on-surface" />
-              )}
-            </button>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={theme}
+                  initial={{ rotate: -90, scale: 0.5, opacity: 0 }}
+                  animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                  exit={{ rotate: 90, scale: 0.5, opacity: 0 }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  className="flex items-center justify-center"
+                >
+                  {theme === "dark" ? (
+                    <Sun className="w-4 h-4 text-amber-400" />
+                  ) : (
+                    <Moon className="w-4 h-4 text-on-surface" />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </motion.button>
 
             <HashLink smooth to="/#contact">
               <span className="bg-on-surface text-surface font-display text-label-md font-semibold px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all duration-150 inline-flex items-center whitespace-nowrap">
@@ -545,18 +569,31 @@ const Navigation = memo(() => {
 
           {/* Mobile Controls */}
           <div className="flex items-center gap-2 md:hidden">
-            <button
+            <motion.button
               type="button"
               onClick={toggleTheme}
-              className="h-11 w-11 inline-flex items-center justify-center rounded-lg bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-on-surface"
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
+              className="h-11 w-11 inline-flex items-center justify-center rounded-lg bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-on-surface overflow-hidden"
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-on-surface" />
-              )}
-            </button>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={theme}
+                  initial={{ rotate: -90, scale: 0.5, opacity: 0 }}
+                  animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                  exit={{ rotate: 90, scale: 0.5, opacity: 0 }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  className="flex items-center justify-center"
+                >
+                  {theme === "dark" ? (
+                    <Sun className="w-4 h-4 text-amber-400" />
+                  ) : (
+                    <Moon className="w-4 h-4 text-on-surface" />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </motion.button>
             <button
               type="button"
               onClick={() => setCmdOpen(true)}

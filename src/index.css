@@ -203,6 +203,16 @@
     font-family: var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.28s ease, color 0.22s ease;
+  }
+
+  /* Smooth Theme Switching Transitions on surfaces */
+  .bg-surface,
+  .bg-surface-container-low,
+  .bg-surface-container,
+  .bg-surface-container-high,
+  .bg-surface-container-lowest {
+    transition: background-color 0.28s ease, border-color 0.25s ease, color 0.22s ease;
   }
 
   h1,

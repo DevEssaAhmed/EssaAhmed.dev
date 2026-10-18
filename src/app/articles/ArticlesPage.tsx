@@ -9,6 +9,7 @@ import {
   type ArticlePlatform,
 } from "@/data/externalArticlesStore";
 import { useAuth } from "@/contexts/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ArticlesPageProps {
   initialArticles?: any[];
@@ -115,21 +116,38 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
 
                 {/* Platform Filter Pills */}
                 <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto no-scrollbar">
-                  {PLATFORM_FILTERS.map((plat) => (
-                    <button
-                      key={plat}
-                      type="button"
-                      aria-pressed={selectedPlatform === plat}
-                      onClick={() => setSelectedPlatform(plat)}
-                      className={
-                        selectedPlatform === plat
-                          ? "min-h-11 px-3 py-1.5 rounded-full bg-on-surface text-surface text-xs font-semibold whitespace-nowrap"
-                          : "min-h-11 px-3 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs whitespace-nowrap transition-colors"
-                      }
-                    >
-                      {plat === "All" ? "All Platforms" : plat}
-                    </button>
-                  ))}
+                  {PLATFORM_FILTERS.map((plat) => {
+                    const active = selectedPlatform === plat;
+                    return (
+                      <button
+                        key={plat}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => setSelectedPlatform(plat)}
+                        className="relative min-h-11 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex items-center justify-center"
+                      >
+                        {active && (
+                          <motion.span
+                            layoutId="activeArticlePlatformPill"
+                            className="absolute inset-0 bg-on-surface rounded-full -z-10 shadow-xs"
+                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                          />
+                        )}
+                        <span
+                          className={
+                            active
+                              ? "text-surface font-semibold"
+                              : "text-on-surface-variant hover:text-on-surface"
+                          }
+                        >
+                          {plat === "All" ? "All Platforms" : plat}
+                        </span>
+                        {!active && (
+                          <span className="absolute inset-0 border border-outline-variant/30 rounded-full bg-surface-container-low hover:bg-surface-container-high -z-20 transition-colors" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -157,100 +175,110 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
 
         {/* SECTION 2: ARTICLES LIST */}
         <section className="pt-10">
-          {filteredArticles.length === 0 ? (
-            <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-12 text-center">
-              <p className="text-on-surface font-headline-sm mb-2">
-                {unifiedArticles.length === 0
-                  ? "No articles published yet"
-                  : "No matching articles found"}
-              </p>
-              <p className="text-on-surface-variant text-sm max-w-md mx-auto">
-                {unifiedArticles.length === 0
-                  ? "New technical essays and external publications will appear here as soon as they are published."
-                  : "Try adjusting your search query or clearing your platform/pillar filters."}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {filteredArticles.map((article) => {
-                const isExternal = article._isExternal;
-                const platform = article._platform;
-                const href = isExternal
-                  ? article._externalUrl
-                  : `/articles/${encodeURIComponent(article.slug || article.id)}`;
-                const formattedDate = article.created_at
-                  ? new Date(article.created_at).toLocaleDateString("en-US", {
-                      month: "long",
-                      year: "numeric",
-                    })
-                  : "Recent";
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={selectedPlatform + selectedPillar + (searchTerm ? `_${searchTerm}` : "")}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+            >
+              {filteredArticles.length === 0 ? (
+                <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-12 text-center">
+                  <p className="text-on-surface font-headline-sm mb-2">
+                    {unifiedArticles.length === 0
+                      ? "No articles published yet"
+                      : "No matching articles found"}
+                  </p>
+                  <p className="text-on-surface-variant text-sm max-w-md mx-auto">
+                    {unifiedArticles.length === 0
+                      ? "New technical essays and external publications will appear here as soon as they are published."
+                      : "Try adjusting your search query or clearing your platform/pillar filters."}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {filteredArticles.map((article) => {
+                    const isExternal = article._isExternal;
+                    const platform = article._platform;
+                    const href = isExternal
+                      ? article._externalUrl
+                      : `/articles/${encodeURIComponent(article.slug || article.id)}`;
+                    const formattedDate = article.created_at
+                      ? new Date(article.created_at).toLocaleDateString("en-US", {
+                          month: "long",
+                          year: "numeric",
+                        })
+                      : "Recent";
 
-                const badgeClass =
-                  platform === "Medium"
-                    ? "bg-secondary/10 border-secondary/30 text-secondary"
-                    : platform === "dev.to"
-                    ? "bg-tertiary-container/20 border-tertiary-container/40 text-tertiary"
-                    : "bg-primary/10 border-primary/30 text-primary";
+                    const badgeClass =
+                      platform === "Medium"
+                        ? "bg-secondary/10 border-secondary/30 text-secondary"
+                        : platform === "dev.to"
+                        ? "bg-tertiary-container/20 border-tertiary-container/40 text-tertiary"
+                        : "bg-primary/10 border-primary/30 text-primary";
 
-                const cardContent = (
-                  <>
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <span
-                          className={`px-2.5 py-1 rounded-full border text-label-sm font-label-sm font-semibold ${badgeClass}`}
-                        >
-                          {isExternal ? `${platform} ↗` : "On Site"}
-                        </span>
-                        {article.reading_time ? (
-                          <span className="text-on-surface-variant text-label-sm font-code">
-                            {article.reading_time} min read
-                          </span>
-                        ) : null}
-                      </div>
-                      <h2 className="text-headline-sm font-headline-sm text-on-surface group-hover:text-primary transition-colors leading-snug">
-                        {article.title}
-                      </h2>
-                      <p className="text-on-surface-variant font-body-md text-body-md mt-3 leading-relaxed line-clamp-3">
-                        {article.excerpt}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between pt-6 mt-4 border-t border-outline-variant/20 text-on-surface-variant text-label-sm font-code">
-                      <span>{formattedDate}</span>
-                      {isExternal ? (
-                        <span className="material-symbols-outlined text-on-surface text-[16px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
-                          north_east
-                        </span>
-                      ) : (
-                        <span className="text-primary font-label-sm font-medium flex items-center gap-1 group-hover:underline">
-                          Read Article →
-                        </span>
-                      )}
-                    </div>
-                  </>
-                );
+                    const cardContent = (
+                      <>
+                        <div>
+                          <div className="flex items-center justify-between mb-4">
+                            <span
+                              className={`px-2.5 py-1 rounded-full border text-label-sm font-label-sm font-semibold ${badgeClass}`}
+                            >
+                              {isExternal ? `${platform} ↗` : "On Site"}
+                            </span>
+                            {article.reading_time ? (
+                              <span className="text-on-surface-variant text-label-sm font-code">
+                                {article.reading_time} min read
+                              </span>
+                            ) : null}
+                          </div>
+                          <h2 className="text-headline-sm font-headline-sm text-on-surface group-hover:text-primary transition-colors leading-snug">
+                            {article.title}
+                          </h2>
+                          <p className="text-on-surface-variant font-body-md text-body-md mt-3 leading-relaxed line-clamp-3">
+                            {article.excerpt}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between pt-6 mt-4 border-t border-outline-variant/20 text-on-surface-variant text-label-sm font-code">
+                          <span>{formattedDate}</span>
+                          {isExternal ? (
+                            <span className="material-symbols-outlined text-on-surface text-[16px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                              north_east
+                            </span>
+                          ) : (
+                            <span className="text-primary font-label-sm font-medium flex items-center gap-1 group-hover:underline">
+                              Read Article →
+                            </span>
+                          )}
+                        </div>
+                      </>
+                    );
 
-                return isExternal ? (
-                  <a
-                    key={article.id}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
-                  >
-                    {cardContent}
-                  </a>
-                ) : (
-                  <Link
-                    key={article.id}
-                    href={href}
-                    className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
-                  >
-                    {cardContent}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+                    return isExternal ? (
+                      <a
+                        key={article.id}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
+                      >
+                        {cardContent}
+                      </a>
+                    ) : (
+                      <Link
+                        key={article.id}
+                        href={href}
+                        className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
+                      >
+                        {cardContent}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </section>
       </main>
 
