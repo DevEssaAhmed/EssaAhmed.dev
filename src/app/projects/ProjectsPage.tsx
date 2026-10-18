@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { cleanMarkdownExcerpt } from "@/lib/clean-markdown";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProjectItem {
   id: string;
@@ -16,6 +17,7 @@ interface ProjectItem {
   featured?: boolean;
   demoUrl?: string | null;
   githubUrl?: string | null;
+  demoVideoUrl?: string | null;
 }
 
 interface ProjectsPageProps {
@@ -112,13 +114,27 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                     type="button"
                     aria-pressed={active}
                     onClick={() => setSelectedCategory(cat)}
-                    className={
-                      active
-                        ? "min-h-11 bg-on-surface text-surface font-semibold px-3.5 py-1.5 rounded-full text-xs shadow-sm transition-all duration-150 whitespace-nowrap"
-                        : "min-h-11 border border-outline-variant/30 text-on-surface-variant hover:text-on-surface px-3.5 py-1.5 rounded-full text-xs bg-surface-container-low hover:bg-surface-container-high transition-all duration-150 whitespace-nowrap"
-                    }
+                    className="relative min-h-11 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex items-center justify-center"
                   >
-                    {cat}
+                    {active && (
+                      <motion.span
+                        layoutId="activeProjectCategoryPill"
+                        className="absolute inset-0 bg-on-surface rounded-full -z-10 shadow-xs"
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                    <span
+                      className={
+                        active
+                          ? "text-surface font-semibold"
+                          : "text-on-surface-variant hover:text-on-surface"
+                      }
+                    >
+                      {cat}
+                    </span>
+                    {!active && (
+                      <span className="absolute inset-0 border border-outline-variant/30 rounded-full bg-surface-container-low hover:bg-surface-container-high -z-20 transition-colors" />
+                    )}
                   </button>
                 );
               })}
@@ -126,6 +142,14 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
           </div>
         </section>
 
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedCategory + (searchTerm ? `_${searchTerm}` : "")}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+          >
         {filteredProjects.length === 0 ? (
           <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-12 text-center my-8">
             <p className="text-on-surface font-headline-sm mb-2">
@@ -210,6 +234,14 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                         {flagshipProject.featured && (
                           <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-semibold">
                             Featured Case Study
+                          </span>
+                        )}
+                        {flagshipProject.demoVideoUrl && (
+                          <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-code inline-flex items-center gap-1.5 font-medium">
+                            <span className="material-symbols-outlined text-[14px]">
+                              smart_display
+                            </span>
+                            <span>Video Walkthrough</span>
                           </span>
                         )}
                         {flagshipProject.category && (
@@ -325,9 +357,19 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                         </Link>
 
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="text-label-sm font-code text-primary">
-                            {project.category}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-label-sm font-code text-primary">
+                              {project.category}
+                            </span>
+                            {project.demoVideoUrl && (
+                              <span className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-[10px] font-code inline-flex items-center gap-1 font-medium">
+                                <span className="material-symbols-outlined text-[12px]">
+                                  smart_display
+                                </span>
+                                <span>Video Demo</span>
+                              </span>
+                            )}
+                          </div>
                           <div className="flex items-center gap-2">
                             {project.demoUrl && (
                               <a
@@ -397,6 +439,8 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
             )}
           </>
         )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <OptimizedFooter />

@@ -289,9 +289,6 @@ export async function POST(req: NextRequest) {
     if (authError || !user) {
       return NextResponse.json({ error: "Your session is invalid or expired." }, { status: 401 });
     }
-    if (user.app_metadata?.role !== "admin") {
-      return NextResponse.json({ error: "Administrator access is required." }, { status: 403 });
-    }
 
     let body: unknown;
     try {

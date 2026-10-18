@@ -47,10 +47,26 @@ function tryConvertJsonToMarkdown(content: string): string {
   }
 }
 
-function getProjectBodyMarkdown(project: any): string {
+const getImageBasename = (url?: string | null): string => {
+  if (!url || typeof url !== "string") return "";
+  return url.split("?")[0].split("#")[0].split("/").pop()?.trim().toLowerCase() || "";
+};
+
+function getProjectBodyMarkdown(project: any, uniqueImages: string[] = []): string {
   const longForm = project?.description_jsonb;
   if (Array.isArray(longForm) && longForm.length > 0) {
-    return tryConvertJsonToMarkdown(JSON.stringify(longForm));
+    let blocks = longForm;
+    const firstBlock = blocks[0];
+    if (firstBlock?.type === "image" && firstBlock?.props?.url) {
+      const firstBasename = getImageBasename(firstBlock.props.url);
+      const isDuplicate = uniqueImages.some(
+        (img) => getImageBasename(img) === firstBasename
+      );
+      if (isDuplicate) {
+        blocks = blocks.slice(1);
+      }
+    }
+    return tryConvertJsonToMarkdown(JSON.stringify(blocks));
   }
   if (typeof longForm === "string" && longForm.trim()) {
     return tryConvertJsonToMarkdown(longForm);
@@ -59,13 +75,16 @@ function getProjectBodyMarkdown(project: any): string {
 }
 
 const getYouTubeEmbedUrl = (url: string) => {
-  const match = url.match(
-    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/
-  );
-  return match ? `https://www.youtube.com/embed/${match[1]}` : url;
+  if (!url) return "";
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11
+    ? `https://www.youtube.com/embed/${match[2]}`
+    : url;
 };
 
 const getVimeoEmbedUrl = (url: string) => {
+  if (!url) return "";
   const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   return match ? `https://player.vimeo.com/video/${match[1]}` : url;
 };
@@ -90,8 +109,26 @@ const ProjectDetailPage = ({
   const [projectTags, setProjectTags] = useState<any[]>(initialProjectTags ?? []);
   const [loading, setLoading] = useState(initialProject === undefined);
   const [isLiked, setIsLiked] = useState(false);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(-1);
-  const [activeTab, setActiveTab] = useState<"description" | "demo">("description");
+
+  const hasVideo = Boolean(
+    project?.demo_video_url &&
+      typeof project.demo_video_url === "string" &&
+      project.demo_video_url.trim().length > 0
+  );
+
+  const [mediaView, setMediaView] = useState<"video" | "gallery">(
+    hasVideo ? "video" : "gallery"
+  );
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  // Synchronize media view when project is loaded
+  useEffect(() => {
+    if (project?.demo_video_url && project.demo_video_url.trim()) {
+      setMediaView("video");
+    } else {
+      setMediaView("gallery");
+    }
+  }, [project?.demo_video_url]);
 
   const fetchProject = useCallback(async () => {
     try {
@@ -163,20 +200,51 @@ const ProjectDetailPage = ({
     }
   };
 
-  const cleanedMarkdownBody = useMemo(() => {
-    const raw = getProjectBodyMarkdown(project);
-    if (!raw) return "";
-    // If the markdown starts with an image that is identical to project.image_url, avoid rendering it twice
-    if (project?.image_url) {
-      return raw.replace(
-        new RegExp(
-          `^\\s*!\\[[^\\]]*\\]\\(${project.image_url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\)\\s*`
-        ),
-        ""
-      );
+  // Deduplicate all project images (combining image_url and additional_images)
+  const uniqueImages = useMemo(() => {
+    const list: string[] = [];
+    const seen = new Set<string>();
+
+    const addImage = (rawUrl?: string | null) => {
+      if (!rawUrl || typeof rawUrl !== "string") return;
+      const trimmed = rawUrl.trim();
+      if (!trimmed || trimmed.includes("placeholder")) return;
+      const basename = getImageBasename(trimmed) || trimmed;
+      if (!seen.has(basename)) {
+        seen.add(basename);
+        list.push(trimmed);
+      }
+    };
+
+    addImage(project?.image_url);
+    if (Array.isArray(project?.additional_images)) {
+      for (const img of project.additional_images) {
+        addImage(img);
+      }
     }
-    return raw;
-  }, [project?.description_jsonb, project?.description, project?.image_url]);
+    return list;
+  }, [project?.image_url, project?.additional_images]);
+
+  const cleanedMarkdownBody = useMemo(() => {
+    let raw = getProjectBodyMarkdown(project, uniqueImages);
+    if (!raw) return "";
+
+    // Remove leading markdown image if it duplicates any hero/gallery image
+    const leadingImageMatch = raw.match(
+      /^\s*(?:!\[[^\]]*\]\(([^)]+)\)|<img[^>]+src=["']([^"']+)["'][^>]*>)\s*/i
+    );
+    if (leadingImageMatch) {
+      const matchedUrl = leadingImageMatch[1] || leadingImageMatch[2];
+      const matchedBasename = getImageBasename(matchedUrl);
+      const isDuplicate = uniqueImages.some(
+        (img) => getImageBasename(img) === matchedBasename
+      );
+      if (isDuplicate) {
+        raw = raw.slice(leadingImageMatch[0].length);
+      }
+    }
+    return raw.trim();
+  }, [project, uniqueImages]);
 
   if (loading) {
     return (
@@ -225,12 +293,10 @@ const ProjectDetailPage = ({
   }
 
   const currentImageUrl =
-    selectedImageIndex >= 0 && project.additional_images?.[selectedImageIndex]
-      ? project.additional_images[selectedImageIndex]
-      : project.image_url;
+    uniqueImages[activeImageIndex] || project.image_url;
 
   const hasHeroVisual =
-    currentImageUrl && !String(currentImageUrl).includes("placeholder");
+    Boolean(currentImageUrl && !String(currentImageUrl).includes("placeholder"));
 
   return (
     <div className="min-h-screen bg-surface text-on-surface selection:bg-primary/30 selection:text-primary flex flex-col justify-between transition-colors duration-200">
@@ -304,6 +370,27 @@ const ProjectDetailPage = ({
 
           {/* Action Buttons Strip */}
           <div className="flex flex-wrap items-center gap-3 pt-3">
+            {hasVideo && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMediaView("video");
+                  const el = document.getElementById("project-media");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                }}
+                className={`px-4 py-2.5 rounded-full border text-xs font-semibold inline-flex items-center gap-2 transition-all ${
+                  mediaView === "video"
+                    ? "bg-primary text-on-primary border-primary shadow-sm"
+                    : "bg-surface-container border-outline-variant/30 text-on-surface hover:text-primary hover:border-primary/40"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  smart_display
+                </span>
+                <span>Video Walkthrough</span>
+              </button>
+            )}
+
             {project.demo_url && (
               <a
                 href={project.demo_url}
@@ -353,124 +440,141 @@ const ProjectDetailPage = ({
           </div>
         </header>
 
-        {/* Primary Visual Showcase & Gallery Thumbnails */}
-        {hasHeroVisual && (
-          <section className="mb-10 space-y-4">
-            <div className="rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
-              <img
-                src={currentImageUrl}
-                alt={project.title}
-                className="w-full max-h-[540px] object-contain mx-auto bg-surface-container-lowest"
-              />
-            </div>
-
-            {Array.isArray(project.additional_images) &&
-              project.additional_images.length > 0 && (
-                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-                  {project.image_url && (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedImageIndex(-1)}
-                      className={`relative shrink-0 w-24 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                        selectedImageIndex === -1
-                          ? "border-primary ring-2 ring-primary/30"
-                          : "border-outline-variant/30 opacity-70 hover:opacity-100"
-                      }`}
-                    >
-                      <img
-                        src={project.image_url}
-                        alt="Primary preview"
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  )}
-                  {project.additional_images.map((img: string, idx: number) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setSelectedImageIndex(idx)}
-                      className={`relative shrink-0 w-24 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                        selectedImageIndex === idx
-                          ? "border-primary ring-2 ring-primary/30"
-                          : "border-outline-variant/30 opacity-70 hover:opacity-100"
-                      }`}
-                    >
-                      <img
-                        src={img}
-                        alt={`Gallery view ${idx + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
+        {/* Media Showcase: Video Walkthrough or Architecture Gallery */}
+        {(hasVideo || hasHeroVisual) && (
+          <section id="project-media" className="mb-10 space-y-4 scroll-mt-24">
+            {/* If video exists, render sleek media mode tabs */}
+            {hasVideo && (
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="inline-flex p-1 rounded-full bg-surface-container-low border border-outline-variant/30">
+                  <button
+                    type="button"
+                    onClick={() => setMediaView("video")}
+                    className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                      mediaView === "video"
+                        ? "bg-on-surface text-surface shadow-xs"
+                        : "text-on-surface-variant hover:text-on-surface"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[15px]">
+                      smart_display
+                    </span>
+                    <span>Video Walkthrough</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMediaView("gallery")}
+                    className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                      mediaView === "gallery"
+                        ? "bg-on-surface text-surface shadow-xs"
+                        : "text-on-surface-variant hover:text-on-surface"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[15px]">
+                      image
+                    </span>
+                    <span>
+                      Screenshots &amp; Architecture
+                      {uniqueImages.length > 0 ? ` (${uniqueImages.length})` : ""}
+                    </span>
+                  </button>
                 </div>
-              )}
+
+                {mediaView === "video" && project.demo_video_url && (
+                  <a
+                    href={project.demo_video_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-code text-on-surface-variant hover:text-primary transition-colors inline-flex items-center gap-1"
+                  >
+                    <span>Open on YouTube</span>
+                    <span className="material-symbols-outlined text-[14px]">
+                      open_in_new
+                    </span>
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* Media Player or Screenshot Frame */}
+            {hasVideo && mediaView === "video" ? (
+              <div className="aspect-video w-full rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
+                {project.demo_video_type === "youtube" ||
+                project.demo_video_url.includes("youtube") ||
+                project.demo_video_url.includes("youtu.be") ? (
+                  <iframe
+                    src={getYouTubeEmbedUrl(project.demo_video_url)}
+                    title={`${project.title} Video Walkthrough`}
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  />
+                ) : project.demo_video_type === "vimeo" ||
+                  project.demo_video_url.includes("vimeo") ? (
+                  <iframe
+                    src={getVimeoEmbedUrl(project.demo_video_url)}
+                    title={`${project.title} Video Walkthrough`}
+                    className="w-full h-full"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    src={project.demo_video_url}
+                    controls
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            ) : hasHeroVisual ? (
+              <div className="space-y-4">
+                <div className="rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
+                  <img
+                    src={currentImageUrl}
+                    alt={project.title}
+                    className="w-full max-h-[540px] object-contain mx-auto bg-surface-container-lowest"
+                  />
+                </div>
+
+                {/* Deduplicated Gallery Thumbnails - only shown if 2 or more distinct images */}
+                {uniqueImages.length > 1 && (
+                  <div className="flex gap-2.5 overflow-x-auto pb-2 no-scrollbar">
+                    {uniqueImages.map((img, idx) => (
+                      <button
+                        key={img + idx}
+                        type="button"
+                        onClick={() => setActiveImageIndex(idx)}
+                        className={`relative shrink-0 w-24 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                          activeImageIndex === idx
+                            ? "border-primary ring-2 ring-primary/30"
+                            : "border-outline-variant/30 opacity-70 hover:opacity-100"
+                        }`}
+                      >
+                        <img
+                          src={img}
+                          alt={`${project.title} view ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
           </section>
         )}
 
-        {/* Optional Video Switcher if Project has a Demo Video */}
-        {project.demo_video_url && (
-          <div className="inline-flex p-1 rounded-full bg-surface-container-low border border-outline-variant/30 mb-6">
-            <button
-              type="button"
-              onClick={() => setActiveTab("description")}
-              className={
-                activeTab === "description"
-                  ? "px-4 py-1.5 rounded-full bg-on-surface text-surface text-xs font-semibold transition-all"
-                  : "px-4 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface text-xs font-medium transition-colors"
-              }
-            >
-              Case Study &amp; Documentation
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("demo")}
-              className={
-                activeTab === "demo"
-                  ? "px-4 py-1.5 rounded-full bg-on-surface text-surface text-xs font-semibold transition-all"
-                  : "px-4 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface text-xs font-medium transition-colors"
-              }
-            >
-              Video Walkthrough
-            </button>
+        {/* Case Study & Technical Analysis Body (Always rendered) */}
+        <article className="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 sm:p-10 shadow-xl">
+          <div className="flex items-center gap-2 mb-6 pb-4 border-b border-outline-variant/20">
+            <span className="material-symbols-outlined text-primary text-xl">
+              description
+            </span>
+            <h2 className="text-xs font-code uppercase tracking-wider text-on-surface-variant font-semibold">
+              Case Study &amp; Technical Analysis
+            </h2>
           </div>
-        )}
-
-        {/* Case Study Body or Video Walkthrough */}
-        {activeTab === "demo" && project.demo_video_url ? (
-          <section className="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 sm:p-8 shadow-xl">
-            <div className="aspect-video rounded-xl overflow-hidden bg-surface-container-lowest border border-outline-variant/30">
-              {project.demo_video_type === "youtube" ||
-              project.demo_video_url.includes("youtube") ||
-              project.demo_video_url.includes("youtu.be") ? (
-                <iframe
-                  src={getYouTubeEmbedUrl(project.demo_video_url)}
-                  title={`${project.title} Walkthrough Video`}
-                  className="w-full h-full"
-                  allowFullScreen
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                />
-              ) : project.demo_video_type === "vimeo" ||
-                project.demo_video_url.includes("vimeo") ? (
-                <iframe
-                  src={getVimeoEmbedUrl(project.demo_video_url)}
-                  title={`${project.title} Walkthrough Video`}
-                  className="w-full h-full"
-                  allowFullScreen
-                />
-              ) : (
-                <video
-                  src={project.demo_video_url}
-                  controls
-                  className="w-full h-full"
-                />
-              )}
-            </div>
-          </section>
-        ) : (
-          <article className="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 sm:p-10 shadow-xl">
-            <MarkdownRenderer content={cleanedMarkdownBody} />
-          </article>
-        )}
+          <MarkdownRenderer content={cleanedMarkdownBody} />
+        </article>
       </main>
 
       <OptimizedFooter />

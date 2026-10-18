@@ -22,7 +22,7 @@ export default async function Page() {
     supabase
       .from("projects")
       .select(
-        "id,title,description,image_url,tags,category_id,demo_url,github_url,views,likes,comments,featured,created_at"
+        "id,title,description,image_url,tags,category_id,demo_url,github_url,demo_video_url,views,likes,comments,featured,created_at"
       )
       .order("created_at", { ascending: false }),
     supabase.from("categories").select("id,name").order("name"),
@@ -56,6 +56,7 @@ export default async function Page() {
       categoryNames.get(project.category_id ?? "") ?? "Uncategorized",
     demoUrl: project.demo_url ?? undefined,
     githubUrl: project.github_url ?? undefined,
+    demoVideoUrl: project.demo_video_url ?? undefined,
     views: project.views ?? 0,
     likes: project.likes ?? 0,
     comments: project.comments ?? 0,

@@ -35,7 +35,7 @@ export default function PageTransition({
   const prefersReducedMotion = useReducedMotion();
 
   if (prefersReducedMotion) {
-    return <div className="bg-background min-h-screen">{children}</div>;
+    return <div className="bg-surface text-on-surface min-h-screen">{children}</div>;
   }
 
   return (
@@ -46,7 +46,7 @@ export default function PageTransition({
         initial="initial"
         animate="animate"
         exit="exit"
-        className="bg-background min-h-screen"
+        className="bg-surface text-on-surface min-h-screen"
       >
         {children}
       </motion.div>
