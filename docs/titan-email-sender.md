@@ -1,50 +1,30 @@
 # Titan Email Sender (Vercel)
 
-This is a temporary, publicly reachable test utility at `/titan-sender`. The page is public, but all API actions require the shared `EMAIL_SENDER_ACCESS_KEY`. Move behind proper authentication before using it for private or ongoing work.
+The `/titan-sender` page sends low-volume messages through Titan SMTP. Every API action requires `EMAIL_SENDER_ACCESS_KEY`.
 
-## Architecture
+## Media source
 
-- Next.js App Router API routes use Nodemailer and Titan SMTP.
-- Attachments are uploaded directly from the browser to a **private Supabase Storage bucket** using a short-lived signed upload URL. This avoids Vercel's request-body limit and supports files up to 15 MiB.
-- The app sends each message in its own request, sequentially, with a minimum 2-second delay and a maximum of 10 messages per run.
-- The temporary attachment is deleted after the run. If cleanup fails, delete the object manually in Supabase Storage.
-- The browser never receives the Titan SMTP password or Supabase service-role key.
+Attachments are selected from `DevEssaAhmed/syedamahamfahim.tech`, folder `Maham Telecom/`. The server retrieves files from the private GitHub repository; media is not copied into this sender repo and no database or Supabase Storage is needed. Supported files up to 15 MiB appear in the selector. **The current selector lists media files in the archive; it does not yet establish which participant sent each individual file from message metadata.**
 
-## Required Vercel environment variables
+## Vercel environment variables
 
-Set these for the correct project and redeploy:
-
-- `EMAIL_SENDER_ACCESS_KEY`: a long random secret used to authorize the sender page's API calls.
+- `EMAIL_SENDER_ACCESS_KEY`: long random secret for the API.
 - `TITAN_EMAIL_USER`: full Titan mailbox address.
-- `TITAN_EMAIL_PASSWORD`: Titan mailbox password or app password, as appropriate for the account.
-- `TITAN_SMTP_HOST`: optional; defaults to `smtp.titan.email`.
-- `TITAN_SMTP_PORT`: optional; defaults to `465` (SSL/TLS). Port `587` uses STARTTLS.
-- `TITAN_EMAIL_FROM`: optional; defaults to the Titan mailbox address.
-- `SUPABASE_URL` (or existing `NEXT_PUBLIC_SUPABASE_URL`): Supabase project URL.
-- `SUPABASE_SERVICE_ROLE_KEY`: Supabase service-role key. **Server only; never prefix it with `NEXT_PUBLIC_`.**
-- `EMAIL_ATTACHMENT_BUCKET`: optional; defaults to `titan-email-temp`.
+- `TITAN_EMAIL_PASSWORD`: Titan mailbox password/app password.
+- `TITAN_SMTP_HOST`: optional, defaults to `smtp.titan.email`.
+- `TITAN_SMTP_PORT`: optional, defaults to `465` (SSL/TLS); `587` uses STARTTLS.
+- `TITAN_EMAIL_FROM`: optional, defaults to the Titan mailbox address.
+- `GITHUB_MEDIA_TOKEN`: GitHub fine-grained token with repository access limited to `syedamahamfahim.tech` and **Contents: Read-only**. Keep server-side only; never use a `NEXT_PUBLIC_` variable or commit it.
 
-## Supabase Storage setup
+## Setup
 
-1. In Supabase, create a **private** Storage bucket named `titan-email-temp` (or choose a different name and set `EMAIL_ATTACHMENT_BUCKET`).
-2. Do not make the bucket public and do not add anonymous read policies. The server uses the service-role key to create signed uploads, read attachments and remove them.
-3. Use the service-role key only as a Vercel server environment variable. Do not put it in client code, Git, or a `NEXT_PUBLIC_*` variable.
-4. Apply storage lifecycle cleanup if available for your plan; the app also attempts to delete the uploaded file after a run.
-
-## Deployment
-
-1. Review the feature branch and merge it into `main` when ready.
-2. In Vercel, open the project connected to `DevEssaAhmed/EssaAhmed.dev`.
-3. Add the environment variables above under **Settings → Environment Variables** for Preview and/or Production.
-4. Ensure Vercel is linked to the correct Supabase project and the private bucket exists.
-5. Redeploy after setting the variables.
-6. Open `https://essaahmed.dev/titan-sender` (or your current production domain), enter the `EMAIL_SENDER_ACCESS_KEY`, and send a one-message test to an address you control before using a larger count.
+1. Create a fine-grained GitHub token with read-only Contents permission for the private `syedamahamfahim.tech` repository.
+2. Add `GITHUB_MEDIA_TOKEN` and Titan/access-key values to Vercel environment variables for the intended environment.
+3. Redeploy, open `/titan-sender`, enter the access key, click **Load media archive**, select a file, and test one message to an address you control.
+4. Protect the route with proper authentication before routine or sensitive use.
 
 ## Limits and safety
 
-- Attachment limit: 15 MiB (15 × 1024 × 1024 bytes).
-- Repeat count: 1–10 messages per run; at least 2 seconds between attempts.
-- The sender is not authenticated with a user account yet. The shared access key is a temporary gate, not a substitute for login or rate limiting. Keep the key private and rotate it if it leaks.
-- The page is not linked from the public navigation, but its URL is not secret. Anyone who obtains the URL can see the page; only a holder of the access key can call its APIs.
-- An SMTP accepted response means the SMTP server accepted the message, not that it was delivered to the inbox.
-- The UI uses one recipient per run. Do not use this for unsolicited bulk mail.
+- Maximum attachment: 15 MiB.
+- 1–10 sequential messages per run, with at least 2 seconds between sends.
+- SMTP acceptance is not proof of inbox delivery. Use only for messages to recipients who have agreed to receive them; never use for unsolicited bulk mail.
