@@ -97,6 +97,7 @@
         "eslint-config-next": "^15.2.0",
         "postcss": "^8.4.47",
         "tailwindcss": "^3.4.11",
-        "typescript": "^5.9.3"
+        "typescript": "^5.9.3",
+        "@types/nodemailer": "^6.4.17"
     }
 }
