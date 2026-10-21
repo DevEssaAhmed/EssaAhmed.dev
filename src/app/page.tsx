@@ -26,6 +26,7 @@ export default async function Page() {
       .select(
         "id,title,description,image_url,featured,views,likes,comments,demo_url,github_url,created_at,tags,category_id"
       )
+      .order("featured", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(6),
     supabase.from("categories").select("id,name").order("name"),

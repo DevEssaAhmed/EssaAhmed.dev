@@ -239,9 +239,23 @@ export const getBlogPostTags = async (blogPostId: string): Promise<Tag[]> => {
   }
 };
 
-// Get tags for project from junction table
+// Get tags for project: checks canonical projects.tags first, falling back to junction table
 export const getProjectTags = async (projectId: string): Promise<Tag[]> => {
   try {
+    const { data: projectData } = await supabase
+      .from('projects')
+      .select('tags')
+      .eq('id', projectId)
+      .maybeSingle();
+
+    if (Array.isArray(projectData?.tags) && projectData.tags.length > 0) {
+      return projectData.tags.filter(Boolean).map((tagName: string) => ({
+        id: tagName,
+        name: tagName,
+        slug: generateSlug(tagName),
+      }));
+    }
+
     const { data, error } = await supabase
       .from('project_tags')
       .select(`
@@ -257,12 +271,7 @@ export const getProjectTags = async (projectId: string): Promise<Tag[]> => {
       `)
       .eq('project_id', projectId);
 
-    if (error) {
-      console.error('Error getting project tags:', error);
-      return [];
-    }
-
-    if (!data) return [];
+    if (error || !data) return [];
 
     return data.map((item: any) => item.tags).filter(Boolean);
   } catch (error) {

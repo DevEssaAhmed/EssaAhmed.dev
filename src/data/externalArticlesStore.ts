@@ -1,16 +1,17 @@
 export type ArticlePlatform =
-  | "On Site"
   | "Medium"
   | "dev.to"
   | "freeCodeCamp"
   | "Substack"
-  | "Hashnode";
+  | "Hashnode"
+  | "LinkedIn"
+  | "External";
 
 export interface ArticleExternalMeta {
   isExternal: boolean;
   externalUrl: string;
-  platform: string;
-  pillar: string;
+  platform: string | null;
+  pillar?: string | null;
 }
 
 export function extractArticleExternalMeta(post: any): ArticleExternalMeta {
@@ -18,84 +19,74 @@ export function extractArticleExternalMeta(post: any): ArticleExternalMeta {
     return {
       isExternal: false,
       externalUrl: "",
-      platform: "On Site",
-      pillar: "Analytics & Decision Systems",
+      platform: null,
+      pillar: null,
     };
   }
 
-  // Native columns on blog_posts (added in portfolio_v2_travel_external_articles_and_pillars migration)
+  // Native columns on blog_posts
   if (post.is_external && post.external_url) {
+    const rawPlat = post.platform && post.platform !== "On Site" ? post.platform : null;
     return {
       isExternal: true,
       externalUrl: post.external_url,
-      platform: post.platform || detectPlatformFromUrl(post.external_url),
-      pillar: post.pillar || inferPillarFromPost(post),
+      platform: rawPlat || detectPlatformFromUrl(post.external_url),
+      pillar: null,
     };
   }
 
-  // Fallback: stored in blog_posts.video_type = "external:<Platform>|<Pillar>" and blog_posts.video_url = "<external_url>"
+  // Fallback: stored in blog_posts.video_type = "external:<Platform>" and blog_posts.video_url = "<external_url>"
   if (typeof post.video_type === "string" && post.video_type.startsWith("external:")) {
     const rawMeta = post.video_type.slice("external:".length);
-    const [platformPart, pillarPart] = rawMeta.split("|");
+    const [platformPart] = rawMeta.split("|");
     const externalUrl = post.video_url || "";
+    const cleanPlat = platformPart && platformPart !== "On Site" ? platformPart : null;
     return {
       isExternal: Boolean(externalUrl),
       externalUrl,
-      platform: platformPart || detectPlatformFromUrl(externalUrl),
-      pillar: pillarPart || post.pillar || inferPillarFromPost(post),
+      platform: cleanPlat || detectPlatformFromUrl(externalUrl),
+      pillar: null,
     };
   }
 
-  // Internal post with optional pillar stored in post.pillar or video_type = "internal|<Pillar>"
-  if (typeof post.video_type === "string" && post.video_type.startsWith("internal|")) {
-    const [, pillarPart] = post.video_type.split("|");
-    return {
-      isExternal: false,
-      externalUrl: "",
-      platform: "On Site",
-      pillar: post.pillar || pillarPart || inferPillarFromPost(post),
-    };
-  }
-
+  // Internal post: no platform badge, no pillar
   return {
     isExternal: false,
     externalUrl: "",
-    platform: post.platform || "On Site",
-    pillar: post.pillar || inferPillarFromPost(post),
+    platform: null,
+    pillar: null,
   };
 }
 
 export function encodeArticleExternalMeta(meta: {
   isExternal: boolean;
-  externalUrl: string;
-  platform: string;
-  pillar: string;
+  externalUrl?: string | null;
+  platform?: string | null;
+  pillar?: string | null;
 }): {
   is_external: boolean;
   external_url: string | null;
-  platform: string;
-  pillar: string;
+  platform: string | null;
+  pillar: string | null;
 } {
-  const pillar = meta.pillar || "Analytics & Decision Systems";
-
-  if (meta.isExternal && meta.externalUrl.trim()) {
-    const platform =
+  if (meta.isExternal && meta.externalUrl?.trim()) {
+    const cleanPlat =
       meta.platform && meta.platform !== "On Site"
         ? meta.platform
         : detectPlatformFromUrl(meta.externalUrl);
     return {
       is_external: true,
       external_url: meta.externalUrl.trim(),
-      platform,
-      pillar,
+      platform: cleanPlat,
+      pillar: null,
     };
   }
 
   return {
     is_external: false,
     external_url: null,
-    platform: "On Site",
-    pillar,
+    platform: null,
+    pillar: null,
   };
 }
 
@@ -114,27 +105,7 @@ export function detectPlatformFromUrl(urlStr: string): string {
   }
 }
 
-export function inferPillarFromPost(post: any): string {
-  const text = `${post?.title || ""} ${post?.excerpt || ""} ${(post?.tags || []).join(" ")}`.toLowerCase();
-  if (
-    text.includes("s&op") ||
-    text.includes("supply chain") ||
-    text.includes("demand") ||
-    text.includes("inventory") ||
-    text.includes("vendor") ||
-    text.includes("procurement")
-  ) {
-    return "Supply Chain & Demand Planning";
-  }
-  if (
-    text.includes("automat") ||
-    text.includes("pipeline") ||
-    text.includes("etl") ||
-    text.includes("airflow") ||
-    text.includes("workflow") ||
-    text.includes("webhook")
-  ) {
-    return "Workflow Automation";
-  }
-  return "Analytics & Decision Systems";
+// Deprecated: articles do not have domain pillars
+export function inferPillarFromPost(_post: any): string | null {
+  return null;
 }

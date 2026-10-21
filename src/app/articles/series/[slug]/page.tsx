@@ -1,6 +1,7 @@
-﻿import SeriesDetailPage from "./SeriesDetailPage";
+import SeriesDetailPage from "./SeriesDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
-import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 120;
@@ -21,14 +22,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .single();
 
   if (!series) {
-    return {
-      ...buildPageMetadata({
-        title: "Series Not Found",
-        description: "The requested series could not be found.",
-        path: `/articles/series/${slug}`,
-      }),
-      robots: { index: false, follow: false },
-    };
+    return buildPageMetadata({
+      title: "Series Not Found",
+      description: "The requested series could not be found.",
+      path: `/articles/series/${slug}`,
+    });
   }
 
   return buildPageMetadata({
@@ -50,7 +48,7 @@ export default async function Page({ params }: Props) {
     .single();
 
   if (!seriesData) {
-    return <SeriesDetailPage />;
+    notFound();
   }
 
   const { data: articlesData } = await supabase
@@ -69,4 +67,3 @@ export default async function Page({ params }: Props) {
     />
   );
 }
-

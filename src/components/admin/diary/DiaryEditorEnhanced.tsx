@@ -253,9 +253,9 @@ export default function DiaryEditorEnhanced() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-surface text-on-surface flex flex-col items-center justify-center">
-        <div className="flex items-center gap-3 font-mono text-sm text-zinc-400">
-          <Loader2 className="w-5 h-5 animate-spin text-zinc-400" />
+      <div className="min-h-screen bg-[#f1f3f5] text-zinc-900 flex flex-col items-center justify-center">
+        <div className="flex items-center gap-3 font-mono text-sm text-zinc-500">
+          <Loader2 className="w-5 h-5 animate-spin text-zinc-500" />
           <span>Loading diary entry...</span>
         </div>
       </div>
@@ -263,9 +263,9 @@ export default function DiaryEditorEnhanced() {
   }
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface selection:bg-zinc-800 selection:text-white">
+    <div className="min-h-screen bg-[#f1f3f5] text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900 antialiased font-sans">
       {/* ══════════ TOP STICKY BAR ══════════ */}
-      <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30 px-4 sm:px-8 py-3">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-zinc-200/90 px-4 sm:px-8 py-3 text-zinc-900 shadow-2xs">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           {/* Back button */}
           <div className="flex items-center gap-3 min-w-0">
@@ -273,27 +273,27 @@ export default function DiaryEditorEnhanced() {
               variant="ghost"
               size="sm"
               onClick={() => navigate("/admin?tab=diary")}
-              className="text-zinc-400 hover:text-white hover:bg-zinc-900 -ml-2 px-2.5 h-8 font-mono text-xs flex items-center gap-2 transition-colors"
+              className="text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 -ml-2 px-2.5 h-8 font-mono text-xs flex items-center gap-2 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Back to All Diary Entries</span>
               <span className="sm:hidden">Back</span>
             </Button>
 
-            <span className="text-zinc-700 hidden sm:inline">|</span>
+            <span className="text-zinc-300 hidden sm:inline">|</span>
 
             {/* Status Badge */}
             <Badge
               variant="outline"
               className={`font-mono text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1.5 transition-colors ${
                 isPublished
-                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
-                  : "bg-amber-500/10 text-amber-400 border-amber-500/25"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-amber-50 text-amber-700 border-amber-200"
               }`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  isPublished ? "bg-emerald-400" : "bg-amber-400"
+                  isPublished ? "bg-emerald-500" : "bg-amber-500"
                 }`}
               />
               {isPublished ? "Published" : "Draft"}
@@ -319,12 +319,12 @@ export default function DiaryEditorEnhanced() {
               size="sm"
               disabled={isSaving}
               onClick={() => handleSave(false)}
-              className="h-8 px-3 text-xs bg-zinc-900 border-zinc-800 hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors"
+              className="h-8 px-3 text-xs bg-white border-zinc-300 hover:bg-zinc-50 text-zinc-700 hover:text-zinc-900 shadow-2xs transition-colors"
             >
               {isSaving && !isPublished ? (
                 <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
               ) : (
-                <Save className="w-3.5 h-3.5 mr-1.5 text-zinc-400" />
+                <Save className="w-3.5 h-3.5 mr-1.5 text-zinc-500" />
               )}
               Save Draft
             </Button>
@@ -334,7 +334,7 @@ export default function DiaryEditorEnhanced() {
               size="sm"
               disabled={isSaving}
               onClick={() => handleSave(true)}
-              className="h-8 px-3.5 text-xs font-semibold bg-white text-[#09090B] hover:bg-zinc-200 transition-all shadow-sm"
+              className="h-8 px-3.5 text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800 transition-all shadow-xs"
             >
               {isSaving && isPublished ? (
                 <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
@@ -351,17 +351,17 @@ export default function DiaryEditorEnhanced() {
       <main className="max-w-4xl mx-auto px-4 sm:px-8 pt-8 pb-24">
         {/* Optional Cover Banner */}
         {imageUrl && (
-          <div className="relative group mb-8 rounded-2xl overflow-hidden border border-outline-variant/30 bg-zinc-950 aspect-[21/9] max-h-[320px]">
+          <div className="relative group mb-8 rounded-2xl overflow-hidden border border-zinc-200 bg-white aspect-[21/9] max-h-[320px] shadow-2xs">
             <img
               src={imageUrl}
               alt={imageAlt || title || "Diary cover"}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <button
               type="button"
               onClick={() => setImageUrl("")}
-              className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/60 text-zinc-400 hover:text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all"
+              className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/60 text-white hover:bg-red-600 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all"
               title="Remove cover image"
             >
               <X className="w-4 h-4" />
@@ -376,16 +376,16 @@ export default function DiaryEditorEnhanced() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Untitled Diary Entry..."
-            className="w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white placeholder:text-zinc-600 px-0 leading-tight"
+            className="w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-zinc-900 placeholder:text-zinc-400 px-0 leading-tight font-display"
           />
         </div>
 
         {/* ══════════ NOTION INLINE PAGE PROPERTIES TABLE ══════════ */}
-        <section className="mb-8 rounded-xl border border-outline-variant/30 bg-[#101014] divide-y divide-zinc-800/60 overflow-hidden shadow-sm">
+        <section className="mb-8 rounded-xl border border-zinc-200/90 bg-white divide-y divide-zinc-200 shadow-2xs overflow-hidden">
           {/* Row 1: Entry Date */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-900/40 transition-colors">
-            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-400">
-              <Calendar className="w-3.5 h-3.5 text-zinc-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-50/60 transition-colors">
+            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-500">
+              <Calendar className="w-3.5 h-3.5 text-zinc-400" />
               <span>Entry Date</span>
             </div>
             <div className="sm:col-span-9 flex items-center gap-3">
@@ -393,7 +393,7 @@ export default function DiaryEditorEnhanced() {
                 type="date"
                 value={entryDate}
                 onChange={(e) => setEntryDate(e.target.value)}
-                className="h-8 max-w-[200px] bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface font-mono"
+                className="h-8 max-w-[200px] bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 font-mono"
               />
               <span className="text-[11px] font-mono text-zinc-500">
                 Timestamp for timeline ordering
@@ -402,23 +402,23 @@ export default function DiaryEditorEnhanced() {
           </div>
 
           {/* Row 2: Visibility */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-900/40 transition-colors">
-            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-400">
-              <Eye className="w-3.5 h-3.5 text-zinc-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-50/60 transition-colors">
+            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-500">
+              <Eye className="w-3.5 h-3.5 text-zinc-400" />
               <span>Visibility</span>
             </div>
             <div className="sm:col-span-9">
-              <div className="inline-flex rounded-lg bg-zinc-900/80 border border-zinc-800 p-0.5">
+              <div className="inline-flex rounded-lg bg-zinc-100 border border-zinc-200 p-0.5">
                 <button
                   type="button"
                   onClick={() => setIsPublished(true)}
                   className={`px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
                     isPublished
-                      ? "bg-emerald-500/20 text-emerald-300 shadow-sm border border-emerald-500/30"
-                      : "text-zinc-400 hover:text-white"
+                      ? "bg-white text-zinc-900 shadow-xs border border-zinc-200 font-semibold"
+                      : "text-zinc-600 hover:text-zinc-900"
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   Published
                 </button>
                 <button
@@ -426,11 +426,11 @@ export default function DiaryEditorEnhanced() {
                   onClick={() => setIsPublished(false)}
                   className={`px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
                     !isPublished
-                      ? "bg-zinc-800 text-on-surface shadow-sm border border-zinc-700"
-                      : "text-zinc-400 hover:text-white"
+                      ? "bg-white text-zinc-900 shadow-xs border border-zinc-200 font-semibold"
+                      : "text-zinc-600 hover:text-zinc-900"
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                   Draft
                 </button>
               </div>
@@ -438,9 +438,9 @@ export default function DiaryEditorEnhanced() {
           </div>
 
           {/* Row 3: Cover / Attached Photo */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 items-start px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-900/40 transition-colors">
-            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-400 pt-1.5">
-              <ImageIcon className="w-3.5 h-3.5 text-zinc-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-12 items-start px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-50/60 transition-colors">
+            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-500 pt-1.5">
+              <ImageIcon className="w-3.5 h-3.5 text-zinc-400" />
               <span>Cover / Photo</span>
             </div>
             <div className="sm:col-span-9 space-y-2.5">
@@ -450,21 +450,21 @@ export default function DiaryEditorEnhanced() {
                   placeholder="https://images.unsplash.com/... or paste image URL"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
-                  className="h-8 flex-1 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface placeholder:text-zinc-600"
+                  className="h-8 flex-1 bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 placeholder:text-zinc-400"
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setShowUploader((v) => !v)}
-                  className="h-8 px-3 text-xs bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white whitespace-nowrap"
+                  className="h-8 px-3 text-xs bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 whitespace-nowrap shadow-2xs"
                 >
                   {showUploader ? "Hide Uploader" : "Upload File"}
                 </Button>
               </div>
 
               {showUploader && (
-                <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                <div className="p-3 rounded-lg bg-zinc-50 border border-zinc-200">
                   <FileUpload
                     label="Upload Diary Cover Image"
                     uploadType="image"
@@ -488,15 +488,15 @@ export default function DiaryEditorEnhanced() {
                 placeholder="Image alt description (accessibility & SEO)"
                 value={imageAlt}
                 onChange={(e) => setImageAlt(e.target.value)}
-                className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface placeholder:text-zinc-600"
+                className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 placeholder:text-zinc-400"
               />
             </div>
           </div>
 
           {/* Row 4: Short Excerpt */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 items-start px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-900/40 transition-colors">
-            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-400 pt-1.5">
-              <AlignLeft className="w-3.5 h-3.5 text-zinc-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-12 items-start px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-50/60 transition-colors">
+            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-500 pt-1.5">
+              <AlignLeft className="w-3.5 h-3.5 text-zinc-400" />
               <span>Short Excerpt</span>
             </div>
             <div className="sm:col-span-9">
@@ -505,15 +505,15 @@ export default function DiaryEditorEnhanced() {
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
                 rows={2}
-                className="bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface placeholder:text-zinc-600 resize-y min-h-[56px]"
+                className="bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 placeholder:text-zinc-400 resize-y min-h-[56px]"
               />
             </div>
           </div>
 
           {/* Row 5: Topic Tag */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 items-start px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-900/40 transition-colors">
-            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-400 pt-1.5">
-              <Tag className="w-3.5 h-3.5 text-zinc-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-12 items-start px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-50/60 transition-colors">
+            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-500 pt-1.5">
+              <Tag className="w-3.5 h-3.5 text-zinc-400" />
               <span>Topic Tag</span>
             </div>
             <div className="sm:col-span-9 space-y-2">
@@ -522,7 +522,7 @@ export default function DiaryEditorEnhanced() {
                 placeholder="e.g. Engineering & Reflections"
                 value={topicTag}
                 onChange={(e) => setTopicTag(e.target.value)}
-                className="h-8 max-w-sm bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface font-mono"
+                className="h-8 max-w-sm bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 font-mono"
               />
               <div className="flex flex-wrap gap-1.5 pt-0.5">
                 {[
@@ -538,8 +538,8 @@ export default function DiaryEditorEnhanced() {
                     onClick={() => setTopicTag(preset)}
                     className={`px-2.5 py-0.5 rounded-md text-[11px] font-mono transition-colors border ${
                       topicTag === preset
-                        ? "bg-zinc-200 text-black border-white font-medium"
-                        : "bg-zinc-900/60 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700"
+                        ? "bg-zinc-900 text-white border-zinc-900 font-semibold shadow-xs"
+                        : "bg-zinc-100 text-zinc-700 border-zinc-200 hover:bg-zinc-200 hover:text-zinc-900"
                     }`}
                   >
                     {preset}
@@ -553,14 +553,14 @@ export default function DiaryEditorEnhanced() {
         {/* ══════════ FULL-PAGE CONTENT EDITOR ══════════ */}
         <section className="space-y-4">
           {/* Formatting & View Controls Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-outline-variant/30 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-200 text-xs">
             {/* Markdown shortcuts */}
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => insertMarkdown("**", "**", "bold text")}
                 title="Bold (Ctrl+B)"
-                className="p-1.5 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
+                className="p-1.5 rounded hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors"
               >
                 <Bold className="w-3.5 h-3.5" />
               </button>
@@ -568,7 +568,7 @@ export default function DiaryEditorEnhanced() {
                 type="button"
                 onClick={() => insertMarkdown("*", "*", "italic text")}
                 title="Italic (Ctrl+I)"
-                className="p-1.5 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
+                className="p-1.5 rounded hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors"
               >
                 <Italic className="w-3.5 h-3.5" />
               </button>
@@ -576,7 +576,7 @@ export default function DiaryEditorEnhanced() {
                 type="button"
                 onClick={() => insertMarkdown("### ", "", "Section Heading")}
                 title="Heading 3"
-                className="p-1.5 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
+                className="p-1.5 rounded hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors"
               >
                 <Heading2 className="w-3.5 h-3.5" />
               </button>
@@ -584,7 +584,7 @@ export default function DiaryEditorEnhanced() {
                 type="button"
                 onClick={() => insertMarkdown("> ", "", "Quote block")}
                 title="Quote"
-                className="p-1.5 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
+                className="p-1.5 rounded hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors"
               >
                 <Quote className="w-3.5 h-3.5" />
               </button>
@@ -592,7 +592,7 @@ export default function DiaryEditorEnhanced() {
                 type="button"
                 onClick={() => insertMarkdown("- ", "", "List item")}
                 title="Bullet List"
-                className="p-1.5 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
+                className="p-1.5 rounded hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors"
               >
                 <List className="w-3.5 h-3.5" />
               </button>
@@ -600,7 +600,7 @@ export default function DiaryEditorEnhanced() {
                 type="button"
                 onClick={() => insertMarkdown("```\n", "\n```", "code")}
                 title="Code Block"
-                className="p-1.5 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
+                className="p-1.5 rounded hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors"
               >
                 <Code className="w-3.5 h-3.5" />
               </button>
@@ -608,7 +608,7 @@ export default function DiaryEditorEnhanced() {
                 type="button"
                 onClick={() => insertMarkdown("[", "](https://...)", "link text")}
                 title="Link"
-                className="p-1.5 rounded hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
+                className="p-1.5 rounded hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors"
               >
                 <LinkIcon className="w-3.5 h-3.5" />
               </button>
@@ -621,14 +621,14 @@ export default function DiaryEditorEnhanced() {
               </span>
 
               {/* View Mode Toggle */}
-              <div className="inline-flex rounded-lg bg-zinc-900/90 border border-zinc-800 p-0.5">
+              <div className="inline-flex rounded-lg bg-zinc-200/80 border border-zinc-300/80 p-0.5">
                 <button
                   type="button"
                   onClick={() => setViewMode("edit")}
                   className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all flex items-center gap-1 ${
                     viewMode === "edit"
-                      ? "bg-zinc-800 text-white shadow-sm"
-                      : "text-zinc-400 hover:text-white"
+                      ? "bg-white text-zinc-900 shadow-xs font-semibold"
+                      : "text-zinc-600 hover:text-zinc-900"
                   }`}
                 >
                   <Pencil className="w-3 h-3" />
@@ -639,8 +639,8 @@ export default function DiaryEditorEnhanced() {
                   onClick={() => setViewMode("split")}
                   className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all flex items-center gap-1 ${
                     viewMode === "split"
-                      ? "bg-zinc-800 text-white shadow-sm"
-                      : "text-zinc-400 hover:text-white"
+                      ? "bg-white text-zinc-900 shadow-xs font-semibold"
+                      : "text-zinc-600 hover:text-zinc-900"
                   }`}
                 >
                   <Columns className="w-3 h-3" />
@@ -651,8 +651,8 @@ export default function DiaryEditorEnhanced() {
                   onClick={() => setViewMode("preview")}
                   className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all flex items-center gap-1 ${
                     viewMode === "preview"
-                      ? "bg-zinc-800 text-white shadow-sm"
-                      : "text-zinc-400 hover:text-white"
+                      ? "bg-white text-zinc-900 shadow-xs font-semibold"
+                      : "text-zinc-600 hover:text-zinc-900"
                   }`}
                 >
                   <Eye className="w-3 h-3" />
@@ -670,45 +670,45 @@ export default function DiaryEditorEnhanced() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Write your diary reflection in markdown... Use Cmd+S / Ctrl+S to save instantly."
-                className="w-full min-h-[540px] bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-on-surface placeholder:text-zinc-600 font-sans text-base leading-relaxed resize-y p-0"
+                className="w-full min-h-[540px] bg-white border border-zinc-200/90 rounded-2xl p-6 outline-none focus:outline-none focus:ring-1 focus:ring-zinc-400 text-zinc-900 placeholder:text-zinc-400 font-sans text-base leading-relaxed resize-y shadow-2xs"
               />
             </div>
           )}
 
           {viewMode === "split" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-              <div className="border-r border-outline-variant/30 pr-4">
+              <div>
                 <textarea
                   ref={textareaRef}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Write your diary entry in markdown..."
-                  className="w-full min-h-[540px] bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-on-surface placeholder:text-zinc-600 font-mono text-sm leading-relaxed resize-y p-0"
+                  className="w-full min-h-[540px] bg-white border border-zinc-200/90 rounded-2xl p-6 outline-none focus:outline-none focus:ring-1 focus:ring-zinc-400 text-zinc-900 placeholder:text-zinc-400 font-mono text-sm leading-relaxed resize-y shadow-2xs"
                 />
               </div>
-              <div className="pl-2 overflow-y-auto max-h-[700px] prose prose-invert prose-zinc max-w-none">
+              <div className="p-6 rounded-2xl bg-white border border-zinc-200/90 overflow-y-auto max-h-[700px] prose prose-zinc max-w-none shadow-2xs">
                 {content ? (
                   <MarkdownRenderer content={content} />
                 ) : (
-                  <p className="text-zinc-600 italic text-sm">Preview will appear here as you type...</p>
+                  <p className="text-zinc-400 italic text-sm">Preview will appear here as you type...</p>
                 )}
               </div>
             </div>
           )}
 
           {viewMode === "preview" && (
-            <div className="pt-4 px-2 rounded-xl bg-zinc-950/40 border border-zinc-800/50 p-6 min-h-[500px]">
+            <div className="pt-4 rounded-2xl bg-white border border-zinc-200/90 p-8 min-h-[500px] prose prose-zinc max-w-none shadow-2xs">
               {content ? (
                 <MarkdownRenderer content={content} />
               ) : (
-                <p className="text-zinc-600 italic text-sm">Nothing written yet to preview.</p>
+                <p className="text-zinc-400 italic text-sm">Nothing written yet to preview.</p>
               )}
             </div>
           )}
 
           {/* Subtle footer shortcut cue */}
-          <div className="pt-8 border-t border-zinc-900 flex items-center justify-between font-mono text-[11px] text-zinc-600">
-            <span>Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">⌘S</kbd> / <kbd className="px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">Ctrl+S</kbd> to save</span>
+          <div className="pt-8 border-t border-zinc-200 flex items-center justify-between font-mono text-[11px] text-zinc-500">
+            <span>Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 border border-zinc-300 text-zinc-700">⌘S</kbd> / <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 border border-zinc-300 text-zinc-700">Ctrl+S</kbd> to save</span>
             <span>Markdown &amp; HTML supported</span>
           </div>
         </section>

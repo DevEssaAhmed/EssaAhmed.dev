@@ -1,6 +1,7 @@
-﻿import TagDetailPage from "./TagDetailPage";
+import TagDetailPage from "./TagDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
-import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 120;
@@ -21,14 +22,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .single();
 
   if (!tagData) {
-    return {
-      ...buildPageMetadata({
-        title: "Tag Not Found",
-        description: "The requested tag could not be found.",
-        path: `/articles/tags/${resolvedParams.tagSlug}`,
-      }),
-      robots: { index: false, follow: false },
-    };
+    return buildPageMetadata({
+      title: "Tag Not Found",
+      description: "The requested tag could not be found.",
+      path: `/articles/tags/${resolvedParams.tagSlug}`,
+    });
   }
 
   return buildPageMetadata({
@@ -50,7 +48,7 @@ export default async function Page({ params }: Props) {
     .single();
 
   if (!tagData) {
-    return <TagDetailPage />;
+    notFound();
   }
 
   const { data: blogPostTagData } = await supabase
@@ -86,4 +84,3 @@ export default async function Page({ params }: Props) {
     />
   );
 }
-

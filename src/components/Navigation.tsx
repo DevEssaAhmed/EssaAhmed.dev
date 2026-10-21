@@ -60,7 +60,7 @@ const Navigation = memo(() => {
   const pathname = usePathname() || "/";
   const router = useRouter();
   const { profile } = useProfile();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { hasProjects, hasArticles } = useContentAvailability();
 
@@ -115,7 +115,7 @@ const Navigation = memo(() => {
       path: "#theme",
       action: () => toggleTheme(),
     });
-    if (user) {
+    if (isAdmin) {
       list.push({
         label: "Notion Admin CMS Hub",
         sub: "Manage Articles, Projects, Travel & Diary",
@@ -123,7 +123,7 @@ const Navigation = memo(() => {
       });
     }
     return list;
-  }, [hasProjects, hasArticles, theme, toggleTheme, user]);
+  }, [hasProjects, hasArticles, theme, toggleTheme, isAdmin]);
 
   const filteredCmdActions = useMemo(() => {
     const q = cmdQuery.trim().toLowerCase();
@@ -403,7 +403,7 @@ const Navigation = memo(() => {
                           Contact Me
                         </Button>
                       </HashLink>
-                      {user && (
+                      {isAdmin && (
                         <Button
                           asChild
                           size="default"
@@ -555,7 +555,7 @@ const Navigation = memo(() => {
               </span>
             </HashLink>
 
-            {user && (
+            {isAdmin && (
               <Link
                 href="/admin"
                 className="w-11 h-11 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-primary hover:bg-primary/25 transition-colors"

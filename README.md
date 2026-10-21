@@ -23,8 +23,8 @@ A responsive portfolio website for presenting professional capabilities, project
 1. Clone the repository and open the project directory:
 
    ```bash
-   git clone https://github.com/OWNER/REPOSITORY.git
-   cd REPOSITORY
+   git clone https://github.com/DevEssaAhmed/EssaAhmed.dev.git
+   cd EssaAhmed.dev
    ```
 
    Replace `OWNER/REPOSITORY` with the GitHub location for your copy.

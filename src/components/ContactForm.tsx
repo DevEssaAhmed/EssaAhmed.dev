@@ -21,24 +21,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Send } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const contactSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name is too long"),
+  email: z.string().trim().email("Please enter a valid email address").max(255, "Email is too long"),
   purpose: z.string().min(1, "Please select a purpose"),
-  other_purpose: z.string().optional(),
-  message: z.string().min(10, "Message must be at least 10 characters"),
+  other_purpose: z.string().trim().max(200).optional(),
+  message: z.string().trim().min(10, "Message must be at least 10 characters").max(4000, "Message is too long"),
+  honeypot: z.string().optional(),
 });
 
 type ContactFormData = z.infer<typeof contactSchema>;
 
 const purposeOptions = [
-  { value: "Executive BI Dashboard", label: "Executive BI Dashboard Architecture" },
-  { value: "Data Pipeline & ETL", label: "Automated Data Pipeline & ETL" },
-  { value: "Data Modeling & Warehouse", label: "Database & Warehouse Design" },
-  { value: "Full-time / Consulting", label: "Full-time / Consulting Role" },
+  { value: "Industrial Engineering & Quality Analytics", label: "Industrial Engineering & Quality Analytics" },
+  { value: "Operations & Supply Chain Analytics", label: "Operations & Supply Chain Analytics" },
+  { value: "Power BI & Dashboard Solutions", label: "Power BI & Dashboard Solutions" },
+  { value: "Automation & Python Scripting", label: "Automation & Python Scripting" },
+  { value: "Full-time / Career Opportunity", label: "Full-time / Career Opportunity" },
   { value: "collaboration", label: "Collaboration" },
   { value: "other", label: "Other" },
 ];
@@ -58,6 +59,7 @@ const ContactForm = () => {
       purpose: "",
       other_purpose: "",
       message: "",
+      honeypot: "",
     },
   });
 
@@ -67,19 +69,22 @@ const ContactForm = () => {
     setIsSubmitting(true);
 
     try {
-      const payload = {
-        ...data,
-        purpose: data.purpose === "other" ? data.other_purpose || "Other" : data.purpose,
-      };
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-      const { error } = await supabase.from("contacts").insert([payload]);
-      if (error) throw error;
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send message. Please try again.");
+      }
 
-      toast.success("Message sent successfully.");
+      toast.success("Message sent successfully. Thank you!");
       form.reset();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to send message:", error);
-      toast.error("Failed to send message. Please try again.");
+      toast.error(error.message || "Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -92,13 +97,21 @@ const ContactForm = () => {
           <Send className="w-5 h-5" />
         </div>
         <div>
-          <h3 className="font-display text-lg font-bold text-white tracking-tight">Send a Project Brief</h3>
-          <p className="text-xs text-ink-soft font-light mt-0.5">Responses guaranteed within 24 operational hours</p>
+          <h3 className="font-display text-lg font-bold text-white tracking-tight">Send a Message</h3>
+          <p className="text-xs text-ink-soft font-light mt-0.5">Direct inquiry — typically replies within 1–2 business days</p>
         </div>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
+          {/* Honeypot field for bot protection */}
+          <input
+            type="text"
+            className="hidden"
+            tabIndex={-1}
+            autoComplete="off"
+            {...form.register("honeypot")}
+          />
           <div className="grid md:grid-cols-2 gap-5">
             <FormField
               control={form.control}

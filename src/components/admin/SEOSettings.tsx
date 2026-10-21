@@ -158,48 +158,48 @@ const SEOSettings: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Settings className="w-6 h-6" /> SEO Settings
+          <h2 className="text-2xl font-bold text-zinc-900 flex items-center gap-2">
+            <Settings className="w-6 h-6 text-zinc-700" /> SEO Settings
           </h2>
-          <p className="text-muted-foreground mt-1">Configure search engine optimization and social media settings</p>
+          <p className="text-zinc-600 text-sm mt-1">Configure search engine optimization and social media settings</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={resetToDefaults}>
+          <Button variant="outline" onClick={resetToDefaults} className="border-zinc-300 bg-white text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 shadow-2xs">
             <RefreshCw className="w-4 h-4 mr-2" /> Reset
           </Button>
-          <Button onClick={saveSettings} disabled={isSaving}>
+          <Button onClick={saveSettings} disabled={isSaving} className="bg-zinc-900 text-white hover:bg-zinc-800 font-medium shadow-xs">
             <Save className="w-4 h-4 mr-2" /> {isSaving ? 'Saving...' : 'Save Settings'}
           </Button>
         </div>
       </div>
 
       {/* Preview */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-            <Eye className="w-5 h-5" /> SEO Preview
+      <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-zinc-900 text-base font-semibold">
+            <Eye className="w-5 h-5 text-blue-600" /> SEO Preview
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Google Search Result</h3>
+            <div className="bg-zinc-50/80 p-4 rounded-lg border border-zinc-200">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Google Search Result</h3>
               <div className="space-y-1">
-                <div className="text-blue-600 dark:text-blue-400 text-lg hover:underline cursor-pointer">{preview.title}</div>
-                <div className="text-green-600 dark:text-green-400 text-sm">{preview.url}</div>
-                <div className="text-gray-600 dark:text-gray-300 text-sm">{preview.description}</div>
+                <div className="text-blue-600 font-medium text-lg hover:underline cursor-pointer">{preview.title}</div>
+                <div className="text-emerald-700 text-sm">{preview.url}</div>
+                <div className="text-zinc-600 text-sm">{preview.description}</div>
               </div>
             </div>
-            <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Social Media Card</h3>
-              <div className="border rounded-lg overflow-hidden">
-                <div className="bg-gray-200 dark:bg-gray-700 h-32 flex items-center justify-center">
-                  <ImageIcon className="w-8 h-8 text-gray-400" />
+            <div className="bg-zinc-50/80 p-4 rounded-lg border border-zinc-200">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Social Media Card</h3>
+              <div className="border border-zinc-200 rounded-lg overflow-hidden bg-white max-w-md shadow-2xs">
+                <div className="bg-zinc-100 h-32 flex items-center justify-center border-b border-zinc-200">
+                  <ImageIcon className="w-8 h-8 text-zinc-400" />
                 </div>
                 <div className="p-3">
-                  <div className="font-medium text-sm mb-1">{preview.title}</div>
-                  <div className="text-gray-600 dark:text-gray-300 text-xs">{preview.description}</div>
-                  <div className="text-gray-500 dark:text-gray-400 text-xs mt-1">{preview.url}</div>
+                  <div className="font-semibold text-sm mb-1 text-zinc-900">{preview.title}</div>
+                  <div className="text-zinc-600 text-xs line-clamp-2">{preview.description}</div>
+                  <div className="text-zinc-400 text-xs mt-1.5 font-mono">{preview.url}</div>
                 </div>
               </div>
             </div>
@@ -209,16 +209,16 @@ const SEOSettings: React.FC = () => {
 
       {/* Settings Tabs */}
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="social">Social</TabsTrigger>
-          <TabsTrigger value="advanced">Advanced</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="custom">Custom</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5 bg-zinc-200/80 border border-zinc-300/80 p-1 text-zinc-600 rounded-lg">
+          <TabsTrigger value="general" className="data-[state=active]:bg-white data-[state=active]:text-zinc-900 data-[state=active]:shadow-xs text-zinc-600 hover:text-zinc-900">General</TabsTrigger>
+          <TabsTrigger value="social" className="data-[state=active]:bg-white data-[state=active]:text-zinc-900 data-[state=active]:shadow-xs text-zinc-600 hover:text-zinc-900">Social</TabsTrigger>
+          <TabsTrigger value="advanced" className="data-[state=active]:bg-white data-[state=active]:text-zinc-900 data-[state=active]:shadow-xs text-zinc-600 hover:text-zinc-900">Advanced</TabsTrigger>
+          <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-zinc-900 data-[state=active]:shadow-xs text-zinc-600 hover:text-zinc-900">Analytics</TabsTrigger>
+          <TabsTrigger value="custom" className="data-[state=active]:bg-white data-[state=active]:text-zinc-900 data-[state=active]:shadow-xs text-zinc-600 hover:text-zinc-900">Custom</TabsTrigger>
         </TabsList>
         {/* General */}
         <TabsContent value="general" className="space-y-4">
-          <Card>
+          <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Globe className="w-5 h-5" /> Site Information
@@ -255,24 +255,24 @@ const SEOSettings: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="w-5 h-5" /> Default Meta Tags
+              <CardTitle className="flex items-center gap-2 text-zinc-900">
+                <Search className="w-5 h-5 text-zinc-600" /> Default Meta Tags
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="default_title">Default Title</Label>
-                <Input id="default_title" value={settings.default_title} onChange={(e) => setSettings((p) => ({ ...p, default_title: e.target.value }))} />
+                <Label htmlFor="default_title" className="text-zinc-700">Default Title</Label>
+                <Input id="default_title" value={settings.default_title} onChange={(e) => setSettings((p) => ({ ...p, default_title: e.target.value }))} className="bg-white border-zinc-300 text-zinc-900" />
               </div>
               <div>
-                <Label htmlFor="default_description">Default Description</Label>
-                <Textarea id="default_description" value={settings.default_description} onChange={(e) => setSettings((p) => ({ ...p, default_description: e.target.value }))} rows={3} />
+                <Label htmlFor="default_description" className="text-zinc-700">Default Description</Label>
+                <Textarea id="default_description" value={settings.default_description} onChange={(e) => setSettings((p) => ({ ...p, default_description: e.target.value }))} rows={3} className="bg-white border-zinc-300 text-zinc-900" />
               </div>
               <div>
-                <Label htmlFor="default_keywords">Default Keywords</Label>
-                <Input id="default_keywords" value={settings.default_keywords} onChange={(e) => setSettings((p) => ({ ...p, default_keywords: e.target.value }))} />
+                <Label htmlFor="default_keywords" className="text-zinc-700">Default Keywords</Label>
+                <Input id="default_keywords" value={settings.default_keywords} onChange={(e) => setSettings((p) => ({ ...p, default_keywords: e.target.value }))} className="bg-white border-zinc-300 text-zinc-900" />
               </div>
             </CardContent>
           </Card>
@@ -280,46 +280,46 @@ const SEOSettings: React.FC = () => {
 
         {/* Social */}
         <TabsContent value="social" className="space-y-4">
-          <Card>
+          <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Share2 className="w-5 h-5" /> Social Media Profiles
+              <CardTitle className="flex items-center gap-2 text-zinc-900">
+                <Share2 className="w-5 h-5 text-zinc-600" /> Social Media Profiles
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="twitter_handle" className="flex items-center gap-2">
-                    <Twitter className="w-4 h-4 text-blue-400" /> Twitter Handle
+                  <Label htmlFor="twitter_handle" className="flex items-center gap-2 text-zinc-700">
+                    <Twitter className="w-4 h-4 text-blue-500" /> Twitter Handle
                   </Label>
-                  <Input id="twitter_handle" value={settings.twitter_handle} onChange={(e) => setSettings((p) => ({ ...p, twitter_handle: e.target.value }))} placeholder="@username" />
+                  <Input id="twitter_handle" value={settings.twitter_handle} onChange={(e) => setSettings((p) => ({ ...p, twitter_handle: e.target.value }))} placeholder="@username" className="bg-white border-zinc-300 text-zinc-900" />
                 </div>
                 <div>
-                  <Label htmlFor="github_username" className="flex items-center gap-2">
-                    <Github className="w-4 h-4" /> GitHub Username
+                  <Label htmlFor="github_username" className="flex items-center gap-2 text-zinc-700">
+                    <Github className="w-4 h-4 text-zinc-700" /> GitHub Username
                   </Label>
-                  <Input id="github_username" value={settings.github_username} onChange={(e) => setSettings((p) => ({ ...p, github_username: e.target.value }))} placeholder="username" />
+                  <Input id="github_username" value={settings.github_username} onChange={(e) => setSettings((p) => ({ ...p, github_username: e.target.value }))} placeholder="username" className="bg-white border-zinc-300 text-zinc-900" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="linkedin_profile" className="flex items-center gap-2">
+                  <Label htmlFor="linkedin_profile" className="flex items-center gap-2 text-zinc-700">
                     <Linkedin className="w-4 h-4 text-blue-600" /> LinkedIn Profile
                   </Label>
-                  <Input id="linkedin_profile" value={settings.linkedin_profile} onChange={(e) => setSettings((p) => ({ ...p, linkedin_profile: e.target.value }))} placeholder="https://linkedin.com/in/username" />
+                  <Input id="linkedin_profile" value={settings.linkedin_profile} onChange={(e) => setSettings((p) => ({ ...p, linkedin_profile: e.target.value }))} placeholder="https://linkedin.com/in/username" className="bg-white border-zinc-300 text-zinc-900" />
                 </div>
                 <div>
-                  <Label htmlFor="instagram_handle" className="flex items-center gap-2">
+                  <Label htmlFor="instagram_handle" className="flex items-center gap-2 text-zinc-700">
                     <Instagram className="w-4 h-4 text-pink-500" /> Instagram Handle
                   </Label>
-                  <Input id="instagram_handle" value={settings.instagram_handle} onChange={(e) => setSettings((p) => ({ ...p, instagram_handle: e.target.value }))} placeholder="@username" />
+                  <Input id="instagram_handle" value={settings.instagram_handle} onChange={(e) => setSettings((p) => ({ ...p, instagram_handle: e.target.value }))} placeholder="@username" className="bg-white border-zinc-300 text-zinc-900" />
                 </div>
               </div>
               <div>
-                <Label htmlFor="facebook_page" className="flex items-center gap-2">
+                <Label htmlFor="facebook_page" className="flex items-center gap-2 text-zinc-700">
                   <Facebook className="w-4 h-4 text-blue-600" /> Facebook Page
                 </Label>
-                <Input id="facebook_page" value={settings.facebook_page} onChange={(e) => setSettings((p) => ({ ...p, facebook_page: e.target.value }))} placeholder="https://facebook.com/yourpage" />
+                <Input id="facebook_page" value={settings.facebook_page} onChange={(e) => setSettings((p) => ({ ...p, facebook_page: e.target.value }))} placeholder="https://facebook.com/yourpage" className="bg-white border-zinc-300 text-zinc-900" />
               </div>
             </CardContent>
           </Card>
@@ -327,13 +327,13 @@ const SEOSettings: React.FC = () => {
 
         {/* Advanced */}
         <TabsContent value="advanced" className="space-y-4">
-          <Card>
+          <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="w-5 h-5" /> SEO Features
+              <CardTitle className="flex items-center gap-2 text-zinc-900">
+                <Zap className="w-5 h-5 text-amber-500" /> SEO Features
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               {[
                 { key: 'auto_generate_descriptions', label: 'Auto-generate meta descriptions', description: 'Automatically create descriptions from content' },
                 { key: 'include_author_meta', label: 'Include author metadata', description: 'Add author information to meta tags' },
@@ -341,10 +341,10 @@ const SEOSettings: React.FC = () => {
                 { key: 'enable_twitter_cards', label: 'Enable Twitter Cards', description: 'Rich previews when shared on Twitter' },
                 { key: 'enable_og_tags', label: 'Enable Open Graph tags', description: 'Rich previews on social platforms' },
               ].map((setting) => (
-                <div key={setting.key} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+                <div key={setting.key} className="flex items-center justify-between p-4 bg-zinc-50 border border-zinc-200 rounded-lg">
                   <div className="flex-1">
-                    <div className="font-medium">{setting.label}</div>
-                    <div className="text-sm text-muted-foreground">{setting.description}</div>
+                    <div className="font-medium text-zinc-900">{setting.label}</div>
+                    <div className="text-sm text-zinc-500">{setting.description}</div>
                   </div>
                   <Switch
                     checked={(settings as any)[setting.key] as boolean}
@@ -358,20 +358,20 @@ const SEOSettings: React.FC = () => {
 
         {/* Analytics */}
         <TabsContent value="analytics" className="space-y-4">
-          <Card>
+          <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" /> Analytics &amp; Tracking
+              <CardTitle className="flex items-center gap-2 text-zinc-900">
+                <TrendingUp className="w-5 h-5 text-emerald-600" /> Analytics &amp; Tracking
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="google_analytics_id">Google Analytics ID</Label>
-                <Input id="google_analytics_id" value={settings.google_analytics_id} onChange={(e) => setSettings((p) => ({ ...p, google_analytics_id: e.target.value }))} placeholder="G-XXXXXXXXXX or UA-XXXXXXXXX-X" />
+                <Label htmlFor="google_analytics_id" className="text-zinc-700">Google Analytics ID</Label>
+                <Input id="google_analytics_id" value={settings.google_analytics_id} onChange={(e) => setSettings((p) => ({ ...p, google_analytics_id: e.target.value }))} placeholder="G-XXXXXXXXXX or UA-XXXXXXXXX-X" className="bg-white border-zinc-300 text-zinc-900" />
               </div>
               <div>
-                <Label htmlFor="google_search_console_id">Google Search Console ID</Label>
-                <Input id="google_search_console_id" value={settings.google_search_console_id} onChange={(e) => setSettings((p) => ({ ...p, google_search_console_id: e.target.value }))} placeholder="Search Console verification ID" />
+                <Label htmlFor="google_search_console_id" className="text-zinc-700">Google Search Console ID</Label>
+                <Input id="google_search_console_id" value={settings.google_search_console_id} onChange={(e) => setSettings((p) => ({ ...p, google_search_console_id: e.target.value }))} placeholder="Search Console verification ID" className="bg-white border-zinc-300 text-zinc-900" />
               </div>
             </CardContent>
           </Card>
@@ -379,15 +379,15 @@ const SEOSettings: React.FC = () => {
 
         {/* Custom */}
         <TabsContent value="custom" className="space-y-4">
-          <Card>
+          <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
             <CardHeader>
-              <CardTitle>Custom Head Tags</CardTitle>
+              <CardTitle className="text-zinc-900">Custom Head Tags</CardTitle>
             </CardHeader>
             <CardContent>
               <div>
-                <Label htmlFor="custom_head_tags">Additional HTML Head Tags</Label>
-                <Textarea id="custom_head_tags" value={settings.custom_head_tags} onChange={(e) => setSettings((p) => ({ ...p, custom_head_tags: e.target.value }))} placeholder="<meta name='custom' content='value' />" rows={6} className="font-mono text-sm" />
-                <p className="text-xs text-muted-foreground mt-2">Add custom meta tags, verification codes, or other HTML elements to the head section.</p>
+                <Label htmlFor="custom_head_tags" className="text-zinc-700">Additional HTML Head Tags</Label>
+                <Textarea id="custom_head_tags" value={settings.custom_head_tags} onChange={(e) => setSettings((p) => ({ ...p, custom_head_tags: e.target.value }))} placeholder="<meta name='custom' content='value' />" rows={6} className="font-mono text-sm bg-white border-zinc-300 text-zinc-900" />
+                <p className="text-xs text-zinc-500 mt-2">Add custom meta tags, verification codes, or other HTML elements to the head section.</p>
               </div>
             </CardContent>
           </Card>

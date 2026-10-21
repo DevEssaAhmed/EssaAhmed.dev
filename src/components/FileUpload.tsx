@@ -110,14 +110,42 @@ export const FileUpload = ({
     if (file.size > maxSizeBytes) {
       return `File size must be less than ${maxSizeMB}MB`;
     }
-    const acceptedTypes = accept.split(',').map(type => type.trim());
+    const acceptedTypes = accept.split(',').map(type => type.trim().toLowerCase());
+    const fileName = file.name.toLowerCase();
+    const fileType = (file.type || '').toLowerCase();
+
+    const mimeToExtMap: Record<string, string[]> = {
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'text/plain': ['.txt'],
+      'text/csv': ['.csv'],
+      'application/vnd.ms-excel': ['.xls', '.csv'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/png': ['.png'],
+      'image/gif': ['.gif'],
+      'image/webp': ['.webp'],
+      'image/svg+xml': ['.svg'],
+    };
+
     const isValidType = acceptedTypes.some(type => {
+      if (!type || type === '*/*') return true;
+      if (type.startsWith('.')) {
+        if (fileName.endsWith(type)) return true;
+        for (const [mime, exts] of Object.entries(mimeToExtMap)) {
+          if (exts.includes(type) && fileType === mime) return true;
+        }
+        return false;
+      }
       if (type.includes('*')) {
         const baseType = type.split('/')[0];
-        return file.type.startsWith(baseType);
+        return fileType.startsWith(baseType + '/');
       }
-      return file.type === type;
+      if (fileType === type) return true;
+      return false;
     });
+
     if (!isValidType) {
       return `File type not supported. Accepted types: ${accept}`;
     }

@@ -8,10 +8,9 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Eye, Heart, ArrowLeft, Twitter, Linkedin, Link2, Pencil } from "lucide-react";
+import { Calendar, Clock, ArrowLeft, Twitter, Linkedin, Link2, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import SEO from "@/components/SEO";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { calculateReadingTime, formatReadingTime } from "@/utils/readingTime";
@@ -53,7 +52,7 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
   const { slug } = useParams();
   const navigate = useNavigate();
   const { profile } = useProfile();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [article, setArticle] = useState<Article | null>(initialArticle ?? null);
   const [loading, setLoading] = useState(initialArticle === undefined);
 
@@ -69,7 +68,6 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
       if (error) throw error;
       if (!data) throw new Error("Article not found");
       setArticle((data as unknown) as Article);
-      await supabase.from("blog_posts").update({ views: (data.views || 0) + 1 }).eq("id", data.id);
     } catch (error) {
       console.error("Error fetching article:", error);
       toast.error("Article not found");
@@ -126,7 +124,6 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
   return (
     <div className="min-h-screen bg-surface text-on-surface transition-colors duration-200">
       <ReadingProgressBar />
-      <SEO title={article.title} description={article.excerpt} image={article.image_url} url={`/articles/${article.slug}`} />
       <Navigation />
 
       <main id="main-content" tabIndex={-1} className="pt-16">
@@ -162,7 +159,7 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
                 Back to Articles
               </Link>
             </Button>
-            {user ? (
+            {isAdmin ? (
               <Button asChild size="sm" variant="outline" className="gap-2">
                 <Link href={`/admin/blog/edit/${article.id}`}>
                   <Pencil className="w-4 h-4" />
@@ -176,8 +173,6 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
           <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm font-mono text-on-surface-variant mb-5">
             <div className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{new Date(article.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</div>
             <div className="flex items-center gap-1.5 text-secondary font-medium"><Clock className="w-4 h-4 text-secondary" />{readingTime}</div>
-            <div className="flex items-center gap-1.5"><Eye className="w-4 h-4" />{(article.views || 0).toLocaleString()} views</div>
-            <div className="flex items-center gap-1.5"><Heart className="w-4 h-4" />{article.likes || 0} likes</div>
           </div>
 
           {/* Title */}

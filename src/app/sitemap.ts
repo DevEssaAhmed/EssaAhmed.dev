@@ -56,6 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { data: projectsData },
     { data: categoriesData },
     { data: seriesData },
+    { data: tagsData },
   ] = await Promise.all([
     supabase
       .from("blog_posts")
@@ -69,6 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .order("created_at", { ascending: false }),
     supabase.from("categories").select("id, slug"),
     supabase.from("series").select("id, slug"),
+    supabase.from("tags").select("id, name, slug"),
   ]);
 
   const articles = articlesData || [];
@@ -123,11 +125,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
+  const tagPages: MetadataRoute.Sitemap = (tagsData || [])
+    .filter((tag: any) => Boolean(tag?.name))
+    .map((tag: any) => {
+      const tagSlug = encodeURIComponent(tag.name.toLowerCase().replace(/\s+/g, "-"));
+      return {
+        url: SITE_URL + "/articles/tags/" + tagSlug,
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      };
+    });
+
   return [
     ...staticPages,
     ...articlePages,
     ...projectPages,
     ...categoryPages,
     ...seriesPages,
+    ...tagPages,
   ];
 }

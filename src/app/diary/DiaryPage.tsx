@@ -36,7 +36,7 @@ export default function DiaryPage({
   initialViewMode = "year",
   initialYear = "all",
 }: DiaryPageProps) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [entries, setEntries] = useState<DiaryEntry[]>(initialEntries);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -136,7 +136,7 @@ export default function DiaryPage({
               </p>
             </div>
 
-            {user && (
+            {isAdmin && (
               <Link
                 href="/admin/diary/new"
                 className="px-4 py-2.5 rounded-full bg-primary/15 border border-primary/30 text-primary text-xs font-code hover:bg-primary/25 transition-colors self-start md:self-end shrink-0"
@@ -263,7 +263,7 @@ export default function DiaryPage({
                             </div>
                             <div className="flex items-center gap-3 text-xs font-code text-outline">
                               <span>{readMins} min read</span>
-                              {user && (
+                              {isAdmin && (
                                 <Link
                                   href={`/admin/diary/edit/${entry.id}`}
                                   className="text-primary hover:underline"
@@ -328,7 +328,7 @@ export default function DiaryPage({
                     <span className="text-secondary font-semibold">
                       {formatReadableDate(entry.entry_date)}
                     </span>
-                    {user && (
+                    {isAdmin && (
                       <Link
                         href={`/admin/diary/edit/${entry.id}`}
                         className="text-primary hover:underline"

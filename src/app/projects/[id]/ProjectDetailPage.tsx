@@ -100,7 +100,7 @@ const ProjectDetailPage = ({
 }: ProjectDetailPageProps) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   const [project, setProject] = useState<any>(() => {
     if (!initialProject) return null;
@@ -108,7 +108,6 @@ const ProjectDetailPage = ({
   });
   const [projectTags, setProjectTags] = useState<any[]>(initialProjectTags ?? []);
   const [loading, setLoading] = useState(initialProject === undefined);
-  const [isLiked, setIsLiked] = useState(false);
 
   const hasVideo = Boolean(
     project?.demo_video_url &&
@@ -159,34 +158,6 @@ const ProjectDetailPage = ({
       fetchProject();
     }
   }, [id, initialProject, fetchProject]);
-
-  // Increment view count once on client mount
-  useEffect(() => {
-    if (!project?.id) return;
-    supabase
-      .from("projects")
-      .update({ views: (project.views || 0) + 1 })
-      .eq("id", project.id)
-      .then(() => {});
-  }, [project?.id]);
-
-  const handleLike = async () => {
-    if (!project) return;
-    try {
-      const newLikeCount = isLiked
-        ? Math.max(0, (project.likes || 0) - 1)
-        : (project.likes || 0) + 1;
-      await supabase
-        .from("projects")
-        .update({ likes: newLikeCount })
-        .eq("id", project.id);
-      setProject({ ...project, likes: newLikeCount });
-      setIsLiked(!isLiked);
-      toast.success(isLiked ? "Like removed" : "Project liked!");
-    } catch {
-      toast.error("Failed to update like");
-    }
-  };
 
   const handleShare = () => {
     if (typeof window !== "undefined" && navigator.share) {
@@ -315,7 +286,7 @@ const ProjectDetailPage = ({
             <span>Back to Projects</span>
           </Link>
 
-          {user && (
+          {isAdmin && (
             <Link
               href={`/admin/project/edit/${project.id}`}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary/15 border border-primary/30 text-xs font-code text-primary hover:bg-primary/25 transition-colors"
@@ -415,20 +386,6 @@ const ProjectDetailPage = ({
                 <span>Source Code</span>
               </a>
             )}
-            <button
-              type="button"
-              onClick={handleLike}
-              className={`px-4 py-2.5 rounded-full border text-xs font-medium transition-all inline-flex items-center gap-1.5 ${
-                isLiked
-                  ? "bg-rose-500/15 border-rose-500/40 text-rose-400"
-                  : "bg-surface-container border-outline-variant/30 text-on-surface-variant hover:text-on-surface"
-              }`}
-            >
-              <span className="material-symbols-outlined text-[16px]">
-                favorite
-              </span>
-              <span>{project.likes || 0}</span>
-            </button>
             <button
               type="button"
               onClick={handleShare}

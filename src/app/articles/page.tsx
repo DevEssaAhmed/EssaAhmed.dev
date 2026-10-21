@@ -1,4 +1,4 @@
-﻿import ArticlesPage from "./ArticlesPage";
+import ArticlesPage from "./ArticlesPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
 
@@ -15,7 +15,7 @@ export default async function Page() {
   const { data } = await supabase
     .from("blog_posts")
     .select(
-      "id,title,slug,excerpt,created_at,reading_time,is_external,external_url,platform,pillar,video_type,video_url"
+      "id,title,slug,excerpt,created_at,reading_time,is_external,external_url,platform,video_type,video_url"
     )
     .eq("published", true)
     .eq("unlisted", false)

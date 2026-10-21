@@ -6,13 +6,12 @@ import Link from "next/link";
 import { useParams, useNavigate } from '@/lib/router-compat';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import SEO from '@/components/SEO';
 import { Badge } from "@/components/ui/badge";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Eye, Heart, Calendar, Clock, ArrowLeft, Tag, Search, BookOpen, Hash } from "lucide-react";
+import { Calendar, Clock, ArrowLeft, Tag, Search, BookOpen, Hash } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -186,11 +185,6 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
 
   return (
     <div className="min-h-screen bg-surface">
-      <SEO
-        title={`#${tagName} - Tag`}
-        description={`Explore ${blogPosts.length} articles tagged with "${tagName}"`}
-        url={`/tags/${tagSlug}`}
-      />
       <Navigation />
 
       <div className="pt-20">
@@ -291,18 +285,6 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
                             <Calendar className="w-3.5 h-3.5 text-champagne/70" />
                             {new Date(post.created_at).toLocaleDateString()}
                           </div>
-                          {post.views && (
-                            <div className="flex items-center gap-1">
-                              <Eye className="w-3.5 h-3.5 text-champagne/70" />
-                              {post.views}
-                            </div>
-                          )}
-                          {post.likes && (
-                            <div className="flex items-center gap-1">
-                              <Heart className="w-3.5 h-3.5 text-champagne/70" />
-                              {post.likes}
-                            </div>
-                          )}
                         </div>
                       </CardContent>
                     </Card>

@@ -54,6 +54,7 @@ export default async function Page() {
     tags: Array.isArray(project.tags) ? project.tags : [],
     category:
       categoryNames.get(project.category_id ?? "") ?? "Uncategorized",
+    featured: Boolean(project.featured),
     demoUrl: project.demo_url ?? undefined,
     githubUrl: project.github_url ?? undefined,
     demoVideoUrl: project.demo_video_url ?? undefined,

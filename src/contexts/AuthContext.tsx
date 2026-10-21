@@ -6,6 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
 }
@@ -74,10 +75,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await supabase.auth.signOut();
   };
 
+  const isAdmin = Boolean(user && user.app_metadata?.role === 'admin');
+
   const value = {
     user,
     session,
     loading,
+    isAdmin,
     signIn,
     signOut,
   };

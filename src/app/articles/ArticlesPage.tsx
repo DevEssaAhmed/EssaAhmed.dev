@@ -15,26 +15,18 @@ interface ArticlesPageProps {
   initialArticles?: any[];
 }
 
-const PILLAR_FILTERS = [
-  "All",
-  "Workflow Automation",
-  "Supply Chain & Demand Planning",
-  "Analytics & Decision Systems",
-] as const;
-
 const PLATFORM_FILTERS: Array<"All" | ArticlePlatform> = [
   "All",
-  "On Site",
   "Medium",
   "dev.to",
   "freeCodeCamp",
   "Substack",
+  "Hashnode",
 ];
 
 export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPillar, setSelectedPillar] = useState<string>("All");
   const [selectedPlatform, setSelectedPlatform] = useState<string>("All");
 
   // Strictly use real published articles from Supabase (never inject fake sample articles on public site)
@@ -45,8 +37,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
         ...post,
         _isExternal: extMeta.isExternal && Boolean(extMeta.externalUrl),
         _externalUrl: extMeta.externalUrl || "",
-        _platform: (extMeta.platform || "On Site") as ArticlePlatform,
-        _pillar: extMeta.pillar || "Analytics & Decision Systems",
+        _platform: extMeta.platform as ArticlePlatform | null,
       };
     });
   }, [initialArticles]);
@@ -58,13 +49,11 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
         !q ||
         article.title?.toLowerCase().includes(q) ||
         article.excerpt?.toLowerCase().includes(q);
-      const matchesPillar =
-        selectedPillar === "All" || article._pillar === selectedPillar;
       const matchesPlatform =
         selectedPlatform === "All" || article._platform === selectedPlatform;
-      return matchesSearch && matchesPillar && matchesPlatform;
+      return matchesSearch && matchesPlatform;
     });
-  }, [unifiedArticles, searchTerm, selectedPillar, selectedPlatform]);
+  }, [unifiedArticles, searchTerm, selectedPlatform]);
 
   return (
     <div className="min-h-screen bg-surface text-on-surface selection:bg-primary/30 selection:text-primary flex flex-col justify-between transition-colors duration-200">
@@ -87,7 +76,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
               </p>
             </div>
 
-            {user && (
+            {isAdmin && (
               <Link
                 href="/admin/blog/new"
                 className="px-4 py-2.5 rounded-full bg-primary/15 border border-primary/30 text-primary text-xs font-code hover:bg-primary/25 transition-colors self-start md:self-end shrink-0"
@@ -150,25 +139,6 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                   })}
                 </div>
               </div>
-
-              {/* Pillar Filter Pills */}
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
-                {PILLAR_FILTERS.map((pillar) => (
-                  <button
-                    key={pillar}
-                    type="button"
-                    aria-pressed={selectedPillar === pillar}
-                    onClick={() => setSelectedPillar(pillar)}
-                    className={
-                      selectedPillar === pillar
-                        ? "min-h-11 px-3.5 py-1.5 rounded-full bg-primary/15 border border-primary/40 text-primary text-xs font-semibold whitespace-nowrap"
-                        : "min-h-11 px-3.5 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs whitespace-nowrap transition-colors"
-                    }
-                  >
-                    {pillar}
-                  </button>
-                ))}
-              </div>
             </div>
           )}
         </section>
@@ -177,7 +147,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
         <section className="pt-10">
           <AnimatePresence mode="wait">
             <motion.div
-              key={selectedPlatform + selectedPillar + (searchTerm ? `_${searchTerm}` : "")}
+              key={selectedPlatform + (searchTerm ? `_${searchTerm}` : "")}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
@@ -193,7 +163,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                   <p className="text-on-surface-variant text-sm max-w-md mx-auto">
                     {unifiedArticles.length === 0
                       ? "New technical essays and external publications will appear here as soon as they are published."
-                      : "Try adjusting your search query or clearing your platform/pillar filters."}
+                      : "Try adjusting your search query or clearing your platform filter."}
                   </p>
                 </div>
               ) : (
@@ -222,11 +192,15 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                       <>
                         <div>
                           <div className="flex items-center justify-between mb-4">
-                            <span
-                              className={`px-2.5 py-1 rounded-full border text-label-sm font-label-sm font-semibold ${badgeClass}`}
-                            >
-                              {isExternal ? `${platform} ↗` : "On Site"}
-                            </span>
+                            {isExternal && platform ? (
+                              <span
+                                className={`px-2.5 py-1 rounded-full border text-label-sm font-label-sm font-semibold ${badgeClass}`}
+                              >
+                                {platform} ↗
+                              </span>
+                            ) : (
+                              <span />
+                            )}
                             {article.reading_time ? (
                               <span className="text-on-surface-variant text-label-sm font-code">
                                 {article.reading_time} min read

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -204,17 +204,17 @@ const ProfileManagePage = () => {
     <AdminLayout title="Profile" subtitle="Update your personal information" actions={actions}>
       <form id="profile-form" onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Avatar Section */}
-        <Card className="border-border/40">
+        <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <User className="w-5 h-5" /> Profile Picture
+            <CardTitle className="text-lg font-semibold flex items-center gap-2 text-zinc-900">
+              <User className="w-5 h-5 text-zinc-600" /> Profile Picture
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row items-start gap-6">
-              <Avatar className="w-20 h-20 mx-auto sm:mx-0">
+              <Avatar className="w-20 h-20 mx-auto sm:mx-0 border border-zinc-200">
                 <AvatarImage src={avatarUrl} alt="Profile" />
-                <AvatarFallback className="bg-primary text-primary-foreground text-xl font-medium">
+                <AvatarFallback className="bg-zinc-100 text-zinc-800 text-xl font-medium">
                   {watch("name")?.charAt(0) || "U"}
                 </AvatarFallback>
               </Avatar>
@@ -230,11 +230,11 @@ const ProfileManagePage = () => {
                   showPreview={false}
                 />
                 <div className="mt-3">
-                  <Button type="button" variant="outline" onClick={handleRemoveAvatar} disabled={!avatarUrl}>
+                  <Button type="button" variant="outline" onClick={handleRemoveAvatar} disabled={!avatarUrl} className="bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 shadow-2xs">
                     Remove current avatar
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-zinc-500 mt-2">
                   Square image recommended • At least 256×256px • Max 5MB
                 </p>
               </div>
@@ -243,33 +243,42 @@ const ProfileManagePage = () => {
         </Card>
 
         {/* Basic Information */}
-        <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
-          <CardHeader><CardTitle>Basic Information</CardTitle><CardDescription>Your personal details and contact information</CardDescription></CardHeader>
+        <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
+          <CardHeader>
+            <CardTitle className="text-zinc-900">Basic Information</CardTitle>
+            <CardDescription className="text-zinc-500">Your personal details and contact information</CardDescription>
+          </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div><Label htmlFor="name">Full Name *</Label><Input id="name" {...register("name")} placeholder="Alex Chen" className="mt-2" />{errors.name && <p className="text-destructive text-sm mt-1">{errors.name.message}</p>}</div>
-              <div><Label htmlFor="username">Username *</Label><Input id="username" {...register("username")} placeholder="alex_chen_data" className="mt-2" />{errors.username && <p className="text-destructive text-sm mt-1">{errors.username.message}</p>}</div>
-              <div><Label htmlFor="title">Professional Title</Label><Input id="title" {...register("title")} placeholder="Senior Data Analyst" className="mt-2" /></div>
-              <div><Label htmlFor="location"><MapPin className="w-4 h-4 inline mr-1" />Location</Label><Input id="location" {...register("location")} placeholder="San Francisco, CA" className="mt-2" /></div>
-              <div className="md:col-span-2"><Label htmlFor="bio">Bio</Label><Textarea id="bio" {...register("bio")} placeholder="Tell visitors about yourself..." rows={4} className="mt-2" /></div>
+              <div><Label htmlFor="name" className="text-zinc-700">Full Name *</Label><Input id="name" {...register("name")} placeholder="Alex Chen" className="mt-2 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" />{errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}</div>
+              <div><Label htmlFor="username" className="text-zinc-700">Username *</Label><Input id="username" {...register("username")} placeholder="alex_chen_data" className="mt-2 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" />{errors.username && <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>}</div>
+              <div><Label htmlFor="title" className="text-zinc-700">Professional Title</Label><Input id="title" {...register("title")} placeholder="Senior Data Analyst" className="mt-2 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" /></div>
+              <div><Label htmlFor="location" className="text-zinc-700"><MapPin className="w-4 h-4 inline mr-1 text-zinc-500" />Location</Label><Input id="location" {...register("location")} placeholder="San Francisco, CA" className="mt-2 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" /></div>
+              <div className="md:col-span-2"><Label htmlFor="bio" className="text-zinc-700">Bio</Label><Textarea id="bio" {...register("bio")} placeholder="Tell visitors about yourself..." rows={4} className="mt-2 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" /></div>
             </div>
           </CardContent>
         </Card>
 
         {/* Contact Information */}
-        <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
-          <CardHeader><CardTitle>Contact & Social</CardTitle><CardDescription>Your contact details and social media profiles</CardDescription></CardHeader>
+        <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
+          <CardHeader>
+            <CardTitle className="text-zinc-900">Contact &amp; Social</CardTitle>
+            <CardDescription className="text-zinc-500">Your contact details and social media profiles</CardDescription>
+          </CardHeader>
           <CardContent className="space-y-6">
-            <div><Label htmlFor="email"><Mail className="w-4 h-4 inline mr-1" />Email</Label><Input id="email" {...register("email")} type="email" placeholder="alex@example.com" className="mt-2" />{errors.email && <p className="text-destructive text-sm mt-1">{errors.email.message}</p>}</div>
-            <div><Label htmlFor="website_url"><Globe className="w-4 h-4 inline mr-1" />Website</Label><Input id="website_url" {...register("website_url")} placeholder="https://yourwebsite.com" className="mt-2" />{errors.website_url && <p className="text-destructive text-sm mt-1">{errors.website_url.message}</p>}</div>
-            <div><Label htmlFor="github_url"><Github className="w-4 h-4 inline mr-1" />GitHub</Label><Input id="github_url" {...register("github_url")} placeholder="https://github.com/username" className="mt-2" />{errors.github_url && <p className="text-destructive text-sm mt-1">{errors.github_url.message}</p>}</div>
-            <div><Label htmlFor="linkedin_url"><Linkedin className="w-4 h-4 inline mr-1" />LinkedIn</Label><Input id="linkedin_url" {...register("linkedin_url")} placeholder="https://linkedin.com/in/username" className="mt-2" />{errors.linkedin_url && <p className="text-destructive text-sm mt-1">{errors.linkedin_url.message}</p>}</div>
+            <div><Label htmlFor="email" className="text-zinc-700"><Mail className="w-4 h-4 inline mr-1 text-zinc-500" />Email</Label><Input id="email" {...register("email")} type="email" placeholder="alex@example.com" className="mt-2 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" />{errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}</div>
+            <div><Label htmlFor="website_url" className="text-zinc-700"><Globe className="w-4 h-4 inline mr-1 text-zinc-500" />Website</Label><Input id="website_url" {...register("website_url")} placeholder="https://yourwebsite.com" className="mt-2 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" />{errors.website_url && <p className="text-red-500 text-sm mt-1">{errors.website_url.message}</p>}</div>
+            <div><Label htmlFor="github_url" className="text-zinc-700"><Github className="w-4 h-4 inline mr-1 text-zinc-500" />GitHub</Label><Input id="github_url" {...register("github_url")} placeholder="https://github.com/username" className="mt-2 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" />{errors.github_url && <p className="text-red-500 text-sm mt-1">{errors.github_url.message}</p>}</div>
+            <div><Label htmlFor="linkedin_url" className="text-zinc-700"><Linkedin className="w-4 h-4 inline mr-1 text-zinc-500" />LinkedIn</Label><Input id="linkedin_url" {...register("linkedin_url")} placeholder="https://linkedin.com/in/username" className="mt-2 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" />{errors.linkedin_url && <p className="text-red-500 text-sm mt-1">{errors.linkedin_url.message}</p>}</div>
           </CardContent>
         </Card>
 
         {/* About (BlockNote) */}
-        <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
-          <CardHeader><CardTitle>About Page Content</CardTitle><CardDescription>Rich content displayed on your public About page</CardDescription></CardHeader>
+        <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
+          <CardHeader>
+            <CardTitle className="text-zinc-900">About Page Content</CardTitle>
+            <CardDescription className="text-zinc-500">Rich content displayed on your public About page</CardDescription>
+          </CardHeader>
           <CardContent>
             <BlockNoteEditorComponent
               initialContent={aboutContent}
@@ -277,17 +286,29 @@ const ProfileManagePage = () => {
               onChange={setAboutContent}
               onEditorReady={(editor) => { editorRef.current = editor; }}
               placeholder="Tell your story... Use / to insert headings, lists, images, etc."
-              className="border rounded-lg p-4"
+              className="border border-zinc-200 rounded-lg p-4 bg-zinc-50/50"
             />
           </CardContent>
         </Card>
 
         {/* Skills */}
-        <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
-          <CardHeader><CardTitle>Skills & Technologies</CardTitle><CardDescription>Add the skills and technologies you work with</CardDescription></CardHeader>
+        <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
+          <CardHeader>
+            <CardTitle className="text-zinc-900">Skills &amp; Technologies</CardTitle>
+            <CardDescription className="text-zinc-500">Add the skills and technologies you work with</CardDescription>
+          </CardHeader>
           <CardContent>
-            <div className="flex gap-2 mb-4"><Input value={newSkill} onChange={(e) => setNewSkill(e.target.value)} placeholder="Add a skill..." onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())} className="flex-1" /><Button type="button" onClick={addSkill} variant="outline" className="hover:shadow-soft transition-all duration-300"><Plus className="w-4 h-4" /></Button></div>
-            <div className="flex flex-wrap gap-2">{skills.map((skill) => (<Badge key={skill} variant="secondary" className="px-3 py-1 cursor-pointer group hover:bg-destructive/10 transition-colors" onClick={() => removeSkill(skill)}>{skill}<X className="w-3 h-3 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" /></Badge>))}</div>
+            <div className="flex gap-2 mb-4">
+              <Input value={newSkill} onChange={(e) => setNewSkill(e.target.value)} placeholder="Add a skill..." onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())} className="flex-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" />
+              <Button type="button" onClick={addSkill} variant="outline" className="bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-50"><Plus className="w-4 h-4" /></Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill) => (
+                <Badge key={skill} variant="secondary" className="px-3 py-1 bg-zinc-100 text-zinc-800 border-zinc-200 cursor-pointer group hover:bg-red-50 hover:text-red-600 transition-colors" onClick={() => removeSkill(skill)}>
+                  {skill}<X className="w-3 h-3 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Badge>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
@@ -295,7 +316,12 @@ const ProfileManagePage = () => {
         <HeroStatsManager />
 
         {/* Save Button */}
-        <div className="flex justify-end"><Button type="submit" disabled={saving} size="lg" className="bg-gradient-primary hover:shadow-soft transition-all duration-300">{saving ? (<div className="w-4 h-4 border-2 border-primary-foreground/20 border-t-primary-foreground rounded-full animate-spin mr-2" />) : (<Save className="w-4 h-4 mr-2" />)}{saving ? "Saving..." : "Save Profile"}</Button></div>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={saving} size="lg" className="bg-zinc-900 text-white hover:bg-zinc-800 font-medium shadow-xs">
+            {saving ? (<div className="w-4 h-4 border-2 border-zinc-400 border-t-white rounded-full animate-spin mr-2" />) : (<Save className="w-4 h-4 mr-2" />)}
+            {saving ? "Saving..." : "Save Profile"}
+          </Button>
+        </div>
       </form>
     </AdminLayout>
   );

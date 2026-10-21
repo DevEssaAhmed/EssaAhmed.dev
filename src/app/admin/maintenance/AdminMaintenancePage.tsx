@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useMemo, useState } from 'react';
 import AdminLayout from '@/components/admin/layout/AdminLayout';
@@ -106,26 +106,26 @@ const AdminMaintenancePage: React.FC = () => {
       title="Maintenance"
       subtitle="Clean up unused tags and categories"
       actions={
-        <Button variant="outline" onClick={() => { loadTags(); loadCategories(); }}>
+        <Button variant="outline" className="bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 shadow-2xs" onClick={() => { loadTags(); loadCategories(); }}>
           <RefreshCw className="w-4 h-4 mr-2" /> Refresh
         </Button>
       }
     >
       <Tabs defaultValue="tags" className="space-y-6">
-        <TabsList className="w-full max-w-md grid grid-cols-2">
-          <TabsTrigger value="tags">Tags</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
+        <TabsList className="w-full max-w-md grid grid-cols-2 bg-zinc-200/80 border border-zinc-300/80 p-1 rounded-lg">
+          <TabsTrigger value="tags" className="data-[state=active]:bg-white data-[state=active]:text-zinc-900 data-[state=active]:shadow-xs text-zinc-600 hover:text-zinc-900">Tags</TabsTrigger>
+          <TabsTrigger value="categories" className="data-[state=active]:bg-white data-[state=active]:text-zinc-900 data-[state=active]:shadow-xs text-zinc-600 hover:text-zinc-900">Categories</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tags" className="space-y-4">
-          <Card className="border-primary/20">
+          <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Tags className="w-5 h-5" /> Orphan Tags</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-zinc-900"><Tags className="w-5 h-5 text-zinc-600" /> Orphan Tags</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2 mb-4">
-                <Search className="w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Search tags..." value={searchTag} onChange={(e) => setSearchTag(e.target.value)} className="max-w-xs" />
+                <Search className="w-4 h-4 text-zinc-400" />
+                <Input placeholder="Search tags..." value={searchTag} onChange={(e) => setSearchTag(e.target.value)} className="max-w-xs bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" />
                 <div className="ml-auto flex gap-2">
                   <Button variant="destructive" disabled={loadingTags || orphanTags.length === 0} onClick={deleteOrphanTags}>
                     <Trash2 className="w-4 h-4 mr-2" /> Delete All Orphan Tags
@@ -136,43 +136,43 @@ const AdminMaintenancePage: React.FC = () => {
               {loadingTags ? (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="p-4 border rounded-lg">
-                      <Skeleton className="h-6 w-1/2 mb-2" />
-                      <Skeleton className="h-4 w-1/3" />
+                    <div key={i} className="p-4 border border-zinc-200 rounded-lg bg-zinc-50/60">
+                      <Skeleton className="h-6 w-1/2 mb-2 bg-zinc-200" />
+                      <Skeleton className="h-4 w-1/3 bg-zinc-200" />
                     </div>
                   ))}
                 </div>
               ) : orphanTags.length === 0 ? (
-                <div className="text-sm text-muted-foreground flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" /> No orphan tags. You&apos;re all set!
+                <div className="text-sm text-zinc-500 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> No orphan tags. You&apos;re all set!
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {orphanTags.map((t) => (
-                    <div key={t.name} className="p-4 border rounded-lg bg-card/50">
-                      <div className="font-medium">{t.name}</div>
-                      <div className="text-xs text-muted-foreground">Used in {t.count} items</div>
+                    <div key={t.name} className="p-4 border border-zinc-200 rounded-lg bg-zinc-50/70">
+                      <div className="font-medium text-zinc-900">{t.name}</div>
+                      <div className="text-xs text-zinc-500">Used in {t.count} items</div>
                     </div>
                   ))}
                 </div>
               )}
 
-              <div className="mt-4 text-xs text-muted-foreground flex items-center gap-2">
-                <AlertTriangle className="w-3.5 h-3.5" /> Deleting a tag only removes it from your taxonomy list. It does not modify existing articles&apos; string tags.
+              <div className="mt-4 text-xs text-zinc-500 flex items-center gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> Deleting a tag only removes it from your taxonomy list. It does not modify existing articles&apos; string tags.
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="categories" className="space-y-4">
-          <Card className="border-primary/20">
+          <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Folder className="w-5 h-5" /> Orphan Categories</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-zinc-900"><Folder className="w-5 h-5 text-zinc-600" /> Orphan Categories</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2 mb-4">
-                <Search className="w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Search categories..." value={searchCat} onChange={(e) => setSearchCat(e.target.value)} className="max-w-xs" />
+                <Search className="w-4 h-4 text-zinc-400" />
+                <Input placeholder="Search categories..." value={searchCat} onChange={(e) => setSearchCat(e.target.value)} className="max-w-xs bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400" />
                 <div className="ml-auto flex gap-2">
                   <Button variant="destructive" disabled={loadingCats || orphanCategories.length === 0} onClick={deleteOrphanCategories}>
                     <Trash2 className="w-4 h-4 mr-2" /> Delete All Orphan Categories
@@ -183,29 +183,29 @@ const AdminMaintenancePage: React.FC = () => {
               {loadingCats ? (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="p-4 border rounded-lg">
-                      <Skeleton className="h-6 w-1/2 mb-2" />
-                      <Skeleton className="h-4 w-1/3" />
+                    <div key={i} className="p-4 border border-zinc-200 rounded-lg bg-zinc-50/60">
+                      <Skeleton className="h-6 w-1/2 mb-2 bg-zinc-200" />
+                      <Skeleton className="h-4 w-1/3 bg-zinc-200" />
                     </div>
                   ))}
                 </div>
               ) : orphanCategories.length === 0 ? (
-                <div className="text-sm text-muted-foreground flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" /> No orphan categories. You&apos;re all set!
+                <div className="text-sm text-zinc-500 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> No orphan categories. You&apos;re all set!
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {orphanCategories.map((c) => (
-                    <div key={c.id} className="p-4 border rounded-lg bg-card/50">
-                      <div className="font-medium">{c.name}</div>
-                      <div className="text-xs text-muted-foreground">No associated articles or projects</div>
+                    <div key={c.id} className="p-4 border border-zinc-200 rounded-lg bg-zinc-50/70">
+                      <div className="font-medium text-zinc-900">{c.name}</div>
+                      <div className="text-xs text-zinc-500">No associated articles or projects</div>
                     </div>
                   ))}
                 </div>
               )}
 
-              <div className="mt-4 text-xs text-muted-foreground flex items-center gap-2">
-                <AlertTriangle className="w-3.5 h-3.5" /> Deleting a category cannot be undone. Make sure it&apos;s truly unused.
+              <div className="mt-4 text-xs text-zinc-500 flex items-center gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> Deleting a category cannot be undone. Make sure it&apos;s truly unused.
               </div>
             </CardContent>
           </Card>

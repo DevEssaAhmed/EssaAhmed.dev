@@ -6,20 +6,24 @@ import { useParams, useNavigate } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Clock, Eye, Heart, Folder } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Folder } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/OptimizedImage";
 
-const CategoryDetailPage = () => {
+interface CategoryDetailPageProps {
+  initialCategory?: any;
+  initialArticles?: any[];
+}
+
+const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetailPageProps) => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const [category, setCategory] = useState<any>(null);
-  const [articles, setArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [category, setCategory] = useState<any>(initialCategory || null);
+  const [articles, setArticles] = useState<any[]>(initialArticles || []);
+  const [loading, setLoading] = useState(!initialCategory);
 
   const fetchCategoryAndArticles = useCallback(async () => {
     if (!slug) return;
@@ -54,8 +58,10 @@ const CategoryDetailPage = () => {
   }, [slug, navigate]);
 
   useEffect(() => {
-    fetchCategoryAndArticles();
-  }, [fetchCategoryAndArticles]);
+    if (!initialCategory) {
+      fetchCategoryAndArticles();
+    }
+  }, [initialCategory, fetchCategoryAndArticles]);
 
   if (loading) {
     return (
@@ -184,13 +190,8 @@ const CategoryDetailPage = () => {
                         </div>
                       </div>
                       <div className="flex items-center justify-between pt-3 border-t border-border">
-                        <div className="flex items-center gap-3 text-xs font-mono text-ink-muted">
-                          <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5 text-champagne/70" /> {article.views || 0}</span>
-                          <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5 text-champagne/70" /> {article.likes || 0}</span>
-                        </div>
-                        <Badge variant="outline" className="font-mono text-xs border border-champagne/30 text-champagne bg-surface-container">
-                          {article.published ? "Published" : "Draft"}
-                        </Badge>
+                        <span className="text-xs font-mono text-champagne/80">Article</span>
+                        <span className="text-xs font-medium text-champagne group-hover:translate-x-0.5 transition-transform">Read Article →</span>
                       </div>
                     </CardContent>
                   </Card>

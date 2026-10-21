@@ -421,36 +421,36 @@ const ProjectEditorEnhanced: React.FC = () => {
 
   if (isLoading && id) {
     return (
-      <div className="min-h-screen bg-surface text-white p-8">
+      <div className="min-h-screen bg-[#f1f3f5] text-zinc-900 p-8">
         <PerformanceSkeleton variant="editor" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface text-white selection:bg-white/20 antialiased font-sans">
+    <div className="min-h-screen bg-[#f1f3f5] text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900 antialiased font-sans">
       {/* 1. TOP STICKY ACTION BAR */}
-      <header className="sticky top-0 z-40 h-14 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/30 px-4 sm:px-6 flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 h-14 bg-white/95 backdrop-blur-xl border-b border-zinc-200/90 px-4 sm:px-6 flex items-center justify-between gap-3 text-zinc-900 shadow-2xs">
         {/* Left: Back to All Projects Database + Save Status */}
         <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
             onClick={() => navigate('/admin?tab=projects')}
-            className="group inline-flex items-center gap-2 text-xs font-mono text-white/60 hover:text-white transition-colors px-2 py-1.5 rounded-md hover:bg-white/5 shrink-0"
+            className="group inline-flex items-center gap-2 text-xs font-mono text-zinc-600 hover:text-zinc-900 transition-colors px-2 py-1.5 rounded-md hover:bg-zinc-100 shrink-0"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
             <span className="hidden sm:inline">Back to All Projects Database</span>
             <span className="sm:hidden">All Projects</span>
           </button>
 
-          <div className="h-4 w-px bg-white/10 hidden sm:block shrink-0" />
+          <div className="h-4 w-px bg-zinc-200 hidden sm:block shrink-0" />
 
           {/* Live Save Status Badge */}
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/[0.03] border border-outline-variant/30 text-xs font-mono text-white/60 shrink-0">
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-zinc-700 shrink-0">
             <span
               className={cn(
                 "w-2 h-2 rounded-full transition-colors",
-                isSaving ? "bg-amber-400 animate-pulse" : "bg-emerald-400"
+                isSaving ? "bg-amber-500 animate-pulse" : "bg-emerald-500"
               )}
             />
             <span className="truncate">
@@ -472,7 +472,7 @@ const ProjectEditorEnhanced: React.FC = () => {
               asChild
               variant="ghost"
               size="sm"
-              className="h-8 px-2.5 text-xs font-mono text-white/60 hover:text-white border border-outline-variant/30 hover:bg-white/5 hidden md:inline-flex"
+              className="h-8 px-2.5 text-xs font-mono text-zinc-700 hover:text-zinc-900 border border-zinc-300 hover:bg-zinc-100 hidden md:inline-flex"
             >
               <Link href={`/projects/${id}`} target="_blank" rel="noopener noreferrer">
                 <Eye className="w-3.5 h-3.5 mr-1.5" />
@@ -489,8 +489,8 @@ const ProjectEditorEnhanced: React.FC = () => {
             className={cn(
               "h-8 px-2.5 text-xs font-mono border transition-all",
               focusMode
-                ? "bg-white/15 text-white border-white/30"
-                : "text-white/60 hover:text-white border-outline-variant/30 hover:bg-white/5"
+                ? "bg-zinc-900 text-white border-zinc-900 shadow-xs"
+                : "text-zinc-700 hover:text-zinc-900 border-zinc-300 hover:bg-zinc-100"
             )}
           >
             <Focus className="w-3.5 h-3.5 mr-1.5" />
@@ -502,7 +502,7 @@ const ProjectEditorEnhanced: React.FC = () => {
             size="sm"
             onClick={() => handleSave(false)}
             disabled={isSaving || !formData.title.trim()}
-            className="h-8 px-4 text-xs font-semibold bg-white text-black hover:bg-white/90 shadow-sm transition-all font-sans"
+            className="h-8 px-4 text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800 shadow-xs transition-all font-sans"
           >
             {isSaving ? (
               <>
@@ -528,14 +528,14 @@ const ProjectEditorEnhanced: React.FC = () => {
       >
         {/* Cover Banner */}
         {formData.image_url ? (
-          <div className="relative group w-full rounded-2xl overflow-hidden aspect-[21/8] max-h-64 mb-6 border border-outline-variant/30 bg-surface-container-low">
+          <div className="relative group w-full rounded-2xl overflow-hidden aspect-[21/8] max-h-64 mb-6 border border-zinc-200 bg-white shadow-2xs">
             <img
               src={formData.image_url}
               alt="Project Cover"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
-              <span className="text-xs font-mono text-white/70 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/10">
+              <span className="text-xs font-mono text-white/90 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/20">
                 Primary Case Study Cover
               </span>
               <div className="flex items-center gap-2">
@@ -544,7 +544,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                   type="button"
                   variant="ghost"
                   onClick={() => setShowCoverModal(true)}
-                  className="h-7 text-xs bg-black/70 hover:bg-black text-white border border-white/15"
+                  className="h-7 text-xs bg-white text-zinc-900 hover:bg-zinc-100 border border-zinc-200 font-medium"
                 >
                   Change Cover
                 </Button>
@@ -553,7 +553,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                   type="button"
                   variant="ghost"
                   onClick={() => setFormData((p) => ({ ...p, image_url: '' }))}
-                  className="h-7 text-xs bg-red-500/20 hover:bg-red-500/40 text-red-200 border border-red-500/30"
+                  className="h-7 text-xs bg-red-600 hover:bg-red-700 text-white"
                 >
                   <X className="w-3.5 h-3.5" />
                 </Button>
@@ -566,9 +566,9 @@ const ProjectEditorEnhanced: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowCoverModal(true)}
-                className="inline-flex items-center gap-2 text-xs font-mono text-white/40 hover:text-white/80 py-1.5 px-3 rounded-lg border border-dashed border-white/15 hover:border-white/30 hover:bg-white/[0.02] transition-colors"
+                className="inline-flex items-center gap-2 text-xs font-mono text-zinc-600 hover:text-zinc-900 py-1.5 px-3 rounded-lg border border-dashed border-zinc-300 hover:border-zinc-400 hover:bg-zinc-50 transition-colors"
               >
-                <ImageIcon className="w-3.5 h-3.5 text-white/40" />
+                <ImageIcon className="w-3.5 h-3.5 text-zinc-500" />
                 <span>Add Cover Banner</span>
               </button>
             </div>
@@ -581,7 +581,7 @@ const ProjectEditorEnhanced: React.FC = () => {
           value={formData.title}
           onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
           placeholder="Case Study Title..."
-          className="w-full bg-transparent border-none px-0 py-2 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white placeholder:text-white/20 focus-visible:ring-0 focus-visible:outline-none leading-tight tracking-tight"
+          className="w-full bg-transparent border-none px-0 py-2 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-zinc-900 placeholder:text-zinc-300 focus-visible:ring-0 focus-visible:outline-none leading-tight tracking-tight"
         />
 
         {/* Short Executive Summary (`description`) */}
@@ -590,20 +590,20 @@ const ProjectEditorEnhanced: React.FC = () => {
           onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
           placeholder="Executive summary: The core architectural challenge, operational methodology, and measurable business impact..."
           rows={2}
-          className="w-full bg-transparent border-none px-0 py-1 text-base sm:text-lg text-white/70 placeholder:text-white/25 focus-visible:ring-0 focus-visible:outline-none resize-none leading-relaxed mt-1"
+          className="w-full bg-transparent border-none px-0 py-1 text-base sm:text-lg text-zinc-700 placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:outline-none resize-none leading-relaxed mt-1"
         />
 
         {/* 3. NOTION INLINE PAGE PROPERTIES TABLE */}
         <div
           className={cn(
-            "border-y border-white/10 py-4 my-6 space-y-4 transition-all",
+            "border-y border-zinc-200 py-4 my-6 space-y-4 transition-all",
             focusMode && "hidden"
           )}
         >
           {/* Core Domain Pillar / Category */}
           <div className="flex flex-col sm:flex-row sm:items-start py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50 pt-1">
-              <Layers className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500 pt-1">
+              <Layers className="w-3.5 h-3.5 text-zinc-400" />
               <span>Domain Pillar</span>
             </div>
             <div className="flex-1 space-y-2.5">
@@ -618,8 +618,8 @@ const ProjectEditorEnhanced: React.FC = () => {
                       className={cn(
                         "px-2.5 py-1 text-xs rounded-md font-mono transition-all border",
                         isActive
-                          ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 font-medium shadow-sm"
-                          : "bg-white/[0.02] text-white/50 border-white/[0.06] hover:text-white hover:border-white/15"
+                          ? "bg-zinc-900 text-white border-zinc-900 font-semibold shadow-xs"
+                          : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900"
                       )}
                     >
                       {p}
@@ -639,10 +639,10 @@ const ProjectEditorEnhanced: React.FC = () => {
                     }))
                   }
                 >
-                  <SelectTrigger className="w-48 h-8 bg-white/[0.03] border-white/10 text-xs text-white">
+                  <SelectTrigger className="w-48 h-8 bg-white border-zinc-300 text-xs text-zinc-900">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#121214] border-white/10 text-white">
+                  <SelectContent className="bg-white border-zinc-200 text-zinc-900 shadow-lg">
                     <SelectItem value="none">Custom / None</SelectItem>
                     {categories.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
@@ -657,7 +657,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                     value={newCategoryInput}
                     onChange={(e) => setNewCategoryInput(e.target.value)}
                     placeholder="New category"
-                    className="h-8 w-36 bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/30"
+                    className="h-8 w-36 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                   />
                   <Button
                     type="button"
@@ -678,7 +678,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                         toast({ title: 'Could not create category', variant: 'destructive' });
                       }
                     }}
-                    className="h-8 px-2 text-xs border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                    className="h-8 px-2 text-xs border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </Button>
@@ -689,8 +689,8 @@ const ProjectEditorEnhanced: React.FC = () => {
 
           {/* Featured Case Study Toggle */}
           <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
-              <Sparkles className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500">
+              <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
               <span>Featured</span>
             </div>
             <div className="flex-1 flex items-center gap-3">
@@ -701,7 +701,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                   setFormData((prev) => ({ ...prev, featured: checked }))
                 }
               />
-              <Label htmlFor="featured-toggle" className="text-xs font-mono cursor-pointer text-white/80">
+              <Label htmlFor="featured-toggle" className="text-xs font-mono cursor-pointer text-zinc-800">
                 Display as Highlighted Case Study on Home &amp; Portfolio
               </Label>
             </div>
@@ -709,8 +709,8 @@ const ProjectEditorEnhanced: React.FC = () => {
 
           {/* Live Demo URL & GitHub Repository URL */}
           <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
-              <Globe className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500">
+              <Globe className="w-3.5 h-3.5 text-zinc-400" />
               <span>Live Demo</span>
             </div>
             <div className="flex-1">
@@ -719,14 +719,14 @@ const ProjectEditorEnhanced: React.FC = () => {
                 value={formData.demo_url}
                 onChange={(e) => setFormData((p) => ({ ...p, demo_url: e.target.value }))}
                 placeholder="https://demo.example.com"
-                className="h-8 bg-white/[0.03] border-white/10 text-xs font-mono text-white placeholder:text-white/30"
+                className="h-8 bg-white border-zinc-300 text-xs font-mono text-zinc-900 placeholder:text-zinc-400"
               />
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
-              <Github className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500">
+              <Github className="w-3.5 h-3.5 text-zinc-400" />
               <span>GitHub Repo</span>
             </div>
             <div className="flex-1">
@@ -735,15 +735,15 @@ const ProjectEditorEnhanced: React.FC = () => {
                 value={formData.github_url}
                 onChange={(e) => setFormData((p) => ({ ...p, github_url: e.target.value }))}
                 placeholder="https://github.com/essaahmed/repo"
-                className="h-8 bg-white/[0.03] border-white/10 text-xs font-mono text-white placeholder:text-white/30"
+                className="h-8 bg-white border-zinc-300 text-xs font-mono text-zinc-900 placeholder:text-zinc-400"
               />
             </div>
           </div>
 
           {/* Video Walkthrough */}
           <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
-              <Play className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500">
+              <Play className="w-3.5 h-3.5 text-zinc-400" />
               <span>Video Walkthrough</span>
             </div>
             <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -756,8 +756,8 @@ const ProjectEditorEnhanced: React.FC = () => {
                     className={cn(
                       "px-2.5 py-1 text-xs rounded-md font-mono capitalize transition-all border",
                       formData.demo_video_type === t
-                        ? "bg-white/15 text-white border-white/30 font-medium"
-                        : "bg-white/[0.02] text-white/50 border-white/[0.06] hover:text-white hover:border-white/15"
+                        ? "bg-zinc-900 text-white border-zinc-900 font-semibold shadow-xs"
+                        : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900"
                     )}
                   >
                     {t}
@@ -769,15 +769,15 @@ const ProjectEditorEnhanced: React.FC = () => {
                 value={formData.demo_video_url}
                 onChange={(e) => setFormData((p) => ({ ...p, demo_video_url: e.target.value }))}
                 placeholder="https://loom.com/share/... or YouTube / Vimeo URL"
-                className="h-8 flex-1 bg-white/[0.03] border-white/10 text-xs font-mono text-white placeholder:text-white/30"
+                className="h-8 flex-1 bg-white border-zinc-300 text-xs font-mono text-zinc-900 placeholder:text-zinc-400"
               />
             </div>
           </div>
 
           {/* Tech Stack & Tags */}
           <div className="flex flex-col sm:flex-row sm:items-start py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50 pt-1.5">
-              <Tag className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500 pt-1.5">
+              <Tag className="w-3.5 h-3.5 text-zinc-400" />
               <span>Tech Stack &amp; Tags</span>
             </div>
             <div className="flex-1 space-y-2">
@@ -787,7 +787,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleKeyPress}
                   placeholder="e.g. Next.js, Airflow, Supabase, Python..."
-                  className="h-8 max-w-xs bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/30"
+                  className="h-8 max-w-xs bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                 />
                 <Button
                   type="button"
@@ -795,7 +795,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                   variant="outline"
                   onClick={handleAddTag}
                   disabled={!tagInput.trim() || selectedTags.includes(tagInput.trim())}
-                  className="h-8 px-2.5 text-xs font-mono border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                  className="h-8 px-2.5 text-xs font-mono border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1" />
                   <span>Add</span>
@@ -808,13 +808,13 @@ const ProjectEditorEnhanced: React.FC = () => {
                     <Badge
                       key={t}
                       variant="secondary"
-                      className="gap-1 bg-white/[0.06] hover:bg-white/10 text-white/80 border border-white/10 text-xs font-mono"
+                      className="gap-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-200 text-xs font-mono"
                     >
                       <span>{t}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveTag(t)}
-                        className="hover:text-red-400 p-0.5 rounded transition-colors"
+                        className="hover:text-red-600 p-0.5 rounded transition-colors"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -826,16 +826,16 @@ const ProjectEditorEnhanced: React.FC = () => {
           </div>
 
           {/* Additional Gallery Images */}
-          <div className="pt-2 border-t border-white/[0.06]">
+          <div className="pt-2 border-t border-zinc-200">
             <button
               type="button"
               onClick={() => setShowGalleryManager(!showGalleryManager)}
-              className="flex items-center gap-2 text-xs font-mono text-white/50 hover:text-white transition-colors py-1"
+              className="flex items-center gap-2 text-xs font-mono text-zinc-600 hover:text-zinc-900 transition-colors py-1"
             >
               {showGalleryManager ? (
-                <ChevronDown className="w-3.5 h-3.5 text-white/40" />
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
               ) : (
-                <ChevronRight className="w-3.5 h-3.5 text-white/40" />
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
               )}
               <span>
                 Additional Gallery Images ({galleryImagesList.length})
@@ -843,13 +843,13 @@ const ProjectEditorEnhanced: React.FC = () => {
             </button>
 
             {showGalleryManager && (
-              <div className="mt-3 pl-4 sm:pl-6 border-l border-white/10 space-y-4 pt-1">
+              <div className="mt-3 pl-4 sm:pl-6 border-l border-zinc-200 space-y-4 pt-1">
                 {galleryImagesList.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {galleryImagesList.map((imgUrl, idx) => (
                       <div
                         key={idx}
-                        className="relative group rounded-lg overflow-hidden border border-white/10 aspect-video bg-black/40"
+                        className="relative group rounded-lg overflow-hidden border border-zinc-200 aspect-video bg-zinc-100"
                       >
                         <img
                           src={imgUrl}
@@ -859,7 +859,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleRemoveGalleryImage(idx)}
-                          className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/70 hover:bg-red-500/80 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/70 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -874,14 +874,14 @@ const ProjectEditorEnhanced: React.FC = () => {
                     placeholder="Paste image URL to append..."
                     value={newGalleryUrl}
                     onChange={(e) => setNewGalleryUrl(e.target.value)}
-                    className="h-8 bg-white/[0.03] border-white/10 text-xs text-white"
+                    className="h-8 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                   />
                   <Button
                     type="button"
                     size="sm"
                     onClick={() => handleAddGalleryImage(newGalleryUrl)}
                     disabled={!newGalleryUrl.trim()}
-                    className="h-8 px-3 text-xs bg-white text-black hover:bg-white/90 shrink-0 font-mono"
+                    className="h-8 px-3 text-xs bg-zinc-900 text-white hover:bg-zinc-800 shrink-0 font-mono"
                   >
                     Add to Gallery
                   </Button>
@@ -891,48 +891,48 @@ const ProjectEditorEnhanced: React.FC = () => {
           </div>
 
           {/* Collapsible SEO Overrides */}
-          <div className="pt-2 border-t border-white/[0.06]">
+          <div className="pt-2 border-t border-zinc-200">
             <button
               type="button"
               onClick={() => setShowSeoOverrides(!showSeoOverrides)}
-              className="flex items-center gap-2 text-xs font-mono text-white/50 hover:text-white transition-colors py-1"
+              className="flex items-center gap-2 text-xs font-mono text-zinc-600 hover:text-zinc-900 transition-colors py-1"
             >
               {showSeoOverrides ? (
-                <ChevronDown className="w-3.5 h-3.5 text-white/40" />
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
               ) : (
-                <ChevronRight className="w-3.5 h-3.5 text-white/40" />
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
               )}
               <span>SEO Overrides (Social Card / OpenGraph)</span>
             </button>
 
             {showSeoOverrides && (
-              <div className="mt-3 pl-4 sm:pl-6 border-l border-white/10 space-y-3 pt-1">
+              <div className="mt-3 pl-4 sm:pl-6 border-l border-zinc-200 space-y-3 pt-1">
                 <div>
-                  <Label className="text-xs font-mono text-white/50">OG Title</Label>
+                  <Label className="text-xs font-mono text-zinc-600">OG Title</Label>
                   <Input
                     value={formData.og_title}
                     onChange={(e) => setFormData((p) => ({ ...p, og_title: e.target.value }))}
                     placeholder={formData.title || "Custom social title"}
-                    className="h-8 mt-1 bg-white/[0.03] border-white/10 text-xs text-white"
+                    className="h-8 mt-1 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs font-mono text-white/50">OG Description</Label>
+                  <Label className="text-xs font-mono text-zinc-600">OG Description</Label>
                   <Textarea
                     value={formData.og_description}
                     onChange={(e) => setFormData((p) => ({ ...p, og_description: e.target.value }))}
                     placeholder={formData.description || "Custom social description"}
                     rows={2}
-                    className="mt-1 bg-white/[0.03] border-white/10 text-xs text-white"
+                    className="mt-1 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs font-mono text-white/50">OG Image URL</Label>
+                  <Label className="text-xs font-mono text-zinc-600">OG Image URL</Label>
                   <Input
                     value={formData.og_image}
                     onChange={(e) => setFormData((p) => ({ ...p, og_image: e.target.value }))}
                     placeholder={formData.image_url || "https://..."}
-                    className="h-8 mt-1 bg-white/[0.03] border-white/10 text-xs text-white"
+                    className="h-8 mt-1 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                   />
                 </div>
               </div>
@@ -942,7 +942,7 @@ const ProjectEditorEnhanced: React.FC = () => {
 
         {/* 4. FULL-WIDTH @BLOCKNOTE/REACT CASE STUDY CANVAS */}
         <section className="pt-4 min-h-[60vh]">
-          <div className="prose prose-invert max-w-none">
+          <div className="prose max-w-none bg-white border border-zinc-200/90 rounded-2xl p-6 sm:p-8 shadow-2xs">
             <BlockNoteEditorComponent
               initialContent={blockNoteContent}
               loading={contentLoading}
@@ -957,9 +957,9 @@ const ProjectEditorEnhanced: React.FC = () => {
 
       {/* COVER IMAGE MODAL */}
       <Dialog open={showCoverModal} onOpenChange={setShowCoverModal}>
-        <DialogContent className="bg-[#121214] border-white/10 text-white max-w-lg">
+        <DialogContent className="bg-white border-zinc-200 text-zinc-900 max-w-lg shadow-xl">
           <DialogHeader>
-            <DialogTitle className="text-base font-display">Primary Project Cover Image</DialogTitle>
+            <DialogTitle className="text-base font-display text-zinc-900">Primary Project Cover Image</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <FileUpload
@@ -976,15 +976,15 @@ const ProjectEditorEnhanced: React.FC = () => {
               simultaneousMode={true}
               urlInputPlaceholder="https://images.unsplash.com/..."
             />
-            <div className="pt-2 border-t border-white/10">
-              <Label className="text-xs font-mono text-white/50">Or Paste Image URL Directly</Label>
+            <div className="pt-2 border-t border-zinc-200">
+              <Label className="text-xs font-mono text-zinc-600">Or Paste Image URL Directly</Label>
               <div className="flex gap-2 mt-1.5">
                 <Input
                   type="url"
                   placeholder="https://example.com/project-cover.jpg"
                   value={coverUrlInput}
                   onChange={(e) => setCoverUrlInput(e.target.value)}
-                  className="h-8 bg-white/[0.03] border-white/10 text-xs text-white"
+                  className="h-8 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                 />
                 <Button
                   size="sm"
@@ -996,7 +996,7 @@ const ProjectEditorEnhanced: React.FC = () => {
                       setShowCoverModal(false);
                     }
                   }}
-                  className="h-8 px-3 text-xs bg-white text-black hover:bg-white/90"
+                  className="h-8 px-3 text-xs bg-zinc-900 text-white hover:bg-zinc-800"
                 >
                   Apply
                 </Button>

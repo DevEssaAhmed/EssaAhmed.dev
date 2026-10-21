@@ -345,9 +345,9 @@ export default function TravelHighlightEditor() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-surface text-on-surface flex flex-col items-center justify-center">
-        <div className="flex items-center gap-3 font-mono text-sm text-zinc-400">
-          <Loader2 className="w-5 h-5 animate-spin text-zinc-400" />
+      <div className="min-h-screen bg-[#f1f3f5] text-zinc-900 flex flex-col items-center justify-center">
+        <div className="flex items-center gap-3 font-mono text-sm text-zinc-500">
+          <Loader2 className="w-5 h-5 animate-spin text-zinc-500" />
           <span>Loading travel destination highlight...</span>
         </div>
       </div>
@@ -355,9 +355,9 @@ export default function TravelHighlightEditor() {
   }
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface selection:bg-rose-500/30 selection:text-white">
+    <div className="min-h-screen bg-[#f1f3f5] text-zinc-900 selection:bg-rose-100 selection:text-rose-900 antialiased font-sans">
       {/* ══════════ 1. TOP STICKY BAR ══════════ */}
-      <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30 px-4 sm:px-8 py-3">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-zinc-200/90 px-4 sm:px-8 py-3 text-zinc-900 shadow-2xs">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           {/* Back button */}
           <div className="flex items-center gap-3 min-w-0">
@@ -365,26 +365,26 @@ export default function TravelHighlightEditor() {
               variant="ghost"
               size="sm"
               onClick={() => navigate("/admin?tab=travel")}
-              className="text-zinc-400 hover:text-white hover:bg-zinc-900 -ml-2 px-2.5 h-8 font-mono text-xs flex items-center gap-2 transition-colors"
+              className="text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 -ml-2 px-2.5 h-8 font-mono text-xs flex items-center gap-2 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Back to All Travel Destinations</span>
               <span className="sm:hidden">Back</span>
             </Button>
 
-            <span className="text-zinc-700 hidden sm:inline">|</span>
+            <span className="text-zinc-300 hidden sm:inline">|</span>
 
             <Badge
               variant="outline"
               className={`font-mono text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1.5 transition-colors ${
                 highlight.is_published
-                  ? "bg-rose-500/10 text-rose-300 border-rose-500/25"
-                  : "bg-zinc-800 text-zinc-400 border-zinc-700"
+                  ? "bg-rose-50 text-rose-700 border-rose-200"
+                  : "bg-zinc-100 text-zinc-600 border-zinc-200"
               }`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  highlight.is_published ? "bg-rose-400" : "bg-zinc-500"
+                  highlight.is_published ? "bg-rose-500" : "bg-zinc-400"
                 }`}
               />
               {highlight.is_published ? "Published" : "Draft"}
@@ -396,7 +396,7 @@ export default function TravelHighlightEditor() {
             <span
               role="status"
               title="The public Travel page is hidden while it is being rebuilt."
-              className="inline-flex items-center px-3 h-8 rounded-lg text-xs font-mono font-medium bg-zinc-900 border border-zinc-800 text-zinc-500"
+              className="inline-flex items-center px-3 h-8 rounded-lg text-xs font-mono font-medium bg-zinc-100 border border-zinc-200 text-zinc-500"
             >
               Public preview hidden
             </span>
@@ -406,7 +406,7 @@ export default function TravelHighlightEditor() {
               size="sm"
               disabled={isSaving}
               onClick={handleSaveAndPublish}
-              className="h-8 px-4 text-xs font-semibold bg-white text-[#09090B] hover:bg-zinc-200 transition-all shadow-sm flex items-center gap-1.5"
+              className="h-8 px-4 text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800 transition-all shadow-xs flex items-center gap-1.5"
             >
               {isSaving ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -424,15 +424,15 @@ export default function TravelHighlightEditor() {
         {/* ══════════ 2. TOP SECTION — STORY RING PREVIEW & NOTION PROPERTIES ══════════ */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: 104x104px Live Story Ring Preview */}
-          <div className="lg:col-span-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col items-center text-center space-y-4">
-            <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-400">
+          <div className="lg:col-span-4 rounded-2xl bg-white border border-zinc-200/90 p-6 flex flex-col items-center text-center space-y-4 shadow-2xs">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
               Live Story Ring Preview
             </span>
 
             {/* 104x104px Circular Instagram Gradient Ring */}
             <div className="relative group">
-              <div className="w-[104px] h-[104px] rounded-full p-[3px] bg-gradient-to-tr from-amber-400 via-rose-500 to-purple-600 shadow-[0_0_30px_rgba(244,63,94,0.35)] transition-transform duration-300 group-hover:scale-105">
-                <div className="w-full h-full rounded-full p-[3px] bg-surface">
+              <div className="w-[104px] h-[104px] rounded-full p-[3px] bg-gradient-to-tr from-amber-400 via-rose-500 to-purple-600 shadow-[0_0_30px_rgba(244,63,94,0.25)] transition-transform duration-300 group-hover:scale-105">
+                <div className="w-full h-full rounded-full p-[3px] bg-white">
                   {highlight.cover_image_url ? (
                     <img
                       src={highlight.cover_image_url}
@@ -440,7 +440,7 @@ export default function TravelHighlightEditor() {
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center text-2xl">
+                    <div className="w-full h-full rounded-full bg-zinc-100 flex items-center justify-center text-2xl">
                       {highlight.flag || "✈️"}
                     </div>
                   )}
@@ -449,31 +449,31 @@ export default function TravelHighlightEditor() {
             </div>
 
             <div>
-              <div className="flex items-center justify-center gap-1.5 font-display text-base font-bold text-white">
+              <div className="flex items-center justify-center gap-1.5 font-display text-base font-bold text-zinc-900">
                 <span>{highlight.city_name || "Untitled City"}</span>
                 <span>{highlight.flag}</span>
               </div>
-              <p className="font-mono text-xs text-zinc-400 mt-0.5">
+              <p className="font-mono text-xs text-zinc-500 mt-0.5">
                 {highlight.country_name || "Country Name"} · {highlight.month}
               </p>
             </div>
 
             {/* Coordinate Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 font-mono text-[11px] text-zinc-300">
-              <MapPin className="w-3.5 h-3.5 text-rose-400" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 font-mono text-[11px] text-zinc-700">
+              <MapPin className="w-3.5 h-3.5 text-rose-500" />
               <span>
                 {Number(highlight.lat).toFixed(4)}° N, {Number(highlight.lng).toFixed(4)}° E
               </span>
             </div>
 
             {/* Cover Image Inputs */}
-            <div className="w-full pt-3 border-t border-outline-variant/30 space-y-2 text-left">
-              <div className="flex items-center justify-between text-xs font-mono text-zinc-400">
+            <div className="w-full pt-3 border-t border-zinc-200 space-y-2 text-left">
+              <div className="flex items-center justify-between text-xs font-mono text-zinc-600">
                 <span>Cover Image URL</span>
                 <button
                   type="button"
                   onClick={() => setShowCoverUploader((v) => !v)}
-                  className="text-rose-400 hover:text-rose-300 transition-colors"
+                  className="text-rose-600 hover:text-rose-700 font-medium transition-colors"
                 >
                   {showCoverUploader ? "Hide Uploader" : "Upload File"}
                 </button>
@@ -484,11 +484,11 @@ export default function TravelHighlightEditor() {
                 placeholder="https://images.unsplash.com/..."
                 value={highlight.cover_image_url}
                 onChange={(e) => updateField("cover_image_url", e.target.value)}
-                className="h-8 bg-zinc-900/90 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface"
+                className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 shadow-2xs placeholder:text-zinc-400"
               />
 
               {showCoverUploader && (
-                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
+                <div className="p-2.5 rounded-lg bg-zinc-50 border border-zinc-200">
                   <FileUpload
                     label="Upload City Highlight Cover"
                     uploadType="image"
@@ -510,11 +510,11 @@ export default function TravelHighlightEditor() {
           </div>
 
           {/* Right Column: Notion Inline Properties Card */}
-          <div className="lg:col-span-8 rounded-2xl bg-surface-container-low border border-outline-variant/30 divide-y divide-zinc-800/60 overflow-hidden shadow-sm">
+          <div className="lg:col-span-8 rounded-2xl bg-white border border-zinc-200/90 divide-y divide-zinc-200 overflow-hidden shadow-2xs">
             {/* City Name & Slug */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-900/30 transition-colors">
-              <div className="sm:col-span-4 text-xs font-mono text-zinc-400 flex items-center gap-2">
-                <Globe2 className="w-3.5 h-3.5 text-zinc-500" />
+            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-50/60 transition-colors">
+              <div className="sm:col-span-4 text-xs font-mono text-zinc-600 flex items-center gap-2">
+                <Globe2 className="w-3.5 h-3.5 text-zinc-400" />
                 <span>City Name &amp; Slug</span>
               </div>
               <div className="sm:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -522,23 +522,23 @@ export default function TravelHighlightEditor() {
                   placeholder="e.g. Riyadh"
                   value={highlight.city_name}
                   onChange={(e) => handleCityNameChange(e.target.value)}
-                  className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface"
+                  className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                 />
                 <div className="relative">
                   <Input
                     placeholder="slug (e.g. riyadh)"
                     value={highlight.slug}
                     onChange={(e) => updateField("slug", slugify(e.target.value))}
-                    className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs font-mono text-zinc-300"
+                    className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs font-mono text-zinc-700 shadow-2xs placeholder:text-zinc-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Country Name, Code & Flag */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-900/30 transition-colors">
-              <div className="sm:col-span-4 text-xs font-mono text-zinc-400 flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-zinc-500" />
+            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-50/60 transition-colors">
+              <div className="sm:col-span-4 text-xs font-mono text-zinc-600 flex items-center gap-2">
+                <MapPin className="w-3.5 h-3.5 text-zinc-400" />
                 <span>Country &amp; Flag Emoji</span>
               </div>
               <div className="sm:col-span-8 grid grid-cols-12 gap-2">
@@ -547,7 +547,7 @@ export default function TravelHighlightEditor() {
                     placeholder="Saudi Arabia"
                     value={highlight.country_name}
                     onChange={(e) => updateField("country_name", e.target.value)}
-                    className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface"
+                    className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                   />
                 </div>
                 <div className="col-span-3">
@@ -556,7 +556,7 @@ export default function TravelHighlightEditor() {
                     maxLength={3}
                     value={highlight.country_code}
                     onChange={(e) => updateField("country_code", e.target.value.toUpperCase())}
-                    className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs font-mono text-zinc-300 uppercase"
+                    className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs font-mono text-zinc-900 uppercase shadow-2xs placeholder:text-zinc-400"
                   />
                 </div>
                 <div className="col-span-3">
@@ -564,15 +564,15 @@ export default function TravelHighlightEditor() {
                     placeholder="🇸🇦"
                     value={highlight.flag}
                     onChange={(e) => updateField("flag", e.target.value)}
-                    className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-center text-on-surface"
+                    className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs text-center text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Visited Month & Year */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-900/30 transition-colors">
-              <div className="sm:col-span-4 text-xs font-mono text-zinc-400 flex items-center gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-50/60 transition-colors">
+              <div className="sm:col-span-4 text-xs font-mono text-zinc-600 flex items-center gap-2">
                 <span>📅 Visited Month / Year</span>
               </div>
               <div className="sm:col-span-8 grid grid-cols-2 gap-2">
@@ -580,22 +580,22 @@ export default function TravelHighlightEditor() {
                   placeholder="e.g. Nov 2025"
                   value={highlight.month}
                   onChange={(e) => updateField("month", e.target.value)}
-                  className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface"
+                  className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                 />
                 <Input
                   type="number"
                   placeholder="2025"
                   value={highlight.year}
                   onChange={(e) => updateField("year", parseInt(e.target.value) || 2025)}
-                  className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs font-mono text-on-surface"
+                  className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs font-mono text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                 />
               </div>
             </div>
 
             {/* Subtitle */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-900/30 transition-colors">
-              <div className="sm:col-span-4 text-xs font-mono text-zinc-400 flex items-center gap-2">
-                <Type className="w-3.5 h-3.5 text-zinc-500" />
+            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-50/60 transition-colors">
+              <div className="sm:col-span-4 text-xs font-mono text-zinc-600 flex items-center gap-2">
+                <Type className="w-3.5 h-3.5 text-zinc-400" />
                 <span>Subtitle</span>
               </div>
               <div className="sm:col-span-8">
@@ -603,15 +603,15 @@ export default function TravelHighlightEditor() {
                   placeholder="e.g. Desert Modernism & Ancient Mud-Brick Architecture"
                   value={highlight.subtitle}
                   onChange={(e) => updateField("subtitle", e.target.value)}
-                  className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface"
+                  className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                 />
               </div>
             </div>
 
             {/* Map Coordinates */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-900/30 transition-colors">
-              <div className="sm:col-span-4 text-xs font-mono text-zinc-400 flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-zinc-500" />
+            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-50/60 transition-colors">
+              <div className="sm:col-span-4 text-xs font-mono text-zinc-600 flex items-center gap-2">
+                <MapPin className="w-3.5 h-3.5 text-zinc-400" />
                 <span>Map Coordinates (lat, lng)</span>
               </div>
               <div className="sm:col-span-8 grid grid-cols-2 gap-2">
@@ -623,7 +623,7 @@ export default function TravelHighlightEditor() {
                     placeholder="24.7136"
                     value={highlight.lat}
                     onChange={(e) => updateField("lat", parseFloat(e.target.value) || 0)}
-                    className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs font-mono text-on-surface"
+                    className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs font-mono text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                   />
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -634,16 +634,16 @@ export default function TravelHighlightEditor() {
                     placeholder="46.6753"
                     value={highlight.lng}
                     onChange={(e) => updateField("lng", parseFloat(e.target.value) || 0)}
-                    className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs font-mono text-on-surface"
+                    className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs font-mono text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Instagram Highlight URL */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-900/30 transition-colors">
-              <div className="sm:col-span-4 text-xs font-mono text-zinc-400 flex items-center gap-2">
-                <Instagram className="w-3.5 h-3.5 text-zinc-500" />
+            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-50/60 transition-colors">
+              <div className="sm:col-span-4 text-xs font-mono text-zinc-600 flex items-center gap-2">
+                <Instagram className="w-3.5 h-3.5 text-zinc-400" />
                 <span>Instagram Story URL</span>
               </div>
               <div className="sm:col-span-8">
@@ -652,28 +652,28 @@ export default function TravelHighlightEditor() {
                   placeholder="https://www.instagram.com/stories/highlights/..."
                   value={highlight.instagram_highlight_url}
                   onChange={(e) => updateField("instagram_highlight_url", e.target.value)}
-                  className="h-8 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 text-xs text-on-surface"
+                  className="h-8 bg-white border-zinc-300 focus:border-zinc-500 text-xs text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                 />
               </div>
             </div>
 
             {/* Visibility Toggle */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-900/30 transition-colors">
-              <div className="sm:col-span-4 text-xs font-mono text-zinc-400 flex items-center gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-3 gap-3 hover:bg-zinc-50/60 transition-colors">
+              <div className="sm:col-span-4 text-xs font-mono text-zinc-600 flex items-center gap-2">
                 <span>Visibility</span>
               </div>
               <div className="sm:col-span-8">
-                <div className="inline-flex rounded-lg bg-zinc-900/80 border border-zinc-800 p-0.5">
+                <div className="inline-flex rounded-lg bg-zinc-100 border border-zinc-200 p-0.5">
                   <button
                     type="button"
                     onClick={() => updateField("is_published", true)}
                     className={`px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
                       highlight.is_published
-                        ? "bg-rose-500/20 text-rose-300 shadow-sm border border-rose-500/30"
-                        : "text-zinc-400 hover:text-white"
+                        ? "bg-white text-rose-700 shadow-xs border border-rose-200 font-semibold"
+                        : "text-zinc-600 hover:text-zinc-900"
                     }`}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                     Published
                   </button>
                   <button
@@ -681,8 +681,8 @@ export default function TravelHighlightEditor() {
                     onClick={() => updateField("is_published", false)}
                     className={`px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
                       !highlight.is_published
-                        ? "bg-zinc-800 text-on-surface shadow-sm border border-zinc-700"
-                        : "text-zinc-400 hover:text-white"
+                        ? "bg-white text-zinc-900 shadow-xs border border-zinc-200 font-semibold"
+                        : "text-zinc-600 hover:text-zinc-900"
                     }`}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
@@ -696,18 +696,18 @@ export default function TravelHighlightEditor() {
 
         {/* ══════════ 3. MIDDLE SECTION — 9:16 VERTICAL INSTAGRAM STORY SLIDES ══════════ */}
         <section className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-outline-variant/30">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-200">
             <div>
               <div className="flex items-center gap-2">
-                <Instagram className="w-4 h-4 text-rose-400" />
-                <h2 className="font-display text-lg font-bold text-white">
+                <Instagram className="w-4 h-4 text-rose-500" />
+                <h2 className="font-display text-lg font-bold text-zinc-900">
                   9:16 Vertical Instagram Story Slides
                 </h2>
-                <Badge variant="outline" className="font-mono text-[11px] text-zinc-400 border-zinc-800">
+                <Badge variant="outline" className="font-mono text-[11px] text-zinc-600 border-zinc-200 bg-zinc-50">
                   {highlight.story_slides.length} slides
                 </Badge>
               </div>
-              <p className="font-mono text-xs text-zinc-400 mt-1">
+              <p className="font-mono text-xs text-zinc-500 mt-1">
                 Vertical 9:16 reels previewed directly in the travel atlas carousel.
               </p>
             </div>
@@ -717,9 +717,9 @@ export default function TravelHighlightEditor() {
               variant="outline"
               size="sm"
               onClick={addSlide}
-              className="h-8 px-3 text-xs bg-zinc-900 border-zinc-800 text-on-surface hover:bg-zinc-800 hover:text-white flex items-center gap-1.5"
+              className="h-8 px-3 text-xs bg-zinc-900 border-zinc-900 text-white hover:bg-zinc-800 flex items-center gap-1.5 shadow-2xs"
             >
-              <Plus className="w-3.5 h-3.5 text-rose-400" />
+              <Plus className="w-3.5 h-3.5 text-rose-300" />
               Add 9:16 Story Slide
             </Button>
           </div>
@@ -729,10 +729,10 @@ export default function TravelHighlightEditor() {
             {highlight.story_slides.map((slide, idx) => (
               <div
                 key={slide.id || idx}
-                className="rounded-2xl bg-surface-container-low border border-outline-variant/30 overflow-hidden flex flex-col justify-between shadow-md hover:border-zinc-700 transition-colors"
+                className="rounded-2xl bg-white border border-zinc-200/90 overflow-hidden flex flex-col justify-between shadow-2xs hover:border-zinc-300 transition-colors"
               >
                 {/* 9:16 Story Preview Thumbnail */}
-                <div className="aspect-[9/16] relative bg-surface overflow-hidden group">
+                <div className="aspect-[9/16] relative bg-zinc-100 overflow-hidden group">
                   <img
                     src={slide.image_url}
                     alt={slide.caption || `Slide ${idx + 1}`}
@@ -762,10 +762,10 @@ export default function TravelHighlightEditor() {
                 </div>
 
                 {/* Form fields for this slide */}
-                <div className="p-3.5 space-y-2.5 bg-surface-container-low flex-1 flex flex-col justify-between">
+                <div className="p-3.5 space-y-2.5 bg-white flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
                     <div>
-                      <label className="text-[10px] font-mono text-zinc-400 block mb-1">
+                      <label className="text-[10px] font-mono text-zinc-600 block mb-1">
                         Image URL
                       </label>
                       <Input
@@ -773,12 +773,12 @@ export default function TravelHighlightEditor() {
                         placeholder="https://..."
                         value={slide.image_url}
                         onChange={(e) => updateSlide(idx, { image_url: e.target.value })}
-                        className="h-7 text-xs bg-zinc-900 border-zinc-800 text-on-surface"
+                        className="h-7 text-xs bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-mono text-zinc-400 block mb-1">
+                      <label className="text-[10px] font-mono text-zinc-600 block mb-1">
                         Caption
                       </label>
                       <Textarea
@@ -786,44 +786,44 @@ export default function TravelHighlightEditor() {
                         placeholder="Story caption text..."
                         value={slide.caption}
                         onChange={(e) => updateSlide(idx, { caption: e.target.value })}
-                        className="text-xs bg-zinc-900 border-zinc-800 text-on-surface resize-none min-h-[50px]"
+                        className="text-xs bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 resize-none min-h-[50px] shadow-2xs placeholder:text-zinc-400"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="text-[10px] font-mono text-zinc-400 block mb-1">
+                        <label className="text-[10px] font-mono text-zinc-600 block mb-1">
                           Timestamp
                         </label>
                         <Input
                           placeholder="20:14 AST"
                           value={slide.timestamp}
                           onChange={(e) => updateSlide(idx, { timestamp: e.target.value })}
-                          className="h-7 text-xs font-mono bg-zinc-900 border-zinc-800 text-on-surface"
+                          className="h-7 text-xs font-mono bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] font-mono text-zinc-400 block mb-1">
+                        <label className="text-[10px] font-mono text-zinc-600 block mb-1">
                           EXIF
                         </label>
                         <Input
                           placeholder="24mm · f/1.8"
                           value={slide.exif || ""}
                           onChange={(e) => updateSlide(idx, { exif: e.target.value })}
-                          className="h-7 text-xs font-mono bg-zinc-900 border-zinc-800 text-on-surface"
+                          className="h-7 text-xs font-mono bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Actions: Move left / right / delete */}
-                  <div className="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+                  <div className="pt-2 border-t border-zinc-200 flex items-center justify-between">
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
                         disabled={idx === 0}
                         onClick={() => moveSlide(idx, "left")}
-                        className="p-1 rounded bg-zinc-900 hover:bg-zinc-800 disabled:opacity-30 text-zinc-400 hover:text-white"
+                        className="p-1 rounded bg-zinc-100 hover:bg-zinc-200 disabled:opacity-30 text-zinc-600 hover:text-zinc-900 border border-zinc-200/80 transition-colors"
                         title="Move Left"
                       >
                         <ChevronLeft className="w-3.5 h-3.5" />
@@ -832,7 +832,7 @@ export default function TravelHighlightEditor() {
                         type="button"
                         disabled={idx === highlight.story_slides.length - 1}
                         onClick={() => moveSlide(idx, "right")}
-                        className="p-1 rounded bg-zinc-900 hover:bg-zinc-800 disabled:opacity-30 text-zinc-400 hover:text-white"
+                        className="p-1 rounded bg-zinc-100 hover:bg-zinc-200 disabled:opacity-30 text-zinc-600 hover:text-zinc-900 border border-zinc-200/80 transition-colors"
                         title="Move Right"
                       >
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -842,7 +842,7 @@ export default function TravelHighlightEditor() {
                     <button
                       type="button"
                       onClick={() => removeSlide(idx)}
-                      className="p-1 rounded text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                      className="p-1 rounded text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
                       title="Delete Slide"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -856,15 +856,15 @@ export default function TravelHighlightEditor() {
             <button
               type="button"
               onClick={addSlide}
-              className="min-h-[280px] rounded-2xl border-2 border-dashed border-zinc-800 hover:border-rose-500/50 hover:bg-zinc-900/30 p-6 flex flex-col items-center justify-center text-center group transition-all"
+              className="min-h-[280px] rounded-2xl border-2 border-dashed border-zinc-300 hover:border-rose-400 bg-white/60 hover:bg-zinc-50 p-6 flex flex-col items-center justify-center text-center group transition-all shadow-2xs"
             >
-              <div className="w-12 h-12 rounded-full bg-zinc-900 group-hover:bg-rose-500/10 border border-zinc-800 group-hover:border-rose-500/30 flex items-center justify-center text-zinc-400 group-hover:text-rose-400 mb-3 transition-colors">
+              <div className="w-12 h-12 rounded-full bg-zinc-100 group-hover:bg-rose-50 border border-zinc-200 group-hover:border-rose-200 flex items-center justify-center text-zinc-500 group-hover:text-rose-600 mb-3 transition-colors">
                 <Plus className="w-6 h-6" />
               </div>
-              <span className="font-display text-sm font-semibold text-zinc-300 group-hover:text-white">
+              <span className="font-display text-sm font-semibold text-zinc-700 group-hover:text-zinc-900">
                 Add 9:16 Story Slide
               </span>
-              <span className="font-mono text-[11px] text-zinc-500 mt-1">
+              <span className="font-mono text-[11px] text-zinc-400 mt-1">
                 Upload or link a vertical story reel
               </span>
             </button>
@@ -873,25 +873,25 @@ export default function TravelHighlightEditor() {
 
         {/* ══════════ 4. BOTTOM SECTION — VISUAL TRAVEL ESSAY & FIELD NOTES ══════════ */}
         <section className="space-y-6">
-          <div className="pb-3 border-b border-outline-variant/30">
-            <h2 className="font-display text-xl font-bold text-white">
+          <div className="pb-3 border-b border-zinc-200">
+            <h2 className="font-display text-xl font-bold text-zinc-900">
               Visual Travel Essay &amp; Field Notes
             </h2>
-            <p className="font-mono text-xs text-zinc-400 mt-1">
+            <p className="font-mono text-xs text-zinc-500 mt-1">
               Craft the long-form city narrative with rich text paragraphs, pull quotes, and paired photography.
             </p>
           </div>
 
           {/* Essay Title */}
           <div className="space-y-1.5">
-            <label className="font-mono text-xs text-zinc-400 uppercase tracking-wider">
+            <label className="font-mono text-xs text-zinc-600 uppercase tracking-wider">
               Essay Title
             </label>
             <Input
               placeholder="e.g. Riyadh: Between Ancient Mud-Brick & Hyper-Vertical Glass"
               value={highlight.essay_title}
               onChange={(e) => updateField("essay_title", e.target.value)}
-              className="text-lg font-bold bg-surface-container-low border-zinc-800 focus:border-zinc-700 text-white h-11"
+              className="text-lg font-bold bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 h-11 shadow-2xs placeholder:text-zinc-400"
             />
           </div>
 
@@ -900,14 +900,14 @@ export default function TravelHighlightEditor() {
             {highlight.essay_blocks.map((block, idx) => (
               <div
                 key={block.id || idx}
-                className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-5 space-y-3 shadow-sm hover:border-zinc-700 transition-colors"
+                className="rounded-2xl bg-white border border-zinc-200/90 p-5 space-y-3 shadow-2xs hover:border-zinc-300 transition-colors"
               >
                 {/* Block Header */}
-                <div className="flex items-center justify-between pb-2 border-b border-zinc-800/70">
+                <div className="flex items-center justify-between pb-2 border-b border-zinc-200">
                   <div className="flex items-center gap-2">
                     <Badge
                       variant="outline"
-                      className="font-mono text-[10px] uppercase tracking-wider bg-zinc-900 border-zinc-700 text-rose-300"
+                      className="font-mono text-[10px] uppercase tracking-wider bg-rose-50 border-rose-200 text-rose-700"
                     >
                       {block.type === "p" && "Paragraph"}
                       {block.type === "quote" && "Pull Quote"}
@@ -922,7 +922,7 @@ export default function TravelHighlightEditor() {
                       type="button"
                       disabled={idx === 0}
                       onClick={() => moveBlock(idx, "up")}
-                      className="p-1 rounded bg-zinc-900 hover:bg-zinc-800 disabled:opacity-30 text-zinc-400 hover:text-white"
+                      className="p-1 rounded bg-zinc-100 hover:bg-zinc-200 disabled:opacity-30 text-zinc-600 hover:text-zinc-900 border border-zinc-200/80 transition-colors"
                       title="Move Up"
                     >
                       <ChevronUp className="w-3.5 h-3.5" />
@@ -931,7 +931,7 @@ export default function TravelHighlightEditor() {
                       type="button"
                       disabled={idx === highlight.essay_blocks.length - 1}
                       onClick={() => moveBlock(idx, "down")}
-                      className="p-1 rounded bg-zinc-900 hover:bg-zinc-800 disabled:opacity-30 text-zinc-400 hover:text-white"
+                      className="p-1 rounded bg-zinc-100 hover:bg-zinc-200 disabled:opacity-30 text-zinc-600 hover:text-zinc-900 border border-zinc-200/80 transition-colors"
                       title="Move Down"
                     >
                       <ChevronDown className="w-3.5 h-3.5" />
@@ -939,7 +939,7 @@ export default function TravelHighlightEditor() {
                     <button
                       type="button"
                       onClick={() => removeBlock(idx)}
-                      className="p-1 rounded text-red-400 hover:bg-red-500/10 hover:text-red-300 ml-1"
+                      className="p-1 rounded text-red-600 hover:bg-red-50 hover:text-red-700 ml-1 transition-colors"
                       title="Delete Block"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -954,7 +954,7 @@ export default function TravelHighlightEditor() {
                       placeholder="Subheading text..."
                       value={block.content || ""}
                       onChange={(e) => updateBlock(idx, { content: e.target.value })}
-                      className="text-base font-bold bg-zinc-900 border-zinc-800 text-white"
+                      className="text-base font-bold bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                     />
                   </div>
                 )}
@@ -966,7 +966,7 @@ export default function TravelHighlightEditor() {
                       placeholder="Write paragraph content..."
                       value={block.content || ""}
                       onChange={(e) => updateBlock(idx, { content: e.target.value })}
-                      className="text-sm bg-zinc-900 border-zinc-800 text-on-surface resize-y leading-relaxed"
+                      className="text-sm bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 resize-y leading-relaxed shadow-2xs placeholder:text-zinc-400"
                     />
                   </div>
                 )}
@@ -978,13 +978,13 @@ export default function TravelHighlightEditor() {
                       placeholder="Quote or field note excerpt..."
                       value={block.content || ""}
                       onChange={(e) => updateBlock(idx, { content: e.target.value })}
-                      className="text-sm italic bg-zinc-900 border-zinc-800 text-on-surface"
+                      className="text-sm italic bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                     />
                     <Input
                       placeholder="Author / Attribution (e.g. Field Note #04 · Diriyah Quarter)"
                       value={block.author || ""}
                       onChange={(e) => updateBlock(idx, { author: e.target.value })}
-                      className="h-8 text-xs font-mono bg-zinc-900 border-zinc-800 text-rose-300"
+                      className="h-8 text-xs font-mono bg-white border-zinc-300 focus:border-zinc-500 text-rose-700 shadow-2xs placeholder:text-zinc-400"
                     />
                   </div>
                 )}
@@ -992,8 +992,8 @@ export default function TravelHighlightEditor() {
                 {block.type === "photo_pair" && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                     {/* Photo 1 */}
-                    <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
-                      <span className="font-mono text-[11px] text-zinc-400 block">Photo 1</span>
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 border border-zinc-200 space-y-2">
+                      <span className="font-mono text-[11px] text-zinc-600 block">Photo 1</span>
                       <Input
                         type="url"
                         placeholder="Image 1 URL"
@@ -1003,7 +1003,7 @@ export default function TravelHighlightEditor() {
                           imgs[0] = { ...imgs[0], url: e.target.value };
                           updateBlock(idx, { images: imgs as any });
                         }}
-                        className="h-8 text-xs bg-zinc-900 border-zinc-800 text-on-surface"
+                        className="h-8 text-xs bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                       />
                       <Input
                         placeholder="Caption"
@@ -1013,7 +1013,7 @@ export default function TravelHighlightEditor() {
                           imgs[0] = { ...imgs[0], caption: e.target.value };
                           updateBlock(idx, { images: imgs as any });
                         }}
-                        className="h-8 text-xs bg-zinc-900 border-zinc-800 text-on-surface"
+                        className="h-8 text-xs bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                       />
                       <Input
                         placeholder="EXIF (e.g. 24mm · f/1.8)"
@@ -1023,13 +1023,13 @@ export default function TravelHighlightEditor() {
                           imgs[0] = { ...imgs[0], exif: e.target.value };
                           updateBlock(idx, { images: imgs as any });
                         }}
-                        className="h-8 text-xs font-mono bg-zinc-900 border-zinc-800 text-on-surface"
+                        className="h-8 text-xs font-mono bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                       />
                     </div>
 
                     {/* Photo 2 */}
-                    <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
-                      <span className="font-mono text-[11px] text-zinc-400 block">Photo 2</span>
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 border border-zinc-200 space-y-2">
+                      <span className="font-mono text-[11px] text-zinc-600 block">Photo 2</span>
                       <Input
                         type="url"
                         placeholder="Image 2 URL"
@@ -1039,7 +1039,7 @@ export default function TravelHighlightEditor() {
                           imgs[1] = { ...imgs[1], url: e.target.value };
                           updateBlock(idx, { images: imgs as any });
                         }}
-                        className="h-8 text-xs bg-zinc-900 border-zinc-800 text-on-surface"
+                        className="h-8 text-xs bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                       />
                       <Input
                         placeholder="Caption"
@@ -1049,7 +1049,7 @@ export default function TravelHighlightEditor() {
                           imgs[1] = { ...imgs[1], caption: e.target.value };
                           updateBlock(idx, { images: imgs as any });
                         }}
-                        className="h-8 text-xs bg-zinc-900 border-zinc-800 text-on-surface"
+                        className="h-8 text-xs bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                       />
                       <Input
                         placeholder="EXIF (e.g. 50mm · f/2.8)"
@@ -1059,7 +1059,7 @@ export default function TravelHighlightEditor() {
                           imgs[1] = { ...imgs[1], exif: e.target.value };
                           updateBlock(idx, { images: imgs as any });
                         }}
-                        className="h-8 text-xs font-mono bg-zinc-900 border-zinc-800 text-on-surface"
+                        className="h-8 text-xs font-mono bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                       />
                     </div>
                   </div>
@@ -1069,8 +1069,8 @@ export default function TravelHighlightEditor() {
           </div>
 
           {/* Add Block Action Bar */}
-          <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex flex-wrap items-center justify-between gap-3">
-            <span className="font-mono text-xs text-zinc-400">
+          <div className="p-4 rounded-2xl bg-white border border-zinc-200/90 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+            <span className="font-mono text-xs text-zinc-600">
               Add visual essay block:
             </span>
             <div className="flex flex-wrap items-center gap-2">
@@ -1079,7 +1079,7 @@ export default function TravelHighlightEditor() {
                 variant="outline"
                 size="sm"
                 onClick={() => addBlock("p")}
-                className="h-8 text-xs bg-zinc-900 border-zinc-800 text-on-surface hover:bg-zinc-800 hover:text-white"
+                className="h-8 text-xs bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 shadow-2xs"
               >
                 + Paragraph
               </Button>
@@ -1088,7 +1088,7 @@ export default function TravelHighlightEditor() {
                 variant="outline"
                 size="sm"
                 onClick={() => addBlock("quote")}
-                className="h-8 text-xs bg-zinc-900 border-zinc-800 text-on-surface hover:bg-zinc-800 hover:text-white"
+                className="h-8 text-xs bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 shadow-2xs"
               >
                 + Pull Quote
               </Button>
@@ -1097,7 +1097,7 @@ export default function TravelHighlightEditor() {
                 variant="outline"
                 size="sm"
                 onClick={() => addBlock("h3")}
-                className="h-8 text-xs bg-zinc-900 border-zinc-800 text-on-surface hover:bg-zinc-800 hover:text-white"
+                className="h-8 text-xs bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 shadow-2xs"
               >
                 + Subheading
               </Button>
@@ -1106,7 +1106,7 @@ export default function TravelHighlightEditor() {
                 variant="outline"
                 size="sm"
                 onClick={() => addBlock("photo_pair")}
-                className="h-8 text-xs bg-zinc-900 border-zinc-800 text-on-surface hover:bg-zinc-800 hover:text-white"
+                className="h-8 text-xs bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 shadow-2xs"
               >
                 + Photo Pair
               </Button>

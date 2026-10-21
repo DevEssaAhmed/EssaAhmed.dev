@@ -17,11 +17,8 @@ import {
   Menu,
   X,
   ChevronDown,
-  Sun,
-  Moon,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,7 +55,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const pathname = usePathname() || "/admin";
   const router = useRouter();
 
@@ -113,19 +109,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   const displayTitle = title || activeNavObj?.label || "Notion CMS Workspace";
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-surface-container-low text-on-surface justify-between">
+    <div className="flex flex-col h-full bg-white text-zinc-800 justify-between">
       <div>
         {/* Workspace Identity Header */}
-        <div className="h-14 px-4 border-b border-outline-variant/25 flex items-center justify-between">
+        <div className="h-14 px-4 border-b border-zinc-200/90 flex items-center justify-between">
           <Link href="/admin" className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center font-display font-bold text-xs text-on-surface shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center font-display font-bold text-xs text-white shrink-0 shadow-sm">
               EA
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-semibold text-on-surface truncate leading-tight">
+              <div className="text-xs font-semibold text-zinc-900 truncate leading-tight">
                 Essa&apos;s Notion CMS
               </div>
-              <div className="text-[10px] font-mono text-outline truncate">
+              <div className="text-[10px] font-mono text-zinc-500 truncate">
                 Workspace v2.4
               </div>
             </div>
@@ -133,7 +129,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
-            className="md:hidden text-on-surface-variant hover:text-on-surface p-1"
+            className="md:hidden text-zinc-500 hover:text-zinc-900 p-1"
             aria-label="Close sidebar"
           >
             <X className="w-4 h-4" />
@@ -142,7 +138,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
 
         {/* Databases Section */}
         <div className="p-3 space-y-1">
-          <div className="px-2.5 py-1.5 text-[10px] font-mono uppercase tracking-wider text-outline font-semibold">
+          <div className="px-2.5 py-1.5 text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
             Content Databases
           </div>
           {navItems.map((item) => {
@@ -156,8 +152,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                 className={cn(
                   "w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-colors",
                   isActive
-                    ? "bg-surface-container-high text-on-surface font-semibold border border-outline-variant/30"
-                    : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+                    ? "bg-zinc-100 text-zinc-900 font-semibold border border-zinc-200/80 shadow-xs"
+                    : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
                 )}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -165,7 +161,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                   <span className="truncate">{item.label}</span>
                 </div>
                 {typeof item.count === "number" && (
-                  <span className="ml-2 px-1.5 py-0.5 rounded bg-surface-container text-[10px] font-mono text-outline">
+                  <span className="ml-2 px-1.5 py-0.5 rounded bg-zinc-100 text-[10px] font-mono text-zinc-600 border border-zinc-200">
                     {item.count}
                   </span>
                 )}
@@ -176,14 +172,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
 
         {/* Dedicated Full-Page Editor Shortcuts */}
         <div className="p-3 pt-1">
-          <div className="px-2.5 py-1.5 text-[10px] font-mono uppercase tracking-wider text-outline font-semibold">
+          <div className="px-2.5 py-1.5 text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
             Dedicated Editors
           </div>
           <div className="space-y-1">
             <Link
               href="/admin/blog/new"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
             >
               <Plus className="w-3.5 h-3.5 text-secondary" />
               <span>+ New Article / Import URL</span>
@@ -191,7 +187,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
             <Link
               href="/admin/project/new"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
             >
               <Plus className="w-3.5 h-3.5 text-primary" />
               <span>+ New Project Case Study</span>
@@ -199,17 +195,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
             <Link
               href="/admin/travel/new"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
             >
-              <Plus className="w-3.5 h-3.5 text-rose-400" />
+              <Plus className="w-3.5 h-3.5 text-rose-500" />
               <span>+ New Travel City Highlight</span>
             </Link>
             <Link
               href="/admin/diary/new"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
             >
-              <Plus className="w-3.5 h-3.5 text-amber-400" />
+              <Plus className="w-3.5 h-3.5 text-amber-500" />
               <span>+ New Diary Entry</span>
             </Link>
           </div>
@@ -217,12 +213,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       </div>
 
       {/* Sidebar Footer */}
-      <div className="p-3 border-t border-outline-variant/25 flex items-center justify-between text-xs">
+      <div className="p-3 border-t border-zinc-200/90 flex items-center justify-between text-xs">
         <div className="min-w-0 pr-2">
-          <div className="text-on-surface truncate font-medium">
+          <div className="text-zinc-900 truncate font-medium">
             {user?.email || "Admin User"}
           </div>
-          <div className="text-[11px] text-outline">Authenticated Admin</div>
+          <div className="text-[11px] text-zinc-500">Authenticated Admin</div>
         </div>
         <Button
           variant="ghost"
@@ -235,7 +231,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
               // ignore
             }
           }}
-          className="h-8 w-8 text-on-surface-variant hover:text-error hover:bg-error/10 rounded-md"
+          className="h-8 w-8 text-zinc-500 hover:text-red-600 hover:bg-red-50 rounded-md"
           title="Sign out"
         >
           <LogOut className="w-4 h-4" />
@@ -245,9 +241,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface flex antialiased selection:bg-primary/20 selection:text-primary transition-colors duration-200">
+    <div className="min-h-screen bg-[#f1f3f5] text-zinc-900 flex antialiased selection:bg-zinc-200 selection:text-zinc-900 transition-colors duration-200">
       {/* Desktop Sidebar (Fixed 240px) */}
-      <aside className="hidden md:flex flex-col w-[240px] shrink-0 border-r border-outline-variant/25 sticky top-0 h-screen z-30">
+      <aside className="hidden md:flex flex-col w-[240px] shrink-0 border-r border-zinc-200/90 bg-white sticky top-0 h-screen z-30 shadow-[1px_0_3px_rgba(0,0,0,0.02)]">
         {sidebarContent}
       </aside>
 
@@ -255,10 +251,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="relative w-[240px] max-w-[80vw] h-full shadow-2xl z-10 border-r border-outline-variant/30">
+          <div className="relative w-[240px] max-w-[80vw] h-full shadow-2xl z-10 border-r border-zinc-200 bg-white">
             {sidebarContent}
           </div>
         </div>
@@ -267,23 +263,23 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Sleek Notion Workspace Header */}
-        <header className="sticky top-0 z-20 h-14 bg-surface/85 backdrop-blur-md border-b border-outline-variant/25 px-4 md:px-8 flex items-center justify-between">
+        <header className="sticky top-0 z-20 h-14 bg-white/90 backdrop-blur-md border-b border-zinc-200/90 px-4 md:px-8 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="md:hidden text-on-surface-variant hover:text-on-surface p-1 rounded-md hover:bg-surface-container"
+              className="md:hidden text-zinc-500 hover:text-zinc-900 p-1 rounded-md hover:bg-zinc-100"
               aria-label="Open menu"
             >
               <Menu className="w-5 h-5" />
             </button>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-sm font-semibold text-on-surface truncate tracking-tight">
+                <h1 className="text-sm font-semibold text-zinc-900 truncate tracking-tight">
                   {displayTitle}
                 </h1>
                 {subtitle && (
-                  <span className="hidden sm:inline-block text-xs text-outline truncate">
+                  <span className="hidden sm:inline-block text-xs text-zinc-500 truncate">
                     — {subtitle}
                   </span>
                 )}
@@ -295,26 +291,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           <div className="flex items-center gap-2">
             {actions}
 
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="h-8 w-8 rounded-md bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
-              title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-on-surface" />
-              )}
-            </button>
-
             {/* Quick "+ New" Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   size="sm"
-                  className="bg-on-surface text-surface hover:opacity-90 font-medium text-xs h-8 px-3 gap-1.5 shadow-sm rounded-md"
+                  className="bg-zinc-900 text-white hover:bg-zinc-800 font-semibold text-xs h-8 px-3 gap-1.5 shadow-xs rounded-md"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>New</span>
@@ -323,17 +305,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-56 bg-surface-container-low border-outline-variant/40 text-on-surface shadow-xl p-1"
+                className="w-56 bg-white border-zinc-200 text-zinc-800 shadow-xl p-1 rounded-lg"
               >
                 <DropdownMenuItem
                   asChild
-                  className="focus:bg-surface-container cursor-pointer rounded-md text-xs py-2"
+                  className="focus:bg-zinc-50 cursor-pointer rounded-md text-xs py-2 text-zinc-700 hover:text-zinc-900"
                 >
                   <Link href="/admin/blog/new" className="flex items-center gap-2.5">
-                    <FileText className="w-4 h-4 text-secondary" />
+                    <FileText className="w-4 h-4 text-emerald-600" />
                     <div className="flex flex-col">
-                      <span className="font-medium text-on-surface">Article / Blog</span>
-                      <span className="text-[10px] text-outline">
+                      <span className="font-medium text-zinc-900">Article / Blog</span>
+                      <span className="text-[10px] text-zinc-500">
                         BlockNote or External URL Import
                       </span>
                     </div>
@@ -341,13 +323,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   asChild
-                  className="focus:bg-surface-container cursor-pointer rounded-md text-xs py-2"
+                  className="focus:bg-zinc-50 cursor-pointer rounded-md text-xs py-2 text-zinc-700 hover:text-zinc-900"
                 >
                   <Link href="/admin/project/new" className="flex items-center gap-2.5">
-                    <Layers className="w-4 h-4 text-primary" />
+                    <Layers className="w-4 h-4 text-blue-600" />
                     <div className="flex flex-col">
-                      <span className="font-medium text-on-surface">Portfolio Project</span>
-                      <span className="text-[10px] text-outline">
+                      <span className="font-medium text-zinc-900">Portfolio Project</span>
+                      <span className="text-[10px] text-zinc-500">
                         Assigned to 3 core pillars
                       </span>
                     </div>
@@ -355,13 +337,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   asChild
-                  className="focus:bg-surface-container cursor-pointer rounded-md text-xs py-2"
+                  className="focus:bg-zinc-50 cursor-pointer rounded-md text-xs py-2 text-zinc-700 hover:text-zinc-900"
                 >
                   <Link href="/admin/travel/new" className="flex items-center gap-2.5">
-                    <Compass className="w-4 h-4 text-rose-400" />
+                    <Compass className="w-4 h-4 text-rose-500" />
                     <div className="flex flex-col">
-                      <span className="font-medium text-on-surface">Travel City Highlight</span>
-                      <span className="text-[10px] text-outline">
+                      <span className="font-medium text-zinc-900">Travel City Highlight</span>
+                      <span className="text-[10px] text-zinc-500">
                         Interactive map pin &amp; 9:16 stories
                       </span>
                     </div>
@@ -369,13 +351,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   asChild
-                  className="focus:bg-surface-container cursor-pointer rounded-md text-xs py-2"
+                  className="focus:bg-zinc-50 cursor-pointer rounded-md text-xs py-2 text-zinc-700 hover:text-zinc-900"
                 >
                   <Link href="/admin/diary/new" className="flex items-center gap-2.5">
-                    <BookHeart className="w-4 h-4 text-amber-400" />
+                    <BookHeart className="w-4 h-4 text-amber-500" />
                     <div className="flex flex-col">
-                      <span className="font-medium text-on-surface">Personal Diary Entry</span>
-                      <span className="text-[10px] text-outline">
+                      <span className="font-medium text-zinc-900">Personal Diary Entry</span>
+                      <span className="text-[10px] text-zinc-500">
                         Dated field notes &amp; reflections
                       </span>
                     </div>
@@ -387,9 +369,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
             {/* Public Portfolio External Link */}
             <Button
               asChild
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="hidden sm:inline-flex h-8 px-2.5 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container border border-outline-variant/30"
+              className="hidden sm:inline-flex h-8 px-2.5 text-xs bg-white text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 border border-zinc-200/90 shadow-2xs"
             >
               <Link href="/" target="_blank" rel="noopener noreferrer">
                 <span>View Site</span>

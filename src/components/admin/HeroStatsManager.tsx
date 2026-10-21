@@ -137,10 +137,10 @@ const HeroStatsManager = () => {
 
   if (loading) {
     return (
-      <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+      <Card className="bg-white border-zinc-200/90 shadow-2xs">
         <CardContent className="p-6">
           <div className="flex items-center justify-center py-8">
-            <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-zinc-300 border-t-zinc-900 rounded-full animate-spin" />
           </div>
         </CardContent>
       </Card>
@@ -148,31 +148,31 @@ const HeroStatsManager = () => {
   }
 
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+    <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BarChart3 className="w-5 h-5" />
+        <CardTitle className="flex items-center gap-2 text-zinc-900">
+          <BarChart3 className="w-5 h-5 text-emerald-600" />
           Hero Section Stats
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-zinc-500">
           Manage the statistics displayed in your hero section
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Existing Stats */}
         <div className="space-y-4">
-          <Label className="text-base font-semibold">Current Stats</Label>
+          <Label className="text-sm font-semibold text-zinc-900">Current Stats</Label>
           {Object.entries(stats).map(([key, stat]) => (
-            <div key={key} className="p-4 border border-border rounded-lg space-y-3">
+            <div key={key} className="p-4 border border-zinc-200 bg-zinc-50/70 rounded-lg space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium text-muted-foreground">
+                <Label className="text-xs font-mono text-zinc-500">
                   {key}
                 </Label>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => deleteStat(key)}
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                  className="text-zinc-400 hover:text-red-600 hover:bg-red-50"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -180,7 +180,7 @@ const HeroStatsManager = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor={`${key}-label`} className="text-sm">
+                  <Label htmlFor={`${key}-label`} className="text-xs text-zinc-600">
                     Label
                   </Label>
                   <Input
@@ -188,10 +188,11 @@ const HeroStatsManager = () => {
                     value={stat.label}
                     onChange={(e) => updateStat(key, 'label', e.target.value)}
                     placeholder="e.g. S&OP Pipelines"
+                    className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400"
                   />
                 </div>
                 <div>
-                  <Label htmlFor={`${key}-value`} className="text-sm">
+                  <Label htmlFor={`${key}-value`} className="text-xs text-zinc-600">
                     Value
                   </Label>
                   <Input
@@ -199,6 +200,7 @@ const HeroStatsManager = () => {
                     value={stat.value}
                     onChange={(e) => updateStat(key, 'value', e.target.value)}
                     placeholder="e.g. 15+"
+                    className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400"
                   />
                 </div>
               </div>
@@ -207,11 +209,11 @@ const HeroStatsManager = () => {
         </div>
 
         {/* Add New Stat */}
-        <div className="space-y-4 border-t border-border pt-6">
-          <Label className="text-base font-semibold">Add New Stat</Label>
+        <div className="space-y-4 border-t border-zinc-200 pt-6">
+          <Label className="text-sm font-semibold text-zinc-900">Add New Stat</Label>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <Label htmlFor="new-key" className="text-sm">
+              <Label htmlFor="new-key" className="text-xs text-zinc-600">
                 Key (unique identifier)
               </Label>
               <Input
@@ -219,10 +221,11 @@ const HeroStatsManager = () => {
                 value={newStatKey}
                 onChange={(e) => setNewStatKey(e.target.value)}
                 placeholder="e.g. yearsExperience"
+                className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400"
               />
             </div>
             <div>
-              <Label htmlFor="new-label" className="text-sm">
+              <Label htmlFor="new-label" className="text-xs text-zinc-600">
                 Label
               </Label>
               <Input
@@ -230,10 +233,11 @@ const HeroStatsManager = () => {
                 value={newStatLabel}
                 onChange={(e) => setNewStatLabel(e.target.value)}
                 placeholder="e.g. Years Experience"
+                className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400"
               />
             </div>
             <div>
-              <Label htmlFor="new-value" className="text-sm">
+              <Label htmlFor="new-value" className="text-xs text-zinc-600">
                 Value
               </Label>
               <Input
@@ -241,6 +245,7 @@ const HeroStatsManager = () => {
                 value={newStatValue}
                 onChange={(e) => setNewStatValue(e.target.value)}
                 placeholder="e.g. 5+"
+                className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400"
               />
             </div>
           </div>
@@ -248,7 +253,7 @@ const HeroStatsManager = () => {
             type="button"
             variant="outline"
             onClick={addNewStat}
-            className="w-full"
+            className="w-full border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 shadow-2xs"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add New Stat
@@ -256,14 +261,14 @@ const HeroStatsManager = () => {
         </div>
 
         {/* Save Button */}
-        <div className="flex gap-2 pt-4 border-t border-border">
+        <div className="flex gap-2 pt-4 border-t border-zinc-200">
           <Button
             onClick={saveHeroStats}
             disabled={saving}
-            className="flex-1 bg-gradient-primary hover:shadow-soft"
+            className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 font-medium shadow-xs"
           >
             {saving ? (
-              <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
+              <div className="w-4 h-4 border-2 border-zinc-400 border-t-white rounded-full animate-spin mr-2" />
             ) : (
               <Save className="w-4 h-4 mr-2" />
             )}
@@ -272,15 +277,15 @@ const HeroStatsManager = () => {
         </div>
 
         {/* Preview */}
-        <div className="space-y-4 border-t border-border pt-6">
-          <Label className="text-base font-semibold">Preview</Label>
-          <div className="flex flex-wrap gap-8 p-4 bg-muted/30 rounded-lg">
+        <div className="space-y-4 border-t border-zinc-200 pt-6">
+          <Label className="text-sm font-semibold text-zinc-900">Preview</Label>
+          <div className="flex flex-wrap gap-8 p-4 bg-zinc-50/80 border border-zinc-200 rounded-lg">
             {Object.entries(stats).map(([key, stat]) => (
               <div key={key} className="text-center">
-                <div className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                <div className="text-2xl font-bold text-zinc-900 font-mono">
                   {stat.value}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs text-zinc-600">
                   {stat.label}
                 </div>
               </div>

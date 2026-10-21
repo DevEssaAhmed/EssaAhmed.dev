@@ -342,12 +342,10 @@ function ArticlesDirectoryTab({
 
   // Importer bar state
   const [importUrl, setImportUrl] = useState("");
-  const [selectedPillar, setSelectedPillar] = useState<string>("Workflow Automation");
   const [isImporting, setIsImporting] = useState(false);
 
   // Filters & Search
   const [sourceFilter, setSourceFilter] = useState<"all" | "onsite" | "external">("all");
-  const [pillarFilter, setPillarFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleImport = async (e: React.FormEvent) => {
@@ -386,7 +384,6 @@ function ArticlesDirectoryTab({
         isExternal: true,
         externalUrl: imported.external_url || url,
         platform: imported.platform || detectPlatformFromUrl(url),
-        pillar: selectedPillar,
       });
 
       // Insert directly into Supabase blog_posts
@@ -406,7 +403,7 @@ function ArticlesDirectoryTab({
             is_external: encoded.is_external,
             external_url: encoded.external_url,
             platform: encoded.platform,
-            pillar: encoded.pillar,
+            pillar: null,
           },
         ])
         .select()
@@ -436,40 +433,36 @@ function ArticlesDirectoryTab({
       if (sourceFilter === "onsite" && meta.isExternal) return false;
       if (sourceFilter === "external" && !meta.isExternal) return false;
 
-      // Pillar filter
-      if (pillarFilter !== "all" && meta.pillar !== pillarFilter) return false;
-
       // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const titleMatch = (post.title || "").toLowerCase().includes(q);
         const excerptMatch = (post.excerpt || "").toLowerCase().includes(q);
         const platformMatch = (meta.platform || "").toLowerCase().includes(q);
-        const pillarMatch = (meta.pillar || "").toLowerCase().includes(q);
-        if (!titleMatch && !excerptMatch && !platformMatch && !pillarMatch) return false;
+        if (!titleMatch && !excerptMatch && !platformMatch) return false;
       }
 
       return true;
     });
-  }, [blogPosts, sourceFilter, pillarFilter, searchQuery]);
+  }, [blogPosts, sourceFilter, searchQuery]);
 
   return (
     <div className="space-y-6">
       {/* 1-CLICK EXTERNAL ARTICLE IMPORTER BAR */}
-      <div className="rounded-xl border border-emerald-500/20 bg-gradient-to-r from-emerald-950/20 via-zinc-900/60 to-zinc-900/40 p-5 shadow-sm">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-5 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <div className="w-8 h-8 rounded-lg bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-emerald-900 flex items-center gap-2">
                 <span>1-Click External Article Importer</span>
-                <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 py-0 px-1.5 font-normal">
+                <Badge variant="outline" className="text-[10px] bg-emerald-100 text-emerald-800 border-emerald-300 py-0 px-1.5 font-normal">
                   Auto-Metadata
                 </Badge>
               </h2>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-zinc-600">
                 Paste any article URL from Medium, dev.to, freeCodeCamp, or Substack. We extract title, excerpt, cover image, and canonical links.
               </p>
             </div>
@@ -478,34 +471,21 @@ function ArticlesDirectoryTab({
 
         <form onSubmit={handleImport} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <div className="relative flex-1">
-            <Globe className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <Globe className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <Input
               type="url"
               placeholder="https://medium.com/@username/your-article or https://dev.to/..."
               value={importUrl}
               onChange={(e) => setImportUrl(e.target.value)}
-              className="pl-9 bg-surface-container-low border-outline-variant/40 text-xs text-on-surface placeholder:text-zinc-600 focus:border-emerald-500/50 h-9"
+              className="pl-9 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-emerald-500 h-9 shadow-2xs"
               disabled={isImporting}
             />
           </div>
 
-          <select
-            value={selectedPillar}
-            onChange={(e) => setSelectedPillar(e.target.value)}
-            className="h-9 px-3 text-xs bg-surface-container-low border border-outline-variant/40 text-on-surface rounded-md focus:outline-none focus:border-emerald-500/50 shrink-0"
-            disabled={isImporting}
-          >
-            {THREE_PILLARS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-
           <Button
             type="submit"
             disabled={isImporting || !importUrl.trim()}
-            className="h-9 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs gap-1.5 shrink-0 shadow-sm"
+            className="h-9 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs gap-1.5 shrink-0 shadow-xs"
           >
             {isImporting ? (
               <>
@@ -526,15 +506,15 @@ function ArticlesDirectoryTab({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-2">
         <div className="flex flex-wrap items-center gap-2">
           {/* Source Pills */}
-          <div className="flex items-center bg-surface-container-low p-0.5 rounded-lg border border-outline-variant/30">
+          <div className="flex items-center bg-zinc-200/80 p-0.5 rounded-lg border border-zinc-300/70 shadow-2xs">
             <button
               type="button"
               onClick={() => setSourceFilter("all")}
               className={cn(
                 "px-2.5 py-1 text-xs rounded-md transition-colors",
                 sourceFilter === "all"
-                  ? "bg-white/[0.1] text-white font-medium"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/60"
               )}
             >
               All ({blogPosts.length})
@@ -545,11 +525,11 @@ function ArticlesDirectoryTab({
               className={cn(
                 "px-2.5 py-1 text-xs rounded-md transition-colors",
                 sourceFilter === "onsite"
-                  ? "bg-white/[0.1] text-white font-medium"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/60"
               )}
             >
-              On Site ({blogPosts.filter((p) => !extractArticleExternalMeta(p).isExternal).length})
+              Site Articles ({blogPosts.filter((p) => !extractArticleExternalMeta(p).isExternal).length})
             </button>
             <button
               type="button"
@@ -557,44 +537,30 @@ function ArticlesDirectoryTab({
               className={cn(
                 "px-2.5 py-1 text-xs rounded-md transition-colors",
                 sourceFilter === "external"
-                  ? "bg-white/[0.1] text-white font-medium"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/60"
               )}
             >
-              External Link ({blogPosts.filter((p) => extractArticleExternalMeta(p).isExternal).length})
+              External ({blogPosts.filter((p) => extractArticleExternalMeta(p).isExternal).length})
             </button>
           </div>
-
-          {/* Pillar Selector Filter */}
-          <select
-            value={pillarFilter}
-            onChange={(e) => setPillarFilter(e.target.value)}
-            className="h-8 px-2.5 text-xs bg-surface-container-low border border-outline-variant/30 text-zinc-300 rounded-lg focus:outline-none"
-          >
-            <option value="all">All Pillars</option>
-            {THREE_PILLARS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
         </div>
 
         <div className="flex items-center gap-2.5">
           <div className="relative w-full md:w-64">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
             <Input
               placeholder="Search title, platform..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 h-8 bg-surface-container-low border-outline-variant/30 text-xs text-on-surface placeholder:text-zinc-600 rounded-lg"
+              className="pl-8 h-8 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400 rounded-lg focus:border-zinc-500 shadow-2xs"
             />
           </div>
 
           <Button
             asChild
             size="sm"
-            className="h-8 px-3 bg-white text-black hover:bg-zinc-200 font-medium text-xs gap-1.5 shrink-0 rounded-lg shadow-sm"
+            className="h-8 px-3 bg-zinc-900 text-white hover:bg-zinc-800 font-semibold text-xs gap-1.5 shrink-0 rounded-lg shadow-xs"
           >
             <Link href="/admin/blog/new">
               <Plus className="w-3.5 h-3.5" />
@@ -605,17 +571,17 @@ function ArticlesDirectoryTab({
       </div>
 
       {/* NOTION DATABASE TABLE OF ALL ARTICLES */}
-      <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low overflow-hidden shadow-sm">
+      <div className="rounded-xl border border-zinc-200/90 bg-white overflow-hidden shadow-xs">
         {isLoading ? (
           <div className="p-6 space-y-3">
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-12 w-full bg-white/[0.03]" />
+              <Skeleton key={i} className="h-12 w-full bg-zinc-100" />
             ))}
           </div>
         ) : filteredPosts.length === 0 ? (
           <div className="text-center py-16 px-4">
-            <FileText className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-            <h3 className="text-sm font-medium text-zinc-300">No articles match your filter</h3>
+            <FileText className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
+            <h3 className="text-sm font-medium text-zinc-900">No articles match your filter</h3>
             <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
               Create an article on-site or use the 1-Click URL Importer at the top.
             </p>
@@ -624,16 +590,15 @@ function ArticlesDirectoryTab({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-outline-variant/30 bg-white/[0.02] text-zinc-400 font-medium">
+                <tr className="border-b border-zinc-200 bg-zinc-50/90 text-zinc-600 font-semibold">
                   <th className="py-3 px-4 w-[40%]">Article &amp; Excerpt</th>
                   <th className="py-3 px-3">Platform</th>
-                  <th className="py-3 px-3">Pillar</th>
                   <th className="py-3 px-3">Status</th>
                   <th className="py-3 px-3">Date</th>
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-zinc-200/80">
                 {filteredPosts.map((post) => {
                   const meta = extractArticleExternalMeta(post);
                   const isPublished = post.published && !post.unlisted;
@@ -642,7 +607,7 @@ function ArticlesDirectoryTab({
                   return (
                     <tr
                       key={post.id}
-                      className="hover:bg-white/[0.02] transition-colors group"
+                      className="hover:bg-zinc-50/90 transition-colors group"
                     >
                       {/* Title & Excerpt */}
                       <td className="py-3 px-4">
@@ -651,15 +616,15 @@ function ArticlesDirectoryTab({
                             <img
                               src={post.image_url}
                               alt=""
-                              className="w-10 h-10 rounded-md object-cover border border-outline-variant/30 shrink-0"
+                              className="w-10 h-10 rounded-md object-cover border border-zinc-200 shrink-0"
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-md bg-white/[0.04] border border-outline-variant/30 flex items-center justify-center shrink-0 text-zinc-600">
+                            <div className="w-10 h-10 rounded-md bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0 text-zinc-500">
                               <FileText className="w-4 h-4" />
                             </div>
                           )}
                           <div className="min-w-0 flex-1">
-                            <div className="font-medium text-white truncate text-xs flex items-center gap-1.5">
+                            <div className="font-semibold text-zinc-900 truncate text-xs flex items-center gap-1.5">
                               <span>{post.title}</span>
                               {meta.isExternal && (
                                 <ArrowUpRight className="w-3 h-3 text-zinc-500 shrink-0" />
@@ -674,51 +639,42 @@ function ArticlesDirectoryTab({
 
                       {/* Platform Badge */}
                       <td className="py-3 px-3 whitespace-nowrap">
-                        {meta.isExternal ? (
+                        {meta.isExternal && meta.platform ? (
                           <a
                             href={meta.externalUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 transition-colors"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors"
                           >
                             <span>{meta.platform}</span>
                             <ArrowUpRight className="w-2.5 h-2.5" />
                           </a>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">
-                            On Site
-                          </span>
+                          <span className="text-zinc-400 text-[11px]">—</span>
                         )}
-                      </td>
-
-                      {/* Pillar Badge */}
-                      <td className="py-3 px-3 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-white/[0.05] text-zinc-300 border border-white/[0.06]">
-                          {meta.pillar}
-                        </span>
                       </td>
 
                       {/* Status */}
                       <td className="py-3 px-3 whitespace-nowrap">
                         {isPublished ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             Published
                           </span>
                         ) : isUnlisted ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-zinc-100 text-zinc-600 border border-zinc-200">
                             Unlisted
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                             Draft
                           </span>
                         )}
                       </td>
 
                       {/* Date */}
-                      <td className="py-3 px-3 text-zinc-500 whitespace-nowrap text-[11px]">
+                      <td className="py-3 px-3 text-zinc-600 whitespace-nowrap text-[11px] font-mono">
                         {new Date(post.created_at).toLocaleDateString(undefined, {
                           year: "numeric",
                           month: "short",
@@ -732,8 +688,8 @@ function ArticlesDirectoryTab({
                           <Button
                             asChild
                             size="sm"
-                            variant="ghost"
-                            className="h-7 px-2.5 text-xs text-zinc-300 hover:text-white hover:bg-white/[0.08]"
+                            variant="outline"
+                            className="h-7 px-2.5 text-xs bg-white text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 border border-zinc-200 shadow-2xs"
                           >
                             <Link href={`/admin/blog/edit/${post.id}`}>
                               <Edit className="w-3.5 h-3.5 mr-1" />
@@ -746,25 +702,25 @@ function ArticlesDirectoryTab({
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="h-7 w-7 p-0 text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
+                                className="h-7 w-7 p-0 text-zinc-400 hover:text-red-600 hover:bg-red-50"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-[#18181b] border-outline-variant/40 text-on-surface">
+                            <AlertDialogContent className="bg-white border-zinc-200 text-zinc-900 shadow-xl">
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Article</AlertDialogTitle>
-                                <AlertDialogDescription className="text-zinc-400">
+                                <AlertDialogTitle className="text-zinc-900 font-semibold">Delete Article</AlertDialogTitle>
+                                <AlertDialogDescription className="text-zinc-600">
                                   Are you sure you want to delete &quot;{post.title}&quot;? This cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel className="bg-transparent border-outline-variant/40 text-zinc-300 hover:bg-white/[0.05]">
+                                <AlertDialogCancel className="bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-100">
                                   Cancel
                                 </AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => onDelete(post.id, post.title)}
-                                  className="bg-red-600 hover:bg-red-500 text-white"
+                                  className="bg-red-600 hover:bg-red-700 text-white"
                                 >
                                   Delete
                                 </AlertDialogAction>
@@ -838,15 +794,15 @@ function ProjectsDirectoryTab({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           {/* View Toggle */}
-          <div className="flex items-center bg-surface-container-low p-0.5 rounded-lg border border-outline-variant/30">
+          <div className="flex items-center bg-zinc-200/80 p-0.5 rounded-lg border border-zinc-300/70 shadow-2xs">
             <button
               type="button"
               onClick={() => setViewMode("table")}
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-colors",
                 viewMode === "table"
-                  ? "bg-white/[0.1] text-white font-medium shadow-sm"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/60"
               )}
             >
               <TableIcon className="w-3.5 h-3.5" />
@@ -858,8 +814,8 @@ function ProjectsDirectoryTab({
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-colors",
                 viewMode === "kanban"
-                  ? "bg-white/[0.1] text-white font-medium shadow-sm"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/60"
               )}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
@@ -872,7 +828,7 @@ function ProjectsDirectoryTab({
             <select
               value={pillarFilter}
               onChange={(e) => setPillarFilter(e.target.value)}
-              className="h-8 px-2.5 text-xs bg-surface-container-low border border-outline-variant/30 text-zinc-300 rounded-lg focus:outline-none"
+              className="h-8 px-2.5 text-xs bg-white border border-zinc-300 text-zinc-800 rounded-lg focus:border-zinc-500 focus:outline-none shadow-2xs"
             >
               <option value="all">All 3 Pillars</option>
               {THREE_PILLARS.map((p) => (
@@ -886,19 +842,19 @@ function ProjectsDirectoryTab({
 
         <div className="flex items-center gap-2.5">
           <div className="relative w-full sm:w-64">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
             <Input
               placeholder="Search projects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 h-8 bg-surface-container-low border-outline-variant/30 text-xs text-on-surface placeholder:text-zinc-600 rounded-lg"
+              className="pl-8 h-8 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400 rounded-lg focus:border-zinc-500 shadow-2xs"
             />
           </div>
 
           <Button
             asChild
             size="sm"
-            className="h-8 px-3 bg-white text-black hover:bg-zinc-200 font-medium text-xs gap-1.5 shrink-0 rounded-lg shadow-sm"
+            className="h-8 px-3 bg-zinc-900 text-white hover:bg-zinc-800 font-semibold text-xs gap-1.5 shrink-0 rounded-lg shadow-xs"
           >
             <Link href="/admin/project/new">
               <Plus className="w-3.5 h-3.5" />
@@ -910,17 +866,17 @@ function ProjectsDirectoryTab({
 
       {/* VIEW: NOTION TABLE */}
       {viewMode === "table" && (
-        <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low overflow-hidden shadow-sm">
+        <div className="rounded-xl border border-zinc-200/90 bg-white overflow-hidden shadow-xs">
           {isLoading ? (
             <div className="p-6 space-y-3">
               {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-12 w-full bg-white/[0.03]" />
+                <Skeleton key={i} className="h-12 w-full bg-zinc-100" />
               ))}
             </div>
           ) : filteredProjects.length === 0 ? (
             <div className="text-center py-16 px-4">
-              <Folder className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-              <h3 className="text-sm font-medium text-zinc-300">No projects found</h3>
+              <Folder className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
+              <h3 className="text-sm font-medium text-zinc-900">No projects found</h3>
               <p className="text-xs text-zinc-500 mt-1">
                 Add a new project to showcase your engineering achievements.
               </p>
@@ -929,7 +885,7 @@ function ProjectsDirectoryTab({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-outline-variant/30 bg-white/[0.02] text-zinc-400 font-medium">
+                  <tr className="border-b border-zinc-200 bg-zinc-50/90 text-zinc-600 font-semibold">
                     <th className="py-3 px-4 w-[35%]">Project Name</th>
                     <th className="py-3 px-3">Pillar</th>
                     <th className="py-3 px-3">Key Technologies</th>
@@ -938,13 +894,13 @@ function ProjectsDirectoryTab({
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.04]">
+                <tbody className="divide-y divide-zinc-200/80">
                   {filteredProjects.map((p) => {
                     const pillar = inferProjectPillar(p);
                     return (
                       <tr
                         key={p.id}
-                        className="hover:bg-white/[0.02] transition-colors group"
+                        className="hover:bg-zinc-50/90 transition-colors group"
                       >
                         {/* Title & Preview */}
                         <td className="py-3 px-4">
@@ -953,18 +909,18 @@ function ProjectsDirectoryTab({
                               <img
                                 src={p.image_url}
                                 alt=""
-                                className="w-10 h-10 rounded-md object-cover border border-outline-variant/30 shrink-0"
+                                className="w-10 h-10 rounded-md object-cover border border-zinc-200 shrink-0"
                               />
                             ) : (
-                              <div className="w-10 h-10 rounded-md bg-white/[0.04] border border-outline-variant/30 flex items-center justify-center shrink-0 text-zinc-600">
+                              <div className="w-10 h-10 rounded-md bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0 text-zinc-500">
                                 <Layers className="w-4 h-4" />
                               </div>
                             )}
                             <div className="min-w-0 flex-1">
-                              <div className="font-medium text-white truncate text-xs flex items-center gap-1.5">
+                              <div className="font-semibold text-zinc-900 truncate text-xs flex items-center gap-1.5">
                                 <span>{p.title}</span>
                                 {p.featured && (
-                                  <Badge className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 py-0 px-1 font-normal">
+                                  <Badge className="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 py-0 px-1 font-normal">
                                     Featured
                                   </Badge>
                                 )}
@@ -978,7 +934,7 @@ function ProjectsDirectoryTab({
 
                         {/* Pillar */}
                         <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-white/[0.05] text-zinc-300 border border-white/[0.06]">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">
                             {pillar}
                           </span>
                         </td>
@@ -989,7 +945,7 @@ function ProjectsDirectoryTab({
                             {(p.tags || []).slice(0, 3).map((tag: string) => (
                               <span
                                 key={tag}
-                                className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.04] text-zinc-400 border border-white/[0.04]"
+                                className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-700 border border-zinc-200"
                               >
                                 {tag}
                               </span>
@@ -1003,7 +959,7 @@ function ProjectsDirectoryTab({
                         </td>
 
                         {/* Metrics */}
-                        <td className="py-3 px-3 text-zinc-400 text-[11px] whitespace-nowrap">
+                        <td className="py-3 px-3 text-zinc-500 text-[11px] whitespace-nowrap font-mono">
                           <span className="flex items-center gap-2">
                             <span>{p.views || 0} views</span>
                             <span>·</span>
@@ -1012,7 +968,7 @@ function ProjectsDirectoryTab({
                         </td>
 
                         {/* Created */}
-                        <td className="py-3 px-3 text-zinc-500 whitespace-nowrap text-[11px]">
+                        <td className="py-3 px-3 text-zinc-500 whitespace-nowrap text-[11px] font-mono">
                           {new Date(p.created_at).toLocaleDateString(undefined, {
                             year: "numeric",
                             month: "short",
@@ -1026,8 +982,8 @@ function ProjectsDirectoryTab({
                             <Button
                               asChild
                               size="sm"
-                              variant="ghost"
-                              className="h-7 px-2.5 text-xs text-zinc-300 hover:text-white hover:bg-white/[0.08]"
+                              variant="outline"
+                              className="h-7 px-2.5 text-xs bg-white text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 border border-zinc-200 shadow-2xs"
                             >
                               <Link href={`/admin/project/edit/${p.id}`}>
                                 <Edit className="w-3.5 h-3.5 mr-1" />
@@ -1040,25 +996,25 @@ function ProjectsDirectoryTab({
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="h-7 w-7 p-0 text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
+                                  className="h-7 w-7 p-0 text-zinc-400 hover:text-red-600 hover:bg-red-50"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </Button>
                               </AlertDialogTrigger>
-                              <AlertDialogContent className="bg-[#18181b] border-outline-variant/40 text-on-surface">
+                              <AlertDialogContent className="bg-white border-zinc-200 text-zinc-900 shadow-xl">
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Project</AlertDialogTitle>
-                                  <AlertDialogDescription className="text-zinc-400">
+                                  <AlertDialogTitle className="text-zinc-900 font-semibold">Delete Project</AlertDialogTitle>
+                                  <AlertDialogDescription className="text-zinc-600">
                                     Are you sure you want to delete &quot;{p.title}&quot;? This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel className="bg-transparent border-outline-variant/40 text-zinc-300 hover:bg-white/[0.05]">
+                                  <AlertDialogCancel className="bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-100">
                                     Cancel
                                   </AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => onDelete(p.id, p.title)}
-                                    className="bg-red-600 hover:bg-red-500 text-white"
+                                    className="bg-red-600 hover:bg-red-700 text-white"
                                   >
                                     Delete
                                   </AlertDialogAction>
@@ -1084,23 +1040,23 @@ function ProjectsDirectoryTab({
             const list = kanbanColumns[pillar] || [];
             const colorClass =
               pillar === "Workflow Automation"
-                ? "border-emerald-500/30 text-emerald-400"
+                ? "border-emerald-500 bg-emerald-500 text-emerald-700"
                 : pillar === "Supply Chain & Demand Planning"
-                ? "border-blue-500/30 text-blue-400"
-                : "border-purple-500/30 text-purple-400";
+                ? "border-blue-500 bg-blue-500 text-blue-700"
+                : "border-purple-500 bg-purple-500 text-purple-700";
 
             return (
               <div
                 key={pillar}
-                className="flex flex-col rounded-xl border border-outline-variant/30 bg-surface-container-low p-4 min-h-[420px]"
+                className="flex flex-col rounded-xl border border-zinc-200/90 bg-zinc-50/80 p-4 min-h-[420px] shadow-2xs"
               >
                 {/* Column Header */}
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/[0.06]">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-zinc-200">
                   <div className="flex items-center gap-2">
-                    <span className={cn("w-2 h-2 rounded-full border", colorClass)} />
-                    <h3 className="text-xs font-semibold text-white truncate">{pillar}</h3>
+                    <span className={cn("w-2 h-2 rounded-full", colorClass)} />
+                    <h3 className="text-xs font-semibold text-zinc-900 truncate">{pillar}</h3>
                   </div>
-                  <Badge variant="outline" className="text-[10px] bg-white/[0.04] text-zinc-400 border-outline-variant/30 py-0 px-1.5 font-mono">
+                  <Badge variant="outline" className="text-[10px] bg-white text-zinc-700 border-zinc-200 py-0 px-1.5 font-mono shadow-2xs">
                     {list.length}
                   </Badge>
                 </div>
@@ -1108,55 +1064,55 @@ function ProjectsDirectoryTab({
                 {/* Cards List */}
                 <div className="flex-1 space-y-3 overflow-y-auto">
                   {list.length === 0 ? (
-                    <div className="h-32 flex items-center justify-center text-xs text-zinc-600 border border-dashed border-white/[0.06] rounded-lg">
+                    <div className="h-32 flex items-center justify-center text-xs text-zinc-400 border border-dashed border-zinc-300 rounded-lg">
                       No projects in this pillar
                     </div>
                   ) : (
                     list.map((proj) => (
                       <div
                         key={proj.id}
-                        className="rounded-lg border border-white/[0.06] bg-zinc-900/60 p-3.5 hover:border-white/[0.15] hover:bg-zinc-900 transition-colors group"
+                        className="rounded-lg border border-zinc-200/90 bg-white p-3.5 hover:border-zinc-300 hover:shadow-xs transition-all group"
                       >
                         {proj.image_url && (
                           <img
                             src={proj.image_url}
                             alt=""
-                            className="w-full h-24 rounded-md object-cover mb-2.5 border border-white/[0.06]"
+                            className="w-full h-24 rounded-md object-cover mb-2.5 border border-zinc-200"
                           />
                         )}
                         <div className="flex items-start justify-between gap-2 mb-1.5">
-                          <h4 className="text-xs font-medium text-white truncate group-hover:text-emerald-400 transition-colors">
+                          <h4 className="text-xs font-medium text-zinc-900 truncate group-hover:text-emerald-700 transition-colors">
                             {proj.title}
                           </h4>
                           {proj.featured && (
-                            <Badge className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 py-0 px-1 shrink-0 font-normal">
+                            <Badge className="text-[9px] bg-amber-50 text-amber-700 border border-amber-200 py-0 px-1 shrink-0 font-normal">
                               Featured
                             </Badge>
                           )}
                         </div>
-                        <p className="text-[11px] text-zinc-400 line-clamp-2 mb-2.5">
+                        <p className="text-[11px] text-zinc-500 line-clamp-2 mb-2.5">
                           {getMarkdownExcerpt(proj.description || "", 90)}
                         </p>
                         <div className="flex flex-wrap gap-1 mb-3">
                           {(proj.tags || []).slice(0, 3).map((t: string) => (
                             <span
                               key={t}
-                              className="text-[9px] px-1.5 py-0.2 rounded bg-white/[0.04] text-zinc-400 border border-white/[0.04]"
+                              className="text-[9px] px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-700 border border-zinc-200"
                             >
                               {t}
                             </span>
                           ))}
                         </div>
-                        <div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
-                          <span className="text-[10px] text-zinc-500">
+                        <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
+                          <span className="text-[10px] text-zinc-500 font-mono">
                             {proj.views || 0} views
                           </span>
                           <div className="flex items-center gap-1">
                             <Button
                               asChild
                               size="sm"
-                              variant="ghost"
-                              className="h-6 px-2 text-[11px] text-zinc-300 hover:text-white hover:bg-white/[0.08]"
+                              variant="outline"
+                              className="h-6 px-2 text-[11px] bg-white text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 border border-zinc-200 shadow-2xs"
                             >
                               <Link href={`/admin/project/edit/${proj.id}`}>
                                 <Edit className="w-3 h-3 mr-1" />
@@ -1168,12 +1124,12 @@ function ProjectsDirectoryTab({
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="h-6 w-6 p-0 text-zinc-500 hover:text-red-400"
+                                  className="h-6 w-6 p-0 text-zinc-400 hover:text-red-600 hover:bg-red-50"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </Button>
                               </AlertDialogTrigger>
-                              <AlertDialogContent className="bg-[#18181b] border-outline-variant/40 text-on-surface">
+                              <AlertDialogContent className="bg-[#18191e] border-zinc-800 text-zinc-100">
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete Project</AlertDialogTitle>
                                   <AlertDialogDescription className="text-zinc-400">
@@ -1181,7 +1137,7 @@ function ProjectsDirectoryTab({
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel className="bg-transparent border-outline-variant/40 text-zinc-300">
+                                  <AlertDialogCancel className="bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                                     Cancel
                                   </AlertDialogCancel>
                                   <AlertDialogAction
@@ -1241,19 +1197,19 @@ function TravelDirectoryTab({
       {/* TOOLBAR */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative w-full sm:w-72">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <Input
             placeholder="Search cities or countries..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 h-8 bg-surface-container-low border-outline-variant/30 text-xs text-on-surface placeholder:text-zinc-600 rounded-lg"
+            className="pl-8 h-8 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400 rounded-lg focus:border-zinc-500 shadow-2xs"
           />
         </div>
 
         <Button
           asChild
           size="sm"
-          className="h-8 px-3 bg-white text-black hover:bg-zinc-200 font-medium text-xs gap-1.5 shrink-0 rounded-lg shadow-sm"
+          className="h-8 px-3 bg-zinc-900 text-white hover:bg-zinc-800 font-semibold text-xs gap-1.5 shrink-0 rounded-lg shadow-xs"
         >
           <Link href="/admin/travel/new">
             <Plus className="w-3.5 h-3.5" />
@@ -1266,13 +1222,13 @@ function TravelDirectoryTab({
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-44 rounded-xl bg-white/[0.03]" />
+            <Skeleton key={i} className="h-44 rounded-xl bg-zinc-100" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low text-center py-16 px-4">
-          <Compass className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-          <h3 className="text-sm font-medium text-zinc-300">No travel cities found</h3>
+        <div className="rounded-xl border border-zinc-200/90 bg-white text-center py-16 px-4 shadow-xs">
+          <Compass className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
+          <h3 className="text-sm font-medium text-zinc-900">No travel cities found</h3>
           <p className="text-xs text-zinc-500 mt-1">
             Create an interactive travel destination highlight with vertical story slides.
           </p>
@@ -1286,7 +1242,7 @@ function TravelDirectoryTab({
             return (
               <div
                 key={city.id}
-                className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-5 hover:border-white/[0.15] transition-all duration-150 flex flex-col justify-between"
+                className="rounded-xl border border-zinc-200/90 bg-white p-5 hover:border-zinc-300 hover:shadow-xs transition-all duration-150 flex flex-col justify-between shadow-2xs"
               >
                 <div>
                   {/* Top Bar with Story Ring */}
@@ -1297,17 +1253,17 @@ function TravelDirectoryTab({
                         <img
                           src={city.cover_image_url || "/placeholder.svg"}
                           alt={city.city_name}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-[#121215]"
+                          className="w-12 h-12 rounded-full object-cover border-2 border-white"
                         />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span className="text-base">{city.flag}</span>
-                          <h3 className="text-sm font-semibold text-white truncate">
+                          <h3 className="text-sm font-semibold text-zinc-900 truncate">
                             {city.city_name}
                           </h3>
                         </div>
-                        <div className="text-xs text-zinc-400 truncate">
+                        <div className="text-xs text-zinc-500 truncate">
                           {city.country_name}
                         </div>
                       </div>
@@ -1317,8 +1273,8 @@ function TravelDirectoryTab({
                       className={cn(
                         "text-[10px] font-normal py-0 px-2 rounded-full",
                         isPublished
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                          : "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : "bg-zinc-100 text-zinc-600 border-zinc-200"
                       )}
                     >
                       {isPublished ? "Published" : "Draft"}
@@ -1326,32 +1282,32 @@ function TravelDirectoryTab({
                   </div>
 
                   {/* Subtitle / Description */}
-                  <p className="text-xs text-zinc-400 line-clamp-2 mb-4">
+                  <p className="text-xs text-zinc-600 line-clamp-2 mb-4">
                     {city.subtitle || city.essay_title || "Field notes & vertical photo slides"}
                   </p>
 
                   {/* Lat / Lng badge & Story Slides Badge */}
                   <div className="flex flex-wrap items-center gap-2 mb-4 text-[11px]">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/[0.04] text-zinc-400 border border-white/[0.06] font-mono">
-                      <MapPin className="w-3 h-3 text-zinc-500" />
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 border border-zinc-200 font-mono">
+                      <MapPin className="w-3 h-3 text-zinc-400" />
                       <span>
                         {city.lat.toFixed(2)}°, {city.lng.toFixed(2)}°
                       </span>
                     </span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/[0.04] text-zinc-400 border border-white/[0.06]">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 border border-zinc-200">
                       <span>{slideCount} story slides</span>
                     </span>
-                    <span className="text-zinc-500">{city.month || city.year}</span>
+                    <span className="text-zinc-500 font-mono">{city.month || city.year}</span>
                   </div>
                 </div>
 
                 {/* Footer Actions */}
-                <div className="flex items-center justify-between pt-3 border-t border-white/[0.06]">
+                <div className="flex items-center justify-between pt-3 border-t border-zinc-100">
                   <Button
                     asChild
                     size="sm"
-                    variant="ghost"
-                    className="h-7 px-2.5 text-xs text-zinc-300 hover:text-white hover:bg-white/[0.08]"
+                    variant="outline"
+                    className="h-7 px-2.5 text-xs bg-white text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 border border-zinc-200 shadow-2xs"
                   >
                     <Link href={`/admin/travel/edit/${city.id}`}>
                       <Edit className="w-3.5 h-3.5 mr-1.5" />
@@ -1364,25 +1320,25 @@ function TravelDirectoryTab({
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-7 w-7 p-0 text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
+                        className="h-7 w-7 p-0 text-zinc-400 hover:text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-[#18181b] border-outline-variant/40 text-on-surface">
+                    <AlertDialogContent className="bg-white border-zinc-200 text-zinc-900 shadow-xl">
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Travel Highlight</AlertDialogTitle>
-                        <AlertDialogDescription className="text-zinc-400">
+                        <AlertDialogTitle className="text-zinc-900 font-semibold">Delete Travel Highlight</AlertDialogTitle>
+                        <AlertDialogDescription className="text-zinc-600">
                           Are you sure you want to delete {city.city_name}, {city.country_name}? This cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-transparent border-outline-variant/40 text-zinc-300 hover:bg-white/[0.05]">
+                        <AlertDialogCancel className="bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-100">
                           Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => onDelete(city.id, city.city_name)}
-                          className="bg-red-600 hover:bg-red-500 text-white"
+                          className="bg-red-600 hover:bg-red-700 text-white"
                         >
                           Delete
                         </AlertDialogAction>
@@ -1455,7 +1411,7 @@ function DiaryDirectoryTab({
       {/* TOOLBAR */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Year Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-surface-container-low p-1 rounded-lg border border-outline-variant/30">
+        <div className="flex flex-wrap items-center gap-1.5 bg-zinc-200/80 p-1 rounded-lg border border-zinc-300/70 shadow-2xs">
           {availableYears.map((year) => (
             <button
               key={year}
@@ -1464,8 +1420,8 @@ function DiaryDirectoryTab({
               className={cn(
                 "px-2.5 py-1 text-xs rounded-md transition-colors",
                 selectedYear === year
-                  ? "bg-white/[0.1] text-white font-medium"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/60"
               )}
             >
               {year}
@@ -1475,19 +1431,19 @@ function DiaryDirectoryTab({
 
         <div className="flex items-center gap-2.5">
           <div className="relative w-full sm:w-64">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
             <Input
               placeholder="Search diary entries..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 h-8 bg-surface-container-low border-outline-variant/30 text-xs text-on-surface placeholder:text-zinc-600 rounded-lg"
+              className="pl-8 h-8 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400 rounded-lg focus:border-zinc-500 shadow-2xs"
             />
           </div>
 
           <Button
             asChild
             size="sm"
-            className="h-8 px-3 bg-white text-black hover:bg-zinc-200 font-medium text-xs gap-1.5 shrink-0 rounded-lg shadow-sm"
+            className="h-8 px-3 bg-zinc-900 text-white hover:bg-zinc-800 font-semibold text-xs gap-1.5 shrink-0 rounded-lg shadow-xs"
           >
             <Link href="/admin/diary/new">
               <Plus className="w-3.5 h-3.5" />
@@ -1498,17 +1454,17 @@ function DiaryDirectoryTab({
       </div>
 
       {/* NOTION DATABASE TABLE OF DIARY ENTRIES */}
-      <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low overflow-hidden shadow-sm">
+      <div className="rounded-xl border border-zinc-200/90 bg-white overflow-hidden shadow-xs">
         {isLoading ? (
           <div className="p-6 space-y-3">
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-12 w-full bg-white/[0.03]" />
+              <Skeleton key={i} className="h-12 w-full bg-zinc-100" />
             ))}
           </div>
         ) : filteredEntries.length === 0 ? (
           <div className="text-center py-16 px-4">
-            <BookHeart className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-            <h3 className="text-sm font-medium text-zinc-300">No diary entries found</h3>
+            <BookHeart className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
+            <h3 className="text-sm font-medium text-zinc-900">No diary entries found</h3>
             <p className="text-xs text-zinc-500 mt-1">
               Click &quot;New Diary Entry&quot; to write a field note or reflection.
             </p>
@@ -1517,7 +1473,7 @@ function DiaryDirectoryTab({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-outline-variant/30 bg-white/[0.02] text-zinc-400 font-medium">
+                <tr className="border-b border-zinc-200 bg-zinc-50/90 text-zinc-600 font-semibold">
                   <th className="py-3 px-4 w-[20%]">Entry Date</th>
                   <th className="py-3 px-4 w-[30%]">Title</th>
                   <th className="py-3 px-4 w-[30%]">Excerpt / Notes</th>
@@ -1525,16 +1481,16 @@ function DiaryDirectoryTab({
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-zinc-200/80">
                 {filteredEntries.map((entry) => (
                   <tr
                     key={entry.id}
-                    className="hover:bg-white/[0.02] transition-colors group"
+                    className="hover:bg-zinc-50/90 transition-colors group"
                   >
                     {/* Date */}
                     <td className="py-3 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2 text-zinc-300 font-mono text-xs">
-                        <Calendar className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                      <div className="flex items-center gap-2 text-zinc-600 font-mono text-xs">
+                        <Calendar className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                         <span>
                           {entry.entry_date
                             ? new Date(entry.entry_date).toLocaleDateString(undefined, {
@@ -1549,14 +1505,14 @@ function DiaryDirectoryTab({
 
                     {/* Title */}
                     <td className="py-3 px-4">
-                      <div className="font-medium text-white truncate text-xs">
+                      <div className="font-semibold text-zinc-900 truncate text-xs">
                         {entry.title || "Untitled Entry"}
                       </div>
                     </td>
 
                     {/* Excerpt */}
                     <td className="py-3 px-4">
-                      <div className="text-zinc-400 truncate text-[11px] line-clamp-1 max-w-md">
+                      <div className="text-zinc-500 truncate text-[11px] line-clamp-1 max-w-md">
                         {entry.excerpt || getMarkdownExcerpt(entry.content || "", 90)}
                       </div>
                     </td>
@@ -1564,13 +1520,13 @@ function DiaryDirectoryTab({
                     {/* Status */}
                     <td className="py-3 px-3 whitespace-nowrap">
                       {entry.is_published ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                           Published
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                           Draft
                         </span>
                       )}
@@ -1582,8 +1538,8 @@ function DiaryDirectoryTab({
                         <Button
                           asChild
                           size="sm"
-                          variant="ghost"
-                          className="h-7 px-2.5 text-xs text-zinc-300 hover:text-white hover:bg-white/[0.08]"
+                          variant="outline"
+                          className="h-7 px-2.5 text-xs bg-white text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 border border-zinc-200 shadow-2xs"
                         >
                           <Link href={`/admin/diary/edit/${entry.id}`}>
                             <Edit className="w-3.5 h-3.5 mr-1" />
@@ -1596,25 +1552,25 @@ function DiaryDirectoryTab({
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="h-7 w-7 p-0 text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
+                              className="h-7 w-7 p-0 text-zinc-400 hover:text-red-600 hover:bg-red-50"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent className="bg-[#18181b] border-outline-variant/40 text-on-surface">
+                          <AlertDialogContent className="bg-white border-zinc-200 text-zinc-900 shadow-xl">
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Diary Entry</AlertDialogTitle>
-                              <AlertDialogDescription className="text-zinc-400">
+                              <AlertDialogTitle className="text-zinc-900 font-semibold">Delete Diary Entry</AlertDialogTitle>
+                              <AlertDialogDescription className="text-zinc-600">
                                 Delete &quot;{entry.title}&quot;? This cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel className="bg-transparent border-outline-variant/40 text-zinc-300">
+                              <AlertDialogCancel className="bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-100">
                                 Cancel
                               </AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => onDelete(entry.id, entry.title)}
-                                className="bg-red-600 hover:bg-red-500 text-white"
+                                className="bg-red-600 hover:bg-red-700 text-white"
                               >
                                 Delete
                               </AlertDialogAction>
@@ -1718,15 +1674,15 @@ function ProfileManagement() {
   };
 
   return (
-    <Card className="border-outline-variant/30 bg-surface-container-low text-on-surface">
+    <Card className="border border-zinc-200/90 bg-white text-zinc-900 shadow-xs">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <User className="w-4 h-4 text-emerald-400" />
+            <CardTitle className="text-base font-semibold flex items-center gap-2 text-zinc-900">
+              <User className="w-4 h-4 text-emerald-600" />
               <span>Profile &amp; Personal Info</span>
             </CardTitle>
-            <CardDescription className="text-xs text-zinc-400 mt-1">
+            <CardDescription className="text-xs text-zinc-500 mt-1">
               Your public persona, titles, bio, and social links displayed across the portfolio.
             </CardDescription>
           </div>
@@ -1734,7 +1690,7 @@ function ProfileManagement() {
             asChild
             variant="outline"
             size="sm"
-            className="h-7 text-xs border-outline-variant/30 text-zinc-300 hover:text-white"
+            className="h-7 text-xs border-zinc-300 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 bg-white shadow-2xs"
           >
             <Link href="/admin/profile">Open Full Editor ↗</Link>
           </Button>
@@ -1744,86 +1700,86 @@ function ProfileManagement() {
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs text-zinc-400">Full Name</Label>
+              <Label className="text-xs text-zinc-700 font-medium">Full Name</Label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
               />
             </div>
             <div>
-              <Label className="text-xs text-zinc-400">Username</Label>
+              <Label className="text-xs text-zinc-700 font-medium">Username</Label>
               <Input
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
               />
             </div>
             <div>
-              <Label className="text-xs text-zinc-400">Professional Title</Label>
+              <Label className="text-xs text-zinc-700 font-medium">Professional Title</Label>
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
               />
             </div>
             <div>
-              <Label className="text-xs text-zinc-400">Location</Label>
+              <Label className="text-xs text-zinc-700 font-medium">Location</Label>
               <Input
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
               />
             </div>
           </div>
 
           <div>
-            <Label className="text-xs text-zinc-400">Bio</Label>
+            <Label className="text-xs text-zinc-700 font-medium">Bio</Label>
             <Textarea
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
               rows={3}
-              className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs resize-none"
+              className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs resize-none focus:border-zinc-500 shadow-2xs"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label className="text-xs text-zinc-400 flex items-center gap-1">
-                <Mail className="w-3 h-3" /> Email
+              <Label className="text-xs text-zinc-700 font-medium flex items-center gap-1">
+                <Mail className="w-3 h-3 text-zinc-400" /> Email
               </Label>
               <Input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
               />
             </div>
             <div>
-              <Label className="text-xs text-zinc-400 flex items-center gap-1">
-                <Github className="w-3 h-3" /> GitHub URL
+              <Label className="text-xs text-zinc-700 font-medium flex items-center gap-1">
+                <Github className="w-3 h-3 text-zinc-400" /> GitHub URL
               </Label>
               <Input
                 value={formData.github_url}
                 onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
-                className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
               />
             </div>
             <div>
-              <Label className="text-xs text-zinc-400 flex items-center gap-1">
-                <Linkedin className="w-3 h-3" /> LinkedIn URL
+              <Label className="text-xs text-zinc-700 font-medium flex items-center gap-1">
+                <Linkedin className="w-3 h-3 text-zinc-400" /> LinkedIn URL
               </Label>
               <Input
                 value={formData.linkedin_url}
                 onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-                className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
               />
             </div>
           </div>
 
           {/* Skills Management */}
           <div>
-            <Label className="text-xs text-zinc-400">Skills &amp; Technologies</Label>
+            <Label className="text-xs text-zinc-700 font-medium">Skills &amp; Technologies</Label>
             <div className="flex gap-2 mt-1 mb-2">
               <Input
                 value={newSkill}
@@ -1835,14 +1791,14 @@ function ProfileManagement() {
                   }
                 }}
                 placeholder="Add a skill and press Enter..."
-                className="bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                className="bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
               />
               <Button
                 type="button"
                 onClick={addSkill}
                 size="sm"
                 variant="outline"
-                className="h-8 border-outline-variant/30 text-xs"
+                className="h-8 border-zinc-300 text-xs bg-white text-zinc-700 hover:bg-zinc-50 shadow-2xs"
               >
                 Add
               </Button>
@@ -1852,13 +1808,13 @@ function ProfileManagement() {
                 <Badge
                   key={s}
                   variant="outline"
-                  className="text-xs bg-white/[0.04] text-zinc-300 border-outline-variant/30 pr-1.5 py-0.5"
+                  className="text-xs bg-zinc-100 text-zinc-700 border-zinc-200 pr-1.5 py-0.5"
                 >
                   <span>{s}</span>
                   <button
                     type="button"
                     onClick={() => removeSkill(s)}
-                    className="ml-1.5 text-zinc-500 hover:text-white"
+                    className="ml-1.5 text-zinc-400 hover:text-zinc-900"
                   >
                     ×
                   </button>
@@ -1871,7 +1827,7 @@ function ProfileManagement() {
             <Button
               type="submit"
               disabled={saving}
-              className="h-8 px-4 bg-white text-black hover:bg-zinc-200 text-xs font-medium"
+              className="h-8 px-4 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold shadow-xs"
             >
               {saving ? "Saving..." : "Save Profile"}
             </Button>
@@ -1996,13 +1952,13 @@ function CategorySeriesManager() {
   };
 
   return (
-    <Card className="border-outline-variant/30 bg-surface-container-low text-on-surface">
+    <Card className="border border-zinc-200/90 bg-white text-zinc-900 shadow-xs">
       <CardHeader>
-        <CardTitle className="text-base font-semibold flex items-center gap-2">
-          <Tag className="w-4 h-4 text-blue-400" />
+        <CardTitle className="text-base font-semibold flex items-center gap-2 text-zinc-900">
+          <Tag className="w-4 h-4 text-blue-600" />
           <span>Categories &amp; Series Manager</span>
         </CardTitle>
-        <CardDescription className="text-xs text-zinc-400 mt-1">
+        <CardDescription className="text-xs text-zinc-500 mt-1">
           Organize articles and projects into thematic taxonomies and multi-part article series.
         </CardDescription>
       </CardHeader>
@@ -2010,50 +1966,50 @@ function CategorySeriesManager() {
         {/* Categories Section */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
               Categories ({categories.length})
             </h4>
             <Dialog open={isAddingCat} onOpenChange={setIsAddingCat}>
               <DialogTrigger asChild>
-                <Button size="sm" variant="outline" className="h-7 text-xs border-outline-variant/30 text-zinc-300">
+                <Button size="sm" variant="outline" className="h-7 text-xs border-zinc-300 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 bg-white shadow-2xs">
                   <Plus className="w-3 h-3 mr-1" /> Add Category
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-[#18181b] border-outline-variant/40 text-on-surface">
+              <DialogContent className="bg-white border-zinc-200 text-zinc-900 shadow-xl">
                 <DialogHeader>
-                  <DialogTitle className="text-sm">Create Category</DialogTitle>
+                  <DialogTitle className="text-sm font-semibold text-zinc-900">Create Category</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleCreateCategory} className="space-y-3 pt-2">
                   <div>
-                    <Label className="text-xs">Category Name *</Label>
+                    <Label className="text-xs text-zinc-700 font-medium">Category Name *</Label>
                     <Input
                       value={newCatName}
                       onChange={(e) => setNewCatName(e.target.value)}
                       placeholder="e.g. Workflow Automation"
-                      className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                      className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
                       required
                     />
                   </div>
                   <div>
-                    <Label className="text-xs">Slug (Optional)</Label>
+                    <Label className="text-xs text-zinc-700 font-medium">Slug (Optional)</Label>
                     <Input
                       value={newCatSlug}
                       onChange={(e) => setNewCatSlug(e.target.value)}
                       placeholder="workflow-automation"
-                      className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                      className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
                     />
                   </div>
                   <div>
-                    <Label className="text-xs">Description</Label>
+                    <Label className="text-xs text-zinc-700 font-medium">Description</Label>
                     <Input
                       value={newCatDesc}
                       onChange={(e) => setNewCatDesc(e.target.value)}
                       placeholder="Category description..."
-                      className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                      className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
                     />
                   </div>
                   <DialogFooter className="pt-2">
-                    <Button type="submit" size="sm" className="bg-white text-black hover:bg-zinc-200 text-xs">
+                    <Button type="submit" size="sm" className="bg-zinc-900 text-white hover:bg-zinc-800 font-semibold text-xs shadow-xs">
                       Create Category
                     </Button>
                   </DialogFooter>
@@ -2064,19 +2020,19 @@ function CategorySeriesManager() {
 
           <div className="flex flex-wrap gap-2">
             {categories.length === 0 ? (
-              <span className="text-xs text-zinc-500">No categories created yet.</span>
+              <span className="text-xs text-zinc-400">No categories created yet.</span>
             ) : (
               categories.map((c) => (
                 <div
                   key={c.id}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs bg-white/[0.04] border border-outline-variant/30 text-zinc-300"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs bg-zinc-100 border border-zinc-200 text-zinc-700"
                 >
                   <span>{c.name}</span>
                   <span className="text-[10px] text-zinc-500 font-mono">({c.slug})</span>
                   <button
                     type="button"
                     onClick={() => handleDeleteCategory(c.id, c.name)}
-                    className="ml-1 text-zinc-500 hover:text-red-400"
+                    className="ml-1 text-zinc-400 hover:text-red-600"
                   >
                     ×
                   </button>
@@ -2087,52 +2043,52 @@ function CategorySeriesManager() {
         </div>
 
         {/* Series Section */}
-        <div className="pt-4 border-t border-white/[0.06]">
+        <div className="pt-4 border-t border-zinc-100">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
               Article Series ({seriesList.length})
             </h4>
             <Dialog open={isAddingSeries} onOpenChange={setIsAddingSeries}>
               <DialogTrigger asChild>
-                <Button size="sm" variant="outline" className="h-7 text-xs border-outline-variant/30 text-zinc-300">
+                <Button size="sm" variant="outline" className="h-7 text-xs border-zinc-300 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 bg-white shadow-2xs">
                   <Plus className="w-3 h-3 mr-1" /> Add Series
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-[#18181b] border-outline-variant/40 text-on-surface">
+              <DialogContent className="bg-white border-zinc-200 text-zinc-900 shadow-xl">
                 <DialogHeader>
-                  <DialogTitle className="text-sm">Create Article Series</DialogTitle>
+                  <DialogTitle className="text-sm font-semibold text-zinc-900">Create Article Series</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleCreateSeries} className="space-y-3 pt-2">
                   <div>
-                    <Label className="text-xs">Series Title *</Label>
+                    <Label className="text-xs text-zinc-700 font-medium">Series Title *</Label>
                     <Input
                       value={newSeriesTitle}
                       onChange={(e) => setNewSeriesTitle(e.target.value)}
                       placeholder="e.g. Masterclass in S&OP Demand Planning"
-                      className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                      className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
                       required
                     />
                   </div>
                   <div>
-                    <Label className="text-xs">Slug (Optional)</Label>
+                    <Label className="text-xs text-zinc-700 font-medium">Slug (Optional)</Label>
                     <Input
                       value={newSeriesSlug}
                       onChange={(e) => setNewSeriesSlug(e.target.value)}
                       placeholder="sop-demand-planning"
-                      className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                      className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
                     />
                   </div>
                   <div>
-                    <Label className="text-xs">Description</Label>
+                    <Label className="text-xs text-zinc-700 font-medium">Description</Label>
                     <Input
                       value={newSeriesDesc}
                       onChange={(e) => setNewSeriesDesc(e.target.value)}
                       placeholder="Series description..."
-                      className="mt-1 bg-zinc-900 border-outline-variant/30 text-xs h-8"
+                      className="mt-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400 text-xs h-8 focus:border-zinc-500 shadow-2xs"
                     />
                   </div>
                   <DialogFooter className="pt-2">
-                    <Button type="submit" size="sm" className="bg-white text-black hover:bg-zinc-200 text-xs">
+                    <Button type="submit" size="sm" className="bg-zinc-900 text-white hover:bg-zinc-800 font-semibold text-xs shadow-xs">
                       Create Series
                     </Button>
                   </DialogFooter>
@@ -2143,19 +2099,19 @@ function CategorySeriesManager() {
 
           <div className="flex flex-wrap gap-2">
             {seriesList.length === 0 ? (
-              <span className="text-xs text-zinc-500">No article series created yet.</span>
+              <span className="text-xs text-zinc-400">No article series created yet.</span>
             ) : (
               seriesList.map((s) => (
                 <div
                   key={s.id}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs bg-white/[0.04] border border-outline-variant/30 text-zinc-300"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs bg-zinc-100 border border-zinc-200 text-zinc-700"
                 >
                   <span>{s.title}</span>
                   <span className="text-[10px] text-zinc-500 font-mono">({s.slug})</span>
                   <button
                     type="button"
                     onClick={() => handleDeleteSeries(s.id, s.title)}
-                    className="ml-1 text-zinc-500 hover:text-red-400"
+                    className="ml-1 text-zinc-400 hover:text-red-600"
                   >
                     ×
                   </button>

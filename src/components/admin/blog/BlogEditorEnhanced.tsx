@@ -93,14 +93,7 @@ const firstImageFromMarkdown = (md: string): string | null => {
   return m ? m[1] : null;
 };
 
-const DOMAIN_PILLARS = [
-  'Workflow Automation',
-  'Supply Chain & Demand Planning',
-  'Analytics & Decision Systems',
-] as const;
-
 const PLATFORMS = [
-  'On Site',
   'Medium',
   'dev.to',
   'freeCodeCamp',
@@ -124,9 +117,8 @@ const BlogEditorEnhanced: React.FC = () => {
 
   // External / Entry Mode States
   const [entryMode, setEntryMode] = useState<'internal' | 'external'>('internal');
-  const [platform, setPlatform] = useState<string>('On Site');
+  const [platform, setPlatform] = useState<string>('');
   const [externalUrl, setExternalUrl] = useState<string>('');
-  const [pillar, setPillar] = useState<string>('Analytics & Decision Systems');
 
   // Supabase categories & series
   const [categories, setCategories] = useState<any[]>([]);
@@ -172,8 +164,6 @@ const BlogEditorEnhanced: React.FC = () => {
   externalUrlRef.current = externalUrl;
   const platformRef = useRef(platform);
   platformRef.current = platform;
-  const pillarRef = useRef(pillar);
-  pillarRef.current = pillar;
 
   const onEditorReady = useCallback((editor: BlockNoteEditor) => {
     editorRef.current = editor;
@@ -188,7 +178,6 @@ const BlogEditorEnhanced: React.FC = () => {
   const debouncedEntryMode = useDebounce(entryMode, 3000);
   const debouncedExternalUrl = useDebounce(externalUrl, 3000);
   const debouncedPlatform = useDebounce(platform, 3000);
-  const debouncedPillar = useDebounce(pillar, 3000);
 
   const [lastSaved, setLastSaved] = useState<{
     formData: typeof formData;
@@ -197,7 +186,6 @@ const BlogEditorEnhanced: React.FC = () => {
     entryMode: 'internal' | 'external';
     externalUrl: string;
     platform: string;
-    pillar: string;
   } | null>(null);
 
   // Calculate live word count & reading time
@@ -262,8 +250,7 @@ const BlogEditorEnhanced: React.FC = () => {
       const isExt = externalMeta.isExternal;
       setEntryMode(isExt ? 'external' : 'internal');
       setExternalUrl(externalMeta.externalUrl || '');
-      setPlatform(externalMeta.platform || 'On Site');
-      setPillar(externalMeta.pillar || 'Analytics & Decision Systems');
+      setPlatform(externalMeta.platform || '');
 
       const loadedFormData = {
         title: data.title || '',
@@ -313,8 +300,7 @@ const BlogEditorEnhanced: React.FC = () => {
         tags: loadedTags,
         entryMode: isExt ? 'external' : 'internal',
         externalUrl: externalMeta.externalUrl || '',
-        platform: externalMeta.platform || 'On Site',
-        pillar: externalMeta.pillar || 'Analytics & Decision Systems',
+        platform: externalMeta.platform || '',
       });
     } catch (error: any) {
       console.error('Fetch post error:', error);
@@ -475,7 +461,6 @@ const BlogEditorEnhanced: React.FC = () => {
       const currentMode = isAutoSave ? debouncedEntryMode : entryMode;
       const currentExtUrl = isAutoSave ? debouncedExternalUrl : externalUrl;
       const currentPlat = isAutoSave ? debouncedPlatform : platform;
-      const currentPill = isAutoSave ? debouncedPillar : pillar;
 
       if (!currentForm.title.trim()) return;
       setIsSaving(true);
@@ -504,7 +489,6 @@ const BlogEditorEnhanced: React.FC = () => {
           isExternal: currentMode === 'external',
           externalUrl: currentExtUrl.trim(),
           platform: currentPlat,
-          pillar: currentPill,
         });
         const legacyArticleMetaInVideoFields =
           currentForm.video_type.startsWith('external:') ||
@@ -520,7 +504,7 @@ const BlogEditorEnhanced: React.FC = () => {
           is_external: encoded.is_external,
           external_url: encoded.external_url,
           platform: encoded.platform,
-          pillar: encoded.pillar,
+          pillar: null,
           video_url: legacyArticleMetaInVideoFields ? null : currentForm.video_url || null,
           video_type: legacyArticleMetaInVideoFields ? null : currentForm.video_type || null,
           category_id: currentForm.category_id || null,
@@ -569,7 +553,6 @@ const BlogEditorEnhanced: React.FC = () => {
           entryMode: currentMode,
           externalUrl: currentExtUrl,
           platform: currentPlat,
-          pillar: currentPill,
         });
 
         if (!isAutoSave) {
@@ -602,14 +585,12 @@ const BlogEditorEnhanced: React.FC = () => {
       entryMode,
       externalUrl,
       platform,
-      pillar,
       debouncedFormData,
       debouncedBlockNoteContent,
       debouncedTags,
       debouncedEntryMode,
       debouncedExternalUrl,
       debouncedPlatform,
-      debouncedPillar,
       navigate,
       toast,
     ]
@@ -640,8 +621,7 @@ const BlogEditorEnhanced: React.FC = () => {
       JSON.stringify(debouncedTags) !== JSON.stringify(lastSaved.tags) ||
       debouncedEntryMode !== lastSaved.entryMode ||
       debouncedExternalUrl !== lastSaved.externalUrl ||
-      debouncedPlatform !== lastSaved.platform ||
-      debouncedPillar !== lastSaved.pillar;
+      debouncedPlatform !== lastSaved.platform;
 
     if (hasChanges && debouncedFormData.title.trim()) {
       setLastSaved({
@@ -651,7 +631,6 @@ const BlogEditorEnhanced: React.FC = () => {
         entryMode: debouncedEntryMode,
         externalUrl: debouncedExternalUrl,
         platform: debouncedPlatform,
-        pillar: debouncedPillar,
       });
       handleSaveRef.current?.(undefined, true)?.catch(console.error);
     }
@@ -663,7 +642,6 @@ const BlogEditorEnhanced: React.FC = () => {
     debouncedEntryMode,
     debouncedExternalUrl,
     debouncedPlatform,
-    debouncedPillar,
     lastSaved,
   ]);
 
@@ -685,36 +663,36 @@ const BlogEditorEnhanced: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-surface text-white p-8">
+      <div className="min-h-screen bg-[#f1f3f5] text-zinc-900 p-8">
         <PerformanceSkeleton variant="editor" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface text-white selection:bg-white/20 antialiased font-sans">
+    <div className="min-h-screen bg-[#f1f3f5] text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900 antialiased font-sans">
       {/* 1. TOP STICKY ACTION BAR (h-14) */}
-      <header className="sticky top-0 z-40 h-14 bg-surface/90 backdrop-blur-xl border-b border-outline-variant/30 px-4 sm:px-6 flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 h-14 bg-white/95 backdrop-blur-xl border-b border-zinc-200/90 px-4 sm:px-6 flex items-center justify-between gap-3 text-zinc-900 shadow-2xs">
         {/* Left: Back + Save Status + Word Count & Reading Time */}
         <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
             onClick={() => navigate('/admin?tab=blogs')}
-            className="group inline-flex items-center gap-2 text-xs font-mono text-white/60 hover:text-white transition-colors px-2 py-1.5 rounded-md hover:bg-white/5 shrink-0"
+            className="group inline-flex items-center gap-2 text-xs font-mono text-zinc-600 hover:text-zinc-900 transition-colors px-2 py-1.5 rounded-md hover:bg-zinc-100 shrink-0"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
             <span className="hidden sm:inline">Back to All Articles Database</span>
             <span className="sm:hidden">All Articles</span>
           </button>
 
-          <div className="h-4 w-px bg-white/10 hidden sm:block shrink-0" />
+          <div className="h-4 w-px bg-zinc-200 hidden sm:block shrink-0" />
 
           {/* Live Save Status Badge */}
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/[0.03] border border-outline-variant/30 text-xs font-mono text-white/60 shrink-0">
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-zinc-700 shrink-0">
             <span
               className={cn(
                 "w-2 h-2 rounded-full transition-colors",
-                isSaving ? "bg-amber-400 animate-pulse" : "bg-emerald-400"
+                isSaving ? "bg-amber-500 animate-pulse" : "bg-emerald-500"
               )}
             />
             <span className="truncate">
@@ -729,8 +707,8 @@ const BlogEditorEnhanced: React.FC = () => {
           </div>
 
           {/* Live Word Count & Reading Time */}
-          <div className="hidden lg:flex items-center gap-1.5 text-xs font-mono text-white/40 shrink-0">
-            <Clock className="w-3 h-3 text-white/30" />
+          <div className="hidden lg:flex items-center gap-1.5 text-xs font-mono text-zinc-500 shrink-0">
+            <Clock className="w-3 h-3 text-zinc-400" />
             <span>{wordCount} words</span>
             <span>·</span>
             <span>{readingTime} min read</span>
@@ -747,8 +725,8 @@ const BlogEditorEnhanced: React.FC = () => {
             className={cn(
               "h-8 px-2.5 text-xs font-mono border transition-all",
               focusMode
-                ? "bg-white/15 text-white border-white/30"
-                : "text-white/60 hover:text-white border-outline-variant/30 hover:bg-white/5"
+                ? "bg-zinc-900 text-white border-zinc-900 shadow-xs"
+                : "text-zinc-700 hover:text-zinc-900 border-zinc-300 hover:bg-zinc-100"
             )}
           >
             <Focus className="w-3.5 h-3.5 mr-1.5" />
@@ -760,9 +738,9 @@ const BlogEditorEnhanced: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => setSeoDrawerOpen(true)}
-            className="h-8 px-2.5 text-xs font-mono text-white/60 hover:text-white border border-outline-variant/30 hover:bg-white/5"
+            className="h-8 px-2.5 text-xs font-mono text-zinc-700 hover:text-zinc-900 border border-zinc-300 hover:bg-zinc-100"
           >
-            <Sparkles className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
             <span>SEO</span>
           </Button>
 
@@ -771,7 +749,7 @@ const BlogEditorEnhanced: React.FC = () => {
               asChild
               variant="ghost"
               size="sm"
-              className="h-8 px-2.5 text-xs font-mono text-white/60 hover:text-white border border-outline-variant/30 hover:bg-white/5 hidden md:inline-flex"
+              className="h-8 px-2.5 text-xs font-mono text-zinc-700 hover:text-zinc-900 border border-zinc-300 hover:bg-zinc-100 hidden md:inline-flex"
             >
               <Link href={`/articles/${formData.slug}`} target="_blank" rel="noopener noreferrer">
                 <Eye className="w-3.5 h-3.5 mr-1.5" />
@@ -786,7 +764,7 @@ const BlogEditorEnhanced: React.FC = () => {
             size="sm"
             onClick={() => handleSave('draft', false)}
             disabled={isSaving || !formData.title.trim()}
-            className="h-8 px-3 text-xs font-mono text-white/70 hover:text-white border border-outline-variant/30 hover:bg-white/5"
+            className="h-8 px-3 text-xs font-mono text-zinc-700 hover:text-zinc-900 border border-zinc-300 bg-white hover:bg-zinc-50 shadow-2xs"
           >
             <Save className="w-3.5 h-3.5 mr-1.5" />
             <span className="hidden sm:inline">Save Draft</span>
@@ -798,7 +776,7 @@ const BlogEditorEnhanced: React.FC = () => {
             size="sm"
             onClick={() => handleSave('published', false)}
             disabled={isSaving || !formData.title.trim()}
-            className="h-8 px-4 text-xs font-semibold bg-white text-black hover:bg-white/90 shadow-sm transition-all"
+            className="h-8 px-4 text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800 shadow-xs transition-all"
           >
             {currentVisibility === 'published' ? 'Update Post' : 'Publish'}
           </Button>
@@ -814,14 +792,14 @@ const BlogEditorEnhanced: React.FC = () => {
       >
         {/* Cover Banner */}
         {formData.image_url ? (
-          <div className="relative group w-full rounded-2xl overflow-hidden aspect-[21/8] max-h-64 mb-6 border border-outline-variant/30 bg-surface-container-low">
+          <div className="relative group w-full rounded-2xl overflow-hidden aspect-[21/8] max-h-64 mb-6 border border-zinc-200 bg-white shadow-2xs">
             <img
               src={formData.image_url}
               alt="Featured Cover"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
-              <span className="text-xs font-mono text-white/70 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/10">
+              <span className="text-xs font-mono text-white/90 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/20">
                 Featured Cover Image
               </span>
               <div className="flex items-center gap-2">
@@ -830,7 +808,7 @@ const BlogEditorEnhanced: React.FC = () => {
                   type="button"
                   variant="ghost"
                   onClick={() => setShowCoverModal(true)}
-                  className="h-7 text-xs bg-black/70 hover:bg-black text-white border border-white/15"
+                  className="h-7 text-xs bg-white text-zinc-900 hover:bg-zinc-100 border border-zinc-200 font-medium"
                 >
                   Change Cover
                 </Button>
@@ -839,7 +817,7 @@ const BlogEditorEnhanced: React.FC = () => {
                   type="button"
                   variant="ghost"
                   onClick={() => setFormData((p) => ({ ...p, image_url: '' }))}
-                  className="h-7 text-xs bg-red-500/20 hover:bg-red-500/40 text-red-200 border border-red-500/30"
+                  className="h-7 text-xs bg-red-600 hover:bg-red-700 text-white"
                 >
                   <X className="w-3.5 h-3.5" />
                 </Button>
@@ -852,9 +830,9 @@ const BlogEditorEnhanced: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowCoverModal(true)}
-                className="inline-flex items-center gap-2 text-xs font-mono text-white/40 hover:text-white/80 py-1.5 px-3 rounded-lg border border-dashed border-white/15 hover:border-white/30 hover:bg-white/[0.02] transition-colors"
+                className="inline-flex items-center gap-2 text-xs font-mono text-zinc-600 hover:text-zinc-900 py-1.5 px-3 rounded-lg border border-dashed border-zinc-300 hover:border-zinc-400 hover:bg-zinc-50 transition-colors"
               >
-                <ImageIcon className="w-3.5 h-3.5 text-white/40" />
+                <ImageIcon className="w-3.5 h-3.5 text-zinc-500" />
                 <span>Add Cover Image</span>
               </button>
             </div>
@@ -867,25 +845,25 @@ const BlogEditorEnhanced: React.FC = () => {
           value={formData.title}
           onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
           placeholder="Untitled Article..."
-          className="w-full bg-transparent border-none px-0 py-2 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white placeholder:text-white/20 focus-visible:ring-0 focus-visible:outline-none leading-tight tracking-tight"
+          className="w-full bg-transparent border-none px-0 py-2 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-zinc-900 placeholder:text-zinc-300 focus-visible:ring-0 focus-visible:outline-none leading-tight tracking-tight"
         />
 
         {/* Slug Preview directly under title */}
-        <div className="flex items-center gap-2 mt-1 mb-4 text-xs font-mono text-white/40">
+        <div className="flex items-center gap-2 mt-1 mb-4 text-xs font-mono text-zinc-500">
           <span>/articles/</span>
           <input
             type="text"
             value={formData.slug}
             onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))}
             placeholder="article-slug"
-            className="bg-transparent border-b border-transparent hover:border-white/20 focus:border-white/40 text-white/80 focus:text-white focus-visible:outline-none px-1 py-0.5 transition-colors font-mono"
+            className="bg-transparent border-b border-transparent hover:border-zinc-300 focus:border-zinc-500 text-zinc-800 focus:text-zinc-900 focus-visible:outline-none px-1 py-0.5 transition-colors font-mono"
           />
           {formData.slug && (
             <button
               type="button"
               onClick={copyArticleLink}
               title="Copy public URL"
-              className="p-1 text-white/40 hover:text-white transition-colors"
+              className="p-1 text-zinc-500 hover:text-zinc-900 transition-colors"
             >
               <Copy className="w-3.5 h-3.5" />
             </button>
@@ -895,26 +873,26 @@ const BlogEditorEnhanced: React.FC = () => {
         {/* 3. COMPACT NOTION INLINE PAGE PROPERTIES TABLE */}
         <div
           className={cn(
-            "border-y border-white/10 py-4 my-6 space-y-4 transition-all",
+            "border-y border-zinc-200 py-4 my-6 space-y-4 transition-all",
             focusMode && "hidden"
           )}
         >
           {/* Entry Mode */}
           <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
-              <BookOpen className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500">
+              <BookOpen className="w-3.5 h-3.5 text-zinc-400" />
               <span>Entry Mode</span>
             </div>
             <div className="flex-1">
-              <div className="inline-flex p-1 rounded-lg bg-white/[0.04] border border-outline-variant/30">
+              <div className="inline-flex p-1 rounded-lg bg-zinc-100 border border-zinc-200">
                 <button
                   type="button"
                   onClick={() => setEntryMode('internal')}
                   className={cn(
                     "px-3 py-1 text-xs rounded-md font-mono transition-all",
                     entryMode === 'internal'
-                      ? "bg-white/15 text-white font-medium shadow-sm"
-                      : "text-white/50 hover:text-white"
+                      ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                      : "text-zinc-600 hover:text-zinc-900"
                   )}
                 >
                   📝 Internal BlockNote Article
@@ -925,8 +903,8 @@ const BlogEditorEnhanced: React.FC = () => {
                   className={cn(
                     "px-3 py-1 text-xs rounded-md font-mono transition-all",
                     entryMode === 'external'
-                      ? "bg-white/15 text-white font-medium shadow-sm"
-                      : "text-white/50 hover:text-white"
+                      ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                      : "text-zinc-600 hover:text-zinc-900"
                   )}
                 >
                   🔗 External Redirect Article
@@ -935,97 +913,76 @@ const BlogEditorEnhanced: React.FC = () => {
             </div>
           </div>
 
-          {/* Publication Platform */}
-          <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
-              <Globe className="w-3.5 h-3.5 text-white/40" />
-              <span>Platform</span>
+          {/* Publication Platform (External mode only) */}
+          {entryMode === 'external' && (
+            <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
+              <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500">
+                <Globe className="w-3.5 h-3.5 text-zinc-400" />
+                <span>Platform</span>
+              </div>
+              <div className="flex-1 flex flex-wrap gap-1.5">
+                {PLATFORMS.map((plat) => (
+                  <button
+                    key={plat}
+                    type="button"
+                    onClick={() => setPlatform(plat)}
+                    className={cn(
+                      "px-2.5 py-1 text-xs rounded-md font-mono transition-all border",
+                      platform === plat
+                        ? "bg-zinc-900 text-white border-zinc-900 font-semibold shadow-xs"
+                        : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900"
+                    )}
+                  >
+                    {plat}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="flex-1 flex flex-wrap gap-1.5">
-              {PLATFORMS.map((plat) => (
-                <button
-                  key={plat}
-                  type="button"
-                  onClick={() => setPlatform(plat)}
-                  className={cn(
-                    "px-2.5 py-1 text-xs rounded-md font-mono transition-all border",
-                    platform === plat
-                      ? "bg-white/15 text-white border-white/30 font-medium shadow-sm"
-                      : "bg-white/[0.02] text-white/50 border-white/[0.06] hover:text-white hover:border-white/15"
-                  )}
-                >
-                  {plat}
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
 
-          {/* External Source URL + Fetch OpenGraph Metadata */}
-          <div className="flex flex-col sm:flex-row sm:items-start py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50 pt-1.5">
-              <ExternalLink className="w-3.5 h-3.5 text-white/40" />
-              <span>External URL</span>
-            </div>
-            <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-              <Input
-                type="url"
-                value={externalUrl}
-                onChange={(e) => setExternalUrl(e.target.value)}
-                placeholder="https://medium.com/@username/article-slug..."
-                className="h-8 bg-white/[0.03] border-white/10 text-xs font-mono text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-white/20"
-              />
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={handleImportExternal}
-                disabled={isImporting || !externalUrl.trim()}
-                className="h-8 px-3 text-xs font-mono shrink-0 bg-white/5 hover:bg-white/10 text-white border-white/15"
-              >
-                {isImporting ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    <span>Fetching…</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
-                    <span>Fetch OpenGraph Metadata</span>
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-
-          {/* Domain Pillar */}
-          <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
-              <Layers className="w-3.5 h-3.5 text-white/40" />
-              <span>Domain Pillar</span>
-            </div>
-            <div className="flex-1 flex flex-wrap gap-1.5">
-              {DOMAIN_PILLARS.map((p) => (
-                <button
-                  key={p}
+          {/* External Source URL + Fetch OpenGraph Metadata (External mode only) */}
+          {entryMode === 'external' && (
+            <div className="flex flex-col sm:flex-row sm:items-start py-1 gap-2 sm:gap-4">
+              <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500 pt-1.5">
+                <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
+                <span>External URL</span>
+              </div>
+              <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <Input
+                  type="url"
+                  value={externalUrl}
+                  onChange={(e) => setExternalUrl(e.target.value)}
+                  placeholder="https://medium.com/@username/article-slug..."
+                  className="h-8 bg-white border-zinc-300 text-xs font-mono text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-1 focus-visible:ring-zinc-400"
+                />
+                <Button
                   type="button"
-                  onClick={() => setPillar(p)}
-                  className={cn(
-                    "px-2.5 py-1 text-xs rounded-md font-mono transition-all border",
-                    pillar === p
-                      ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 font-medium shadow-sm"
-                      : "bg-white/[0.02] text-white/50 border-white/[0.06] hover:text-white hover:border-white/15"
-                  )}
+                  size="sm"
+                  variant="outline"
+                  onClick={handleImportExternal}
+                  disabled={isImporting || !externalUrl.trim()}
+                  className="h-8 px-3 text-xs font-mono shrink-0 bg-white hover:bg-zinc-50 text-zinc-800 border-zinc-300 shadow-2xs"
                 >
-                  {p}
-                </button>
-              ))}
+                  {isImporting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                      <span>Fetching…</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
+                      <span>Fetch OpenGraph Metadata</span>
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Category & Series */}
           <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
-              <Folder className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500">
+              <Folder className="w-3.5 h-3.5 text-zinc-400" />
               <span>Category</span>
             </div>
             <div className="flex-1 flex flex-wrap items-center gap-2">
@@ -1033,10 +990,10 @@ const BlogEditorEnhanced: React.FC = () => {
                 value={formData.category_id || 'none'}
                 onValueChange={(val) => setFormData((p) => ({ ...p, category_id: val === 'none' ? '' : val }))}
               >
-                <SelectTrigger className="w-48 h-8 bg-white/[0.03] border-white/10 text-xs text-white">
+                <SelectTrigger className="w-48 h-8 bg-white border-zinc-300 text-xs text-zinc-900">
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#121214] border-white/10 text-white">
+                <SelectContent className="bg-white border-zinc-200 text-zinc-900 shadow-lg">
                   <SelectItem value="none">No Category</SelectItem>
                   {categories.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
@@ -1052,7 +1009,7 @@ const BlogEditorEnhanced: React.FC = () => {
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   placeholder="New category name"
-                  className="h-8 w-36 bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/30"
+                  className="h-8 w-36 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                 />
                 <Button
                   type="button"
@@ -1073,7 +1030,7 @@ const BlogEditorEnhanced: React.FC = () => {
                       toast({ title: 'Failed to create category', variant: 'destructive' });
                     }
                   }}
-                  className="h-8 px-2 text-xs border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                  className="h-8 px-2 text-xs border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </Button>
@@ -1083,8 +1040,8 @@ const BlogEditorEnhanced: React.FC = () => {
 
           {/* Series */}
           <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
-              <Bookmark className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500">
+              <Bookmark className="w-3.5 h-3.5 text-zinc-400" />
               <span>Series</span>
             </div>
             <div className="flex-1 flex flex-wrap items-center gap-2">
@@ -1092,10 +1049,10 @@ const BlogEditorEnhanced: React.FC = () => {
                 value={formData.series_id || 'none'}
                 onValueChange={(val) => setFormData((p) => ({ ...p, series_id: val === 'none' ? '' : val }))}
               >
-                <SelectTrigger className="w-48 h-8 bg-white/[0.03] border-white/10 text-xs text-white">
+                <SelectTrigger className="w-48 h-8 bg-white border-zinc-300 text-xs text-zinc-900">
                   <SelectValue placeholder="Select Series" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#121214] border-white/10 text-white">
+                <SelectContent className="bg-white border-zinc-200 text-zinc-900 shadow-lg">
                   <SelectItem value="none">No Series</SelectItem>
                   {series.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
@@ -1110,7 +1067,7 @@ const BlogEditorEnhanced: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowNewSeriesDialog(true)}
-                className="h-8 px-2.5 text-xs font-mono border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                className="h-8 px-2.5 text-xs font-mono border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
               >
                 <Plus className="w-3.5 h-3.5 mr-1" />
                 <span>New Series</span>
@@ -1118,7 +1075,7 @@ const BlogEditorEnhanced: React.FC = () => {
 
               {formData.series_id && formData.series_id !== 'none' && (
                 <div className="flex items-center gap-1.5 ml-2">
-                  <span className="text-xs font-mono text-white/40">Order:</span>
+                  <span className="text-xs font-mono text-zinc-500">Order:</span>
                   <Input
                     type="number"
                     min="1"
@@ -1129,7 +1086,7 @@ const BlogEditorEnhanced: React.FC = () => {
                         series_order: parseInt(e.target.value) || 1,
                       }))
                     }
-                    className="w-14 h-8 bg-white/[0.03] border-white/10 text-xs text-center text-white"
+                    className="w-14 h-8 bg-white border-zinc-300 text-xs text-center text-zinc-900"
                   />
                 </div>
               )}
@@ -1138,8 +1095,8 @@ const BlogEditorEnhanced: React.FC = () => {
 
           {/* Visibility */}
           <div className="flex flex-col sm:flex-row sm:items-center py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50">
-              <Eye className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500">
+              <Eye className="w-3.5 h-3.5 text-zinc-400" />
               <span>Visibility</span>
             </div>
             <div className="flex-1 flex items-center gap-6">
@@ -1151,7 +1108,7 @@ const BlogEditorEnhanced: React.FC = () => {
                     setFormData((prev) => ({ ...prev, published: checked }))
                   }
                 />
-                <Label htmlFor="published-toggle" className="text-xs font-mono cursor-pointer text-white/80">
+                <Label htmlFor="published-toggle" className="text-xs font-mono cursor-pointer text-zinc-800">
                   Published
                 </Label>
               </div>
@@ -1164,7 +1121,7 @@ const BlogEditorEnhanced: React.FC = () => {
                     setFormData((prev) => ({ ...prev, unlisted: checked }))
                   }
                 />
-                <Label htmlFor="unlisted-toggle" className="text-xs font-mono cursor-pointer text-white/80">
+                <Label htmlFor="unlisted-toggle" className="text-xs font-mono cursor-pointer text-zinc-800">
                   Unlisted
                 </Label>
               </div>
@@ -1173,9 +1130,9 @@ const BlogEditorEnhanced: React.FC = () => {
                 variant="outline"
                 className={cn(
                   "font-mono text-xs capitalize ml-auto",
-                  currentVisibility === 'published' && "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-                  currentVisibility === 'unlisted' && "bg-amber-500/10 text-amber-400 border-amber-500/30",
-                  currentVisibility === 'draft' && "bg-white/5 text-white/50 border-white/10"
+                  currentVisibility === 'published' && "bg-emerald-50 text-emerald-700 border-emerald-200",
+                  currentVisibility === 'unlisted' && "bg-amber-50 text-amber-700 border-amber-200",
+                  currentVisibility === 'draft' && "bg-zinc-100 text-zinc-600 border-zinc-200"
                 )}
               >
                 {currentVisibility}
@@ -1185,8 +1142,8 @@ const BlogEditorEnhanced: React.FC = () => {
 
           {/* Tags */}
           <div className="flex flex-col sm:flex-row sm:items-start py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50 pt-1.5">
-              <Tag className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500 pt-1.5">
+              <Tag className="w-3.5 h-3.5 text-zinc-400" />
               <span>Tags</span>
             </div>
             <div className="flex-1 space-y-2">
@@ -1196,7 +1153,7 @@ const BlogEditorEnhanced: React.FC = () => {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleKeyPress}
                   placeholder="Add a tag..."
-                  className="h-8 max-w-xs bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/30"
+                  className="h-8 max-w-xs bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                 />
                 <Button
                   type="button"
@@ -1204,7 +1161,7 @@ const BlogEditorEnhanced: React.FC = () => {
                   variant="outline"
                   onClick={handleAddTag}
                   disabled={!tagInput.trim() || selectedTags.includes(tagInput.trim())}
-                  className="h-8 px-2.5 text-xs font-mono border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                  className="h-8 px-2.5 text-xs font-mono border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1" />
                   <span>Add</span>
@@ -1216,13 +1173,13 @@ const BlogEditorEnhanced: React.FC = () => {
                     <Badge
                       key={t}
                       variant="secondary"
-                      className="gap-1 bg-white/[0.06] hover:bg-white/10 text-white/80 border border-white/10 text-xs font-mono"
+                      className="gap-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-200 text-xs font-mono"
                     >
                       <span>{t}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveTag(t)}
-                        className="hover:text-red-400 p-0.5 rounded transition-colors"
+                        className="hover:text-red-600 p-0.5 rounded transition-colors"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -1235,8 +1192,8 @@ const BlogEditorEnhanced: React.FC = () => {
 
           {/* Excerpt */}
           <div className="flex flex-col sm:flex-row sm:items-start py-1 gap-2 sm:gap-4">
-            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-white/50 pt-1.5">
-              <AlignLeft className="w-3.5 h-3.5 text-white/40" />
+            <div className="w-44 shrink-0 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-500 pt-1.5">
+              <AlignLeft className="w-3.5 h-3.5 text-zinc-400" />
               <span>Excerpt</span>
             </div>
             <div className="flex-1">
@@ -1245,54 +1202,54 @@ const BlogEditorEnhanced: React.FC = () => {
                 onChange={(e) => setFormData((p) => ({ ...p, excerpt: e.target.value }))}
                 placeholder="Brief summary used on article cards and social previews..."
                 rows={2}
-                className="bg-white/[0.03] border-white/10 text-white text-xs sm:text-sm placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-white/20 resize-y"
+                className="bg-white border-zinc-300 text-zinc-900 text-xs sm:text-sm placeholder:text-zinc-400 focus-visible:ring-1 focus-visible:ring-zinc-400 resize-y"
               />
             </div>
           </div>
 
           {/* Collapsible SEO & OpenGraph Overrides */}
-          <div className="pt-2 border-t border-white/[0.06]">
+          <div className="pt-2 border-t border-zinc-200">
             <button
               type="button"
               onClick={() => setShowSeoOverrides(!showSeoOverrides)}
-              className="flex items-center gap-2 text-xs font-mono text-white/50 hover:text-white transition-colors py-1"
+              className="flex items-center gap-2 text-xs font-mono text-zinc-600 hover:text-zinc-900 transition-colors py-1"
             >
               {showSeoOverrides ? (
-                <ChevronDown className="w-3.5 h-3.5 text-white/40" />
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
               ) : (
-                <ChevronRight className="w-3.5 h-3.5 text-white/40" />
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
               )}
               <span>SEO & OpenGraph Overrides ({formData.og_title || formData.og_description ? 'Customized' : 'Default'})</span>
             </button>
 
             {showSeoOverrides && (
-              <div className="mt-3 pl-4 sm:pl-6 border-l border-white/10 space-y-3 pt-1">
+              <div className="mt-3 pl-4 sm:pl-6 border-l border-zinc-200 space-y-3 pt-1">
                 <div>
-                  <Label className="text-xs font-mono text-white/50">OG Title</Label>
+                  <Label className="text-xs font-mono text-zinc-600">OG Title</Label>
                   <Input
                     value={formData.og_title}
                     onChange={(e) => setFormData((p) => ({ ...p, og_title: e.target.value }))}
                     placeholder={formData.title || "Social title..."}
-                    className="h-8 mt-1 bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/25"
+                    className="h-8 mt-1 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs font-mono text-white/50">OG Description</Label>
+                  <Label className="text-xs font-mono text-zinc-600">OG Description</Label>
                   <Textarea
                     value={formData.og_description}
                     onChange={(e) => setFormData((p) => ({ ...p, og_description: e.target.value }))}
                     placeholder={formData.excerpt || "Social description..."}
                     rows={2}
-                    className="mt-1 bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/25"
+                    className="mt-1 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs font-mono text-white/50">OG Image URL</Label>
+                  <Label className="text-xs font-mono text-zinc-600">OG Image URL</Label>
                   <Input
                     value={formData.og_image}
                     onChange={(e) => setFormData((p) => ({ ...p, og_image: e.target.value }))}
                     placeholder={formData.image_url || "https://..."}
-                    className="h-8 mt-1 bg-white/[0.03] border-white/10 text-xs text-white placeholder:text-white/25"
+                    className="h-8 mt-1 bg-white border-zinc-300 text-xs text-zinc-900 placeholder:text-zinc-400"
                   />
                 </div>
               </div>
@@ -1303,11 +1260,11 @@ const BlogEditorEnhanced: React.FC = () => {
         {/* 4. DISTRACTION-FREE @BLOCKNOTE/REACT SLASH-COMMAND CANVAS */}
         <section className="pt-4 min-h-[60vh]">
           {entryMode === 'external' && (
-            <div className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-200 text-xs sm:text-sm flex items-start gap-3">
-              <ExternalLink className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+            <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs sm:text-sm flex items-start gap-3">
+              <ExternalLink className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-blue-300">External Redirect Article</p>
-                <p className="text-blue-200/80 mt-0.5 leading-relaxed">
+                <p className="font-semibold text-blue-900">External Redirect Article</p>
+                <p className="text-blue-800 mt-0.5 leading-relaxed">
                   Readers who click this article on your portfolio will be redirected to{" "}
                   <span className="font-mono underline font-medium">
                     {externalUrl || "the external source URL"}
@@ -1318,7 +1275,7 @@ const BlogEditorEnhanced: React.FC = () => {
             </div>
           )}
 
-          <div className="prose prose-invert max-w-none">
+          <div className="prose max-w-none bg-white border border-zinc-200/90 rounded-2xl p-6 sm:p-8 shadow-2xs">
             <BlockNoteEditorComponent
               initialContent={blockNoteContent}
               loading={contentLoading}
@@ -1333,9 +1290,9 @@ const BlogEditorEnhanced: React.FC = () => {
 
       {/* COVER IMAGE MODAL */}
       <Dialog open={showCoverModal} onOpenChange={setShowCoverModal}>
-        <DialogContent className="bg-[#121214] border-white/10 text-white max-w-lg">
+        <DialogContent className="bg-white border-zinc-200 text-zinc-900 max-w-lg shadow-xl">
           <DialogHeader>
-            <DialogTitle className="text-base font-display">Featured Cover Image</DialogTitle>
+            <DialogTitle className="text-base font-display text-zinc-900">Featured Cover Image</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <FileUpload
@@ -1352,15 +1309,15 @@ const BlogEditorEnhanced: React.FC = () => {
               simultaneousMode={true}
               urlInputPlaceholder="https://images.unsplash.com/..."
             />
-            <div className="pt-2 border-t border-white/10">
-              <Label className="text-xs font-mono text-white/50">Or Paste Image URL Directly</Label>
+            <div className="pt-2 border-t border-zinc-200">
+              <Label className="text-xs font-mono text-zinc-600">Or Paste Image URL Directly</Label>
               <div className="flex gap-2 mt-1.5">
                 <Input
                   type="url"
                   placeholder="https://example.com/cover.jpg"
                   value={coverUrlInput}
                   onChange={(e) => setCoverUrlInput(e.target.value)}
-                  className="h-8 bg-white/[0.03] border-white/10 text-xs text-white"
+                  className="h-8 bg-white border-zinc-300 text-xs text-zinc-900"
                 />
                 <Button
                   size="sm"
@@ -1372,7 +1329,7 @@ const BlogEditorEnhanced: React.FC = () => {
                       setShowCoverModal(false);
                     }
                   }}
-                  className="h-8 px-3 text-xs bg-white text-black hover:bg-white/90"
+                  className="h-8 px-3 text-xs bg-zinc-900 text-white hover:bg-zinc-800"
                 >
                   Apply
                 </Button>
@@ -1384,44 +1341,44 @@ const BlogEditorEnhanced: React.FC = () => {
 
       {/* CREATE NEW SERIES MODAL */}
       <Dialog open={showNewSeriesDialog} onOpenChange={setShowNewSeriesDialog}>
-        <DialogContent className="bg-[#121214] border-white/10 text-white max-w-md">
+        <DialogContent className="bg-white border-zinc-200 text-zinc-900 max-w-md shadow-xl">
           <DialogHeader>
-            <DialogTitle className="text-base font-display">Create New Article Series</DialogTitle>
+            <DialogTitle className="text-base font-display text-zinc-900">Create New Article Series</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 pt-2">
             <div>
-              <Label className="text-xs font-mono text-white/60">Title *</Label>
+              <Label className="text-xs font-mono text-zinc-700">Title *</Label>
               <Input
                 value={newSeries.title}
                 onChange={(e) => setNewSeries((p) => ({ ...p, title: e.target.value }))}
                 placeholder="e.g. S&OP Masterclass"
-                className="h-8 mt-1 bg-white/[0.03] border-white/10 text-xs text-white"
+                className="h-8 mt-1 bg-white border-zinc-300 text-xs text-zinc-900"
               />
             </div>
             <div>
-              <Label className="text-xs font-mono text-white/60">Slug (Optional)</Label>
+              <Label className="text-xs font-mono text-zinc-700">Slug (Optional)</Label>
               <Input
                 value={newSeries.slug}
                 onChange={(e) => setNewSeries((p) => ({ ...p, slug: e.target.value }))}
                 placeholder="sop-masterclass"
-                className="h-8 mt-1 bg-white/[0.03] border-white/10 text-xs text-white"
+                className="h-8 mt-1 bg-white border-zinc-300 text-xs text-zinc-900"
               />
             </div>
             <div>
-              <Label className="text-xs font-mono text-white/60">Description</Label>
+              <Label className="text-xs font-mono text-zinc-700">Description</Label>
               <Textarea
                 value={newSeries.description}
                 onChange={(e) => setNewSeries((p) => ({ ...p, description: e.target.value }))}
                 rows={3}
                 placeholder="A dedicated deep-dive into..."
-                className="mt-1 bg-white/[0.03] border-white/10 text-xs text-white"
+                className="mt-1 bg-white border-zinc-300 text-xs text-zinc-900"
               />
             </div>
             <div className="flex gap-2 pt-2">
               <Button
                 type="button"
                 onClick={createNewSeries}
-                className="flex-1 h-8 text-xs bg-white text-black hover:bg-white/90"
+                className="flex-1 h-8 text-xs bg-zinc-900 text-white hover:bg-zinc-800"
               >
                 Create Series
               </Button>
@@ -1429,7 +1386,7 @@ const BlogEditorEnhanced: React.FC = () => {
                 type="button"
                 variant="outline"
                 onClick={() => setShowNewSeriesDialog(false)}
-                className="h-8 text-xs border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                className="h-8 text-xs border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
               >
                 Cancel
               </Button>
@@ -1440,21 +1397,21 @@ const BlogEditorEnhanced: React.FC = () => {
 
       {/* SEO DRAWER */}
       <Sheet open={seoDrawerOpen} onOpenChange={setSeoDrawerOpen}>
-        <SheetContent side="right" className="bg-[#121214] border-l border-white/10 text-white w-full sm:max-w-md p-6 space-y-6">
+        <SheetContent side="right" className="bg-white border-l border-zinc-200 text-zinc-900 w-full sm:max-w-md p-6 space-y-6 shadow-2xl">
           <SheetHeader>
-            <SheetTitle className="text-lg font-display flex items-center gap-2 text-white">
-              <Sparkles className="w-4 h-4 text-amber-400" />
+            <SheetTitle className="text-lg font-display flex items-center gap-2 text-zinc-900">
+              <Sparkles className="w-4 h-4 text-amber-500" />
               SEO & Social Sharing Preview
             </SheetTitle>
-            <SheetDescription className="text-xs font-mono text-white/50">
+            <SheetDescription className="text-xs font-mono text-zinc-500">
               Customize how this article appears on Google, LinkedIn, Twitter, and messaging apps.
             </SheetDescription>
           </SheetHeader>
 
           {/* Live Preview Card */}
-          <div className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden p-3 space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-white/40">Search & Social Card Preview</span>
-            <div className="aspect-[1.91/1] w-full bg-black/40 rounded-lg overflow-hidden border border-white/5 relative flex items-center justify-center">
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 overflow-hidden p-3 space-y-2">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">Search & Social Card Preview</span>
+            <div className="aspect-[1.91/1] w-full bg-zinc-100 rounded-lg overflow-hidden border border-zinc-200 relative flex items-center justify-center">
               {formData.og_image || formData.image_url ? (
                 <img
                   src={formData.og_image || formData.image_url}
@@ -1463,19 +1420,19 @@ const BlogEditorEnhanced: React.FC = () => {
                 />
               ) : (
                 <div className="text-center p-4">
-                  <Share2 className="w-6 h-6 text-white/20 mx-auto mb-1" />
-                  <span className="text-xs font-mono text-white/30">No OG image configured</span>
+                  <Share2 className="w-6 h-6 text-zinc-400 mx-auto mb-1" />
+                  <span className="text-xs font-mono text-zinc-400">No OG image configured</span>
                 </div>
               )}
             </div>
             <div className="space-y-1 pt-1">
-              <p className="text-xs font-mono text-white/40 truncate">
+              <p className="text-xs font-mono text-zinc-500 truncate">
                 {window?.location?.hostname || 'essaahmed.dev'} › articles › {formData.slug || 'slug'}
               </p>
-              <h4 className="text-sm font-semibold text-white line-clamp-1">
+              <h4 className="text-sm font-semibold text-zinc-900 line-clamp-1">
                 {formData.og_title || formData.title || 'Untitled Post'}
               </h4>
-              <p className="text-xs text-white/60 line-clamp-2 leading-relaxed">
+              <p className="text-xs text-zinc-600 line-clamp-2 leading-relaxed">
                 {formData.og_description || formData.excerpt || 'No description provided.'}
               </p>
             </div>
@@ -1484,8 +1441,8 @@ const BlogEditorEnhanced: React.FC = () => {
           <div className="space-y-4 pt-2">
             <div>
               <div className="flex justify-between items-center">
-                <Label className="text-xs font-mono text-white/70">OG Title</Label>
-                <span className="text-[10px] font-mono text-white/40">
+                <Label className="text-xs font-mono text-zinc-700">OG Title</Label>
+                <span className="text-[10px] font-mono text-zinc-500">
                   {(formData.og_title || formData.title).length}/60 chars
                 </span>
               </div>
@@ -1493,14 +1450,14 @@ const BlogEditorEnhanced: React.FC = () => {
                 value={formData.og_title}
                 onChange={(e) => setFormData((p) => ({ ...p, og_title: e.target.value }))}
                 placeholder={formData.title || 'Defaults to article title'}
-                className="h-8 mt-1.5 bg-white/[0.03] border-white/10 text-xs text-white"
+                className="h-8 mt-1.5 bg-white border-zinc-300 text-xs text-zinc-900"
               />
             </div>
 
             <div>
               <div className="flex justify-between items-center">
-                <Label className="text-xs font-mono text-white/70">OG Description</Label>
-                <span className="text-[10px] font-mono text-white/40">
+                <Label className="text-xs font-mono text-zinc-700">OG Description</Label>
+                <span className="text-[10px] font-mono text-zinc-500">
                   {(formData.og_description || formData.excerpt).length}/160 chars
                 </span>
               </div>
@@ -1509,17 +1466,17 @@ const BlogEditorEnhanced: React.FC = () => {
                 onChange={(e) => setFormData((p) => ({ ...p, og_description: e.target.value }))}
                 placeholder={formData.excerpt || 'Defaults to excerpt or opening paragraph'}
                 rows={3}
-                className="mt-1.5 bg-white/[0.03] border-white/10 text-xs text-white leading-relaxed"
+                className="mt-1.5 bg-white border-zinc-300 text-xs text-zinc-900 leading-relaxed"
               />
             </div>
 
             <div>
-              <Label className="text-xs font-mono text-white/70">OG Image URL</Label>
+              <Label className="text-xs font-mono text-zinc-700">OG Image URL</Label>
               <Input
                 value={formData.og_image}
                 onChange={(e) => setFormData((p) => ({ ...p, og_image: e.target.value }))}
                 placeholder={formData.image_url || 'Defaults to cover image'}
-                className="h-8 mt-1.5 bg-white/[0.03] border-white/10 text-xs text-white"
+                className="h-8 mt-1.5 bg-white border-zinc-300 text-xs text-zinc-900"
               />
             </div>
 
@@ -1529,7 +1486,7 @@ const BlogEditorEnhanced: React.FC = () => {
                 setSeoDrawerOpen(false);
                 toast({ title: 'SEO overrides saved in draft!' });
               }}
-              className="w-full h-8 text-xs font-mono bg-white text-black hover:bg-white/90 mt-4"
+              className="w-full h-8 text-xs font-mono bg-zinc-900 text-white hover:bg-zinc-800 mt-4 shadow-xs"
             >
               Done
             </Button>

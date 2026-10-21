@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Clock, Eye, Heart, BookOpen, CheckCircle, Pause } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, BookOpen, CheckCircle, Pause } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -201,8 +201,6 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
                           <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-muted-foreground">
                             <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(article.created_at).toLocaleDateString()}</span>
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {article.read_time || 5} min</span>
-                            <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {article.views || 0}</span>
-                            <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {article.likes || 0}</span>
                           </div>
                         </div>
                       </div>
