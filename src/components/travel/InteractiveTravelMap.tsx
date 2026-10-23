@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import type { TravelCityHighlight } from "@/data/travelData";
-import { useTheme } from "@/contexts/ThemeContext";
 
 interface InteractiveTravelMapProps {
   cities: TravelCityHighlight[];
@@ -15,13 +14,9 @@ interface InteractiveTravelMapProps {
   countriesCount: number;
 }
 
-const DARK_TILE_URL =
-  "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-const LIGHT_TILE_URL =
-  "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
-const FALLBACK_TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const TILE_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>';
 
 function computeCurvedArc(
   start: [number, number],
@@ -61,8 +56,6 @@ function InteractiveTravelMapComponent({
 }: InteractiveTravelMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
-  const tileLayerRef = useRef<any>(null);
-  const usingFallbackTilesRef = useRef(false);
   const markersLayerRef = useRef<any>(null);
   const arcsLayerRef = useRef<any>(null);
   const leafletRef = useRef<any>(null);
@@ -73,11 +66,21 @@ function InteractiveTravelMapComponent({
   const activeCityRef = useRef(activeCity);
   activeCityRef.current = activeCity;
 
-  const { theme } = useTheme();
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
 
-  // Initialize Leaflet map once on client with a single theme-adaptive tile layer
+  useEffect(() => {
+    const root = document.documentElement;
+    const updateTheme = () => setIsDarkTheme(root.classList.contains("dark"));
+    const observer = new MutationObserver(updateTheme);
+
+    updateTheme();
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  // Initialize Leaflet with OpenStreetMap tiles, which do not require an API key.
   useEffect(() => {
     let isMounted = true;
     let invalidateTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -107,16 +110,9 @@ function InteractiveTravelMapComponent({
         attributionControl: true,
       });
 
-      const isDark = document.documentElement.classList.contains("dark");
-      const tileLayer = L.tileLayer(isDark ? DARK_TILE_URL : LIGHT_TILE_URL, {
+      const tileLayer = L.tileLayer(TILE_URL, {
         attribution: TILE_ATTRIBUTION,
-        subdomains: "abc",
         maxZoom: 19,
-      });
-      tileLayer.on("tileerror", () => {
-        if (usingFallbackTilesRef.current) return;
-        usingFallbackTilesRef.current = true;
-        tileLayer.setUrl(FALLBACK_TILE_URL);
       });
       tileLayer.addTo(map);
 
@@ -124,7 +120,6 @@ function InteractiveTravelMapComponent({
       const markersLayer = L.layerGroup().addTo(map);
 
       mapInstanceRef.current = map;
-      tileLayerRef.current = tileLayer;
       arcsLayerRef.current = arcsLayer;
       markersLayerRef.current = markersLayer;
 
@@ -159,27 +154,12 @@ function InteractiveTravelMapComponent({
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
-      tileLayerRef.current = null;
-      usingFallbackTilesRef.current = false;
       arcsLayerRef.current = null;
       markersLayerRef.current = null;
       setMapReady(false);
       setMapError(false);
     };
   }, []);
-
-  // Update the single tile layer URL when Light/Dark theme toggles
-  useEffect(() => {
-    if (!mapReady) return;
-    const map = mapInstanceRef.current;
-    const tileLayer = tileLayerRef.current;
-    if (!map || !tileLayer) return;
-
-    if (!usingFallbackTilesRef.current) {
-      const isDark = theme === "dark";
-      tileLayer.setUrl(isDark ? DARK_TILE_URL : LIGHT_TILE_URL);
-    }
-  }, [mapReady, theme]);
 
   // Keep Leaflet's viewport in sync when the responsive map container changes size.
   useEffect(() => {
@@ -204,7 +184,7 @@ function InteractiveTravelMapComponent({
     markersLayer.clearLayers();
     arcsLayer.clearLayers();
 
-    const isDark = theme === "dark";
+    const isDark = isDarkTheme;
     const arcColor = isDark ? "#4edea3" : "#059669";
     const secondaryArcColor = isDark ? "#adc6ff" : "#2563eb";
 
@@ -314,7 +294,7 @@ function InteractiveTravelMapComponent({
         });
       });
     });
-  }, [mapReady, cities, activeCity?.id, theme]);
+  }, [mapReady, cities, activeCity?.id, isDarkTheme]);
 
   // Smoothly fly to activeCity when selected via Country / Story Rings
   useEffect(() => {

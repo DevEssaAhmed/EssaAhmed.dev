@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import TravelPage from "./TravelPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
-import {
-  DEFAULT_TRAVEL_HIGHLIGHTS,
-  normalizeTravelRow,
-  type TravelCityHighlight,
-} from "@/data/travelData";
+import { normalizeTravelRow } from "@/data/travelData";
+import { isPublicTravelHighlight } from "@/data/travelVisibility";
 
-export const revalidate = 120;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Travel Highlights",
@@ -18,29 +16,26 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default async function Page() {
-  let highlights: TravelCityHighlight[] = DEFAULT_TRAVEL_HIGHLIGHTS;
-  let initialLoadSucceeded = false;
+  const supabase = getSupabaseServer();
+  const { data, error } = await supabase
+    .from("travel_highlights")
+    .select("*")
+    .eq("is_published", true)
+    .order("year", { ascending: false });
 
-  try {
-    const supabase = getSupabaseServer();
-    const { data, error } = await supabase
-      .from("travel_highlights")
-      .select("*")
-      .eq("is_published", true)
-      .order("year", { ascending: false });
-
-    if (!error && data && data.length > 0) {
-      highlights = data.map(normalizeTravelRow);
-      initialLoadSucceeded = true;
-    }
-  } catch (err) {
-    console.error("[travel] Failed to load travel highlights server-side", err);
+  if (error) {
+    console.error("[travel] Failed to load published travel highlights", {
+      code: error.code,
+      message: error.message,
+    });
+    notFound();
   }
 
-  return (
-    <TravelPage
-      initialHighlights={highlights}
-      initialLoadSucceeded={initialLoadSucceeded}
-    />
-  );
+  const highlights = (data ?? [])
+    .filter(isPublicTravelHighlight)
+    .map(normalizeTravelRow);
+
+  if (highlights.length === 0) notFound();
+
+  return <TravelPage initialHighlights={highlights} />;
 }

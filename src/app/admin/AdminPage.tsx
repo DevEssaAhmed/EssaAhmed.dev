@@ -81,7 +81,6 @@ import {
   fetchTravelHighlightsFromSupabase,
   deleteTravelHighlightFromSupabase,
   TravelCityHighlight,
-  DEFAULT_TRAVEL_HIGHLIGHTS,
 } from "@/data/travelData";
 import { getMarkdownExcerpt } from "@/lib/markdownUtils";
 import AdminLayout from "@/components/admin/layout/AdminLayout";

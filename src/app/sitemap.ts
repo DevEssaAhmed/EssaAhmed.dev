@@ -1,9 +1,10 @@
 import { getSupabaseServer } from "@/lib/supabase-server";
 import type { MetadataRoute } from "next";
+import { isPublicTravelHighlight } from "@/data/travelVisibility";
 
 const SITE_URL = "https://essaahmed.dev";
 
-export const revalidate = 3600;
+export const revalidate = 120;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = getSupabaseServer();
@@ -50,11 +51,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
-      url: SITE_URL + "/travel",
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
       url: SITE_URL + "/diary",
       changeFrequency: "monthly",
       priority: 0.5,
@@ -67,6 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { data: categoriesData },
     { data: seriesData },
     { data: tagsData },
+    { data: travelData },
   ] = await Promise.all([
     supabase
       .from("blog_posts")
@@ -81,6 +78,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     supabase.from("categories").select("id, slug"),
     supabase.from("series").select("id, slug"),
     supabase.from("tags").select("id, name, slug"),
+    supabase
+      .from("travel_highlights")
+      .select("city_name,country_name,lat,lng,cover_image_url,story_slides,is_published")
+      .eq("is_published", true),
   ]);
 
   const articles = articlesData || [];
@@ -146,8 +147,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       };
     });
 
+  const travelPages: MetadataRoute.Sitemap = (travelData || []).some(
+    isPublicTravelHighlight
+  )
+    ? [
+        {
+          url: SITE_URL + "/travel",
+          changeFrequency: "monthly",
+          priority: 0.7,
+        },
+      ]
+    : [];
+
   return [
     ...staticPages,
+    ...travelPages,
     ...articlePages,
     ...projectPages,
     ...categoryPages,

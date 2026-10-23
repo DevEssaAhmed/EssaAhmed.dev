@@ -21,34 +21,25 @@ const InteractiveTravelMap = dynamic(
   }
 );
 import {
-  loadTravelHighlightsLocal,
   normalizeTravelRow,
-  saveTravelHighlightsLocal,
   type TravelCityHighlight,
 } from "@/data/travelData";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-const EMPTY_TRAVEL_HIGHLIGHTS: TravelCityHighlight[] = [];
-
 interface TravelPageProps {
-  initialHighlights?: TravelCityHighlight[];
-  initialLoadSucceeded?: boolean;
+  initialHighlights: TravelCityHighlight[];
 }
 
-export default function TravelPage({
-  initialHighlights = EMPTY_TRAVEL_HIGHLIGHTS,
-  initialLoadSucceeded = false,
-}: TravelPageProps) {
+export default function TravelPage({ initialHighlights }: TravelPageProps) {
   const searchParams = useSearchParams();
   const initialSlug = searchParams?.get("city") || "";
   const { user } = useAuth();
 
-  const [highlights, setHighlights] = useState<TravelCityHighlight[]>(() =>
+  const [highlights] = useState<TravelCityHighlight[]>(() =>
     initialHighlights.map(normalizeTravelRow)
   );
   const [selectedCityId, setSelectedCityId] = useState<string>(
-    initialHighlights[0]?.id || "riyadh-sa"
+    initialHighlights[0]?.id || ""
   );
   const [countryFilter, setCountryFilter] = useState<string>("all");
   const [yearFilter, setYearFilter] = useState<string>("all");
@@ -58,46 +49,6 @@ export default function TravelPage({
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [slideProgress, setSlideProgress] = useState<number>(0);
   const [storyModalOpen, setStoryModalOpen] = useState<boolean>(false);
-  const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({
-    "❤️": 24,
-    "🔥": 18,
-    "✨": 12,
-  });
-
-  useEffect(() => {
-    let isMounted = true;
-    if (initialLoadSucceeded) {
-      const remote = initialHighlights.map(normalizeTravelRow);
-      saveTravelHighlightsLocal(remote);
-      setHighlights(remote);
-      return;
-    }
-    const local = loadTravelHighlightsLocal().filter((h) => h.is_published);
-    setHighlights(local);
-
-    (async () => {
-      try {
-        const { data: tableRows, error } = await (supabase as any)
-          .from("travel_highlights")
-          .select("*")
-          .eq("is_published", true)
-          .order("year", { ascending: false });
-
-        if (!error && Array.isArray(tableRows)) {
-          const remote = tableRows.map(normalizeTravelRow);
-          if (!isMounted) return;
-          saveTravelHighlightsLocal(remote);
-          setHighlights(remote);
-        }
-      } catch {
-        // Keep current highlights
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [initialHighlights, initialLoadSucceeded]);
 
   useEffect(() => {
     if (!initialSlug) return;
@@ -532,12 +483,6 @@ export default function TravelPage({
                         <div>
                           <div className="flex items-center gap-1 font-semibold font-label-md text-label-md leading-none">
                             essa.ahmed
-                            <span
-                              className="material-symbols-outlined text-[13px] text-primary"
-                              style={{ fontVariationSettings: "'FILL' 1" }}
-                            >
-                              verified
-                            </span>
                           </div>
                           <div className="text-[10px] text-zinc-300 font-label-sm mt-0.5">
                             {activeCity.city}, {activeCity.country} ·{" "}
@@ -603,39 +548,21 @@ export default function TravelPage({
                       </div>
                     )}
 
-                    {/* Reaction Emojis & View on Instagram */}
+                    {/* View the original travel highlight, when one is linked. */}
                     <div className="flex items-center justify-between gap-2 pt-1">
-                      <div className="flex items-center gap-1.5 text-sm">
-                        {(["❤️", "🔥", "✨"] as const).map((emoji) => (
-                          <button
-                            key={emoji}
-                            type="button"
-                            onClick={() =>
-                              setReactionCounts((prev) => ({
-                                ...prev,
-                                [emoji]: (prev[emoji] || 0) + 1,
-                              }))
-                            }
-                            className="px-2.5 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center gap-1 transition-transform active:scale-110 text-xs"
-                          >
-                            <span>{emoji}</span>
-                            <span className="font-code text-[10px]">
-                              {reactionCounts[emoji]}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                      <a
-                        className="px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white font-label-sm text-label-sm flex items-center gap-1 transition-all"
-                        href={activeCity.instagram_url || "https://instagram.com"}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        <span>Instagram</span>
-                        <span className="material-symbols-outlined text-[13px]">
-                          open_in_new
-                        </span>
-                      </a>
+                      {activeCity.instagram_url && (
+                        <a
+                          className="ml-auto px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white font-label-sm text-label-sm flex items-center gap-1 transition-all"
+                          href={activeCity.instagram_url}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          <span>Instagram</span>
+                          <span className="material-symbols-outlined text-[13px]">
+                            open_in_new
+                          </span>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>

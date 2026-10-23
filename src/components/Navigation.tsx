@@ -63,7 +63,7 @@ const Navigation = memo(() => {
   const { profile } = useProfile();
   const { user, isAdmin } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { hasProjects, hasArticles } = useContentAvailability();
+  const { hasProjects, hasArticles, hasTravel } = useContentAvailability();
 
   useEffect(() => {
     setIsMounted(true);
@@ -81,6 +81,11 @@ const Navigation = memo(() => {
     }
     return items;
   }, [hasProjects, hasArticles]);
+
+  const aboutSubnav = useMemo(
+    () => ABOUT_SUBNAV.filter((item) => item.href !== "/travel" || hasTravel),
+    [hasTravel]
+  );
 
   const cmdActions = useMemo(() => {
     const list: Array<{ label: string; sub: string; path: string; action?: () => void }> = [
@@ -110,11 +115,13 @@ const Navigation = memo(() => {
       sub: "Career timeline, credentials & toolkit",
       path: "/about",
     });
-    list.push({
-      label: "Travel Highlights",
-      sub: "Field dispatches, interactive maps & photo reels",
-      path: "/travel",
-    });
+    if (hasTravel) {
+      list.push({
+        label: "Travel Highlights",
+        sub: "Field dispatches, interactive maps & photo reels",
+        path: "/travel",
+      });
+    }
     list.push({
       label: `Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`,
       sub: "Toggle portfolio appearance between Stitch Light & Dark themes",
@@ -129,7 +136,7 @@ const Navigation = memo(() => {
       });
     }
     return list;
-  }, [hasProjects, hasArticles, theme, toggleTheme, isAdmin]);
+  }, [hasProjects, hasArticles, hasTravel, theme, toggleTheme, isAdmin]);
 
   const filteredCmdActions = useMemo(() => {
     const q = cmdQuery.trim().toLowerCase();
@@ -376,7 +383,7 @@ const Navigation = memo(() => {
                           <ChevronDown className="w-4 h-4" aria-hidden="true" />
                         </summary>
                         <div className="ml-8 mt-1 mb-2 border-l border-outline-variant/40 pl-4 flex flex-col gap-1">
-                          {ABOUT_SUBNAV.map((item) => (
+                          {aboutSubnav.map((item) => (
                             <Link
                               key={item.href}
                               href={item.href}
@@ -494,7 +501,7 @@ const Navigation = memo(() => {
                 <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
               </summary>
               <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-outline-variant/40 bg-surface-container-low p-1.5 shadow-xl">
-                {ABOUT_SUBNAV.map((item) => (
+                {aboutSubnav.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}

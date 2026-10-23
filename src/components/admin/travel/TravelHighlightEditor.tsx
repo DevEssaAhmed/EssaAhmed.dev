@@ -6,12 +6,12 @@ import {
   TravelCityHighlight,
   TravelStorySlide,
   TravelEssayBlock,
-  DEFAULT_TRAVEL_HIGHLIGHTS,
   loadTravelHighlightsLocal,
   saveTravelHighlightsLocal,
   fetchTravelHighlightsFromSupabase,
   upsertTravelHighlightInSupabase,
 } from "@/data/travelData";
+import { isPublicTravelHighlight } from "@/data/travelVisibility";
 import { useToast } from "@/hooks/use-toast";
 import FileUpload from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
@@ -59,11 +59,11 @@ const emptyHighlightTemplate: TravelCityHighlight = {
   year: new Date().getFullYear(),
   month: `${new Date().toLocaleString("en", { month: "short" })} ${new Date().getFullYear()}`,
   subtitle: "",
-  lat: 24.7136,
-  lng: 46.6753,
+  lat: 0,
+  lng: 0,
   cover_image_url: "",
-  instagram_highlight_url: "https://www.instagram.com/",
-  is_published: true,
+  instagram_highlight_url: "",
+  is_published: false,
   story_slides: [],
   essay_title: "",
   essay_blocks: [],
@@ -285,6 +285,16 @@ export default function TravelHighlightEditor() {
       return;
     }
 
+    if (highlight.is_published && !isPublicTravelHighlight(highlight)) {
+      toast({
+        title: "Travel details incomplete",
+        description:
+          "To publish, add a country, valid map coordinates, and a cover photo or story image.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const generatedId =
@@ -323,8 +333,10 @@ export default function TravelHighlightEditor() {
       setHighlight(finalHighlight);
 
       toast({
-        title: "Highlight Published",
-        description: `${finalHighlight.city_name} (${finalHighlight.country_name}) has been saved and published to the travel atlas.`,
+        title: finalHighlight.is_published ? "Highlight Published" : "Draft Saved",
+        description: finalHighlight.is_published
+          ? `${finalHighlight.city_name} (${finalHighlight.country_name}) has been published to the travel atlas.`
+          : `${finalHighlight.city_name} has been saved as a draft.`,
       });
 
       // Update URL if new
