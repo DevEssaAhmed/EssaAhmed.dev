@@ -1,4 +1,5 @@
 @import "leaflet/dist/leaflet.css";
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -228,12 +229,20 @@
 
 /* Material Symbols Outlined */
 .material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20;
+  font-feature-settings: "liga";
   vertical-align: middle;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
+  direction: ltr;
   user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Stitch Grid Pattern (Adaptive Light & Dark) */
