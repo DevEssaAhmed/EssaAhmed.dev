@@ -73,9 +73,36 @@ export default async function Page({ params }: PageProps) {
 
   if (!data) notFound();
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: data.title,
+    description: data.excerpt || data.title,
+    datePublished: data.created_at,
+    dateModified: data.updated_at || data.created_at,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://essaahmed.dev/articles/${data.slug || slug}`,
+    },
+    author: {
+      "@type": "Person",
+      name: "Essa Ahmed",
+      url: "https://essaahmed.dev",
+    },
+    image: data.image_url ? [data.image_url] : ["https://essaahmed.dev/og-image.png"],
+  };
+
   return (
-    <ArticleDetailPageEnhanced
-      initialArticle={{ ...data, slug: data.slug || data.id } as any}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <ArticleDetailPageEnhanced
+        initialArticle={{ ...data, slug: data.slug || data.id } as any}
+      />
+    </>
   );
 }

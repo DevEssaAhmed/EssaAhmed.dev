@@ -37,6 +37,19 @@ const websiteJsonLd = {
   inLanguage: "en",
 };
 
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": "https://essaahmed.dev/#person",
+  name: "Essa Ahmed",
+  url: "https://essaahmed.dev",
+  jobTitle: "Industrial & Systems Engineer, Systems Architect",
+  sameAs: [
+    "https://github.com/DevEssaAhmed",
+    "https://www.linkedin.com/in/essa-ahmed",
+  ],
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://essaahmed.dev"),
   title: "Essa Ahmed",
@@ -104,6 +117,12 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(personJsonLd).replace(/</g, "\\u003c"),
           }}
         />
         <link

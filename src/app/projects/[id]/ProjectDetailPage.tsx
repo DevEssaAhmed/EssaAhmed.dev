@@ -6,6 +6,7 @@ import { useParams, useNavigate } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getProjectTags } from "@/lib/tagUtils";
@@ -485,10 +486,12 @@ const ProjectDetailPage = ({
             ) : hasHeroVisual ? (
               <div className="space-y-4">
                 <div className="rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
-                  <img
+                  <OptimizedImage
                     src={currentImageUrl}
                     alt={project.title}
                     className="w-full max-h-[540px] object-contain mx-auto bg-surface-container-lowest"
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 960px"
                   />
                 </div>
 
@@ -506,10 +509,13 @@ const ProjectDetailPage = ({
                             : "border-outline-variant/30 opacity-70 hover:opacity-100"
                         }`}
                       >
-                        <img
+                        <OptimizedImage
                           src={img}
                           alt={`${project.title} view ${idx + 1}`}
+                          width={96}
+                          height={64}
                           className="w-full h-full object-cover"
+                          loading="lazy"
                         />
                       </button>
                     ))}

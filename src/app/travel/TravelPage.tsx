@@ -6,7 +6,20 @@ import { useSearchParams } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { OptimizedImage } from "@/components/OptimizedImage";
-import InteractiveTravelMap from "@/components/travel/InteractiveTravelMap";
+import dynamic from "next/dynamic";
+
+const InteractiveTravelMap = dynamic(
+  () => import("@/components/travel/InteractiveTravelMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[520px] rounded-3xl bg-surface-container-low border border-outline-variant/30 animate-pulse flex flex-col items-center justify-center text-on-surface-variant font-code text-xs gap-3">
+        <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+        <span>Loading map telemetry...</span>
+      </div>
+    ),
+  }
+);
 import {
   loadTravelHighlightsLocal,
   normalizeTravelRow,

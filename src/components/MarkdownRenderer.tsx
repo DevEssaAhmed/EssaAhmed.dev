@@ -7,6 +7,7 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import { Clipboard, Check } from "lucide-react";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import "highlight.js/styles/atom-one-dark.css";
 
 interface MarkdownRendererProps {
@@ -236,11 +237,10 @@ const MarkdownRenderer = ({ content, className = "" }: MarkdownRendererProps) =>
             if (!src) return null;
             return (
               <span className="block my-6 rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-lowest shadow-lg">
-                <img
+                <OptimizedImage
                   src={src}
                   alt={alt || "Project visual"}
                   className="w-full h-auto object-contain max-h-[640px] mx-auto"
-                  loading="lazy"
                 />
               </span>
             );

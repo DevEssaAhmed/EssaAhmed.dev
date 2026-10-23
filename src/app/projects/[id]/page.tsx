@@ -97,10 +97,33 @@ export default async function Page({ params }: PageProps) {
     .map((tag: any) => ({ id: tag.id, name: tag.name }));
   const initialProjectTags = directTags.length ? directTags : relatedTags;
 
+  const projectJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: project.title,
+    description: cleanMarkdownExcerpt(project.description || project.title, 160),
+    dateCreated: project.created_at,
+    dateModified: project.updated_at || project.created_at,
+    image: project.image_url ? [project.image_url] : undefined,
+    author: {
+      "@type": "Person",
+      name: "Essa Ahmed",
+      url: "https://essaahmed.dev",
+    },
+  };
+
   return (
-    <ProjectDetailPage
-      initialProject={{ ...project, categories: categoryResult.data ?? null }}
-      initialProjectTags={initialProjectTags}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(projectJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <ProjectDetailPage
+        initialProject={{ ...project, categories: categoryResult.data ?? null }}
+        initialProjectTags={initialProjectTags}
+      />
+    </>
   );
 }
