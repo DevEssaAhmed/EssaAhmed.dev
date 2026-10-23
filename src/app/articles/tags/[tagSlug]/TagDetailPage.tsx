@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import { useParams, useNavigate } from '@/lib/router-compat';
 import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import OptimizedFooter from "@/components/OptimizedFooter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -341,7 +341,7 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
           )}
         </div>
       </div>
-      <Footer />
+      <OptimizedFooter />
     </div>
   );
 };

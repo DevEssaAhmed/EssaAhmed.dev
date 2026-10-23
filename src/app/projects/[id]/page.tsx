@@ -1,3 +1,4 @@
+import { cache } from "react";
 import ProjectDetailPage from "./ProjectDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
@@ -9,14 +10,18 @@ type PageProps = { params: Promise<{ id: string }> };
 
 export const revalidate = 120;
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params;
+const getProject = cache(async (id: string) => {
   const supabase = getSupabaseServer();
-  const { data, error } = await supabase
+  return supabase
     .from("projects")
-    .select("title,description,image_url")
+    .select("*")
     .eq("id", id)
     .maybeSingle();
+});
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const { data, error } = await getProject(id);
 
   if (error) {
     console.error("[project detail] Failed to load metadata", {
@@ -47,11 +52,7 @@ export default async function Page({ params }: PageProps) {
 
   // Read the project without relationship embedding. An absent category/tag
   // relation must not cause an otherwise valid project route to 404.
-  const { data: project, error: projectError } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+  const { data: project, error: projectError } = await getProject(id);
 
   if (projectError) {
     console.error("[project detail] Failed to load project", {

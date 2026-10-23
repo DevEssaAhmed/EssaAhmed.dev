@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import InteractiveTravelMap from "@/components/travel/InteractiveTravelMap";
 import {
   loadTravelHighlightsLocal,
@@ -381,9 +382,11 @@ export default function TravelPage({
                           }`}
                         >
                           <div className="p-[2.5px] bg-surface-container-lowest rounded-full">
-                            <img
+                            <OptimizedImage
                               src={city.cover_url}
                               alt={city.city}
+                              width={88}
+                              height={88}
                               className="w-[88px] h-[88px] rounded-full object-cover"
                               loading="lazy"
                             />
@@ -462,10 +465,12 @@ export default function TravelPage({
                 <div className="aspect-[9/16] w-full max-w-[340px] rounded-[32px] border-2 border-outline-variant/40 bg-surface-container-lowest shadow-2xl overflow-hidden relative flex flex-col justify-between p-4 group select-none">
                   {/* Story Slide Photo */}
                   <div className="absolute inset-0 z-0">
-                    <img
+                    <OptimizedImage
                       src={currentSlide?.image_url || activeCity.cover_url}
                       alt={currentSlide?.caption || activeCity.city}
                       className="w-full h-full object-cover transition-all duration-500"
+                      priority
+                      sizes="(max-width: 768px) 100vw, 340px"
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/85" />
                   </div>
@@ -503,9 +508,11 @@ export default function TravelPage({
                     <div className="flex items-center justify-between text-white text-xs">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full border border-white/40 bg-black/50 flex items-center justify-center font-bold text-white text-[11px] overflow-hidden">
-                          <img
+                          <OptimizedImage
                             src={activeCity.cover_url}
                             alt={activeCity.city}
+                            width={32}
+                            height={32}
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -690,11 +697,12 @@ export default function TravelPage({
                               className="rounded-2xl overflow-hidden bg-surface-container-lowest border border-outline-variant/30 group"
                             >
                               <div className="aspect-[4/3] overflow-hidden">
-                                <img
+                                <OptimizedImage
                                   src={img.url}
                                   alt={img.caption}
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                   loading="lazy"
+                                  sizes="(max-width: 640px) 100vw, 360px"
                                 />
                               </div>
                               <figcaption className="p-3 flex items-center justify-between text-xs text-on-surface-variant border-t border-outline-variant/20">
@@ -737,11 +745,12 @@ export default function TravelPage({
                                 : "border-outline-variant/30 opacity-75 hover:opacity-100"
                             }`}
                           >
-                            <img
+                            <OptimizedImage
                               src={slide.image_url}
                               alt={slide.caption}
                               className="w-full h-full object-cover"
                               loading="lazy"
+                              sizes="120px"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                             <span className="absolute bottom-2 left-2 right-2 text-[10px] font-code text-white truncate">
@@ -769,10 +778,11 @@ export default function TravelPage({
             className="relative w-full max-w-[390px] aspect-[9/16] rounded-[32px] overflow-hidden border border-white/20 bg-black shadow-2xl flex flex-col justify-between p-5"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
+            <OptimizedImage
               src={currentSlide?.image_url || activeCity.cover_url}
               alt={currentSlide?.caption || activeCity.city}
               className="absolute inset-0 w-full h-full object-cover"
+              sizes="390px"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-transparent to-black/85" />
 
@@ -799,9 +809,11 @@ export default function TravelPage({
               </div>
               <div className="flex items-center justify-between text-white">
                 <div className="flex items-center gap-2.5">
-                  <img
+                  <OptimizedImage
                     src={activeCity.cover_url}
                     alt={activeCity.city}
+                    width={36}
+                    height={36}
                     className="w-9 h-9 rounded-full object-cover border border-white/40"
                   />
                   <div>

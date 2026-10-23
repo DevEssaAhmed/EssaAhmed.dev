@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import OptimizedFooter from "@/components/OptimizedFooter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -111,7 +111,7 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
             </div>
           </div>
         </div>
-        <Footer />
+        <OptimizedFooter />
       </div>
     );
   }
@@ -132,7 +132,7 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
             </Button>
           </div>
         </div>
-        <Footer />
+        <OptimizedFooter />
       </div>
     );
   }
@@ -212,7 +212,7 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
           )}
         </div>
       </div>
-      <Footer />
+      <OptimizedFooter />
     </div>
   );
 };

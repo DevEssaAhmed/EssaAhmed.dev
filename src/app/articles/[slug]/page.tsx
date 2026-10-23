@@ -1,3 +1,4 @@
+import { cache } from "react";
 import ArticleDetailPageEnhanced from "./ArticleDetailPageEnhanced";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
@@ -8,13 +9,11 @@ type PageProps = { params: Promise<{ slug: string }> };
 
 const UUID_ROUTE_KEY = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-async function getPublishedArticle(supabase: ReturnType<typeof getSupabaseServer>, routeKey: string, includeContent = false): Promise<any> {
-  const fields = includeContent
-    ? "*"
-    : "id,title,slug,excerpt,image_url,created_at,unlisted";
+const getPublishedArticle = cache(async (routeKey: string): Promise<any> => {
+  const supabase = getSupabaseServer();
   const bySlug = await supabase
     .from("blog_posts")
-    .select(fields as any)
+    .select("*")
     .eq("slug", routeKey)
     .eq("published", true)
     .maybeSingle();
@@ -23,20 +22,19 @@ async function getPublishedArticle(supabase: ReturnType<typeof getSupabaseServer
 
   const byId = await supabase
     .from("blog_posts")
-    .select(fields as any)
+    .select("*")
     .eq("id", routeKey)
     .eq("published", true)
     .maybeSingle();
 
   return byId.data;
-}
+});
 
 export const revalidate = 120;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = getSupabaseServer();
-  const data = await getPublishedArticle(supabase, slug);
+  const data = await getPublishedArticle(slug);
 
   if (!data) {
     return buildPageMetadata({
@@ -71,8 +69,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
-  const supabase = getSupabaseServer();
-  const data = await getPublishedArticle(supabase, slug, true);
+  const data = await getPublishedArticle(slug);
 
   if (!data) notFound();
 
@@ -82,4 +79,3 @@ export default async function Page({ params }: PageProps) {
     />
   );
 }
-

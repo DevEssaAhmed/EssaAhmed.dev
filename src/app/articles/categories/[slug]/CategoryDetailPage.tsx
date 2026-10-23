@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import OptimizedFooter from "@/components/OptimizedFooter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Clock, Folder } from "lucide-react";
@@ -93,7 +93,7 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
             </div>
           </div>
         </div>
-        <Footer />
+        <OptimizedFooter />
       </div>
     );
   }
@@ -116,7 +116,7 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
             </Button>
           </div>
         </div>
-        <Footer />
+        <OptimizedFooter />
       </div>
     );
   }
@@ -201,7 +201,7 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
           )}
         </div>
       </div>
-      <Footer />
+      <OptimizedFooter />
     </div>
   );
 };

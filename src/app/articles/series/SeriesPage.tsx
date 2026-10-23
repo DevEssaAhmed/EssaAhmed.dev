@@ -6,7 +6,7 @@ import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ArrowRight, Sparkles, Clock, CheckCircle, Pause } from "lucide-react";
-import Footer from "@/components/Footer";
+import OptimizedFooter from "@/components/OptimizedFooter";
 import ArticlesSubNav from "@/components/ArticlesSubNav";
 
 interface Series {
@@ -169,7 +169,7 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
           </div>
         </div>
       </div>
-      <Footer />
+      <OptimizedFooter />
     </div>
   );
 };

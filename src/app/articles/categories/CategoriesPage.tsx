@@ -5,7 +5,7 @@ import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import { Badge } from "@/components/ui/badge";
 import { Folder, ArrowRight, BookOpen } from "lucide-react";
-import Footer from "@/components/Footer";
+import OptimizedFooter from "@/components/OptimizedFooter";
 import ArticlesSubNav from "@/components/ArticlesSubNav";
 import { motion } from "framer-motion";
 
@@ -108,7 +108,7 @@ const CategoriesPage = ({ initialCategories = [] }: CategoriesPageProps) => {
           )}
         </div>
       </div>
-      <Footer />
+      <OptimizedFooter />
     </div>
   );
 };

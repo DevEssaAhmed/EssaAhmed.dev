@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Zap, Package, LineChart, ArrowRight, ExternalLink, Mail, Check, Copy, Code2, Briefcase } from "lucide-react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
@@ -76,15 +77,15 @@ const Index = ({
           {/* Domain Focus Pills (3 Equal Pillars) */}
           <div className="flex flex-wrap gap-3 pt-2">
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
-              <span className="material-symbols-outlined text-primary text-[18px]">bolt</span>
+              <Zap className="w-4 h-4 text-primary shrink-0" />
               <span>⚡ Process &amp; Workflow Automation</span>
             </div>
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
-              <span className="material-symbols-outlined text-secondary text-[18px]">inventory_2</span>
+              <Package className="w-4 h-4 text-secondary shrink-0" />
               <span>📦 Supply Chain &amp; Demand Planning</span>
             </div>
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
-              <span className="material-symbols-outlined text-tertiary-fixed-dim text-[18px]">query_stats</span>
+              <LineChart className="w-4 h-4 text-tertiary-fixed-dim shrink-0" />
               <span>📊 Executive Analytics &amp; BI</span>
             </div>
           </div>
@@ -97,7 +98,7 @@ const Index = ({
                 href="#projects"
               >
                 <span>Explore Work</span>
-                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                <ArrowRight className="w-4 h-4" />
               </a>
             )}
             <a
@@ -114,7 +115,7 @@ const Index = ({
                 rel="noreferrer"
                 target="_blank"
               >
-                <span className="material-symbols-outlined text-[18px]">code</span>
+                <Code2 className="w-4 h-4 text-on-surface-variant" />
               </a>
               <a
                 aria-label="LinkedIn"
@@ -123,14 +124,14 @@ const Index = ({
                 rel="noreferrer"
                 target="_blank"
               >
-                <span className="material-symbols-outlined text-[18px]">work</span>
+                <Briefcase className="w-4 h-4 text-on-surface-variant" />
               </a>
               <a
                 aria-label="Email"
                 className="w-11 h-11 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline transition-all"
                 href={`mailto:${email}`}
               >
-                <span className="material-symbols-outlined text-[18px]">mail</span>
+                <Mail className="w-4 h-4 text-on-surface-variant" />
               </a>
             </div>
           </div>
@@ -162,7 +163,7 @@ const Index = ({
                 href="/articles"
               >
                 <span>Read all articles</span>
-                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
@@ -213,9 +214,7 @@ const Index = ({
                     <div className="flex items-center justify-between pt-6 mt-4 border-t border-outline-variant/20 text-on-surface-variant text-label-sm font-code">
                       <span>{formattedDate}</span>
                       {isExternal ? (
-                        <span className="material-symbols-outlined text-on-surface text-[16px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
-                          north_east
-                        </span>
+                        <ExternalLink className="w-4 h-4 text-on-surface group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                       ) : (
                         <span className="text-primary font-label-sm font-medium flex items-center gap-1 group-hover:underline">
                           Read Article →
@@ -268,7 +267,7 @@ const Index = ({
                 href={`mailto:${email}`}
               >
                 <span>Get in touch</span>
-                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                <ArrowRight className="w-4 h-4" />
               </a>
               <button
                 type="button"
@@ -276,9 +275,7 @@ const Index = ({
                 onClick={handleCopyEmail}
               >
                 <span>{copiedEmail ? "Copied to clipboard!" : email}</span>
-                <span className="material-symbols-outlined text-[16px] text-outline">
-                  {copiedEmail ? "check" : "content_copy"}
-                </span>
+                {copiedEmail ? <Check className="w-4 h-4 text-secondary" /> : <Copy className="w-4 h-4 text-outline" />}
               </button>
             </div>
           </div>

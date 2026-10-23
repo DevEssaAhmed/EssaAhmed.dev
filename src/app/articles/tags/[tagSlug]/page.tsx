@@ -1,3 +1,4 @@
+import { cache } from "react";
 import TagDetailPage from "./TagDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
@@ -10,16 +11,19 @@ type Props = {
   params: Promise<{ tagSlug: string }>;
 };
 
+const getTagByName = cache(async (decodedTag: string) => {
+  const supabase = getSupabaseServer();
+  return supabase
+    .from("tags")
+    .select("id, name")
+    .eq("name", decodedTag)
+    .maybeSingle();
+});
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   const decodedTag = decodeURIComponent(resolvedParams.tagSlug.replace(/-/g, " "));
-  const supabase = getSupabaseServer();
-
-  const { data: tagData } = await supabase
-    .from("tags")
-    .select("name")
-    .eq("name", decodedTag)
-    .single();
+  const { data: tagData } = await getTagByName(decodedTag);
 
   if (!tagData) {
     return buildPageMetadata({
@@ -39,18 +43,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Page({ params }: Props) {
   const resolvedParams = await params;
   const decodedTag = decodeURIComponent(resolvedParams.tagSlug.replace(/-/g, " "));
-  const supabase = getSupabaseServer();
-
-  const { data: tagData } = await supabase
-    .from("tags")
-    .select("id, name")
-    .eq("name", decodedTag)
-    .single();
+  const { data: tagData } = await getTagByName(decodedTag);
 
   if (!tagData) {
     notFound();
   }
 
+  const supabase = getSupabaseServer();
   const { data: blogPostTagData } = await supabase
     .from("blog_post_tags")
     .select("blog_post_id, blog_posts!inner(*)")

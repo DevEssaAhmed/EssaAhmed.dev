@@ -71,10 +71,10 @@ export async function runR3ResponsiveBuildTests(reporter) {
     assertOk(fs.existsSync(navPath), "src/components/Navigation.tsx must exist");
     const content = fs.readFileSync(navPath, "utf8");
 
-    assertIncludes(content, 'role=\'dialog\'', "Mobile drawer must declare role='dialog'");
-    assertIncludes(content, 'aria-modal=\'true\'', "Mobile drawer must declare aria-modal='true'");
-    assertIncludes(content, 'aria-label=\'Mobile navigation menu\'', "Mobile drawer must declare aria-label");
-    assertIncludes(content, 'aria-label=\'Close navigation menu\'', "Close button must declare aria-label");
+    assertOk(content.includes('role="dialog"') || content.includes("role='dialog'"), "Mobile drawer must declare role='dialog'");
+    assertOk(content.includes('aria-modal="true"') || content.includes("aria-modal='true'"), "Mobile drawer must declare aria-modal='true'");
+    assertOk(content.includes('aria-label="Mobile navigation menu"') || content.includes("aria-label='Mobile navigation menu'"), "Mobile drawer must declare aria-label");
+    assertOk(content.includes('aria-label="Close navigation menu"') || content.includes("aria-label='Close navigation menu'"), "Close button must declare aria-label");
     assertIncludes(content, "Escape", "Navigation must handle Escape key event to close drawer");
     reporter.record(t4, 1, true, null, Date.now() - start4);
   } catch (err) {
@@ -110,13 +110,14 @@ export async function runR3ResponsiveBuildTests(reporter) {
   const t6 = "R3.6 - Interactive buttons and links configure accessible focus states and aria attributes";
   const start6 = Date.now();
   try {
-    const fwPath = path.join(root, "src/components/home/FeaturedWork.tsx");
-    const fwContent = fs.readFileSync(fwPath, "utf8");
+    const tabNavPath = path.join(root, "src/components/TabNavigation.tsx");
+    assertOk(fs.existsSync(tabNavPath), "TabNavigation.tsx must exist");
+    const tabContent = fs.readFileSync(tabNavPath, "utf8");
 
-    assertIncludes(fwContent, 'role="tablist"', "Filter list in FeaturedWork must declare role='tablist'");
-    assertIncludes(fwContent, 'role="tab"', "Filter buttons must declare role='tab'");
-    assertIncludes(fwContent, 'aria-selected=', "Filter buttons must manage aria-selected state");
-    assertIncludes(fwContent, 'aria-label=', "Filter tablist must declare an aria-label");
+    assertIncludes(tabContent, 'role="tablist"', "Tab navigation must declare role='tablist'");
+    assertIncludes(tabContent, 'role="tab"', "Tab items must declare role='tab'");
+    assertIncludes(tabContent, 'aria-selected=', "Tab buttons must manage aria-selected state");
+    assertIncludes(tabContent, 'aria-label=', "Tablist must declare an aria-label");
     reporter.record(t6, 1, true, null, Date.now() - start6);
   } catch (err) {
     reporter.record(t6, 1, false, err, Date.now() - start6);

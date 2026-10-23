@@ -47,6 +47,7 @@ const ABOUT_SUBNAV = [
   { name: "Overview", href: "/about#overview" },
   { name: "Diary", href: "/diary" },
   { name: "Talks & Sessions", href: "/talks" },
+  { name: "Travel Highlights", href: "/travel" },
 ] as const;
 
 const Navigation = memo(() => {
@@ -108,6 +109,11 @@ const Navigation = memo(() => {
       label: "About & Experience",
       sub: "Career timeline, credentials & toolkit",
       path: "/about",
+    });
+    list.push({
+      label: "Travel Highlights",
+      sub: "Field dispatches, interactive maps & photo reels",
+      path: "/travel",
     });
     list.push({
       label: `Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`,
@@ -518,7 +524,7 @@ const Navigation = memo(() => {
               className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-label-sm font-code transition-colors"
               aria-label="Open command palette (Cmd+K)"
             >
-              <span className="material-symbols-outlined text-[16px]">search</span>
+              <Search className="w-4 h-4 text-on-surface-variant" />
               <span>⌘K</span>
             </button>
 

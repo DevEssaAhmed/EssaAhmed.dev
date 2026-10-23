@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tag, Search, TrendingUp, Hash, BookOpen, Flame } from "lucide-react";
-import Footer from "@/components/Footer";
+import OptimizedFooter from "@/components/OptimizedFooter";
 import ArticlesSubNav from "@/components/ArticlesSubNav";
 
 interface TagInfo {
@@ -145,7 +145,7 @@ const TagsPage = ({ initialTags = [] }: TagsPageProps) => {
           )}
         </div>
       </div>
-      <Footer />
+      <OptimizedFooter />
     </div>
   );
 };

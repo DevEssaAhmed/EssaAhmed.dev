@@ -31,9 +31,9 @@ export async function runTier3CrossFeatureTests(reporter) {
     const content = fs.readFileSync(navPath, "utf8");
 
     assertIncludes(content, "bg-surface", "Navigation must use bg-surface tokens");
-    assertIncludes(content, "border-border", "Navigation must use hairline border-border token");
-    assertIncludes(content, "text-champagne", "Active or highlighted nav items must use text-champagne");
-    assertIncludes(content, "bg-champagne", "Action buttons or indicators must use bg-champagne");
+    assertIncludes(content, "outline-variant", "Navigation must use hairline outline-variant token");
+    assertIncludes(content, "text-on-surface", "Navigation items must use text-on-surface tokens");
+    assertIncludes(content, "surface-container", "Navigation controls must use surface-container tokens");
     reporter.record(t1, 3, true, null, Date.now() - start1);
   } catch (err) {
     reporter.record(t1, 3, false, err, Date.now() - start1);
@@ -87,7 +87,7 @@ export async function runTier3CrossFeatureTests(reporter) {
     assertOk(fs.existsSync(articlesPath), "ArticlesPage.tsx must exist");
     const content = fs.readFileSync(articlesPath, "utf8");
 
-    assertIncludes(content, "bg-background", "ArticlesPage must be wrapped in bg-background");
+    assertOk(content.includes("bg-surface") || content.includes("bg-background"), "ArticlesPage must use canvas token");
     const hasFilters =
       content.includes("filter") ||
       content.includes("category") ||

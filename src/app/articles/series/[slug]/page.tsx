@@ -1,3 +1,4 @@
+import { cache } from "react";
 import SeriesDetailPage from "./SeriesDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
@@ -10,16 +11,19 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+const getSeriesBySlug = cache(async (slug: string) => {
+  const supabase = getSupabaseServer();
+  return supabase
+    .from("series")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+});
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
-  const supabase = getSupabaseServer();
-
-  const { data: series } = await supabase
-    .from("series")
-    .select("title, description")
-    .eq("slug", slug)
-    .single();
+  const { data: series } = await getSeriesBySlug(slug);
 
   if (!series) {
     return buildPageMetadata({
@@ -39,18 +43,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Page({ params }: Props) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
-  const supabase = getSupabaseServer();
-
-  const { data: seriesData } = await supabase
-    .from("series")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const { data: seriesData } = await getSeriesBySlug(slug);
 
   if (!seriesData) {
     notFound();
   }
 
+  const supabase = getSupabaseServer();
   const { data: articlesData } = await supabase
     .from("blog_posts")
     .select("*")

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import CategoryDetailPage from "./CategoryDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
@@ -10,14 +11,18 @@ type Props = {
 
 export const revalidate = 120;
 
+const getCategoryBySlug = cache(async (slug: string) => {
+  const supabase = getSupabaseServer();
+  return supabase
+    .from("categories")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+});
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = getSupabaseServer();
-  const { data } = await supabase
-    .from("categories")
-    .select("name, description")
-    .eq("slug", slug)
-    .single();
+  const { data } = await getCategoryBySlug(slug);
 
   if (!data) {
     return buildPageMetadata({
@@ -36,18 +41,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function Page({ params }: Props) {
   const { slug } = await params;
-  const supabase = getSupabaseServer();
-
-  const { data: categoryData } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const { data: categoryData } = await getCategoryBySlug(slug);
 
   if (!categoryData) {
     notFound();
   }
 
+  const supabase = getSupabaseServer();
   const { data: articlesData } = await supabase
     .from("blog_posts")
     .select("*")

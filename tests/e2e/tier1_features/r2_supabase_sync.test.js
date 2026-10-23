@@ -144,25 +144,13 @@ export async function runR2SupabaseSyncTests(reporter) {
     assertOk(!error, `Failed to query stitching project: ${error?.message}`);
     assertEqual(stitching.featured, true, "Stitching Productivity Dashboard must have featured=true");
 
-    // 2. Verify FeaturedWork component code links to actual UUIDs
+    // 2. Verify FeaturedWork component code dynamically links to case studies
     const fwPath = path.join(root, "src/components/home/FeaturedWork.tsx");
     assertOk(fs.existsSync(fwPath), "FeaturedWork.tsx must exist");
     const fwContent = fs.readFileSync(fwPath, "utf8");
 
-    const expectedUUIDs = [
-      "4e489887-2834-4774-ae54-a0b8a5b0c2a3",
-      "e51f2539-7631-435e-8f77-d560c5d7fc66",
-      "0c806cae-9ceb-4249-90b6-332353ef771c",
-      "d17bf217-6beb-4b4b-8f52-7444d58c453a",
-    ];
-
-    for (const uuid of expectedUUIDs) {
-      assertIncludes(
-        fwContent,
-        `/projects/${uuid}`,
-        `FeaturedWork.tsx must link directly to case study UUID ${uuid}`
-      );
-    }
+    assertIncludes(fwContent, "/projects/${project.id}", "FeaturedWork.tsx must link directly to case studies");
+    assertIncludes(fwContent, "initialProjects", "FeaturedWork.tsx must accept dynamic initialProjects prop");
     reporter.record(t5, 1, true, null, Date.now() - start5);
   } catch (err) {
     reporter.record(t5, 1, false, err, Date.now() - start5);

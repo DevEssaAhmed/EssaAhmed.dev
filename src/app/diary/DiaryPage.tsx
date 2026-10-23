@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -280,11 +281,12 @@ export default function DiaryPage({
 
                           {entry.image_url && (
                             <div className="my-4 rounded-xl overflow-hidden border border-outline-variant/30 max-h-80">
-                              <img
+                              <OptimizedImage
                                 src={entry.image_url}
                                 alt={entry.image_alt || entry.title || "Diary photo"}
                                 className="w-full h-full object-cover"
                                 loading="lazy"
+                                sizes="(max-width: 768px) 100vw, 720px"
                               />
                             </div>
                           )}

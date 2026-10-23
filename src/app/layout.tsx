@@ -111,10 +111,6 @@ export default function RootLayout({
           href="https://kexmzaaufxbzegurxuqz.supabase.co"
           crossOrigin="anonymous"
         />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        />
       </head>
       <body
         className="bg-surface text-on-surface antialiased selection:bg-primary/20 selection:text-primary min-h-screen transition-colors duration-200"

@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { cleanMarkdownExcerpt } from "@/lib/clean-markdown";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ProjectItem {
@@ -187,10 +188,12 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                       {flagshipProject.image &&
                       !flagshipProject.image.includes("placeholder") ? (
                         <div className="aspect-[16/10] w-full relative overflow-hidden">
-                          <img
+                          <OptimizedImage
                             src={flagshipProject.image}
                             alt={flagshipProject.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            priority
+                            sizes="(max-width: 1024px) 100vw, 50vw"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 via-transparent to-transparent" />
                           <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-code">
@@ -332,11 +335,12 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                           className="block w-full h-48 rounded-xl bg-surface-container-lowest border border-outline-variant/25 mb-6 overflow-hidden relative"
                         >
                           {project.image && !project.image.includes("placeholder") ? (
-                            <img
+                            <OptimizedImage
                               src={project.image}
                               alt={project.title}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               loading="lazy"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                           ) : (
                             <div className="w-full h-full p-5 flex flex-col justify-between font-code text-xs">

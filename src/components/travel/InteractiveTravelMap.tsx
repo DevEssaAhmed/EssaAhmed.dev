@@ -68,6 +68,10 @@ function InteractiveTravelMapComponent({
   const leafletRef = useRef<any>(null);
   const onSelectCityRef = useRef(onSelectCity);
   onSelectCityRef.current = onSelectCity;
+  const citiesRef = useRef(cities);
+  citiesRef.current = cities;
+  const activeCityRef = useRef(activeCity);
+  activeCityRef.current = activeCity;
 
   const { theme } = useTheme();
   const [mapReady, setMapReady] = useState(false);
@@ -90,8 +94,8 @@ function InteractiveTravelMapComponent({
         (mapContainerRef.current as any)._leaflet_id = null;
       }
 
-      const initialLat = activeCity?.lat ?? 26.5;
-      const initialLng = activeCity?.lng ?? 52.0;
+      const initialLat = activeCityRef.current?.lat ?? 26.5;
+      const initialLng = activeCityRef.current?.lng ?? 52.0;
 
       const map = L.map(mapContainerRef.current, {
         center: [initialLat, initialLng],
@@ -124,8 +128,8 @@ function InteractiveTravelMapComponent({
       arcsLayerRef.current = arcsLayer;
       markersLayerRef.current = markersLayer;
 
-      if (cities.length > 1) {
-        const validCoords = cities
+      if (citiesRef.current.length > 1) {
+        const validCoords = citiesRef.current
           .filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng))
           .map((c) => [c.lat, c.lng] as [number, number]);
         if (validCoords.length > 1) {
@@ -322,7 +326,7 @@ function InteractiveTravelMapComponent({
     map.flyTo([activeCity.lat, activeCity.lng], Math.max(map.getZoom(), 5), {
       duration: 1.25,
     });
-  }, [mapReady, activeCity?.id]);
+  }, [mapReady, activeCity]);
 
   const handleZoomIn = () => {
     if (mapInstanceRef.current) mapInstanceRef.current.zoomIn();

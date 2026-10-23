@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowRight, Mail, Send } from "lucide-react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
@@ -55,7 +56,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                 className="px-6 py-3 rounded-full bg-on-surface text-surface font-label-md text-label-md font-semibold hover:opacity-90 transition-all inline-flex items-center gap-2"
               >
                 <span>Initiate Consultation</span>
-                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                <ArrowRight className="w-4 h-4" />
               </a>
               {hasProjects && (
                 <Link
@@ -88,7 +89,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                 href={`mailto:${email}`}
                 aria-label="Email"
               >
-                <span className="material-symbols-outlined text-[16px]">alternate_email</span>
+                <Mail className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -457,7 +458,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                 href={`mailto:${email}`}
               >
                 <span>Send Direct Message</span>
-                <span className="material-symbols-outlined text-[18px]">send</span>
+                <Send className="w-4 h-4" />
               </a>
             </div>
           </div>

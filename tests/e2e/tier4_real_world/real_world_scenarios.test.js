@@ -30,9 +30,9 @@ export async function runTier4RealWorldTests(reporter) {
     const fwPath = path.join(root, "src/components/home/FeaturedWork.tsx");
     const fwContent = fs.readFileSync(fwPath, "utf8");
 
-    // Case study target: 4-Wheel Vendor Defect Analysis
+    // Verify FeaturedWork renders links to projects
+    assertIncludes(fwContent, "/projects/${project.id}", "FeaturedWork must link dynamically to case studies");
     const vendorDefectUUID = "4e489887-2834-4774-ae54-a0b8a5b0c2a3";
-    assertIncludes(fwContent, `/projects/${vendorDefectUUID}`, "FeaturedWork must link to Vendor Defect Analysis case study");
 
     // 2. Fetch targeted project from database to ensure real-world data payload is intact
     const { data: project, error: pErr } = await supabase
@@ -66,7 +66,7 @@ export async function runTier4RealWorldTests(reporter) {
 
     // Verify mobile hamburger button exists and opens portal drawer
     assertIncludes(navContent, "mobileMenu", "Navigation must render mobileMenu portal");
-    assertIncludes(navContent, "overflow = 'hidden'", "Body scroll must lock when mobile drawer opens");
+    assertOk(navContent.includes('overflow = "hidden"') || navContent.includes("overflow = 'hidden'"), "Body scroll must lock when mobile drawer opens");
     assertIncludes(navContent, "/projects", "Mobile nav must include Projects route");
 
     // Verify ProjectsPage handles single-column mobile view
