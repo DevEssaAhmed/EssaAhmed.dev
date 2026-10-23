@@ -28,7 +28,9 @@ export default async function Page() {
       code: error.code,
       message: error.message,
     });
-    notFound();
+    throw new Error("Failed to load published travel highlights", {
+      cause: error,
+    });
   }
 
   const highlights = (data ?? [])
