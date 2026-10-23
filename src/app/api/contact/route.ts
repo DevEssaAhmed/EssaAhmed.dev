@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { isContactRateLimited } from "@/lib/contact-rate-limit";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -13,45 +14,9 @@ const contactPayloadSchema = z.object({
   honeypot: z.string().optional().nullable(),
 });
 
-// Simple in-memory rate limiter per IP: max 5 requests per 10 minutes
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const MAX_REQUESTS_PER_WINDOW = 5;
-const ipRequestHistory = new Map<string, number[]>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const timestamps = ipRequestHistory.get(ip) || [];
-  const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-
-  if (recent.length >= MAX_REQUESTS_PER_WINDOW) {
-    ipRequestHistory.set(ip, recent);
-    return true;
-  }
-
-  recent.push(now);
-  ipRequestHistory.set(ip, recent);
-
-  // Periodic cleanup if map grows too large
-  if (ipRequestHistory.size > 2000) {
-    for (const [key, times] of ipRequestHistory.entries()) {
-      const valid = times.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-      if (valid.length === 0) {
-        ipRequestHistory.delete(key);
-      } else {
-        ipRequestHistory.set(key, valid);
-      }
-    }
-  }
-
-  return false;
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const forwardedFor = req.headers.get("x-forwarded-for");
-    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "unknown-ip";
-
-    if (ip !== "unknown-ip" && isRateLimited(ip)) {
+    if (isContactRateLimited(req)) {
       return NextResponse.json(
         { error: "Too many contact submissions. Please wait a few minutes before trying again." },
         { status: 429 }
@@ -80,7 +45,7 @@ export async function POST(req: NextRequest) {
 
     const resolvedPurpose = purpose === "other" ? (other_purpose?.trim() || "Other") : purpose;
 
-    const supabase = getSupabaseServer();
+    const supabase = getSupabaseAdmin();
     const { error: insertError } = await supabase.from("contacts").insert([
       {
         name,

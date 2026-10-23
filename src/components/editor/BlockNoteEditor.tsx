@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { BlockNoteEditor, Block, PartialBlock } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/mantine';
 import { SuggestionMenuController, getDefaultReactSlashMenuItems } from '@blocknote/react';
+import type { DefaultReactSuggestionItem } from '@blocknote/react';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import './blocknote-theme.css';
@@ -353,16 +354,17 @@ const BlockNoteEditorComponent: React.FC<BlockNoteEditorProps> = ({
         >
           <SuggestionMenuController
             triggerCharacter="/"
-            getItems={async (query) => {
+            getItems={async (query: string) => {
               const defaultItems = getDefaultReactSlashMenuItems(editor);
               // Filter items based on query
               if (!query) return defaultItems;
               const lowerQuery = query.toLowerCase();
               return defaultItems.filter(
-                (item) =>
+                (item: DefaultReactSuggestionItem) =>
                   item.title.toLowerCase().includes(lowerQuery) ||
                   (item.subtext && item.subtext.toLowerCase().includes(lowerQuery)) ||
-                  (item.aliases && item.aliases.some((alias) => alias.toLowerCase().includes(lowerQuery)))
+                  (item.aliases &&
+                    item.aliases.some((alias: string) => alias.toLowerCase().includes(lowerQuery)))
               );
             }}
           />

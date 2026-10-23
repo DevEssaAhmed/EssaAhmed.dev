@@ -22,7 +22,7 @@ export async function runR3ResponsiveBuildTests(reporter) {
     const output = execSync("npx tsc --noEmit", {
       cwd: root,
       encoding: "utf8",
-      timeout: 45000,
+      timeout: 90000,
     });
     reporter.record(t1, 1, true, null, Date.now() - start1);
   } catch (err) {

@@ -32,10 +32,13 @@ export default async function Page() {
     supabase.from("categories").select("id,name").order("name"),
     supabase
       .from("blog_posts")
-      .select("*")
+      .select(
+        "id,slug,title,excerpt,created_at,reading_time,is_external,external_url,platform,video_type,video_url"
+      )
       .eq("published", true)
       .eq("unlisted", false)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .limit(3),
   ]);
 
   if (projectsError) {

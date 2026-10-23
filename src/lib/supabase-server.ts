@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
 const createServerSupabase = cache(() => {
@@ -34,3 +34,32 @@ const createServerSupabase = cache(() => {
 });
 
 export const getSupabaseServer = () => createServerSupabase();
+
+let adminClient: SupabaseClient<Database> | undefined;
+
+export function getSupabaseAdmin() {
+  if (adminClient) return adminClient;
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseSecretKey =
+    process.env.SUPABASE_SECRET_KEY ??
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseSecretKey) {
+    throw new Error(
+      "Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (or publishable/anon key)."
+    );
+  }
+
+  adminClient = createClient<Database>(supabaseUrl, supabaseSecretKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+
+  return adminClient;
+}
