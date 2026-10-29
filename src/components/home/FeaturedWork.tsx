@@ -1,4 +1,5 @@
 "use client";
+import { ArrowRight } from "lucide-react";
 
 import { useMemo } from "react";
 import Link from "next/link";
@@ -100,7 +101,7 @@ export default function FeaturedWork({ initialProjects = [] }: FeaturedWorkProps
           href="/projects"
         >
           <span>View all projects</span>
-          <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <ArrowRight aria-hidden="true" className="text-[16px] h-4 w-4" />
         </Link>
       </div>
 
@@ -137,9 +138,7 @@ export default function FeaturedWork({ initialProjects = [] }: FeaturedWorkProps
                 </div>
                 <span className="text-xs font-semibold text-primary group-hover:underline shrink-0 flex items-center gap-1 ml-auto">
                   <span>View Case Study</span>
-                  <span className="material-symbols-outlined text-[15px]">
-                    arrow_forward
-                  </span>
+                  <ArrowRight aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />
                 </span>
               </div>
             </Link>
