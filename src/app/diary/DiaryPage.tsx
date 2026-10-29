@@ -1,4 +1,5 @@
 "use client";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -306,9 +307,7 @@ export default function DiaryPage({
                               className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                             >
                               <span>{isExpanded ? "Show less" : "Read full entry"}</span>
-                              <span className="material-symbols-outlined text-[15px]">
-                                {isExpanded ? "expand_less" : "expand_more"}
-                              </span>
+                              {isExpanded ? <ChevronUp aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" /> : <ChevronDown aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />}
                             </button>
                           )}
                         </article>
