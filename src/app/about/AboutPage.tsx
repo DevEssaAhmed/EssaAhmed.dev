@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Mail, Send } from "lucide-react";
+import { ArrowRight, Mail, Send, MapPin, Zap, CheckCircle2, Package, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
@@ -112,9 +112,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
                     </h2>
                   </div>
                   <p className="font-body-md text-body-md text-on-surface-variant flex items-center gap-1.5 mt-0.5">
-                    <span className="material-symbols-outlined text-[16px] text-secondary">
-                      location_on
-                    </span>
+                    <MapPin aria-hidden="true" className="text-[16px] text-secondary h-4 w-4" />
                     <span>{location}</span>
                   </p>
                 </div>
@@ -200,7 +198,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
             <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-primary/40 transition-all duration-200 group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-amber-500 text-xl group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined">bolt</span>
+                  <Zap aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
                   Workflow &amp; Process Automation
@@ -210,21 +208,15 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
                 </p>
                 <div className="space-y-2 pt-2">
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <span className="material-symbols-outlined text-secondary text-sm shrink-0 mt-0.5">
-                      check_circle
-                    </span>
+                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
                     <span>Asynchronous webhook handlers &amp; idempotent pipelines</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <span className="material-symbols-outlined text-secondary text-sm shrink-0 mt-0.5">
-                      check_circle
-                    </span>
+                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
                     <span>Automated reconciliation between legacy ERP &amp; cloud stores</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <span className="material-symbols-outlined text-secondary text-sm shrink-0 mt-0.5">
-                      check_circle
-                    </span>
+                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
                     <span>Zero-touch schema validation with strict data contracts</span>
                   </div>
                 </div>
@@ -250,7 +242,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
             <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-secondary/40 transition-all duration-200 group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-secondary text-xl group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined">inventory_2</span>
+                  <Package aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
                   Supply Chain &amp; Demand Planning
@@ -260,21 +252,15 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
                 </p>
                 <div className="space-y-2 pt-2">
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <span className="material-symbols-outlined text-secondary text-sm shrink-0 mt-0.5">
-                      check_circle
-                    </span>
+                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
                     <span>Rolling 52-week S&amp;OP demand &amp; inventory models</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <span className="material-symbols-outlined text-secondary text-sm shrink-0 mt-0.5">
-                      check_circle
-                    </span>
+                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
                     <span>Dynamic safety stock &amp; reorder point optimization</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <span className="material-symbols-outlined text-secondary text-sm shrink-0 mt-0.5">
-                      check_circle
-                    </span>
+                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
                     <span>Tier-1 supplier OTIF &amp; lead-time drift detection</span>
                   </div>
                 </div>
@@ -300,7 +286,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
             <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-tertiary/40 transition-all duration-200 group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary text-xl group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined">query_stats</span>
+                  <BarChart3 aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
                   Analytics &amp; Decision Systems
@@ -310,21 +296,15 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
                 </p>
                 <div className="space-y-2 pt-2">
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <span className="material-symbols-outlined text-secondary text-sm shrink-0 mt-0.5">
-                      check_circle
-                    </span>
+                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
                     <span>Dimensional star schemas &amp; automated dbt lineage</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <span className="material-symbols-outlined text-secondary text-sm shrink-0 mt-0.5">
-                      check_circle
-                    </span>
+                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
                     <span>Sub-second DAX measures &amp; executive KPI hierarchies</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <span className="material-symbols-outlined text-secondary text-sm shrink-0 mt-0.5">
-                      check_circle
-                    </span>
+                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
                     <span>Real-time factory floor &amp; commercial telemetry</span>
                   </div>
                 </div>
