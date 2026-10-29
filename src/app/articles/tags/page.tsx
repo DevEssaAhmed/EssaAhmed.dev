@@ -1,6 +1,7 @@
 ﻿import TagsPage from "./TagsPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
+import { isPublicListedArticle } from "@/lib/public-content";
 
 export const revalidate = 120;
 
@@ -20,7 +21,7 @@ export default async function Page() {
     .map((tag: any) => {
       const articleCount = (tag.blog_post_tags || []).reduce((count: number, link: any) => {
         const post = Array.isArray(link.blog_posts) ? link.blog_posts[0] : link.blog_posts;
-        return count + (post?.published && !post?.unlisted ? 1 : 0);
+        return count + (isPublicListedArticle(post) ? 1 : 0);
       }, 0);
 
       return {

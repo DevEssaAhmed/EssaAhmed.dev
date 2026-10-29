@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
 import { findTagByCanonicalSlug } from "@/lib/tag-routing";
+import { PUBLIC_LISTED_ARTICLE_FILTERS } from "@/lib/public-content";
 
 export const revalidate = 120;
 
@@ -49,8 +50,8 @@ export default async function Page({ params }: Props) {
     .from("blog_post_tags")
     .select("blog_post_id, blog_posts!inner(*)")
     .eq("tag_id", tagData.id)
-    .eq("blog_posts.published", true)
-    .eq("blog_posts.unlisted", false);
+    .eq("blog_posts.published", PUBLIC_LISTED_ARTICLE_FILTERS.published)
+    .eq("blog_posts.unlisted", PUBLIC_LISTED_ARTICLE_FILTERS.unlisted);
   const blogPosts = blogPostTagData?.map((item: any) => item.blog_posts).filter(Boolean).flat() || [];
 
   const publicPostIds = (blogPostTagData || []).map((item: any) => item.blog_post_id);

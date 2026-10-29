@@ -10,6 +10,8 @@ type PageProps = { params: Promise<{ id: string }> };
 
 export const revalidate = 120;
 
+// Public project policy: all project rows are public because the schema has
+// no draft/private visibility field. The sitemap and listing use the same rule.
 const getProject = cache(async (id: string) => {
   const supabase = getSupabaseServer();
   return supabase

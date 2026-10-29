@@ -13,6 +13,9 @@ export const metadata = buildPageMetadata({
 export default async function Page() {
   const supabase = getSupabaseServer();
 
+  // Public project policy: the schema has no published, unlisted, status, or
+  // visibility field, so every row is intentionally listed publicly. Add a
+  // schema-level visibility field before introducing listing filters.
   // Avoid embedding categories -> project_tags -> tags in the core read.
   // The projects table's own tags array is the current source of truth.
   const [

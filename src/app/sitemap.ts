@@ -2,6 +2,10 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 import type { MetadataRoute } from "next";
 import { getContentAvailability } from "@/lib/content-availability";
 import { DEFAULT_CONTENT_AVAILABILITY } from "@/types/content-availability";
+import {
+  isPublicListedArticle,
+  PUBLIC_LISTED_ARTICLE_FILTERS,
+} from "@/lib/public-content";
 
 const SITE_URL = "https://essaahmed.dev";
 
@@ -68,16 +72,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     supabase
       .from("blog_posts")
       .select("slug, updated_at, created_at, category_id, series_id")
-      .eq("published", true)
-      .eq("unlisted", false)
+      .eq("published", PUBLIC_LISTED_ARTICLE_FILTERS.published)
+      .eq("unlisted", PUBLIC_LISTED_ARTICLE_FILTERS.unlisted)
       .order("created_at", { ascending: false }),
     supabase
+      // All project rows are public in the current schema: there is no
+      // published/unlisted/status field. Keep this aligned with the public
+      // projects listing and detail route unless a visibility field is added.
       .from("projects")
       .select("id, updated_at, created_at")
       .order("created_at", { ascending: false }),
     supabase.from("categories").select("id, slug"),
     supabase.from("series").select("id, slug"),
-    supabase.from("tags").select("id, name, slug"),
+    // A tag is discoverable only when linked to a published, listed article.
+    supabase
+      .from("tags")
+      .select("id, name, slug, blog_post_tags(blog_posts(published, unlisted))"),
   ]);
 
   const articles = articlesData || [];
@@ -133,7 +143,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
   const tagPages: MetadataRoute.Sitemap = (tagsData || [])
-    .filter((tag: any) => Boolean(tag?.slug))
+    .filter((tag: any) => {
+      if (!tag?.slug) return false;
+      return (tag.blog_post_tags || []).some((link: any) => {
+        const linkedPosts = Array.isArray(link.blog_posts)
+          ? link.blog_posts
+          : link.blog_posts
+            ? [link.blog_posts]
+            : [];
+        return linkedPosts.some(isPublicListedArticle);
+      });
+    })
     .map((tag: any) => ({
       url: SITE_URL + "/articles/tags/" + encodeURIComponent(tag.slug),
       changeFrequency: "weekly" as const,
