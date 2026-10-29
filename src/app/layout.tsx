@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
-import Script from "next/script";
 import "../index.css";
 import Providers from "./providers";
 import GTMProvider from "@/components/gtm-provider";
@@ -134,9 +133,12 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <Script id="theme-initializer" strategy="beforeInteractive">
-          {`(()=>{try{const saved=localStorage.getItem('theme');const theme=saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const root=document.documentElement;root.classList.remove('light','dark');root.classList.add(theme);root.style.colorScheme=theme}catch{const theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(theme)}})()`}
-        </Script>
+        <script
+          id="theme-initializer"
+          dangerouslySetInnerHTML={{
+            __html: `(()=>{const root=document.documentElement;let theme="dark";try{const saved=localStorage.getItem("theme");if(saved==="light"||saved==="dark")theme=saved;}catch{}root.classList.remove("light","dark");root.classList.add(theme);root.style.colorScheme=theme;})()`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

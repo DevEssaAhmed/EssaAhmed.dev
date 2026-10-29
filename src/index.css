@@ -214,6 +214,16 @@
     transition: background-color 0.28s ease, border-color 0.25s ease, color 0.22s ease;
   }
 
+  /* Prevent a visible light-to-dark transition while the saved theme is being initialized. */
+  html:not([data-theme-ready="true"]) body,
+  html:not([data-theme-ready="true"]) .bg-surface,
+  html:not([data-theme-ready="true"]) .bg-surface-container-low,
+  html:not([data-theme-ready="true"]) .bg-surface-container,
+  html:not([data-theme-ready="true"]) .bg-surface-container-high,
+  html:not([data-theme-ready="true"]) .bg-surface-container-lowest {
+    transition: none !important;
+  }
+
   h1,
   h2,
   h3,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface ThemeContextType {
   theme: "light" | "dark";
@@ -24,45 +24,34 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setThemeState] = useState<"light" | "dark">("dark");
-  const hasExplicitPreference = useRef(false);
-
   useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const readSavedTheme = () => {
+    const root = document.documentElement;
+
+    const readSavedTheme = (): "light" | "dark" | null => {
       try {
-        const saved = localStorage.getItem("theme");
+        const saved = window.localStorage.getItem("theme");
         return saved === "light" || saved === "dark" ? saved : null;
       } catch {
         return null;
       }
     };
-    const applyTheme = (initial: "light" | "dark") => {
-      setThemeState(initial);
-      document.documentElement.classList.remove("light", "dark");
-      document.documentElement.classList.add(initial);
-      document.documentElement.style.colorScheme = initial;
-    };
 
-    const saved = readSavedTheme();
-    hasExplicitPreference.current = saved !== null;
-    applyTheme(saved || (media.matches ? "dark" : "light"));
-
-    const followSystemPreference = (event: MediaQueryListEvent) => {
-      if (!hasExplicitPreference.current && !readSavedTheme()) {
-        applyTheme(event.matches ? "dark" : "light");
-      }
-    };
-    media.addEventListener("change", followSystemPreference);
-    return () => media.removeEventListener("change", followSystemPreference);
+    // Dark is the product default. Only an explicit saved choice overrides it.
+    const initialTheme = readSavedTheme() ?? "dark";
+    root.classList.remove("light", "dark");
+    root.classList.add(initialTheme);
+    root.style.colorScheme = initialTheme;
+    root.dataset.themeReady = "true";
+    setThemeState(initialTheme);
   }, []);
 
   const setTheme = (newTheme: "light" | "dark") => {
-    hasExplicitPreference.current = true;
     setThemeState(newTheme);
     if (typeof window !== "undefined") {
       document.documentElement.classList.remove("light", "dark");
       document.documentElement.classList.add(newTheme);
       document.documentElement.style.colorScheme = newTheme;
+      document.documentElement.dataset.themeReady = "true";
       try {
         localStorage.setItem("theme", newTheme);
       } catch {
