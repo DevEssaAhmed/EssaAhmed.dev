@@ -39,7 +39,7 @@ async function loadContentAvailability(): Promise<ContentAvailabilitySnapshot> {
       .eq("unlisted", false),
     supabase
       .from("travel_highlights")
-      .select("id,city_name,country_name,lat,lng,cover_image_url")
+      .select("id,city_name,country_name,lat,lng,cover_image_url,is_published")
       .eq("is_published", true),
   ]);
 
