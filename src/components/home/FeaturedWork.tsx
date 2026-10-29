@@ -14,9 +14,7 @@ interface Project {
   featured: boolean;
   demo_url?: string;
   github_url?: string;
-  categories?: {
-    name: string;
-  };
+  category?: string | null;
 }
 
 interface FeaturedWorkProps {
@@ -36,9 +34,9 @@ function ProjectCardPreview({ project }: { project: Project }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 via-transparent to-transparent" />
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] font-code">
-          {project.categories?.name && (
+          {project.category && (
             <span className="px-2.5 py-0.5 rounded bg-surface-container-low/90 backdrop-blur-md border border-outline-variant/30 text-on-surface font-medium">
-              {project.categories.name}
+              {project.category}
             </span>
           )}
           <span className="text-secondary font-medium bg-surface-container-low/90 px-2 py-0.5 rounded border border-outline-variant/20 ml-auto">
@@ -52,10 +50,10 @@ function ProjectCardPreview({ project }: { project: Project }) {
   return (
     <div className="w-full h-48 rounded-xl bg-surface-container-low border border-outline-variant/30 p-5 mb-6 font-code text-xs relative overflow-hidden flex flex-col justify-between">
       <div className="flex justify-between items-center text-on-surface-variant">
-        {project.categories?.name && (
+        {project.category && (
           <span className="flex items-center gap-1.5 text-on-surface font-medium">
             <span className="w-2 h-2 rounded-full bg-primary" />
-            {project.categories.name}
+            {project.category}
           </span>
         )}
         <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant border border-outline-variant/30 text-[10px] ml-auto font-medium">

@@ -3,6 +3,7 @@
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProfileProvider } from "@/contexts/ProfileContext";
+import type { Profile } from "@/lib/profile-utils";
 import { ContentAvailabilityProvider } from "@/contexts/ContentAvailabilityContext";
 import type { ContentAvailabilitySnapshot } from "@/types/content-availability";
 import { DEFAULT_CONTENT_AVAILABILITY } from "@/types/content-availability";
@@ -16,15 +17,17 @@ import { MotionConfig } from "framer-motion";
 export default function Providers({
   children,
   initialAvailability = DEFAULT_CONTENT_AVAILABILITY,
+  initialProfile,
 }: {
   children: React.ReactNode;
   initialAvailability?: ContentAvailabilitySnapshot;
+  initialProfile?: Profile | null;
 }) {
   return (
     <MotionConfig reducedMotion="user">
       <ThemeProvider>
         <AuthProvider>
-          <ProfileProvider>
+          <ProfileProvider initialProfile={initialProfile}>
             <ContentAvailabilityProvider initialAvailability={initialAvailability}>
               <TooltipProvider>
                 <SkipLink />

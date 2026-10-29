@@ -7,6 +7,8 @@ import Providers from "./providers";
 import GTMProvider from "@/components/gtm-provider";
 import GTMPageView from "@/components/gtm-pageview";
 import { getContentAvailability } from "@/lib/content-availability";
+import { getProfile } from "@/lib/profile-data";
+import { createDefaultProfile } from "@/lib/profile-utils";
 import { DEFAULT_CONTENT_AVAILABILITY } from "@/types/content-availability";
 
 const inter = Inter({
@@ -106,10 +108,23 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   let initialAvailability = DEFAULT_CONTENT_AVAILABILITY;
-  try {
-    initialAvailability = await getContentAvailability();
-  } catch (error) {
-    console.error("[layout] Failed to load content availability; using defaults.", error);
+  let initialProfile = createDefaultProfile();
+
+  const [availabilityResult, profileResult] = await Promise.allSettled([
+    getContentAvailability(),
+    getProfile(),
+  ]);
+
+  if (availabilityResult.status === "fulfilled") {
+    initialAvailability = availabilityResult.value;
+  } else {
+    console.error("[layout] Failed to load content availability; using defaults.", availabilityResult.reason);
+  }
+
+  if (profileResult.status === "fulfilled") {
+    initialProfile = profileResult.value;
+  } else {
+    console.error("[layout] Failed to load profile; using default profile data.", profileResult.reason);
   }
 
   return (
@@ -146,7 +161,7 @@ export default async function RootLayout({
         className="bg-surface text-on-surface antialiased selection:bg-primary/20 selection:text-primary min-h-screen transition-colors duration-200"
         suppressHydrationWarning
       >
-        <Providers initialAvailability={initialAvailability}>
+        <Providers initialAvailability={initialAvailability} initialProfile={initialProfile}>
           <Suspense fallback={null}>
             <GTMPageView />
           </Suspense>

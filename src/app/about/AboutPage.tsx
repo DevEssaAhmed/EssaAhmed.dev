@@ -6,11 +6,12 @@ import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { useProfile } from "@/contexts/ProfileContext";
+import type { Profile } from "@/lib/profile-utils";
 import { useContentAvailability } from "@/contexts/ContentAvailabilityContext";
 
-export default function AboutPage({ initialProfile }: { initialProfile?: any } = {}) {
+export default function AboutPage({ initialProfile }: { initialProfile?: Profile | null } = {}) {
   const { profile: contextProfile } = useProfile();
-  const profile = contextProfile || initialProfile;
+  const profile = contextProfile ?? initialProfile;
   const { hasProjects } = useContentAvailability();
   const [copied, setCopied] = useState(false);
 
