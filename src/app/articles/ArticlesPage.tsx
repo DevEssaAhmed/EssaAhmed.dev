@@ -1,4 +1,5 @@
 "use client";
+import { Search, ArrowUpRight } from "lucide-react";
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
@@ -90,9 +91,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
             <div className="mt-8 space-y-4">
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div className="relative w-full md:w-96">
-                  <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">
-                    search
-                  </span>
+                  <Search aria-hidden="true" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px] h-[18px] w-[18px]" />
                   <input
                     type="text"
                     aria-label="Search articles"
@@ -217,9 +216,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                         <div className="flex items-center justify-between pt-6 mt-4 border-t border-outline-variant/20 text-on-surface-variant text-label-sm font-code">
                           <span>{formattedDate}</span>
                           {isExternal ? (
-                            <span className="material-symbols-outlined text-on-surface text-[16px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
-                              north_east
-                            </span>
+                            <ArrowUpRight aria-hidden="true" className="text-on-surface text-[16px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform h-4 w-4" />
                           ) : (
                             <span className="text-primary font-label-sm font-medium flex items-center gap-1 group-hover:underline">
                               Read Article →
