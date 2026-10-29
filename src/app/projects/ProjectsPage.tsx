@@ -1,4 +1,5 @@
 "use client";
+import { Search, Video, ArrowRight, ArrowUpRight, Code2, ExternalLink } from "lucide-react";
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
@@ -92,9 +93,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between w-full pt-2 pb-6 border-b border-outline-variant/20">
             {/* Search Input */}
             <div className="relative w-full md:w-96">
-              <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">
-                search
-              </span>
+              <Search aria-hidden="true" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px] h-[18px] w-[18px]" />
               <input
                 type="text"
                 aria-label="Search projects"
@@ -241,9 +240,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                         )}
                         {flagshipProject.demoVideoUrl && (
                           <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-code inline-flex items-center gap-1.5 font-medium">
-                            <span className="material-symbols-outlined text-[14px]">
-                              smart_display
-                            </span>
+                            <Video aria-hidden="true" className="text-[14px] h-3.5 w-3.5" />
                             <span>Video Walkthrough</span>
                           </span>
                         )}
@@ -282,9 +279,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                           className="px-5 py-2.5 rounded-full bg-on-surface text-surface text-xs font-semibold hover:opacity-90 transition-all inline-flex items-center gap-2"
                         >
                           <span>Read Case Study</span>
-                          <span className="material-symbols-outlined text-[16px]">
-                            arrow_forward
-                          </span>
+                          <ArrowRight aria-hidden="true" className="text-[16px] h-4 w-4" />
                         </Link>
                         {flagshipProject.demoUrl && (
                           <a
@@ -294,9 +289,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                             className="px-4 py-2.5 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface text-xs font-medium hover:bg-surface-container-high transition-all inline-flex items-center gap-1.5"
                           >
                             <span>Live Demo</span>
-                            <span className="material-symbols-outlined text-[15px]">
-                              north_east
-                            </span>
+                            <ArrowUpRight aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />
                           </a>
                         )}
                         {flagshipProject.githubUrl && (
@@ -307,9 +300,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                             className="px-4 py-2.5 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface text-xs font-medium hover:bg-surface-container-high transition-all inline-flex items-center gap-1.5"
                           >
                             <span>Source Code</span>
-                            <span className="material-symbols-outlined text-[15px]">
-                              code
-                            </span>
+                            <Code2 aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />
                           </a>
                         )}
                       </div>
@@ -367,9 +358,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                             </span>
                             {project.demoVideoUrl && (
                               <span className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-[10px] font-code inline-flex items-center gap-1 font-medium">
-                                <span className="material-symbols-outlined text-[12px]">
-                                  smart_display
-                                </span>
+                                <Video aria-hidden="true" className="text-[12px] h-3 w-3" />
                                 <span>Video Demo</span>
                               </span>
                             )}
@@ -383,9 +372,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                                 className="text-xs text-on-surface-variant hover:text-on-surface"
                                 title="Live Demo"
                               >
-                                <span className="material-symbols-outlined text-[16px]">
-                                  open_in_new
-                                </span>
+                                <ExternalLink aria-hidden="true" className="text-[16px] h-4 w-4" />
                               </a>
                             )}
                             {project.githubUrl && (
@@ -396,9 +383,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                                 className="text-xs text-on-surface-variant hover:text-on-surface"
                                 title="GitHub Repository"
                               >
-                                <span className="material-symbols-outlined text-[16px]">
-                                  code
-                                </span>
+                                <Code2 aria-hidden="true" className="text-[16px] h-4 w-4" />
                               </a>
                             )}
                           </div>
@@ -431,9 +416,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                           className="text-xs font-semibold text-primary hover:underline shrink-0 flex items-center gap-1"
                         >
                           <span>View Case Study</span>
-                          <span className="material-symbols-outlined text-[15px]">
-                            arrow_forward
-                          </span>
+                          <ArrowRight aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />
                         </Link>
                       </div>
                     </div>
