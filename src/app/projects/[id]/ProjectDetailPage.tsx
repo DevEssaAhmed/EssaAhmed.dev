@@ -1,4 +1,5 @@
 "use client";
+import { Folder, ArrowLeft, Pencil, Video, ExternalLink, Code2, Share2, Image, FileText } from "lucide-react";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
@@ -239,9 +240,7 @@ const ProjectDetailPage = ({
         <Navigation />
         <main id="main-content" tabIndex={-1} className="max-w-md w-full mx-auto px-6 py-24 text-center">
           <div className="rounded-3xl bg-surface-container-low border border-outline-variant/30 p-8 shadow-xl space-y-4">
-            <span className="material-symbols-outlined text-4xl text-primary">
-              folder_off
-            </span>
+            <Folder aria-hidden="true" className="text-4xl text-primary h-9 w-9" />
             <h1 className="text-2xl font-display font-bold text-on-surface">
               Project Not Found
             </h1>
@@ -252,9 +251,7 @@ const ProjectDetailPage = ({
               href="/projects"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-on-surface text-surface text-xs font-semibold hover:opacity-90 transition-all"
             >
-              <span className="material-symbols-outlined text-[16px]">
-                arrow_back
-              </span>
+              <ArrowLeft aria-hidden="true" className="text-[16px] h-4 w-4" />
               <span>Back to Projects</span>
             </Link>
           </div>
@@ -281,9 +278,7 @@ const ProjectDetailPage = ({
             href="/projects"
             className="inline-flex items-center gap-2 text-xs font-code text-on-surface-variant hover:text-primary transition-colors group"
           >
-            <span className="material-symbols-outlined text-[16px] group-hover:-translate-x-0.5 transition-transform">
-              arrow_back
-            </span>
+            <ArrowLeft aria-hidden="true" className="text-[16px] group-hover:-translate-x-0.5 transition-transform h-4 w-4" />
             <span>Back to Projects</span>
           </Link>
 
@@ -292,7 +287,7 @@ const ProjectDetailPage = ({
               href={`/admin/project/edit/${project.id}`}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary/15 border border-primary/30 text-xs font-code text-primary hover:bg-primary/25 transition-colors"
             >
-              <span className="material-symbols-outlined text-[14px]">edit</span>
+              <Pencil aria-hidden="true" className="text-[14px] h-3.5 w-3.5" />
               <span>Edit Project in CMS</span>
             </Link>
           )}
@@ -356,9 +351,7 @@ const ProjectDetailPage = ({
                     : "bg-surface-container border-outline-variant/30 text-on-surface hover:text-primary hover:border-primary/40"
                 }`}
               >
-                <span className="material-symbols-outlined text-[16px]">
-                  smart_display
-                </span>
+                <Video aria-hidden="true" className="text-[16px] h-4 w-4" />
                 <span>Video Walkthrough</span>
               </button>
             )}
@@ -371,9 +364,7 @@ const ProjectDetailPage = ({
                 className="px-5 py-2.5 rounded-full bg-on-surface text-surface text-xs font-semibold hover:opacity-90 transition-all inline-flex items-center gap-2"
               >
                 <span>Live Demo / Dashboard</span>
-                <span className="material-symbols-outlined text-[16px]">
-                  open_in_new
-                </span>
+                <ExternalLink aria-hidden="true" className="text-[16px] h-4 w-4" />
               </a>
             )}
             {project.github_url && (
@@ -383,7 +374,7 @@ const ProjectDetailPage = ({
                 rel="noopener noreferrer"
                 className="px-4 py-2.5 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface text-xs font-medium hover:bg-surface-container-high transition-all inline-flex items-center gap-1.5"
               >
-                <span className="material-symbols-outlined text-[16px]">code</span>
+                <Code2 aria-hidden="true" className="text-[16px] h-4 w-4" />
                 <span>Source Code</span>
               </a>
             )}
@@ -392,7 +383,7 @@ const ProjectDetailPage = ({
               onClick={handleShare}
               className="px-4 py-2.5 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all inline-flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[16px]">share</span>
+              <Share2 aria-hidden="true" className="text-[16px] h-4 w-4" />
               <span>Share</span>
             </button>
           </div>
@@ -414,9 +405,7 @@ const ProjectDetailPage = ({
                         : "text-on-surface-variant hover:text-on-surface"
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[15px]">
-                      smart_display
-                    </span>
+                    <Video aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />
                     <span>Video Walkthrough</span>
                   </button>
                   <button
@@ -428,9 +417,7 @@ const ProjectDetailPage = ({
                         : "text-on-surface-variant hover:text-on-surface"
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[15px]">
-                      image
-                    </span>
+                    <Image aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />
                     <span>
                       Screenshots &amp; Architecture
                       {uniqueImages.length > 0 ? ` (${uniqueImages.length})` : ""}
@@ -446,9 +433,7 @@ const ProjectDetailPage = ({
                     className="text-xs font-code text-on-surface-variant hover:text-primary transition-colors inline-flex items-center gap-1"
                   >
                     <span>Open on YouTube</span>
-                    <span className="material-symbols-outlined text-[14px]">
-                      open_in_new
-                    </span>
+                    <ExternalLink aria-hidden="true" className="text-[14px] h-3.5 w-3.5" />
                   </a>
                 )}
               </div>
@@ -529,9 +514,7 @@ const ProjectDetailPage = ({
         {/* Case Study & Technical Analysis Body (Always rendered) */}
         <article className="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 sm:p-10 shadow-xl">
           <div className="flex items-center gap-2 mb-6 pb-4 border-b border-outline-variant/20">
-            <span className="material-symbols-outlined text-primary text-xl">
-              description
-            </span>
+            <FileText aria-hidden="true" className="text-primary text-xl h-5 w-5" />
             <h2 className="text-xs font-code uppercase tracking-wider text-on-surface-variant font-semibold">
               Case Study &amp; Technical Analysis
             </h2>
