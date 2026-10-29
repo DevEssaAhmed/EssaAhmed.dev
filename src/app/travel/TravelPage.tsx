@@ -1,4 +1,5 @@
 "use client";
+import { Play, Pause, Maximize2, ChevronLeft, ChevronRight, ExternalLink, X } from "lucide-react";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -402,9 +403,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                   onClick={() => setIsPaused((p) => !p)}
                   className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-code font-code text-xs text-secondary hover:bg-surface-container-high transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[14px]">
-                    {isPaused ? "play_arrow" : "pause"}
-                  </span>
+                  {isPaused ? <Play aria-hidden="true" className="text-[14px] h-3.5 w-3.5" /> : <Pause aria-hidden="true" className="text-[14px] h-3.5 w-3.5" />}
                   <span>
                     {isPaused ? "Paused" : "Playing"} Story{" "}
                     {String(activeSlideIndex + 1).padStart(2, "0")} /{" "}
@@ -416,7 +415,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                   onClick={() => setStoryModalOpen(true)}
                   className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-code font-code text-xs text-on-surface hover:bg-surface-container-high transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[14px]">fullscreen</span>
+                  <Maximize2 aria-hidden="true" className="text-[14px] h-3.5 w-3.5" />
                   <span>Fullscreen</span>
                 </button>
               </div>
@@ -497,9 +496,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                           onClick={() => setIsPaused((p) => !p)}
                           className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white"
                         >
-                          <span className="material-symbols-outlined text-[16px]">
-                            {isPaused ? "play_arrow" : "pause"}
-                          </span>
+                          {isPaused ? <Play aria-hidden="true" className="text-[16px] h-4 w-4" /> : <Pause aria-hidden="true" className="text-[16px] h-4 w-4" />}
                         </button>
                         <button
                           type="button"
@@ -507,9 +504,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                           onClick={() => setStoryModalOpen(true)}
                           className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white"
                         >
-                          <span className="material-symbols-outlined text-[16px]">
-                            open_in_full
-                          </span>
+                          <Maximize2 aria-hidden="true" className="text-[16px] h-4 w-4" />
                         </button>
                       </div>
                     </div>
@@ -523,7 +518,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                       aria-label="Previous slide"
                       className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity"
                     >
-                      <span className="material-symbols-outlined text-sm">chevron_left</span>
+                      <ChevronLeft aria-hidden="true" className="text-sm h-3.5 w-3.5" />
                     </button>
                     <button
                       type="button"
@@ -531,7 +526,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                       aria-label="Next slide"
                       className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity"
                     >
-                      <span className="material-symbols-outlined text-sm">chevron_right</span>
+                      <ChevronRight aria-hidden="true" className="text-sm h-3.5 w-3.5" />
                     </button>
                   </div>
 
@@ -558,9 +553,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                           target="_blank"
                         >
                           <span>Instagram</span>
-                          <span className="material-symbols-outlined text-[13px]">
-                            open_in_new
-                          </span>
+                          <ExternalLink aria-hidden="true" className="text-[13px] h-[13px] w-[13px]" />
                         </a>
                       )}
                     </div>
@@ -770,7 +763,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                   onClick={() => setStoryModalOpen(false)}
                   className="w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70"
                 >
-                  <span className="material-symbols-outlined text-[18px]">close</span>
+                  <X aria-hidden="true" className="text-[18px] h-[18px] w-[18px]" />
                 </button>
               </div>
             </div>
@@ -781,14 +774,14 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                 onClick={handlePrevSlide}
                 className="w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center"
               >
-                <span className="material-symbols-outlined">chevron_left</span>
+                <ChevronLeft aria-hidden="true" className="h-4 w-4" />
               </button>
               <button
                 type="button"
                 onClick={handleNextSlide}
                 className="w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center"
               >
-                <span className="material-symbols-outlined">chevron_right</span>
+                <ChevronRight aria-hidden="true" className="h-4 w-4" />
               </button>
             </div>
 
