@@ -4,6 +4,7 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
+import { findTagByCanonicalSlug } from "@/lib/tag-routing";
 
 export const revalidate = 120;
 
@@ -11,19 +12,14 @@ type Props = {
   params: Promise<{ tagSlug: string }>;
 };
 
-const getTagByName = cache(async (decodedTag: string) => {
+const getTagBySlug = cache(async (slug: string) => {
   const supabase = getSupabaseServer();
-  return supabase
-    .from("tags")
-    .select("id, name")
-    .eq("name", decodedTag)
-    .maybeSingle();
+  return findTagByCanonicalSlug(supabase, slug);
 });
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
-  const decodedTag = decodeURIComponent(resolvedParams.tagSlug.replace(/-/g, " "));
-  const { data: tagData } = await getTagByName(decodedTag);
+  const { data: tagData } = await getTagBySlug(resolvedParams.tagSlug);
 
   if (!tagData) {
     return buildPageMetadata({
@@ -36,14 +32,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return buildPageMetadata({
     title: `#${tagData.name}`,
     description: `Explore all articles and projects tagged with #${tagData.name}.`,
-    path: `/articles/tags/${resolvedParams.tagSlug}`,
+    path: `/articles/tags/${tagData.slug}`,
   });
 }
 
 export default async function Page({ params }: Props) {
   const resolvedParams = await params;
-  const decodedTag = decodeURIComponent(resolvedParams.tagSlug.replace(/-/g, " "));
-  const { data: tagData } = await getTagByName(decodedTag);
+  const { data: tagData } = await getTagBySlug(resolvedParams.tagSlug);
 
   if (!tagData) {
     notFound();
@@ -77,7 +72,7 @@ export default async function Page({ params }: Props) {
 
   return (
     <TagDetailPage
-      initialTagName={decodedTag}
+      initialTagName={tagData.name}
       initialBlogPosts={blogPosts}
       initialRelatedTags={relatedTags}
     />

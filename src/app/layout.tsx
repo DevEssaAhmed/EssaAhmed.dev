@@ -6,6 +6,8 @@ import "../index.css";
 import Providers from "./providers";
 import GTMProvider from "@/components/gtm-provider";
 import GTMPageView from "@/components/gtm-pageview";
+import { getContentAvailability } from "@/lib/content-availability";
+import { DEFAULT_CONTENT_AVAILABILITY } from "@/types/content-availability";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -98,11 +100,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  let initialAvailability = DEFAULT_CONTENT_AVAILABILITY;
+  try {
+    initialAvailability = await getContentAvailability();
+  } catch (error) {
+    console.error("[layout] Failed to load content availability; using defaults.", error);
+  }
+
   return (
     <html
       lang="en"
@@ -137,7 +146,7 @@ export default function RootLayout({
         className="bg-surface text-on-surface antialiased selection:bg-primary/20 selection:text-primary min-h-screen transition-colors duration-200"
         suppressHydrationWarning
       >
-        <Providers>
+        <Providers initialAvailability={initialAvailability}>
           <Suspense fallback={null}>
             <GTMPageView />
           </Suspense>

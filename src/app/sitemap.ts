@@ -1,6 +1,7 @@
 import { getSupabaseServer } from "@/lib/supabase-server";
 import type { MetadataRoute } from "next";
-import { isPublicTravelHighlight } from "@/data/travelVisibility";
+import { getContentAvailability } from "@/lib/content-availability";
+import { DEFAULT_CONTENT_AVAILABILITY } from "@/types/content-availability";
 
 const SITE_URL = "https://essaahmed.dev";
 
@@ -63,7 +64,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { data: categoriesData },
     { data: seriesData },
     { data: tagsData },
-    { data: travelData },
   ] = await Promise.all([
     supabase
       .from("blog_posts")
@@ -78,10 +78,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     supabase.from("categories").select("id, slug"),
     supabase.from("series").select("id, slug"),
     supabase.from("tags").select("id, name, slug"),
-    supabase
-      .from("travel_highlights")
-      .select("city_name,country_name,lat,lng,cover_image_url,story_slides,is_published")
-      .eq("is_published", true),
   ]);
 
   const articles = articlesData || [];
@@ -137,19 +133,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
   const tagPages: MetadataRoute.Sitemap = (tagsData || [])
-    .filter((tag: any) => Boolean(tag?.name))
-    .map((tag: any) => {
-      const tagSlug = encodeURIComponent(tag.name.toLowerCase().replace(/\s+/g, "-"));
-      return {
-        url: SITE_URL + "/articles/tags/" + tagSlug,
-        changeFrequency: "weekly" as const,
-        priority: 0.6,
-      };
-    });
+    .filter((tag: any) => Boolean(tag?.slug))
+    .map((tag: any) => ({
+      url: SITE_URL + "/articles/tags/" + encodeURIComponent(tag.slug),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }));
 
-  const travelPages: MetadataRoute.Sitemap = (travelData || []).some(
-    isPublicTravelHighlight
-  )
+  const availability = await getContentAvailability().catch((error) => {
+    console.error("[sitemap] Failed to load content availability", error);
+    return DEFAULT_CONTENT_AVAILABILITY;
+  });
+
+  const travelPages: MetadataRoute.Sitemap = availability.hasTravel
     ? [
         {
           url: SITE_URL + "/travel",

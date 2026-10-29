@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tag, Search, TrendingUp, Hash, BookOpen, Flame } from "lucide-react";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import ArticlesSubNav from "@/components/ArticlesSubNav";
+import { tagHref } from "@/lib/tag-routing";
 
 interface TagInfo {
   name: string;
@@ -102,7 +103,7 @@ const TagsPage = ({ initialTags = [] }: TagsPageProps) => {
           {displayTags.length > 0 ? (
             <div className="flex flex-wrap gap-3 justify-center animate-fade-up" style={{ animationDelay: "200ms" }}>
               {displayTags.map((tag) => (
-                <Link key={tag.slug} href={`/articles/tags/${tag.slug}`}>
+                <Link key={tag.slug} href={tagHref(tag.slug)}>
                   <div className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-surface-container text-foreground hover:border-primary/40 hover:bg-surface-container-high transition-all duration-300 cursor-pointer hover:-translate-y-0.5">
                     <Hash className="w-3 h-3 text-primary/70 shrink-0" />
                     <span className={`text-foreground group-hover:text-primary transition-colors ${getTagSize(tag.count, maxCount)}`}>

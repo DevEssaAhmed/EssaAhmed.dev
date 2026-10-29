@@ -14,7 +14,7 @@ export default async function Page() {
   const supabase = getSupabaseServer();
   const { data } = await supabase
     .from("tags")
-    .select("name, blog_post_tags(blog_posts(published, unlisted))");
+    .select("name, slug, blog_post_tags(blog_posts(published, unlisted))");
 
   const tagInfoArray = (data || [])
     .map((tag: any) => {
@@ -25,13 +25,13 @@ export default async function Page() {
 
       return {
         name: tag.name,
-        slug: tag.name.toLowerCase().replace(/\s+/g, "-"),
+        slug: tag.slug,
         count: articleCount,
         articleCount,
         trending: articleCount >= 3,
       };
     })
-    .filter((tag: any) => tag.articleCount > 0)
+    .filter((tag: any) => tag.articleCount > 0 && Boolean(tag.slug))
     .sort((a: any, b: any) => b.count - a.count);
 
   return <TagsPage initialTags={tagInfoArray} />;
