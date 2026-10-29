@@ -1,4 +1,5 @@
 "use client";
+import { Plus, Minus, Globe } from "lucide-react";
 
 import React, { useEffect, useRef, useState } from "react";
 import type { TravelCityHighlight } from "@/data/travelData";
@@ -396,7 +397,7 @@ function InteractiveTravelMapComponent({
           aria-label="Zoom in map"
           title="Zoom In"
         >
-          <span className="material-symbols-outlined text-[18px]">add</span>
+          <Plus aria-hidden="true" className="text-[18px] h-[18px] w-[18px]" />
         </button>
         <button
           type="button"
@@ -405,7 +406,7 @@ function InteractiveTravelMapComponent({
           aria-label="Zoom out map"
           title="Zoom Out"
         >
-          <span className="material-symbols-outlined text-[18px]">remove</span>
+          <Minus aria-hidden="true" className="text-[18px] h-[18px] w-[18px]" />
         </button>
         <button
           type="button"
@@ -414,7 +415,7 @@ function InteractiveTravelMapComponent({
           aria-label="Fit all visited cities"
           title="Fit All Visited Cities"
         >
-          <span className="material-symbols-outlined text-[18px]">public</span>
+          <Globe aria-hidden="true" className="text-[18px] h-[18px] w-[18px]" />
         </button>
       </div>
 
