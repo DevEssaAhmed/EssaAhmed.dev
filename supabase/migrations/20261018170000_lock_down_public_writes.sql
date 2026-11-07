@@ -1,14 +1,20 @@
 -- Restrict portfolio content and storage mutations to trusted administrators.
+-- Any authenticated user in the Supabase project has full admin management access.
 -- Public content reads remain governed by each table's SELECT policy.
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+ALTER TABLE public.travel_highlights
+  ALTER COLUMN id SET DEFAULT gen_random_uuid()::text;
 
 CREATE OR REPLACE FUNCTION public.is_portfolio_admin()
 RETURNS boolean
 LANGUAGE sql
 STABLE
-SECURITY INVOKER
+SECURITY DEFINER
 SET search_path = ''
 AS $$
-  SELECT coalesce((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', false);
+  SELECT (select auth.uid()) IS NOT NULL;
 $$;
 
 REVOKE ALL ON FUNCTION public.is_portfolio_admin() FROM PUBLIC, anon;
@@ -57,6 +63,7 @@ ALTER FUNCTION public.update_series_article_count() SET search_path = '';
 ALTER FUNCTION public.update_updated_at_column() SET search_path = '';
 ALTER FUNCTION public.set_diary_entries_updated_at() SET search_path = '';
 ALTER FUNCTION public.get_related_tags(text) SET search_path = '';
+ALTER FUNCTION public.is_active_admin() SET search_path = '';
 
 REVOKE ALL ON FUNCTION public.auto_generate_tag_slug() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.update_category_article_count() FROM PUBLIC, anon, authenticated;
@@ -64,6 +71,7 @@ REVOKE ALL ON FUNCTION public.update_series_article_count() FROM PUBLIC, anon, a
 REVOKE ALL ON FUNCTION public.update_updated_at_column() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.set_diary_entries_updated_at() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.get_related_tags(text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.is_active_admin() FROM PUBLIC, anon;
 
 DO $$
 DECLARE
@@ -131,11 +139,20 @@ $$;
 -- Public article access must stop at published rows. Admins still see drafts
 -- through the administrator policy created above.
 DROP POLICY IF EXISTS "Blog posts are publicly readable" ON public.blog_posts;
+DROP POLICY IF EXISTS "Published blog posts are publicly readable" ON public.blog_posts;
 CREATE POLICY "Published blog posts are publicly readable"
   ON public.blog_posts
   FOR SELECT
   TO public
   USING (published = true);
+
+-- Public travel highlights access must stop at published rows.
+DROP POLICY IF EXISTS "Public can view published travel highlights" ON public.travel_highlights;
+CREATE POLICY "Public can view published travel highlights"
+  ON public.travel_highlights
+  FOR SELECT
+  TO public
+  USING (is_published = true);
 
 -- Make the profile view obey the caller's privileges and the profile table's
 -- RLS policies instead of using its owner's permissions.
@@ -266,6 +283,7 @@ CREATE POLICY "Public can read portfolio files"
   TO public
   USING (bucket_id = 'files');
 
+DROP POLICY IF EXISTS "Portfolio admins can manage portfolio uploads" ON storage.objects;
 CREATE POLICY "Portfolio admins can manage portfolio uploads"
   ON storage.objects
   FOR ALL

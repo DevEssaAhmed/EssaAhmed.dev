@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import "../index.css";
 import Providers from "./providers";
 import GTMProvider from "@/components/gtm-provider";
 import GTMPageView from "@/components/gtm-pageview";
-import { getContentAvailability } from "@/lib/content-availability";
-import { getProfile } from "@/lib/profile-data";
-import { createDefaultProfile } from "@/lib/profile-utils";
-import { DEFAULT_CONTENT_AVAILABILITY } from "@/types/content-availability";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -101,31 +98,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+const supabaseOrigin = (() => {
+  try {
+    return process.env.NEXT_PUBLIC_SUPABASE_URL
+      ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
+      : null;
+  } catch {
+    return null;
+  }
+})();
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  let initialAvailability = DEFAULT_CONTENT_AVAILABILITY;
-  let initialProfile = createDefaultProfile();
-
-  const [availabilityResult, profileResult] = await Promise.allSettled([
-    getContentAvailability(),
-    getProfile(),
-  ]);
-
-  if (availabilityResult.status === "fulfilled") {
-    initialAvailability = availabilityResult.value;
-  } else {
-    console.error("[layout] Failed to load content availability; using defaults.", availabilityResult.reason);
-  }
-
-  if (profileResult.status === "fulfilled") {
-    initialProfile = profileResult.value;
-  } else {
-    console.error("[layout] Failed to load profile; using default profile data.", profileResult.reason);
-  }
-
   return (
     <html
       lang="en"
@@ -133,12 +120,11 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script
-          id="theme-initializer"
-          dangerouslySetInnerHTML={{
-            __html: `(()=>{const root=document.documentElement;let theme="dark";try{const saved=localStorage.getItem("theme");if(saved==="light"||saved==="dark")theme=saved;}catch{}root.classList.remove("light","dark");root.classList.add(theme);root.style.colorScheme=theme;})()`,
-          }}
-        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <Script id="theme-initializer" strategy="beforeInteractive">
+          {`(()=>{try{const saved=localStorage.getItem('theme');const theme=saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const root=document.documentElement;root.classList.remove('light','dark');root.classList.add(theme);root.style.colorScheme=theme}catch{const theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(theme)}})()`}
+        </Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -151,17 +137,19 @@ export default async function RootLayout({
             __html: JSON.stringify(personJsonLd).replace(/</g, "\\u003c"),
           }}
         />
-        <link
-          rel="preconnect"
-          href="https://kexmzaaufxbzegurxuqz.supabase.co"
-          crossOrigin="anonymous"
-        />
+        {supabaseOrigin ? (
+          <link
+            rel="preconnect"
+            href={supabaseOrigin}
+            crossOrigin="anonymous"
+          />
+        ) : null}
       </head>
       <body
         className="bg-surface text-on-surface antialiased selection:bg-primary/20 selection:text-primary min-h-screen transition-colors duration-200"
         suppressHydrationWarning
       >
-        <Providers initialAvailability={initialAvailability} initialProfile={initialProfile}>
+        <Providers>
           <Suspense fallback={null}>
             <GTMPageView />
           </Suspense>

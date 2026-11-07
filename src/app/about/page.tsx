@@ -1,6 +1,5 @@
 import AboutPage from "./AboutPage";
-import { getProfile } from "@/lib/profile-data";
-import { createDefaultProfile } from "@/lib/profile-utils";
+import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
 
 export const revalidate = 120;
@@ -12,13 +11,15 @@ export const metadata = buildPageMetadata({
 });
 
 export default async function Page() {
-  let person = createDefaultProfile();
-  try {
-    // Shares the same cached server profile snapshot as RootLayout.
-    person = await getProfile();
-  } catch (error) {
-    console.error("[about] Failed to load profile; using defaults.", error);
-  }
+  const supabase = getSupabaseServer();
+  const { data } = await supabase
+    .from("profile")
+    .select("*")
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  const person: any = data || {};
   const sameAs = Array.from(
     new Set(
       [
@@ -65,7 +66,7 @@ export default async function Page() {
           __html: JSON.stringify(profileJsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <AboutPage initialProfile={person} />
+      <AboutPage initialProfile={data || undefined} />
     </>
   );
 }

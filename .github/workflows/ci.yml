@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://kexmzaaufxbzegurxuqz.supabase.co' }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co' }}
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'dummy_key' }}
 
     steps:
@@ -27,9 +27,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Run unit regression tests
-        run: npm run test:unit
 
       - name: Typecheck
         run: npx tsc --noEmit

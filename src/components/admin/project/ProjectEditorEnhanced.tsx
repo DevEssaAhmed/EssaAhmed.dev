@@ -53,10 +53,18 @@ import {
   AlignLeft,
 } from 'lucide-react';
 
-import BlockNoteEditorComponent, {
-  BlockNoteContent,
+import dynamic from 'next/dynamic';
+import { OptimizedImage } from '@/components/OptimizedImage';
+import {
+  type BlockNoteContent,
   markdownToBlocks,
+  blocksToMarkdown,
 } from '@/components/editor/BlockNoteEditor';
+
+const BlockNoteEditorComponent = dynamic(
+  () => import('@/components/editor/BlockNoteEditor'),
+  { ssr: false }
+);
 import { BlockNoteEditor } from '@blocknote/core';
 import { PerformanceSkeleton } from '@/components/ui/performance-skeleton';
 import FileUpload from '@/components/FileUpload';
@@ -529,9 +537,11 @@ const ProjectEditorEnhanced: React.FC = () => {
         {/* Cover Banner */}
         {formData.image_url ? (
           <div className="relative group w-full rounded-2xl overflow-hidden aspect-[21/8] max-h-64 mb-6 border border-zinc-200 bg-white shadow-2xs">
-            <img
+            <OptimizedImage
               src={formData.image_url}
               alt="Project Cover"
+              width={1200}
+              height={450}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
@@ -851,9 +861,11 @@ const ProjectEditorEnhanced: React.FC = () => {
                         key={idx}
                         className="relative group rounded-lg overflow-hidden border border-zinc-200 aspect-video bg-zinc-100"
                       >
-                        <img
+                        <OptimizedImage
                           src={imgUrl}
                           alt={`Gallery ${idx + 1}`}
+                          width={400}
+                          height={225}
                           className="w-full h-full object-cover"
                         />
                         <button

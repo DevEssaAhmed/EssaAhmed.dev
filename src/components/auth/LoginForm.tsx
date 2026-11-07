@@ -51,18 +51,18 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
+    <div className="min-h-screen bg-surface text-on-surface flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Card className="bg-card/50 backdrop-blur-md border-primary/20 shadow-glow">
+        <Card className="bg-surface-container-low border border-outline-variant/30 rounded-3xl shadow-2xl">
           <CardHeader className="text-center space-y-4">
-            <div className="w-16 h-16 mx-auto bg-gradient-primary rounded-2xl flex items-center justify-center shadow-soft">
-              <Lock className="w-8 h-8 text-[#090c13]" />
+            <div className="w-16 h-16 mx-auto bg-primary/10 border border-primary/25 rounded-2xl flex items-center justify-center text-primary">
+              <Lock className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-2xl bg-gradient-primary bg-clip-text text-transparent">
+              <CardTitle className="text-2xl font-display font-bold text-on-surface tracking-tight">
                 Admin Login
               </CardTitle>
-              <CardDescription className="text-muted-foreground mt-2">
+              <CardDescription className="text-on-surface-variant mt-2">
                 Enter your credentials to access the admin dashboard
               </CardDescription>
             </div>
@@ -77,18 +77,18 @@ const LoginForm = () => {
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
+                <Label htmlFor="email" className="text-sm font-medium text-on-surface">
                   Email Address
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-3.5 h-5 w-5 text-on-surface-variant" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-12 bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-primary/20"
+                    className="pl-10 h-12 bg-surface-container border-outline-variant/40 text-on-surface placeholder:text-outline focus-visible:border-primary focus-visible:ring-primary/20 rounded-xl"
                     required
                     disabled={isLoading}
                   />
@@ -96,18 +96,18 @@ const LoginForm = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">
+                <Label htmlFor="password" className="text-sm font-medium text-on-surface">
                   Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3.5 h-5 w-5 text-on-surface-variant" />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 h-12 bg-background/50 border-primary/20 focus:border-primary/50 focus:ring-primary/20"
+                    className="pl-10 pr-10 h-12 bg-surface-container border-outline-variant/40 text-on-surface placeholder:text-outline focus-visible:border-primary focus-visible:ring-primary/20 rounded-xl"
                     required
                     disabled={isLoading}
                   />
@@ -115,14 +115,15 @@ const LoginForm = () => {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-2 top-2 h-8 w-8 p-0 hover:bg-transparent"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-1 top-1 h-10 w-10 p-0 hover:bg-transparent text-on-surface-variant hover:text-on-surface"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="h-4 w-4" />
                     )}
                   </Button>
                 </div>
@@ -130,12 +131,12 @@ const LoginForm = () => {
               
               <Button
                 type="submit"
-                className="w-full h-12 bg-gradient-primary hover:shadow-glow transition-all duration-300 text-[#090c13] font-medium"
+                className="w-full h-12 bg-on-surface text-surface hover:opacity-90 rounded-full font-semibold transition-all duration-200"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-surface/20 border-t-surface rounded-full animate-spin" />
                     Signing in...
                   </div>
                 ) : (
@@ -148,7 +149,7 @@ const LoginForm = () => {
             </form>
             
             <div className="mt-6 text-center">
-              <Button asChild variant="ghost" className="text-muted-foreground hover:text-primary">
+              <Button asChild variant="ghost" className="text-on-surface-variant hover:text-primary">
                 <Link href="/">
                   ← Back to Portfolio
                 </Link>

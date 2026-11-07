@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft, BookOpen, Folders } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import OptimizedFooter from "@/components/OptimizedFooter";
 import { motion } from "framer-motion";
 
 const NotFound = () => {
@@ -23,9 +24,9 @@ const NotFound = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-surface text-on-surface flex flex-col justify-between">
       <Navigation />
-      <div className="pt-20 min-h-screen flex items-center justify-center px-6">
+      <main id="main-content" tabIndex={-1} className="pt-16 pb-20 flex-1 flex items-center justify-center px-6">
         <div className="w-full max-w-lg text-center">
 
           {/* Animated 404 glyph */}
@@ -47,19 +48,19 @@ const NotFound = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
           >
-            <h1 className="text-2xl font-display font-bold text-foreground mb-3">Page Not Found</h1>
-            <p className="text-muted-foreground mb-3 leading-relaxed font-sans">
+            <h1 className="text-2xl font-display font-bold text-on-surface mb-3">Page Not Found</h1>
+            <p className="text-on-surface-variant mb-3 leading-relaxed font-sans">
               The page you&apos;re looking for doesn&apos;t exist or has been moved.
             </p>
-            <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-surface-container border border-border rounded-lg px-3 py-1.5 mb-8 font-mono">
-              <span className="text-muted-foreground">Path:</span>
+            <div className="inline-flex items-center gap-1.5 text-xs text-on-surface-variant bg-surface-container border border-outline-variant/30 rounded-lg px-3 py-1.5 mb-8 font-mono">
+              <span className="text-on-surface-variant">Path:</span>
               <code className="text-primary">{location.pathname}</code>
             </div>
           </motion.div>
 
           {/* Quick navigation cards */}
           <motion.div
-            className="grid grid-cols-3 gap-3 mb-6"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
@@ -68,14 +69,14 @@ const NotFound = () => {
               <Link
                 key={href}
                 href={href}
-                className="group flex flex-col items-center gap-2 p-4 rounded-2xl border border-border bg-surface-low hover:border-primary/40 hover:bg-surface-container transition-all duration-200 hover:-translate-y-0.5"
+                className="group flex flex-col items-center gap-2 p-4 rounded-2xl border border-outline-variant/30 bg-surface-container-low hover:border-primary/40 hover:bg-surface-container transition-all duration-200 hover:-translate-y-0.5"
               >
-                <div className="w-10 h-10 rounded-xl bg-surface-container border border-border flex items-center justify-center group-hover:border-primary/30 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-surface-container border border-outline-variant/30 flex items-center justify-center group-hover:border-primary/30 transition-colors">
                   <Icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <div className="text-sm font-display font-semibold text-foreground">{label}</div>
-                  <div className="text-xs text-muted-foreground font-sans">{description}</div>
+                  <div className="text-sm font-display font-semibold text-on-surface">{label}</div>
+                  <div className="text-xs text-on-surface-variant font-sans">{description}</div>
                 </div>
               </Link>
             ))}
@@ -90,7 +91,7 @@ const NotFound = () => {
               variant="ghost"
               size="sm"
               onClick={() => navigate(-1)}
-              className="text-muted-foreground hover:text-foreground gap-2 font-mono text-xs rounded-xl"
+              className="text-on-surface-variant hover:text-on-surface gap-2 font-mono text-xs rounded-xl"
             >
               <ArrowLeft className="w-4 h-4 text-primary" />
               Go back
@@ -98,7 +99,8 @@ const NotFound = () => {
           </motion.div>
 
         </div>
-      </div>
+      </main>
+      <OptimizedFooter />
     </div>
   );
 };

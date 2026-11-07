@@ -1,63 +1,64 @@
-# Supabase Admin Role Claims Setup
+# Supabase Admin Access & Role Setup
 
-This document explains how to grant trusted administrator claims for the portfolio admin area and protected Supabase tables (such as `public.travel_highlights`).
-
----
-
-## 1. Security Model: `app_metadata` vs `user_metadata`
-
-- **`app_metadata` (Server-Trusted)**:
-  Contains claims managed exclusively by the authentication server / administrator. Users cannot modify their own `app_metadata` via client SDK calls (`supabase.auth.updateUser()`). It is reflected in the JWT claims under `auth.jwt()->'app_metadata'` and is safe for authorization decisions.
-- **`user_metadata` (Client-Editable - DO NOT USE FOR AUTHZ)**:
-  Contains user profile data that can be updated by the authenticated user from the client at any time. Basing authorization or RLS on `user_metadata` is insecure.
-
-Both the database RLS policies (`public.is_portfolio_admin()`) and client route protection (`ProtectedRoute.tsx`) check `app_metadata.role === 'admin'`. The import API verifies the same claim against the authenticated Supabase user on the server.
+This document explains the authentication and access model for the portfolio admin area and protected Supabase tables (such as `public.travel_highlights`).
 
 ---
 
-## 2. Assigning the Admin Role
+## 1. Access Model
 
-Set the role claim through a trusted administrative channel:
+In this personal portfolio project, **any authenticated user** provisioned in your Supabase project has full access to the `/admin` dashboard, editor tools, and admin API routes (such as `/api/articles/import`).
 
-### Option A: Via Supabase SQL Editor
-Run the following statement targeting your administrator user:
+- **Client-side route protection (`ProtectedRoute.tsx`)**:
+  Requires an active authenticated Supabase session (`user !== null`). Unauthenticated visitors are presented with the login form.
+- **Context (`AuthContext.tsx`)**:
+  `isAdmin` is evaluated as `Boolean(user)`.
+- **API routes (`/api/articles/import`)**:
+  Verify the incoming Bearer token with `supabase.auth.getUser(token)`. Any valid session from a user in your Supabase Auth project is authorized.
+- **Database RLS Policies**:
+  RLS policies on content tables allow access to `authenticated` users, aligning permissions with the authenticated user session.
+
+You do **not** need to configure custom `raw_app_meta_data.role = "admin"` claims for standard admin operations. Simply add an admin user account in Supabase.
+
+---
+
+## 2. Adding an Admin User
+
+To grant someone access to the admin area:
+
+### Via Supabase Dashboard UI (Recommended)
+1. Open the [Supabase Dashboard](https://supabase.com/dashboard).
+2. Navigate to **Authentication** > **Users**.
+3. Click **Add User** -> **Create User**.
+4. Enter the user's email address and a strong password (or send an invite).
+5. Ensure **Auto Confirm User** is checked if you want immediate access without email verification.
+6. Once created, this user can immediately sign in at `/admin/login` and manage all portfolio content.
+
+### Via Supabase Admin API (Service Role)
+```typescript
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+await supabaseAdmin.auth.admin.createUser({
+  email: 'admin@example.com',
+  password: 'your-secure-password',
+  email_confirm: true,
+});
+```
+
+---
+
+## 3. (Optional) Custom Role Claims
+
+If you ever wish to re-introduce role-based distinctions (e.g. separating read-only editors from full admins):
+
+Always store authorization claims in **`app_metadata`** (which is server-managed and tamper-proof in JWTs), never in client-editable `user_metadata`.
 
 ```sql
 UPDATE auth.users
 SET raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role": "admin"}'::jsonb
 WHERE id = '<USER_UUID>';
 ```
-*(Replace `<USER_UUID>` with the UUID of the user found in the Supabase Auth table).*
-
-### Option B: Via Supabase Dashboard UI
-1. Navigate to **Authentication** > **Users** in the Supabase Dashboard.
-2. Locate the admin user and open **User Details**.
-3. Under **App Metadata**, add or edit the JSON:
-   ```json
-   {
-     "role": "admin"
-   }
-   ```
-4. Save changes.
-
-### Option C: Via Supabase Admin API (Service Role)
-```typescript
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-await supabaseAdmin.auth.admin.updateUserById('<USER_UUID>', {
-  app_metadata: { role: 'admin' }
-});
-```
-
----
-
-## 3. Verifying the Setup
-
-1. Have the user sign out and sign back in to refresh their JWT session token.
-2. Check `user.app_metadata?.role` in the browser console or application context (`useAuth()`).
-3. Verify that non-admin authenticated accounts viewing `/admin` receive the clear **Access Denied** screen, while admin users can access the dashboard and manage travel highlights without RLS errors.

@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -659,7 +659,7 @@ export type Database = {
           essay_blocks?: Json
           essay_title?: string | null
           flag?: string
-          id: string
+          id?: string
           instagram_highlight_url?: string | null
           is_published?: boolean
           lat?: number

@@ -4,7 +4,6 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
-import { PUBLIC_LISTED_ARTICLE_FILTERS } from "@/lib/public-content";
 
 export const revalidate = 120;
 
@@ -55,8 +54,8 @@ export default async function Page({ params }: Props) {
     .from("blog_posts")
     .select("*")
     .eq("series_id", seriesData.id)
-    .eq("published", PUBLIC_LISTED_ARTICLE_FILTERS.published)
-    .eq("unlisted", PUBLIC_LISTED_ARTICLE_FILTERS.unlisted)
+    .eq("published", true)
+    .eq("unlisted", false)
     .order("series_order", { ascending: true })
     .order("created_at", { ascending: true });
 

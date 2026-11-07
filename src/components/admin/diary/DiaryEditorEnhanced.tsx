@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import FileUpload from "@/components/FileUpload";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -352,9 +353,11 @@ export default function DiaryEditorEnhanced() {
         {/* Optional Cover Banner */}
         {imageUrl && (
           <div className="relative group mb-8 rounded-2xl overflow-hidden border border-zinc-200 bg-white aspect-[21/9] max-h-[320px] shadow-2xs">
-            <img
+            <OptimizedImage
               src={imageUrl}
               alt={imageAlt || title || "Diary cover"}
+              width={1200}
+              height={514}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

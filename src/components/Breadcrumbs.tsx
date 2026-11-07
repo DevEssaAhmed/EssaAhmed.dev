@@ -45,7 +45,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                 <span
                   role="presentation"
                   aria-hidden="true"
-                  className="text-muted-foreground/40 shrink-0 select-none"
+                  className="text-on-surface-variant/40 shrink-0 select-none"
                 >
                   {separator || <ChevronRight className="w-3.5 h-3.5" />}
                 </span>
@@ -57,8 +57,8 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                   className={cn(
                     "inline-flex items-center gap-1.5 font-medium transition-colors",
                     isLast
-                      ? "text-platinum font-semibold"
-                      : "text-muted-foreground"
+                      ? "text-on-surface font-semibold"
+                      : "text-on-surface-variant"
                   )}
                 >
                   {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
@@ -69,7 +69,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               ) : (
                 <Link
                   href={item.href}
-                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-champagne transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded px-1 py-0.5 -mx-1 -my-0.5"
+                  className="inline-flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-primary transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded px-1 py-0.5 -mx-1 -my-0.5"
                 >
                   {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
                   <span className="truncate max-w-[160px] sm:max-w-[240px]">

@@ -65,9 +65,9 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-surface">
+      <div className="min-h-screen bg-surface text-on-surface">
         <Navigation />
-        <div className="pt-20">
+        <main id="main-content" tabIndex={-1} className="pt-20">
           <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="mb-10">
               <Skeleton className="h-16 w-16 rounded-2xl mb-4 bg-surface-container" />
@@ -76,7 +76,7 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="bg-surface-low border border-border rounded-2xl overflow-hidden">
+                <Card key={i} className="bg-surface-container-low border border-outline-variant/30 rounded-2xl overflow-hidden">
                   <Skeleton className="h-48 w-full bg-surface-container" />
                   <CardHeader>
                     <Skeleton className="h-6 w-3/4 mb-2 bg-surface-container" />
@@ -92,7 +92,7 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
               ))}
             </div>
           </div>
-        </div>
+        </main>
         <OptimizedFooter />
       </div>
     );
@@ -100,61 +100,61 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
 
   if (!category) {
     return (
-      <div className="min-h-screen bg-surface">
+      <div className="min-h-screen bg-surface text-on-surface">
         <Navigation />
-        <div className="pt-20">
+        <main id="main-content" tabIndex={-1} className="pt-20">
           <div className="max-w-4xl mx-auto px-6 py-12 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-surface-container border border-champagne/30 flex items-center justify-center mx-auto mb-4">
-              <Folder className="w-8 h-8 text-champagne" />
+            <div className="w-16 h-16 rounded-2xl bg-surface-container border border-primary/30 flex items-center justify-center mx-auto mb-4">
+              <Folder className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-display font-bold text-white mb-2">Category Not Found</h1>
-            <p className="text-ink-soft mb-6 font-sans">This category does not exist.</p>
-            <Button asChild variant="outline" className="rounded-xl px-6 h-11 border border-border bg-surface-container text-platinum hover:bg-surface-high font-mono text-xs">
+            <h1 className="text-2xl font-display font-bold text-on-surface mb-2">Category Not Found</h1>
+            <p className="text-on-surface-variant mb-6 font-sans">This category does not exist.</p>
+            <Button asChild variant="outline" className="rounded-full px-6 h-11 border border-outline-variant/30 bg-surface-container text-on-surface hover:bg-surface-container-high font-mono text-xs">
               <Link href="/articles/categories">
-                <ArrowLeft className="w-4 h-4 mr-2 text-champagne" /> Back to Categories
+                <ArrowLeft className="w-4 h-4 mr-2 text-primary" /> Back to Categories
               </Link>
             </Button>
           </div>
-        </div>
+        </main>
         <OptimizedFooter />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-surface text-on-surface">
       <Navigation />
-      <div className="pt-20">
+      <main id="main-content" tabIndex={-1} className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-12">
-          <Button asChild variant="ghost" className="mb-8 rounded-xl border border-border bg-surface-container text-ink-soft hover:text-white hover:border-champagne/40 transition-all duration-200 font-mono text-xs">
+          <Button asChild variant="ghost" className="mb-8 rounded-full border border-outline-variant/30 bg-surface-container text-on-surface-variant hover:text-on-surface hover:border-primary/40 transition-all duration-200 font-mono text-xs">
             <Link href="/articles/categories">
-              <ArrowLeft className="w-4 h-4 mr-2 text-champagne" /> Back to Categories
+              <ArrowLeft className="w-4 h-4 mr-2 text-primary" /> Back to Categories
             </Link>
           </Button>
 
           <div className="mb-10 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-surface-container border border-champagne/30 flex items-center justify-center mx-auto mb-4">
-              <Folder className="w-8 h-8 text-champagne" />
+            <div className="w-16 h-16 rounded-2xl bg-surface-container border border-primary/30 flex items-center justify-center mx-auto mb-4">
+              <Folder className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-4xl font-display font-bold text-white mb-2">{category.name}</h1>
-            {category.description && <p className="text-ink-soft max-w-2xl mx-auto font-sans">{category.description}</p>}
+            <h1 className="text-4xl font-display font-bold text-on-surface mb-2">{category.name}</h1>
+            {category.description && <p className="text-on-surface-variant max-w-2xl mx-auto font-sans">{category.description}</p>}
           </div>
 
           {articles.length === 0 ? (
-            <div className="w-full relative overflow-hidden rounded-2xl border border-border bg-surface-low p-12 text-center shadow-sm">
+            <div className="w-full relative overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-low p-12 text-center shadow-sm">
               <div className="relative z-10 flex flex-col items-center justify-center">
-                <div className="w-20 h-20 mb-6 rounded-2xl bg-surface-container border border-champagne/30 flex items-center justify-center mx-auto">
-                  <Folder className="w-10 h-10 text-champagne" />
+                <div className="w-20 h-20 mb-6 rounded-2xl bg-surface-container border border-primary/30 flex items-center justify-center mx-auto">
+                  <Folder className="w-10 h-10 text-primary" />
                 </div>
-                <h3 className="text-2xl font-display font-bold text-white mb-3">Coming Soon</h3>
-                <p className="text-base text-ink-soft max-w-lg mx-auto mb-8 font-sans">
-                  I&apos;m currently crafting new articles for <span className="text-white font-medium">{category.name}</span>. They&apos;ll appear here once they&apos;re full-polished and published.
+                <h3 className="text-2xl font-display font-bold text-on-surface mb-3">Coming Soon</h3>
+                <p className="text-base text-on-surface-variant max-w-lg mx-auto mb-8 font-sans">
+                  I&apos;m currently crafting new articles for <span className="text-on-surface font-medium">{category.name}</span>. They&apos;ll appear here once they&apos;re full-polished and published.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <Button asChild className="bg-champagne text-surface-lowest hover:bg-champagne/90 font-medium rounded-xl px-8 h-12 transition-all duration-200">
+                  <Button asChild className="bg-on-surface text-surface hover:opacity-90 font-medium rounded-full px-8 h-12 transition-all duration-200">
                     <Link href="/articles">Read Latest Articles</Link>
                   </Button>
-                  <Button asChild variant="outline" className="rounded-xl px-8 h-12 border border-border bg-surface-container text-platinum hover:bg-surface-high transition-all duration-200">
+                  <Button asChild variant="outline" className="rounded-full px-8 h-12 border border-outline-variant/30 bg-surface-container text-on-surface hover:bg-surface-container-high transition-all duration-200">
                     <Link href="/articles/categories">View All Categories</Link>
                   </Button>
                 </div>
@@ -164,7 +164,7 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {articles.map((article) => (
                 <Link key={article.id} href={`/articles/${article.slug}`} className="block">
-                  <Card className="group cursor-pointer hover:border-champagne/40 hover:bg-surface-container/60 transition-all duration-300 bg-surface-low border border-border rounded-2xl overflow-hidden flex flex-col h-full">
+                  <Card className="group cursor-pointer hover:border-primary/40 hover:bg-surface-container/60 transition-all duration-300 bg-surface-container-low border border-outline-variant/30 rounded-2xl overflow-hidden flex flex-col h-full">
                     {article.image_url && (
                       <div className="h-48 overflow-hidden">
                         <OptimizedImage
@@ -175,23 +175,23 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
                       </div>
                     )}
                     <CardHeader>
-                      <CardTitle className="font-display font-semibold text-lg text-white group-hover:text-champagne transition-colors line-clamp-2">{article.title}</CardTitle>
-                      <CardDescription className="text-ink-soft text-sm font-sans line-clamp-3">{article.excerpt || "No excerpt available."}</CardDescription>
+                      <CardTitle className="font-display font-semibold text-lg text-on-surface group-hover:text-primary transition-colors line-clamp-2">{article.title}</CardTitle>
+                      <CardDescription className="text-on-surface-variant text-sm font-sans line-clamp-3">{article.excerpt || "No excerpt available."}</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col flex-grow justify-end">
-                      <div className="flex items-center gap-4 text-xs font-mono text-ink-muted mb-3">
+                      <div className="flex items-center gap-4 text-xs font-mono text-outline mb-3">
                         <div className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5 text-champagne/70" />
+                          <Calendar className="w-3.5 h-3.5 text-primary/70" />
                           {new Date(article.created_at).toLocaleDateString()}
                         </div>
                         <div className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-champagne/70" />
+                          <Clock className="w-3.5 h-3.5 text-primary/70" />
                           {article.read_time || 5} min
                         </div>
                       </div>
-                      <div className="flex items-center justify-between pt-3 border-t border-border">
-                        <span className="text-xs font-mono text-champagne/80">Article</span>
-                        <span className="text-xs font-medium text-champagne group-hover:translate-x-0.5 transition-transform">Read Article →</span>
+                      <div className="flex items-center justify-between pt-3 border-t border-outline-variant/30">
+                        <span className="text-xs font-mono text-primary/80">Article</span>
+                        <span className="text-xs font-medium text-primary group-hover:translate-x-0.5 transition-transform">Read Article →</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -200,11 +200,10 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
             </div>
           )}
         </div>
-      </div>
+      </main>
       <OptimizedFooter />
     </div>
   );
 };
 
 export default CategoryDetailPage;
-

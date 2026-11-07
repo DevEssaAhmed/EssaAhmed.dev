@@ -8,6 +8,7 @@ import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import { Clipboard, Check } from "lucide-react";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { parseSafeVideoUrl } from "@/lib/video-embed";
 import "highlight.js/styles/atom-one-dark.css";
 
 interface MarkdownRendererProps {
@@ -61,7 +62,7 @@ const PreBlock = ({ children }: { children: any }) => {
       </div>
       <pre
         ref={codeRef}
-        className="m-0 p-4 overflow-x-auto text-sm leading-relaxed font-code"
+        className="m-0 p-4 overflow-x-auto text-sm leading-relaxed font-code bg-[#0e0e10] text-zinc-100"
       >
         {codeChild}
       </pre>
@@ -118,39 +119,31 @@ const MarkdownRenderer = ({ content, className = "" }: MarkdownRendererProps) =>
               const text = node.children[0].value;
               const match = text.match(/^!video\[.*?\]\((.+?)\)$/);
               if (match) {
-                const url = match[1];
-                const isYoutube =
-                  url.includes("youtube") || url.includes("youtu.be");
-                const isVimeo = url.includes("vimeo");
-
-                return (
-                  <div className="my-8 rounded-xl overflow-hidden border border-outline-variant/30 shadow-sm max-w-4xl mx-auto">
-                    <div className="aspect-video bg-surface-container-lowest">
-                      {isYoutube ? (
-                        <iframe
-                          src={`https://www.youtube.com/embed/${
-                            url.includes("watch?v=")
-                              ? url.split("watch?v=")[1]?.split("&")[0]
-                              : url.split("/").pop()
-                          }`}
-                          className="w-full h-full"
-                          allowFullScreen
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        />
-                      ) : isVimeo ? (
-                        <iframe
-                          src={`https://player.vimeo.com/video/${url
-                            .split("/")
-                            .pop()}`}
-                          className="w-full h-full"
-                          allowFullScreen
-                        />
-                      ) : (
-                        <video src={url} controls className="w-full h-full" />
-                      )}
+                const video = parseSafeVideoUrl(match[1]);
+                if (video) {
+                  return (
+                    <div className="my-8 rounded-xl overflow-hidden border border-outline-variant/30 shadow-sm max-w-4xl mx-auto">
+                      <div className="aspect-video bg-surface-container-lowest">
+                        {video.type === "youtube" ? (
+                          <iframe
+                            src={video.src}
+                            className="w-full h-full"
+                            allowFullScreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          />
+                        ) : video.type === "vimeo" ? (
+                          <iframe
+                            src={video.src}
+                            className="w-full h-full"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <video src={video.src} controls className="w-full h-full" />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
+                  );
+                }
               }
             }
             return (

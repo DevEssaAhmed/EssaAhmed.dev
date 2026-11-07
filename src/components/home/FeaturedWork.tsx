@@ -1,8 +1,8 @@
 "use client";
-import { ArrowRight } from "lucide-react";
 
 import { useMemo } from "react";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { cleanMarkdownExcerpt } from "@/lib/clean-markdown";
 import { OptimizedImage } from "@/components/OptimizedImage";
 
@@ -15,7 +15,10 @@ interface Project {
   featured: boolean;
   demo_url?: string;
   github_url?: string;
-  category?: string | null;
+  category?: string;
+  categories?: {
+    name: string;
+  };
 }
 
 interface FeaturedWorkProps {
@@ -24,6 +27,11 @@ interface FeaturedWorkProps {
 }
 
 function ProjectCardPreview({ project }: { project: Project }) {
+  const categoryName =
+    (project.category && project.category !== "Uncategorized"
+      ? project.category
+      : undefined) || project.categories?.name;
+
   if (project.image_url && !project.image_url.includes("placeholder")) {
     return (
       <div className="w-full h-48 rounded-xl bg-surface-container-lowest border border-outline-variant/20 mb-6 relative overflow-hidden group/img">
@@ -35,9 +43,9 @@ function ProjectCardPreview({ project }: { project: Project }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 via-transparent to-transparent" />
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] font-code">
-          {project.category && (
+          {categoryName && (
             <span className="px-2.5 py-0.5 rounded bg-surface-container-low/90 backdrop-blur-md border border-outline-variant/30 text-on-surface font-medium">
-              {project.category}
+              {categoryName}
             </span>
           )}
           <span className="text-secondary font-medium bg-surface-container-low/90 px-2 py-0.5 rounded border border-outline-variant/20 ml-auto">
@@ -51,10 +59,10 @@ function ProjectCardPreview({ project }: { project: Project }) {
   return (
     <div className="w-full h-48 rounded-xl bg-surface-container-low border border-outline-variant/30 p-5 mb-6 font-code text-xs relative overflow-hidden flex flex-col justify-between">
       <div className="flex justify-between items-center text-on-surface-variant">
-        {project.category && (
+        {categoryName && (
           <span className="flex items-center gap-1.5 text-on-surface font-medium">
             <span className="w-2 h-2 rounded-full bg-primary" />
-            {project.category}
+            {categoryName}
           </span>
         )}
         <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant border border-outline-variant/30 text-[10px] ml-auto font-medium">
@@ -101,7 +109,7 @@ export default function FeaturedWork({ initialProjects = [] }: FeaturedWorkProps
           href="/projects"
         >
           <span>View all projects</span>
-          <ArrowRight aria-hidden="true" className="text-[16px] h-4 w-4" />
+          <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
 
@@ -138,7 +146,7 @@ export default function FeaturedWork({ initialProjects = [] }: FeaturedWorkProps
                 </div>
                 <span className="text-xs font-semibold text-primary group-hover:underline shrink-0 flex items-center gap-1 ml-auto">
                   <span>View Case Study</span>
-                  <ArrowRight aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </span>
               </div>
             </Link>

@@ -1,24 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Mail, Send, MapPin, Zap, CheckCircle2, Package, BarChart3 } from "lucide-react";
+import { ArrowRight, Mail, Send, Github, Linkedin, MapPin, Zap, Package, LineChart, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { useProfile } from "@/contexts/ProfileContext";
-import type { Profile } from "@/lib/profile-utils";
 import { useContentAvailability } from "@/contexts/ContentAvailabilityContext";
 
-export default function AboutPage({ initialProfile }: { initialProfile?: Profile | null } = {}) {
+export default function AboutPage({ initialProfile }: { initialProfile?: any } = {}) {
   const { profile: contextProfile } = useProfile();
-  const profile = contextProfile ?? initialProfile;
+  const profile = contextProfile || initialProfile;
   const { hasProjects } = useContentAvailability();
   const [copied, setCopied] = useState(false);
 
   const displayName = profile?.name || "Essa Ahmed";
-  const email = profile?.email || "essa@essaahmed.dev";
+  const email = profile?.email || "essaahmedsiddiqui@gmail.com";
   const githubUrl = profile?.github_url || "https://github.com/DevEssaAhmed";
-  const linkedinUrl = profile?.linkedin_url || "https://linkedin.com/in/essaahmed";
+  const linkedinUrl = profile?.linkedin_url || "https://www.linkedin.com/in/essa-ahmed";
   const location = profile?.location || "Karachi / Lahore, Pakistan (UTC+5, Async Ready)";
 
   const handleCopyEmail = () => {
@@ -68,25 +67,25 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
                 </Link>
               )}
               <a
-                className="w-11 h-11 rounded-xl border border-outline-variant/30 bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline-variant/70 transition-all"
+                className="w-11 h-11 rounded-full border border-outline-variant/30 bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline-variant/70 transition-all"
                 href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
               >
-                <span className="font-code text-code font-bold text-xs">GH</span>
+                <Github className="w-4 h-4" />
               </a>
               <a
-                className="w-11 h-11 rounded-xl border border-outline-variant/30 bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline-variant/70 transition-all"
+                className="w-11 h-11 rounded-full border border-outline-variant/30 bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline-variant/70 transition-all"
                 href={linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
               >
-                <span className="font-code text-code font-bold text-xs">IN</span>
+                <Linkedin className="w-4 h-4" />
               </a>
               <a
-                className="w-11 h-11 rounded-xl border border-outline-variant/30 bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline-variant/70 transition-all"
+                className="w-11 h-11 rounded-full border border-outline-variant/30 bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline-variant/70 transition-all"
                 href={`mailto:${email}`}
                 aria-label="Email"
               >
@@ -112,7 +111,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
                     </h2>
                   </div>
                   <p className="font-body-md text-body-md text-on-surface-variant flex items-center gap-1.5 mt-0.5">
-                    <MapPin aria-hidden="true" className="text-[16px] text-secondary h-4 w-4" />
+                    <MapPin className="w-4 h-4 text-secondary shrink-0" />
                     <span>{location}</span>
                   </p>
                 </div>
@@ -198,7 +197,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
             <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-primary/40 transition-all duration-200 group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-amber-500 text-xl group-hover:scale-105 transition-transform">
-                  <Zap aria-hidden="true" className="h-5 w-5" />
+                  <Zap className="w-6 h-6" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
                   Workflow &amp; Process Automation
@@ -208,15 +207,15 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
                 </p>
                 <div className="space-y-2 pt-2">
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
+                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                     <span>Asynchronous webhook handlers &amp; idempotent pipelines</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
+                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                     <span>Automated reconciliation between legacy ERP &amp; cloud stores</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
+                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                     <span>Zero-touch schema validation with strict data contracts</span>
                   </div>
                 </div>
@@ -242,7 +241,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
             <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-secondary/40 transition-all duration-200 group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-secondary text-xl group-hover:scale-105 transition-transform">
-                  <Package aria-hidden="true" className="h-5 w-5" />
+                  <Package className="w-6 h-6" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
                   Supply Chain &amp; Demand Planning
@@ -252,15 +251,15 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
                 </p>
                 <div className="space-y-2 pt-2">
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
+                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                     <span>Rolling 52-week S&amp;OP demand &amp; inventory models</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
+                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                     <span>Dynamic safety stock &amp; reorder point optimization</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
+                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                     <span>Tier-1 supplier OTIF &amp; lead-time drift detection</span>
                   </div>
                 </div>
@@ -286,7 +285,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
             <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-tertiary/40 transition-all duration-200 group">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary text-xl group-hover:scale-105 transition-transform">
-                  <BarChart3 aria-hidden="true" className="h-5 w-5" />
+                  <LineChart className="w-6 h-6" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
                   Analytics &amp; Decision Systems
@@ -296,15 +295,15 @@ export default function AboutPage({ initialProfile }: { initialProfile?: Profile
                 </p>
                 <div className="space-y-2 pt-2">
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
+                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                     <span>Dimensional star schemas &amp; automated dbt lineage</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
+                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                     <span>Sub-second DAX measures &amp; executive KPI hierarchies</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 aria-hidden="true" className="text-secondary text-sm shrink-0 mt-0.5 h-3.5 w-3.5" />
+                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                     <span>Real-time factory floor &amp; commercial telemetry</span>
                   </div>
                 </div>

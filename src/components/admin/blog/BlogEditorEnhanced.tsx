@@ -64,12 +64,19 @@ import {
   associateBlogPostTags,
   getBlogPostTags,
 } from '@/lib/tagUtils';
+import dynamic from 'next/dynamic';
 import FileUpload from '@/components/FileUpload';
-import BlockNoteEditorComponent, {
-  BlockNoteContent,
+import { OptimizedImage } from '@/components/OptimizedImage';
+import {
+  type BlockNoteContent,
   markdownToBlocks,
   blocksToMarkdown,
 } from '@/components/editor/BlockNoteEditor';
+
+const BlockNoteEditorComponent = dynamic(
+  () => import('@/components/editor/BlockNoteEditor'),
+  { ssr: false }
+);
 import { BlockNoteEditor } from '@blocknote/core';
 import { PerformanceSkeleton } from '@/components/ui/performance-skeleton';
 import {
@@ -793,9 +800,11 @@ const BlogEditorEnhanced: React.FC = () => {
         {/* Cover Banner */}
         {formData.image_url ? (
           <div className="relative group w-full rounded-2xl overflow-hidden aspect-[21/8] max-h-64 mb-6 border border-zinc-200 bg-white shadow-2xs">
-            <img
+            <OptimizedImage
               src={formData.image_url}
               alt="Featured Cover"
+              width={1200}
+              height={450}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
@@ -1413,9 +1422,11 @@ const BlogEditorEnhanced: React.FC = () => {
             <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">Search & Social Card Preview</span>
             <div className="aspect-[1.91/1] w-full bg-zinc-100 rounded-lg overflow-hidden border border-zinc-200 relative flex items-center justify-center">
               {formData.og_image || formData.image_url ? (
-                <img
+                <OptimizedImage
                   src={formData.og_image || formData.image_url}
                   alt="OG Preview"
+                  width={600}
+                  height={314}
                   className="w-full h-full object-cover"
                 />
               ) : (

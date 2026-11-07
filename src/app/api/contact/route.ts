@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { getSupabaseServer } from "@/lib/supabase-server";
 import { isContactRateLimited } from "@/lib/contact-rate-limit";
 import { z } from "zod";
 
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 
     const resolvedPurpose = purpose === "other" ? (other_purpose?.trim() || "Other") : purpose;
 
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabaseServer();
     const { error: insertError } = await supabase.from("contacts").insert([
       {
         name,

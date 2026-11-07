@@ -1,7 +1,8 @@
 "use client";
-import { Plus, Minus, Globe } from "lucide-react";
 
 import React, { useEffect, useRef, useState } from "react";
+import "leaflet/dist/leaflet.css";
+import { Plus, Minus, Globe } from "lucide-react";
 import type { TravelCityHighlight } from "@/data/travelData";
 
 interface InteractiveTravelMapProps {
@@ -374,11 +375,12 @@ function InteractiveTravelMapComponent({
               <button
                 key={yr}
                 type="button"
+                aria-pressed={active}
                 onClick={() => onYearFilterChange(yr)}
                 className={
                   active
-                    ? "px-3 py-1 rounded-full bg-on-surface text-surface text-label-sm font-label-sm font-semibold shadow-sm transition-all"
-                    : "px-3 py-1 rounded-full bg-surface-container-lowest/85 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface text-label-sm font-label-sm border border-outline-variant/30 backdrop-blur-md transition-colors"
+                    ? "min-h-9 px-3.5 py-1.5 rounded-full bg-on-surface text-surface text-label-sm font-label-sm font-semibold shadow-sm transition-all"
+                    : "min-h-9 px-3.5 py-1.5 rounded-full bg-surface-container-lowest/85 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface text-label-sm font-label-sm border border-outline-variant/30 backdrop-blur-md transition-colors"
                 }
               >
                 {yr === "all" ? "All Years" : yr}
@@ -393,29 +395,29 @@ function InteractiveTravelMapComponent({
         <button
           type="button"
           onClick={handleZoomIn}
-          className="w-9 h-9 rounded-xl bg-surface-container-lowest/90 hover:bg-surface-container-high border border-outline-variant/40 text-on-surface flex items-center justify-center shadow-lg backdrop-blur-md transition-colors"
+          className="w-10 h-10 rounded-xl bg-surface-container-lowest/90 hover:bg-surface-container-high border border-outline-variant/40 text-on-surface flex items-center justify-center shadow-lg backdrop-blur-md transition-colors"
           aria-label="Zoom in map"
           title="Zoom In"
         >
-          <Plus aria-hidden="true" className="text-[18px] h-[18px] w-[18px]" />
+          <Plus className="w-4 h-4" />
         </button>
         <button
           type="button"
           onClick={handleZoomOut}
-          className="w-9 h-9 rounded-xl bg-surface-container-lowest/90 hover:bg-surface-container-high border border-outline-variant/40 text-on-surface flex items-center justify-center shadow-lg backdrop-blur-md transition-colors"
+          className="w-10 h-10 rounded-xl bg-surface-container-lowest/90 hover:bg-surface-container-high border border-outline-variant/40 text-on-surface flex items-center justify-center shadow-lg backdrop-blur-md transition-colors"
           aria-label="Zoom out map"
           title="Zoom Out"
         >
-          <Minus aria-hidden="true" className="text-[18px] h-[18px] w-[18px]" />
+          <Minus className="w-4 h-4" />
         </button>
         <button
           type="button"
           onClick={handleResetBounds}
-          className="w-9 h-9 rounded-xl bg-surface-container-lowest/90 hover:bg-surface-container-high border border-outline-variant/40 text-on-surface flex items-center justify-center shadow-lg backdrop-blur-md transition-colors"
+          className="w-10 h-10 rounded-xl bg-surface-container-lowest/90 hover:bg-surface-container-high border border-outline-variant/40 text-on-surface flex items-center justify-center shadow-lg backdrop-blur-md transition-colors"
           aria-label="Fit all visited cities"
           title="Fit All Visited Cities"
         >
-          <Globe aria-hidden="true" className="text-[18px] h-[18px] w-[18px]" />
+          <Globe className="w-4 h-4" />
         </button>
       </div>
 

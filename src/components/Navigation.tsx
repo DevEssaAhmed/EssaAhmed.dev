@@ -54,10 +54,12 @@ const Navigation = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [cmdQuery, setCmdQuery] = useState("");
+  const [cmdSelectedIndex, setCmdSelectedIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
   const mobileMenuWasOpen = useRef(false);
+  const aboutDetailsRef = useRef<HTMLDetailsElement>(null);
   const pathname = usePathname() || "/";
   const router = useRouter();
   const { profile } = useProfile();
@@ -111,6 +113,11 @@ const Navigation = memo(() => {
       path: "/diary",
     });
     list.push({
+      label: "Talks & Sessions",
+      sub: "Speaking, workshops, and technical sessions",
+      path: "/talks",
+    });
+    list.push({
       label: "About & Experience",
       sub: "Career timeline, credentials & toolkit",
       path: "/about",
@@ -147,6 +154,19 @@ const Navigation = memo(() => {
   }, [cmdQuery, cmdActions]);
 
   useEffect(() => {
+    setCmdSelectedIndex(0);
+  }, [cmdQuery, cmdOpen]);
+
+  useEffect(() => {
+    if (!cmdOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [cmdOpen]);
+
+  useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -154,11 +174,33 @@ const Navigation = memo(() => {
       } else if (e.key === "Escape") {
         setCmdOpen(false);
         setIsOpen(false);
+        if (aboutDetailsRef.current) {
+          aboutDetailsRef.current.open = false;
+        }
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        aboutDetailsRef.current &&
+        aboutDetailsRef.current.open &&
+        !aboutDetailsRef.current.contains(event.target as Node)
+      ) {
+        aboutDetailsRef.current.open = false;
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (aboutDetailsRef.current) aboutDetailsRef.current.open = false;
+    setIsOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (isOpen) {
@@ -221,6 +263,26 @@ const Navigation = memo(() => {
     [pathname]
   );
 
+  const isAboutActive = useMemo(
+    () =>
+      pathname.startsWith("/about") ||
+      pathname.startsWith("/diary") ||
+      pathname.startsWith("/talks") ||
+      pathname.startsWith("/travel"),
+    [pathname]
+  );
+
+  const isSubnavItemActive = useCallback(
+    (href: string) => {
+      if (href.startsWith("/about")) return pathname === "/about";
+      if (href === "/diary") return pathname.startsWith("/diary");
+      if (href === "/talks") return pathname.startsWith("/talks");
+      if (href === "/travel") return pathname.startsWith("/travel");
+      return false;
+    },
+    [pathname]
+  );
+
   const commandPaletteModal =
     isMounted && cmdOpen
       ? createPortal(
@@ -229,6 +291,9 @@ const Navigation = memo(() => {
             onClick={() => setCmdOpen(false)}
           >
             <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Command palette"
               className="w-full max-w-lg rounded-2xl bg-surface-container-low border border-outline-variant/40 shadow-2xl overflow-hidden text-on-surface"
               onClick={(e) => e.stopPropagation()}
             >
@@ -239,6 +304,33 @@ const Navigation = memo(() => {
                   type="text"
                   value={cmdQuery}
                   onChange={(e) => setCmdQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      setCmdSelectedIndex((prev) =>
+                        filteredCmdActions.length > 0 ? (prev + 1) % filteredCmdActions.length : 0
+                      );
+                    } else if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setCmdSelectedIndex((prev) =>
+                        filteredCmdActions.length > 0
+                          ? (prev - 1 + filteredCmdActions.length) % filteredCmdActions.length
+                          : 0
+                      );
+                    } else if (e.key === "Enter") {
+                      const item = filteredCmdActions[cmdSelectedIndex];
+                      if (item) {
+                        e.preventDefault();
+                        setCmdOpen(false);
+                        setCmdQuery("");
+                        if (item.action) {
+                          item.action();
+                        } else {
+                          router.push(item.path);
+                        }
+                      }
+                    }
+                  }}
                   placeholder="Jump to page, pillar, or toggle theme..."
                   className="w-full bg-transparent text-sm text-on-surface placeholder:text-outline focus:outline-none"
                 />
@@ -247,30 +339,50 @@ const Navigation = memo(() => {
                 </kbd>
               </div>
               <div className="max-h-80 overflow-y-auto p-2 space-y-1">
-                {filteredCmdActions.map((item) => (
-                  <button
-                    key={item.label}
-                    type="button"
-                    onClick={() => {
-                      setCmdOpen(false);
-                      setCmdQuery("");
-                      if (item.action) {
-                        item.action();
-                      } else {
-                        router.push(item.path);
-                      }
-                    }}
-                    className="w-full min-h-11 flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left hover:bg-surface-container transition-colors group"
-                  >
-                    <div>
-                      <div className="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">
-                        {item.label}
+                {filteredCmdActions.map((item, index) => {
+                  const isSelected = index === cmdSelectedIndex;
+                  return (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onMouseEnter={() => setCmdSelectedIndex(index)}
+                      onClick={() => {
+                        setCmdOpen(false);
+                        setCmdQuery("");
+                        if (item.action) {
+                          item.action();
+                        } else {
+                          router.push(item.path);
+                        }
+                      }}
+                      className={`w-full min-h-11 flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-colors group ${
+                        isSelected
+                          ? "bg-surface-container text-primary"
+                          : "hover:bg-surface-container"
+                      }`}
+                    >
+                      <div>
+                        <div
+                          className={`text-sm font-medium transition-colors ${
+                            isSelected
+                              ? "text-primary"
+                              : "text-on-surface group-hover:text-primary"
+                          }`}
+                        >
+                          {item.label}
+                        </div>
+                        <div className="text-xs text-on-surface-variant">{item.sub}</div>
                       </div>
-                      <div className="text-xs text-on-surface-variant">{item.sub}</div>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-outline group-hover:text-on-surface group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                ))}
+                      <ArrowRight
+                        className={`w-4 h-4 transition-all ${
+                          isSelected
+                            ? "text-primary translate-x-0.5"
+                            : "text-outline group-hover:text-on-surface group-hover:translate-x-0.5"
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
                 {filteredCmdActions.length === 0 && (
                   <div className="py-8 text-center text-sm text-on-surface-variant">
                     No matching destinations found.
@@ -371,7 +483,7 @@ const Navigation = memo(() => {
                       <details className="rounded-xl">
                         <summary
                           className={`w-full list-none cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border ${
-                            pathname.startsWith("/about") || pathname.startsWith("/diary")
+                            isAboutActive
                               ? "bg-surface-container-high border-outline-variant/40 text-on-surface font-semibold"
                               : "border-transparent hover:bg-surface-container-low text-on-surface-variant hover:text-on-surface"
                           }`}
@@ -383,21 +495,24 @@ const Navigation = memo(() => {
                           <ChevronDown className="w-4 h-4" aria-hidden="true" />
                         </summary>
                         <div className="ml-8 mt-1 mb-2 border-l border-outline-variant/40 pl-4 flex flex-col gap-1">
-                          {aboutSubnav.map((item) => (
-                            <Link
-                              key={item.href}
-                              href={item.href}
-                              onClick={() => setIsOpen(false)}
-                              className="rounded-lg px-3 py-2.5 text-sm text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"
-                              aria-current={
-                                item.href === "/diary" && pathname.startsWith("/diary")
-                                  ? "page"
-                                  : undefined
-                              }
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
+                          {aboutSubnav.map((item) => {
+                            const isSubActive = isSubnavItemActive(item.href);
+                            return (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => setIsOpen(false)}
+                                className={`rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                                  isSubActive
+                                    ? "bg-surface-container text-on-surface font-semibold"
+                                    : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
+                                }`}
+                                aria-current={isSubActive ? "page" : undefined}
+                              >
+                                {item.name}
+                              </Link>
+                            );
+                          })}
                         </div>
                       </details>
                     </div>
@@ -489,10 +604,10 @@ const Navigation = memo(() => {
                 </Link>
               );
             })}
-            <details className="group relative">
+            <details ref={aboutDetailsRef} className="group relative">
               <summary
                 className={`min-h-11 list-none cursor-pointer px-3.5 py-1.5 rounded-full transition-colors duration-150 flex items-center gap-1.5 ${
-                  pathname.startsWith("/about") || pathname.startsWith("/diary")
+                  isAboutActive
                     ? "text-on-surface font-semibold bg-surface-container-high/90 border border-outline-variant/30"
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
@@ -501,24 +616,27 @@ const Navigation = memo(() => {
                 <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
               </summary>
               <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-outline-variant/40 bg-surface-container-low p-1.5 shadow-xl">
-                {aboutSubnav.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={(event) => {
-                      const disclosure = event.currentTarget.closest("details");
-                      if (disclosure) disclosure.open = false;
-                    }}
-                    className="block rounded-lg px-3 py-2.5 text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
-                    aria-current={
-                      item.href === "/diary" && pathname.startsWith("/diary")
-                        ? "page"
-                        : undefined
-                    }
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+                {aboutSubnav.map((item) => {
+                  const isSubActive = isSubnavItemActive(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={(event) => {
+                        const disclosure = event.currentTarget.closest("details");
+                        if (disclosure) disclosure.open = false;
+                      }}
+                      className={`block rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                        isSubActive
+                          ? "bg-surface-container text-on-surface font-semibold"
+                          : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                      }`}
+                      aria-current={isSubActive ? "page" : undefined}
+                    >
+                      {item.name}
+                    </Link>
+                  );
+                })}
               </div>
             </details>
           </nav>

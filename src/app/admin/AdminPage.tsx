@@ -83,6 +83,7 @@ import {
   TravelCityHighlight,
 } from "@/data/travelData";
 import { getMarkdownExcerpt } from "@/lib/markdownUtils";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import AdminLayout from "@/components/admin/layout/AdminLayout";
 import { useProfile } from "@/contexts/ProfileContext";
 import HeroStatsManager from "@/components/admin/HeroStatsManager";
@@ -612,9 +613,11 @@ function ArticlesDirectoryTab({
                       <td className="py-3 px-4">
                         <div className="flex items-start gap-3">
                           {post.image_url ? (
-                            <img
+                            <OptimizedImage
                               src={post.image_url}
                               alt=""
+                              width={40}
+                              height={40}
                               className="w-10 h-10 rounded-md object-cover border border-zinc-200 shrink-0"
                             />
                           ) : (
@@ -905,9 +908,11 @@ function ProjectsDirectoryTab({
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
                             {p.image_url ? (
-                              <img
+                              <OptimizedImage
                                 src={p.image_url}
                                 alt=""
+                                width={40}
+                                height={40}
                                 className="w-10 h-10 rounded-md object-cover border border-zinc-200 shrink-0"
                               />
                             ) : (
@@ -1073,9 +1078,11 @@ function ProjectsDirectoryTab({
                         className="rounded-lg border border-zinc-200/90 bg-white p-3.5 hover:border-zinc-300 hover:shadow-xs transition-all group"
                       >
                         {proj.image_url && (
-                          <img
+                          <OptimizedImage
                             src={proj.image_url}
                             alt=""
+                            width={300}
+                            height={96}
                             className="w-full h-24 rounded-md object-cover mb-2.5 border border-zinc-200"
                           />
                         )}
@@ -1249,9 +1256,11 @@ function TravelDirectoryTab({
                     <div className="flex items-center gap-3">
                       {/* Circular Instagram gradient story ring */}
                       <div className="p-[2.5px] rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 shrink-0">
-                        <img
+                        <OptimizedImage
                           src={city.cover_image_url || "/placeholder.svg"}
                           alt={city.city_name}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-full object-cover border-2 border-white"
                         />
                       </div>

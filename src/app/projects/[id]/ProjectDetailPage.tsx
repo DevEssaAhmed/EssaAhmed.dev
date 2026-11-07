@@ -1,5 +1,4 @@
 "use client";
-import { Folder, ArrowLeft, Pencil, Video, ExternalLink, Code2, Share2, Image, FileText } from "lucide-react";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
@@ -12,6 +11,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getProjectTags } from "@/lib/tagUtils";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  FolderX,
+  ArrowLeft,
+  Pencil,
+  PlayCircle,
+  ExternalLink,
+  Code2,
+  Share2,
+  Image as ImageIcon,
+  FileText,
+} from "lucide-react";
 
 function tryConvertJsonToMarkdown(content: string): string {
   if (!content) return "";
@@ -240,7 +250,7 @@ const ProjectDetailPage = ({
         <Navigation />
         <main id="main-content" tabIndex={-1} className="max-w-md w-full mx-auto px-6 py-24 text-center">
           <div className="rounded-3xl bg-surface-container-low border border-outline-variant/30 p-8 shadow-xl space-y-4">
-            <Folder aria-hidden="true" className="text-4xl text-primary h-9 w-9" />
+            <FolderX className="w-10 h-10 text-primary mx-auto" />
             <h1 className="text-2xl font-display font-bold text-on-surface">
               Project Not Found
             </h1>
@@ -251,7 +261,7 @@ const ProjectDetailPage = ({
               href="/projects"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-on-surface text-surface text-xs font-semibold hover:opacity-90 transition-all"
             >
-              <ArrowLeft aria-hidden="true" className="text-[16px] h-4 w-4" />
+              <ArrowLeft className="w-4 h-4" />
               <span>Back to Projects</span>
             </Link>
           </div>
@@ -278,7 +288,7 @@ const ProjectDetailPage = ({
             href="/projects"
             className="inline-flex items-center gap-2 text-xs font-code text-on-surface-variant hover:text-primary transition-colors group"
           >
-            <ArrowLeft aria-hidden="true" className="text-[16px] group-hover:-translate-x-0.5 transition-transform h-4 w-4" />
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             <span>Back to Projects</span>
           </Link>
 
@@ -287,7 +297,7 @@ const ProjectDetailPage = ({
               href={`/admin/project/edit/${project.id}`}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary/15 border border-primary/30 text-xs font-code text-primary hover:bg-primary/25 transition-colors"
             >
-              <Pencil aria-hidden="true" className="text-[14px] h-3.5 w-3.5" />
+              <Pencil className="w-3.5 h-3.5" />
               <span>Edit Project in CMS</span>
             </Link>
           )}
@@ -351,7 +361,7 @@ const ProjectDetailPage = ({
                     : "bg-surface-container border-outline-variant/30 text-on-surface hover:text-primary hover:border-primary/40"
                 }`}
               >
-                <Video aria-hidden="true" className="text-[16px] h-4 w-4" />
+                <PlayCircle className="w-4 h-4" />
                 <span>Video Walkthrough</span>
               </button>
             )}
@@ -364,7 +374,7 @@ const ProjectDetailPage = ({
                 className="px-5 py-2.5 rounded-full bg-on-surface text-surface text-xs font-semibold hover:opacity-90 transition-all inline-flex items-center gap-2"
               >
                 <span>Live Demo / Dashboard</span>
-                <ExternalLink aria-hidden="true" className="text-[16px] h-4 w-4" />
+                <ExternalLink className="w-4 h-4" />
               </a>
             )}
             {project.github_url && (
@@ -374,7 +384,7 @@ const ProjectDetailPage = ({
                 rel="noopener noreferrer"
                 className="px-4 py-2.5 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface text-xs font-medium hover:bg-surface-container-high transition-all inline-flex items-center gap-1.5"
               >
-                <Code2 aria-hidden="true" className="text-[16px] h-4 w-4" />
+                <Code2 className="w-4 h-4" />
                 <span>Source Code</span>
               </a>
             )}
@@ -383,7 +393,7 @@ const ProjectDetailPage = ({
               onClick={handleShare}
               className="px-4 py-2.5 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs font-medium transition-all inline-flex items-center gap-1.5"
             >
-              <Share2 aria-hidden="true" className="text-[16px] h-4 w-4" />
+              <Share2 className="w-4 h-4" />
               <span>Share</span>
             </button>
           </div>
@@ -398,26 +408,28 @@ const ProjectDetailPage = ({
                 <div className="inline-flex p-1 rounded-full bg-surface-container-low border border-outline-variant/30">
                   <button
                     type="button"
+                    aria-pressed={mediaView === "video"}
                     onClick={() => setMediaView("video")}
-                    className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`inline-flex items-center gap-1.5 min-h-10 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                       mediaView === "video"
                         ? "bg-on-surface text-surface shadow-xs"
                         : "text-on-surface-variant hover:text-on-surface"
                     }`}
                   >
-                    <Video aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />
+                    <PlayCircle className="w-[15px] h-[15px]" />
                     <span>Video Walkthrough</span>
                   </button>
                   <button
                     type="button"
+                    aria-pressed={mediaView === "gallery"}
                     onClick={() => setMediaView("gallery")}
-                    className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`inline-flex items-center gap-1.5 min-h-10 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                       mediaView === "gallery"
                         ? "bg-on-surface text-surface shadow-xs"
                         : "text-on-surface-variant hover:text-on-surface"
                     }`}
                   >
-                    <Image aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />
+                    <ImageIcon className="w-[15px] h-[15px]" />
                     <span>
                       Screenshots &amp; Architecture
                       {uniqueImages.length > 0 ? ` (${uniqueImages.length})` : ""}
@@ -433,7 +445,7 @@ const ProjectDetailPage = ({
                     className="text-xs font-code text-on-surface-variant hover:text-primary transition-colors inline-flex items-center gap-1"
                   >
                     <span>Open on YouTube</span>
-                    <ExternalLink aria-hidden="true" className="text-[14px] h-3.5 w-3.5" />
+                    <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 )}
               </div>
@@ -514,7 +526,7 @@ const ProjectDetailPage = ({
         {/* Case Study & Technical Analysis Body (Always rendered) */}
         <article className="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 sm:p-10 shadow-xl">
           <div className="flex items-center gap-2 mb-6 pb-4 border-b border-outline-variant/20">
-            <FileText aria-hidden="true" className="text-primary text-xl h-5 w-5" />
+            <FileText className="text-primary w-5 h-5" />
             <h2 className="text-xs font-code uppercase tracking-wider text-on-surface-variant font-semibold">
               Case Study &amp; Technical Analysis
             </h2>

@@ -1,10 +1,11 @@
 "use client";
-import { Search, ArrowUpRight } from "lucide-react";
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
+import ArticlesSubNav from "@/components/ArticlesSubNav";
+import { Search, ExternalLink } from "lucide-react";
 import {
   extractArticleExternalMeta,
   type ArticlePlatform,
@@ -16,8 +17,9 @@ interface ArticlesPageProps {
   initialArticles?: any[];
 }
 
-const PLATFORM_FILTERS: Array<"All" | ArticlePlatform> = [
+const PLATFORM_FILTERS: Array<"All" | "On Site" | ArticlePlatform> = [
   "All",
+  "On Site",
   "Medium",
   "dev.to",
   "freeCodeCamp",
@@ -51,7 +53,10 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
         article.title?.toLowerCase().includes(q) ||
         article.excerpt?.toLowerCase().includes(q);
       const matchesPlatform =
-        selectedPlatform === "All" || article._platform === selectedPlatform;
+        selectedPlatform === "All" ||
+        (selectedPlatform === "On Site"
+          ? !article._isExternal
+          : article._platform === selectedPlatform);
       return matchesSearch && matchesPlatform;
     });
   }, [unifiedArticles, searchTerm, selectedPlatform]);
@@ -87,11 +92,13 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
             )}
           </div>
 
+          <ArticlesSubNav className="mt-8 mb-0 justify-start" />
+
           {unifiedArticles.length > 0 && (
             <div className="mt-8 space-y-4">
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div className="relative w-full md:w-96">
-                  <Search aria-hidden="true" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px] h-[18px] w-[18px]" />
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-outline" />
                   <input
                     type="text"
                     aria-label="Search articles"
@@ -164,6 +171,18 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                       ? "New technical essays and external publications will appear here as soon as they are published."
                       : "Try adjusting your search query or clearing your platform filter."}
                   </p>
+                  {unifiedArticles.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchTerm("");
+                        setSelectedPlatform("All");
+                      }}
+                      className="mt-5 px-4 py-2 rounded-full bg-surface-container border border-outline-variant/40 hover:bg-surface-container-high text-xs font-semibold text-primary transition-all"
+                    >
+                      Reset Filters
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -198,7 +217,9 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                                 {platform} ↗
                               </span>
                             ) : (
-                              <span />
+                              <span className="px-2.5 py-1 rounded-full border text-label-sm font-label-sm font-semibold bg-primary/10 border-primary/30 text-primary">
+                                On Site
+                              </span>
                             )}
                             {article.reading_time ? (
                               <span className="text-on-surface-variant text-label-sm font-code">
@@ -216,7 +237,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                         <div className="flex items-center justify-between pt-6 mt-4 border-t border-outline-variant/20 text-on-surface-variant text-label-sm font-code">
                           <span>{formattedDate}</span>
                           {isExternal ? (
-                            <ArrowUpRight aria-hidden="true" className="text-on-surface text-[16px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform h-4 w-4" />
+                            <ExternalLink className="w-4 h-4 text-on-surface group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                           ) : (
                             <span className="text-primary font-label-sm font-medium flex items-center gap-1 group-hover:underline">
                               Read Article →

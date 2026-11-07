@@ -1,5 +1,4 @@
 "use client";
-import { Play, Pause, Maximize2, ChevronLeft, ChevronRight, ExternalLink, X } from "lucide-react";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -26,6 +25,15 @@ import {
   type TravelCityHighlight,
 } from "@/data/travelData";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  Play,
+  Pause,
+  Maximize2,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  X,
+} from "lucide-react";
 
 interface TravelPageProps {
   initialHighlights: TravelCityHighlight[];
@@ -50,6 +58,22 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [slideProgress, setSlideProgress] = useState<number>(0);
   const [storyModalOpen, setStoryModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!storyModalOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setStoryModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [storyModalOpen]);
 
   useEffect(() => {
     if (!initialSlug) return;
@@ -269,6 +293,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
             <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
               <button
                 type="button"
+                aria-pressed={countryFilter === "all"}
                 onClick={() => setCountryFilter("all")}
                 className={
                   countryFilter === "all"
@@ -284,6 +309,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                   <button
                     key={c.country}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => setCountryFilter(c.country)}
                     className={
                       active
@@ -403,7 +429,11 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                   onClick={() => setIsPaused((p) => !p)}
                   className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-code font-code text-xs text-secondary hover:bg-surface-container-high transition-colors"
                 >
-                  {isPaused ? <Play aria-hidden="true" className="text-[14px] h-3.5 w-3.5" /> : <Pause aria-hidden="true" className="text-[14px] h-3.5 w-3.5" />}
+                  {isPaused ? (
+                    <Play className="w-3.5 h-3.5" />
+                  ) : (
+                    <Pause className="w-3.5 h-3.5" />
+                  )}
                   <span>
                     {isPaused ? "Paused" : "Playing"} Story{" "}
                     {String(activeSlideIndex + 1).padStart(2, "0")} /{" "}
@@ -415,7 +445,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                   onClick={() => setStoryModalOpen(true)}
                   className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-code font-code text-xs text-on-surface hover:bg-surface-container-high transition-colors"
                 >
-                  <Maximize2 aria-hidden="true" className="text-[14px] h-3.5 w-3.5" />
+                  <Maximize2 className="w-3.5 h-3.5" />
                   <span>Fullscreen</span>
                 </button>
               </div>
@@ -494,17 +524,21 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                           type="button"
                           aria-label={isPaused ? "Play Story" : "Pause Story"}
                           onClick={() => setIsPaused((p) => !p)}
-                          className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white"
+                          className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white"
                         >
-                          {isPaused ? <Play aria-hidden="true" className="text-[16px] h-4 w-4" /> : <Pause aria-hidden="true" className="text-[16px] h-4 w-4" />}
+                          {isPaused ? (
+                            <Play className="w-4 h-4" />
+                          ) : (
+                            <Pause className="w-4 h-4" />
+                          )}
                         </button>
                         <button
                           type="button"
                           aria-label="Open Fullscreen Story"
                           onClick={() => setStoryModalOpen(true)}
-                          className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white"
+                          className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white"
                         >
-                          <Maximize2 aria-hidden="true" className="text-[16px] h-4 w-4" />
+                          <Maximize2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -516,17 +550,17 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                       type="button"
                       onClick={handlePrevSlide}
                       aria-label="Previous slide"
-                      className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity"
+                      className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity"
                     >
-                      <ChevronLeft aria-hidden="true" className="text-sm h-3.5 w-3.5" />
+                      <ChevronLeft className="w-4 h-4" />
                     </button>
                     <button
                       type="button"
                       onClick={handleNextSlide}
                       aria-label="Next slide"
-                      className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity"
+                      className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity"
                     >
-                      <ChevronRight aria-hidden="true" className="text-sm h-3.5 w-3.5" />
+                      <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
 
@@ -553,7 +587,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                           target="_blank"
                         >
                           <span>Instagram</span>
-                          <ExternalLink aria-hidden="true" className="text-[13px] h-[13px] w-[13px]" />
+                          <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       )}
                     </div>
@@ -704,6 +738,9 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
       {/* Fullscreen 9:16 Instagram Story Modal */}
       {storyModalOpen && activeCity && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Travel story viewer"
           className="fixed inset-0 z-[1300] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4"
           onClick={() => setStoryModalOpen(false)}
         >
@@ -760,10 +797,11 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                 </div>
                 <button
                   type="button"
+                  aria-label="Close story viewer"
                   onClick={() => setStoryModalOpen(false)}
-                  className="w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70"
+                  className="w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70"
                 >
-                  <X aria-hidden="true" className="text-[18px] h-[18px] w-[18px]" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -772,16 +810,18 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
               <button
                 type="button"
                 onClick={handlePrevSlide}
+                aria-label="Previous slide"
                 className="w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center"
               >
-                <ChevronLeft aria-hidden="true" className="h-4 w-4" />
+                <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 type="button"
                 onClick={handleNextSlide}
+                aria-label="Next slide"
                 className="w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center"
               >
-                <ChevronRight aria-hidden="true" className="h-4 w-4" />
+                <ChevronRight className="w-5 h-5" />
               </button>
             </div>
 

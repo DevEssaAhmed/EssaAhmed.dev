@@ -52,18 +52,18 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-surface text-on-surface">
       <Navigation />
-      <div className="pt-20">
+      <main id="main-content" tabIndex={-1} className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center mb-16">
             <div className="flex items-center justify-center gap-2 mb-4">
               <BookOpen className="w-8 h-8 text-primary" />
-              <h1 className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
+              <h1 className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-on-surface">
                 Article Series
               </h1>
             </div>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="text-lg text-on-surface-variant max-w-2xl mx-auto mb-8">
               Dive deep into comprehensive article series. Follow structured learning paths and master complex topics step by step.
             </p>
             <ArticlesSubNav />
@@ -73,12 +73,12 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
             <div className="mb-12">
               <div className="flex items-center gap-2 mb-6">
                 <Sparkles className="w-5 h-5 text-primary" />
-                <h2 className="font-display text-2xl font-bold text-foreground tracking-tight">Featured Series</h2>
+                <h2 className="font-display text-2xl font-bold text-on-surface tracking-tight">Featured Series</h2>
               </div>
               <div className="grid lg:grid-cols-2 gap-8 mb-8">
                 {series.filter((s) => s.featured).map((seriesItem) => (
                   <Link key={seriesItem.id} href={`/articles/series/${seriesItem.slug}`} className="block">
-                    <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer h-full flex flex-col justify-between hover:-translate-y-1 bg-surface-low border border-border hover:border-primary/40 overflow-hidden">
+                    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer h-full flex flex-col justify-between hover:-translate-y-1 bg-surface-container-low border border-outline-variant/30 hover:border-primary/40 overflow-hidden">
                       {(seriesItem.featured_image_url || seriesItem.image_url) && (
                         <div className="relative overflow-hidden rounded-t-lg">
                           <OptimizedImage
@@ -90,28 +90,28 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
                         </div>
                       )}
                       <CardHeader>
-                        <div className="flex items-center justify-between mb-2 text-sm text-muted-foreground">
+                        <div className="flex items-center justify-between mb-2 text-sm text-on-surface-variant">
                           <div>
                             {new Date(seriesItem.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long" })}
                           </div>
-                          <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-high px-2.5 py-1 text-xs font-mono text-muted-foreground">
+                          <div className="inline-flex items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container px-2.5 py-1 text-xs font-mono text-on-surface-variant">
                             {getStatusIcon(seriesItem.status)}
                             <span>{getStatusText(seriesItem.status)}</span>
                           </div>
                         </div>
-                        <CardTitle className="group-hover:text-primary transition-colors text-xl font-display font-bold text-foreground">
+                        <CardTitle className="group-hover:text-primary transition-colors text-xl font-display font-bold text-on-surface">
                           {seriesItem.title}
                         </CardTitle>
-                        <CardDescription>
+                        <CardDescription className="text-on-surface-variant">
                           {seriesItem.description || `A comprehensive series about ${seriesItem.title.toLowerCase()}`}
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="flex items-center justify-between">
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-sm text-on-surface-variant">
                             {seriesItem.article_count} {seriesItem.article_count === 1 ? "article" : "articles"}
                           </div>
-                          <Button size="sm" variant="ghost" className="group-hover:text-primary text-muted-foreground">
+                          <Button size="sm" variant="ghost" className="group-hover:text-primary text-on-surface-variant">
                             <ArrowRight className="w-4 h-4" />
                           </Button>
                         </div>
@@ -124,11 +124,11 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
           )}
 
           <div>
-            <h2 className="font-display text-2xl font-bold text-foreground tracking-tight mb-6">All Series</h2>
+            <h2 className="font-display text-2xl font-bold text-on-surface tracking-tight mb-6">All Series</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {series.filter((s) => !s.featured).map((seriesItem) => (
                 <Link key={seriesItem.id} href={`/articles/series/${seriesItem.slug}`} className="block">
-                  <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer h-full flex flex-col justify-between hover:-translate-y-1 bg-surface-low border border-border hover:border-primary/40 overflow-hidden">
+                  <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer h-full flex flex-col justify-between hover:-translate-y-1 bg-surface-container-low border border-outline-variant/30 hover:border-primary/40 overflow-hidden">
                     {(seriesItem.featured_image_url || seriesItem.image_url) && (
                       <div className="relative overflow-hidden rounded-t-lg">
                         <OptimizedImage
@@ -140,24 +140,24 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
                       </div>
                     )}
                     <CardHeader className="pb-4">
-                      <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground mb-2">
+                      <div className="flex items-center justify-between gap-3 text-sm text-on-surface-variant mb-2">
                         <span>{new Date(seriesItem.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long" })}</span>
                         <span className="inline-flex items-center gap-1 text-xs font-mono">{getStatusIcon(seriesItem.status)} {getStatusText(seriesItem.status)}</span>
                       </div>
-                      <CardTitle className="group-hover:text-primary transition-colors font-display text-lg font-bold text-foreground line-clamp-1">
+                      <CardTitle className="group-hover:text-primary transition-colors font-display text-lg font-bold text-on-surface line-clamp-1">
                         {seriesItem.title}
                       </CardTitle>
-                      <CardDescription className="text-sm">
+                      <CardDescription className="text-sm text-on-surface-variant">
                         {seriesItem.description?.slice(0, 100)}
                         {seriesItem.description && seriesItem.description.length > 100 && "..."}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="flex items-center justify-between">
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-on-surface-variant">
                           {seriesItem.article_count} {seriesItem.article_count === 1 ? "article" : "articles"}
                         </div>
-                        <Button size="sm" variant="ghost" className="group-hover:text-primary text-muted-foreground">
+                        <Button size="sm" variant="ghost" className="group-hover:text-primary text-on-surface-variant">
                           <ArrowRight className="w-4 h-4" />
                         </Button>
                       </div>
@@ -168,11 +168,10 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
             </div>
           </div>
         </div>
-      </div>
+      </main>
       <OptimizedFooter />
     </div>
   );
 };
 
 export default SeriesPage;
-

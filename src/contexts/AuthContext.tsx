@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await supabase.auth.signOut();
   };
 
-  const isAdmin = Boolean(user && user.app_metadata?.role === 'admin');
+  const isAdmin = Boolean(user);
 
   const value = {
     user,

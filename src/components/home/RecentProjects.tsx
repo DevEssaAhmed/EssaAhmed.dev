@@ -1,4 +1,4 @@
-﻿import { useMemo, useState, memo } from "react";
+import { useMemo, useState, memo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -54,7 +54,7 @@ const RecentProjects = memo(({ showAll = false, initialProjects = [], initialCat
           {filteredProjects.map((project: any) => (
             <Card
               key={project.id}
-              className="group cursor-pointer hover:shadow-glow transition-all duration-300"
+              className="group cursor-pointer hover:border-primary/40 hover:shadow-ambient transition-all duration-300"
               role="link"
               tabIndex={0}
               onClick={() => router.push(`/projects/${project.id}`)}
@@ -118,7 +118,7 @@ const RecentProjects = memo(({ showAll = false, initialProjects = [], initialCat
                 : `We couldn&apos;t find any projects in the "${selectedCategory}" category.`}
             </p>
             {selectedCategory !== "All" && (
-              <Button onClick={() => setSelectedCategory("All")} className="bg-gradient-primary hover:shadow-glow transition-all duration-300 rounded-xl px-8 h-12">
+              <Button onClick={() => setSelectedCategory("All")} className="bg-primary text-on-primary hover:bg-primary/90 transition-all duration-300 rounded-xl px-8 h-12">
                 View All Projects
               </Button>
             )}

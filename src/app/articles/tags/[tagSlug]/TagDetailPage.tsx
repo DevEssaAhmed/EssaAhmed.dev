@@ -10,8 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Clock, ArrowLeft, Tag, Search, BookOpen, Hash } from "lucide-react";
+import { Calendar, ArrowLeft, Tag, Search, Hash } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -37,7 +36,7 @@ interface BlogPost {
   content: string;
   content_jsonb?: Json;
 }
-// Define the type for the data returned by your RPC function
+
 const tagToHref = (tag: string) => `/articles/tags/${encodeURIComponent(tag.toLowerCase().replace(/\s+/g, "-"))}`;
 
 interface TagDetailPageProps {
@@ -59,43 +58,6 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
   const [tagName, setTagName] = useState(initialTagName || '');
   const [relatedTags, setRelatedTags] = useState<Tag[]>(initialRelatedTags || []);
 
-
-  // const fetchTagContent = async () => {
-  //   if (!tagSlug) return;
-
-  //   setLoading(true);
-  //   try {
-  //     // Decode the tag name from slug
-  //     const decodedTag = decodeURIComponent(tagSlug.replace(/-/g, ' '));
-  //     setTagName(decodedTag);
-
-  //     // Fetch blog posts with this tag
-  //     const { data: blogData } = await supabase
-  //       .from('blog_posts')
-  //       .select('*')
-  //       .contains('tags', [decodedTag])
-  //       .eq('published', true)
-  //       .order('created_at', { ascending: false });
-
-  //     // Fetch projects with this tag
-  //     const { data: projectData } = await supabase
-  //       .from('projects')
-  //       .select('*')
-  //       .contains('tags', [decodedTag])
-  //       .order('created_at', { ascending: false });
-
-  //     setBlogPosts(blogData || []);
-  //     setProjects(projectData || []);
-
-  //     // Generate related tags based on content with the same tag
-  //     await fetchRelatedTags(decodedTag);
-
-  //   } catch (error) {
-  //     console.error('Error fetching tag content:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const fetchTagContent = React.useCallback(async () => {
     if (!tagSlug) return;
 
@@ -123,7 +85,7 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
       // Fetch blog posts using the join table
       const { data: blogPostTagData } = await supabase
         .from('blog_post_tags')
-        .select('blog_post_id, blog_posts!inner(*)') // Select only publicly listed posts from the linked table
+        .select('blog_post_id, blog_posts!inner(*)')
         .eq('tag_id', tagId)
         .eq('blog_posts.published', true)
         .eq('blog_posts.unlisted', false);
@@ -169,45 +131,47 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
       fetchTagContent();
     }
   }, [fetchTagContent, tagSlug, initialTagName]);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-surface">
+      <div className="min-h-screen bg-surface text-on-surface">
         <Navigation />
-        <div className="pt-20 flex items-center justify-center min-h-[60vh]">
+        <main id="main-content" tabIndex={-1} className="pt-20 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="w-8 h-8 border-2 border-champagne/20 border-t-champagne rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-ink-soft font-mono text-sm">Loading tag content...</p>
+            <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-on-surface-variant font-mono text-sm">Loading tag content...</p>
           </div>
-        </div>
+        </main>
+        <OptimizedFooter />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-surface text-on-surface">
       <Navigation />
 
-      <div className="pt-20">
+      <main id="main-content" tabIndex={-1} className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-12">
           {/* Header */}
           <div className="mb-12">
-            <Button asChild variant="ghost" className="mb-6 rounded-xl border border-border bg-surface-container text-ink-soft hover:text-white hover:border-champagne/40 transition-all duration-200 font-mono text-xs">
+            <Button asChild variant="ghost" className="mb-6 rounded-full border border-outline-variant/30 bg-surface-container text-on-surface-variant hover:text-on-surface hover:border-primary/40 transition-all duration-200 font-mono text-xs">
               <Link href="/articles/tags">
-                <ArrowLeft className="w-4 h-4 mr-2 text-champagne" />
+                <ArrowLeft className="w-4 h-4 mr-2 text-primary" />
                 Back to All Tags
               </Link>
             </Button>
 
             <div className="text-center">
               <div className="flex items-center justify-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-2xl bg-surface-container border border-champagne/30 flex items-center justify-center text-champagne font-bold text-2xl shadow-sm">
+                <div className="w-16 h-16 rounded-2xl bg-surface-container border border-primary/30 flex items-center justify-center text-primary font-bold text-2xl shadow-sm">
                   <Hash className="w-8 h-8" />
                 </div>
                 <div className="text-left">
-                  <h1 className="text-4xl lg:text-5xl font-display font-bold text-white">
+                  <h1 className="text-4xl lg:text-5xl font-display font-bold text-on-surface">
                     #{tagName}
                   </h1>
-                  <p className="text-sm font-mono text-ink-soft mt-1">
+                  <p className="text-sm font-mono text-on-surface-variant mt-1">
                     {blogPosts.length} {blogPosts.length === 1 ? 'item' : 'items'} tagged
                   </p>
                 </div>
@@ -215,25 +179,25 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
 
               {/* Search */}
               <div className="max-w-md mx-auto relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-ink-muted w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-outline w-4 h-4" />
                 <Input
                   placeholder="Search within tagged content..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-11 rounded-lg bg-surface-container border-border text-foreground placeholder:text-ink-muted focus-visible:outline-none focus-visible:border-champagne/60 font-mono text-sm"
+                  className="pl-10 h-11 rounded-lg bg-surface-container border-outline-variant/30 text-on-surface placeholder:text-outline focus-visible:outline-none focus-visible:border-primary/60 font-mono text-sm"
                 />
               </div>
 
               {/* Related Tags */}
               {relatedTags.length > 0 && (
                 <div className="mt-8">
-                  <h3 className="text-xs font-mono uppercase tracking-wider text-ink-muted mb-3">Related Tags</h3>
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-outline mb-3">Related Tags</h3>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {relatedTags.slice(0, 10).map((tag) => (
                       <Link key={tag.name} href={tagToHref(tag.name)}>
                         <Badge
                           variant="outline"
-                          className="border border-border bg-surface-container text-platinum hover:border-champagne/40 hover:text-champagne cursor-pointer transition-colors font-mono text-xs"
+                          className="border border-outline-variant/30 bg-surface-container text-on-surface hover:border-primary/40 hover:text-primary cursor-pointer transition-colors font-mono text-xs"
                         >
                           #{tag.name} ({tag.count})
                         </Badge>
@@ -251,13 +215,13 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredBlogPosts.map((post) => (
                   <Link key={post.id} href={`/articles/${post.slug}`} className="block">
-                    <Card className="bg-surface-low border border-border hover:border-champagne/40 hover:bg-surface-container/60 transition-all duration-300 cursor-pointer flex flex-col h-full rounded-2xl overflow-hidden">
+                    <Card className="bg-surface-container-low border border-outline-variant/30 hover:border-primary/40 hover:bg-surface-container/60 transition-all duration-300 cursor-pointer flex flex-col h-full rounded-2xl overflow-hidden group">
                       {post.image_url && (
                         <div className="aspect-video overflow-hidden">
                           <OptimizedImage
                             src={post.image_url}
                             alt={post.title}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         </div>
                       )}
@@ -269,20 +233,20 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
                               variant="outline"
                               className={`text-xs font-mono border ${
                                 tag.toLowerCase() === tagName.toLowerCase()
-                                  ? "bg-champagne/10 border-champagne/40 text-champagne font-medium"
-                                  : "bg-surface-container border-border text-ink-soft"
+                                  ? "bg-primary/10 border-primary/30 text-primary font-medium"
+                                  : "bg-surface-container border-outline-variant/30 text-on-surface-variant"
                               }`}
                             >
                               #{tag}
                             </Badge>
                           ))}
                         </div>
-                        <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2 text-white group-hover:text-champagne transition-colors">{post.title}</h3>
-                        <p className="text-ink-soft text-sm mb-4 line-clamp-3 flex-grow font-sans">{post.excerpt}</p>
+                        <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2 text-on-surface group-hover:text-primary transition-colors">{post.title}</h3>
+                        <p className="text-on-surface-variant text-sm mb-4 line-clamp-3 flex-grow font-sans">{post.excerpt}</p>
 
-                        <div className="flex items-center gap-4 text-xs font-mono text-ink-muted pt-4 border-t border-border">
+                        <div className="flex items-center gap-4 text-xs font-mono text-outline pt-4 border-t border-outline-variant/30">
                           <div className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5 text-champagne/70" />
+                            <Calendar className="w-3.5 h-3.5 text-primary/70" />
                             {new Date(post.created_at).toLocaleDateString()}
                           </div>
                         </div>
@@ -292,22 +256,22 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="w-full relative overflow-hidden rounded-2xl border border-border bg-surface-low p-12 text-center shadow-sm mt-8">
+              <div className="w-full relative overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-low p-12 text-center shadow-sm mt-8">
                 <div className="relative z-10 flex flex-col items-center justify-center">
-                  <div className="w-20 h-20 mb-6 rounded-2xl bg-surface-container border border-champagne/30 flex items-center justify-center mx-auto">
-                    {searchTerm ? <Search className="w-10 h-10 text-champagne" /> : <Tag className="w-10 h-10 text-champagne" />}
+                  <div className="w-20 h-20 mb-6 rounded-2xl bg-surface-container border border-primary/30 flex items-center justify-center mx-auto">
+                    {searchTerm ? <Search className="w-10 h-10 text-primary" /> : <Tag className="w-10 h-10 text-primary" />}
                   </div>
-                  <h3 className="text-2xl font-display font-bold text-white mb-3">No Articles Found</h3>
-                  <p className="text-base text-ink-soft max-w-lg mx-auto mb-8 font-sans">
+                  <h3 className="text-2xl font-display font-bold text-on-surface mb-3">No Articles Found</h3>
+                  <p className="text-base text-on-surface-variant max-w-lg mx-auto mb-8 font-sans">
                     {searchTerm
                       ? 'Try adjusting your search terms or filters.'
-                      : <>There are currently no articles published with the <span className="text-white font-medium">#{tagName}</span> tag.</>}
+                      : <>There are currently no articles published with the <span className="text-on-surface font-medium">#{tagName}</span> tag.</>}
                   </p>
                   <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <Button asChild className="bg-champagne text-surface-lowest hover:bg-champagne/90 font-medium rounded-xl px-8 h-12 transition-all duration-200">
+                    <Button asChild className="bg-on-surface text-surface hover:opacity-90 font-medium rounded-full px-8 h-12 transition-all duration-200">
                       <Link href="/articles">Read Latest Articles</Link>
                     </Button>
-                    <Button asChild variant="outline" className="rounded-xl px-8 h-12 border border-border bg-surface-container text-platinum hover:bg-surface-high transition-all duration-200">
+                    <Button asChild variant="outline" className="rounded-full px-8 h-12 border border-outline-variant/30 bg-surface-container text-on-surface hover:bg-surface-container-high transition-all duration-200">
                       <Link href="/articles/tags">Browse All Tags</Link>
                     </Button>
                   </div>
@@ -318,10 +282,10 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
 
           {/* Related Tags */}
           {relatedTags.length > 0 && (
-            <Card className="mt-12 bg-surface-low border border-border rounded-2xl">
+            <Card className="mt-12 bg-surface-container-low border border-outline-variant/30 rounded-2xl">
               <CardHeader>
-                <CardTitle className="font-display font-bold text-white">Related Tags</CardTitle>
-                <CardDescription className="text-ink-soft font-sans">Other tags commonly used with &quot;{tagName}&quot;</CardDescription>
+                <CardTitle className="font-display font-bold text-on-surface">Related Tags</CardTitle>
+                <CardDescription className="text-on-surface-variant font-sans">Other tags commonly used with &quot;{tagName}&quot;</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -329,7 +293,7 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
                     <Link key={tag.name} href={tagToHref(tag.name)}>
                       <Badge
                         variant="outline"
-                        className="cursor-pointer border border-border bg-surface-container text-platinum hover:border-champagne/40 hover:text-champagne transition-colors font-mono text-xs"
+                        className="cursor-pointer border border-outline-variant/30 bg-surface-container text-on-surface hover:border-primary/40 hover:text-primary transition-colors font-mono text-xs"
                       >
                         #{tag.name} ({tag.count})
                       </Badge>
@@ -340,12 +304,10 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
             </Card>
           )}
         </div>
-      </div>
+      </main>
       <OptimizedFooter />
     </div>
   );
 };
 
 export default TagDetailPage;
-
-

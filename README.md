@@ -62,7 +62,7 @@ A responsive portfolio website for presenting professional capabilities, project
 
 ## Admin access
 
-Create a user with Supabase Auth, then grant that account the trusted app metadata claim `{"role":"admin"}` from the Supabase Dashboard or Admin API. Sign out and back in after changing the claim. Do not use editable user metadata for administrator access.
+Create a user account in the Supabase Dashboard under **Authentication** > **Users** (or via the Supabase Auth API). Any authenticated user in your Supabase project has full access to log in to `/admin` and manage portfolio content without needing `raw_app_meta_data.role = "admin"`.
 
 ## Useful commands
 

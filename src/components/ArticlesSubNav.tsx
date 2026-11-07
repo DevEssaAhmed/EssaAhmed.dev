@@ -28,7 +28,7 @@ export default function ArticlesSubNav({ className = "" }: { className?: string 
       aria-label="Articles sub-navigation"
       className={cn("flex justify-center mb-12 animate-fade-in", className)}
     >
-      <div className="inline-flex items-center gap-1 p-1.5 bg-surface-low/90 backdrop-blur-xl border border-border/80 rounded-full shadow-2xl overflow-x-auto max-w-full scrollbar-none">
+      <div className="inline-flex items-center gap-1 p-1.5 bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 rounded-full shadow-lg overflow-x-auto max-w-full no-scrollbar">
         {navItems.map((item) => {
           const isActive =
             item.path === "/articles"
@@ -45,17 +45,16 @@ export default function ArticlesSubNav({ className = "" }: { className?: string 
               href={item.path}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "relative flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-2 focus-visible:ring-offset-surface-canvas",
+                "min-h-11 relative flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 isActive
-                  ? "text-[#07090e] font-semibold"
-                  : "text-muted-foreground hover:text-foreground hover:bg-surface-high/60 border border-transparent hover:border-border/60"
+                  ? "text-surface font-semibold"
+                  : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container/60"
               )}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeSubNav"
-                  className="absolute inset-0 bg-champagne rounded-full shadow-md"
+                  className="absolute inset-0 bg-on-surface rounded-full shadow-xs"
                   initial={false}
                   transition={{ type: "spring", stiffness: 450, damping: 35 }}
                 />
@@ -68,8 +67,8 @@ export default function ArticlesSubNav({ className = "" }: { className?: string 
                     className={cn(
                       "hidden sm:inline-block font-mono text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded transition-colors",
                       isActive
-                        ? "bg-[#07090e]/15 text-[#07090e]"
-                        : "bg-surface-high text-muted-foreground/90 border border-border/60"
+                        ? "bg-surface/15 text-surface"
+                        : "bg-surface-container text-on-surface-variant border border-outline-variant/30"
                     )}
                   >
                     {item.tag}

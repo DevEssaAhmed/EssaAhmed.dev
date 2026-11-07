@@ -14,6 +14,7 @@ import {
 import { isPublicTravelHighlight } from "@/data/travelVisibility";
 import { useToast } from "@/hooks/use-toast";
 import FileUpload from "@/components/FileUpload";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -446,9 +447,11 @@ export default function TravelHighlightEditor() {
               <div className="w-[104px] h-[104px] rounded-full p-[3px] bg-gradient-to-tr from-amber-400 via-rose-500 to-purple-600 shadow-[0_0_30px_rgba(244,63,94,0.25)] transition-transform duration-300 group-hover:scale-105">
                 <div className="w-full h-full rounded-full p-[3px] bg-white">
                   {highlight.cover_image_url ? (
-                    <img
+                    <OptimizedImage
                       src={highlight.cover_image_url}
                       alt={highlight.city_name || "City cover"}
+                      width={104}
+                      height={104}
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (
@@ -745,9 +748,11 @@ export default function TravelHighlightEditor() {
               >
                 {/* 9:16 Story Preview Thumbnail */}
                 <div className="aspect-[9/16] relative bg-zinc-100 overflow-hidden group">
-                  <img
+                  <OptimizedImage
                     src={slide.image_url}
                     alt={slide.caption || `Slide ${idx + 1}`}
+                    width={360}
+                    height={640}
                     className="w-full h-full object-cover"
                   />
                   {/* Top bar overlay */}

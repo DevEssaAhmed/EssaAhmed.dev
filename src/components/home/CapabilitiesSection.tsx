@@ -1,5 +1,6 @@
 "use client";
-import { Terminal, Package, BarChart3 } from "lucide-react";
+
+import { Terminal, Package, LineChart } from "lucide-react";
 
 const CapabilitiesSection = () => {
   const stackItems = [
@@ -34,7 +35,7 @@ const CapabilitiesSection = () => {
         <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/60 transition-all">
           <div>
             <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-5">
-              <Terminal aria-hidden="true" className="text-[24px] h-6 w-6" />
+              <Terminal className="w-6 h-6" />
             </div>
             <h3 className="text-headline-sm font-headline-sm text-on-surface mb-2">
               Workflow &amp; Process Automation
@@ -63,7 +64,7 @@ const CapabilitiesSection = () => {
         <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/60 transition-all">
           <div>
             <div className="w-12 h-12 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary mb-5">
-              <Package aria-hidden="true" className="text-[24px] h-6 w-6" />
+              <Package className="w-6 h-6" />
             </div>
             <h3 className="text-headline-sm font-headline-sm text-on-surface mb-2">
               Supply Chain &amp; Demand Planning
@@ -92,7 +93,7 @@ const CapabilitiesSection = () => {
         <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/60 transition-all">
           <div>
             <div className="w-12 h-12 rounded-xl bg-tertiary-fixed-dim/10 border border-tertiary-fixed-dim/20 flex items-center justify-center text-tertiary-fixed-dim mb-5">
-              <BarChart3 aria-hidden="true" className="text-[24px] h-6 w-6" />
+              <LineChart className="w-6 h-6" />
             </div>
             <h3 className="text-headline-sm font-headline-sm text-on-surface mb-2">
               Analytics &amp; Decision Systems

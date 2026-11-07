@@ -9,7 +9,9 @@ export default function GTMPageView() {
   const search = useSearchParams();
 
   useEffect(() => {
-    pageview(pathname || "/", search?.toString() ?? "");
+    const query = search?.toString();
+    const url = pathname + (query ? `?${query}` : "");
+    pageview(url);
   }, [pathname, search]);
 
   return null;

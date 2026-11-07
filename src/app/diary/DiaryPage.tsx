@@ -1,5 +1,4 @@
 "use client";
-import { ChevronUp, ChevronDown } from "lucide-react";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -9,6 +8,7 @@ import { OptimizedImage } from "@/components/OptimizedImage";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 type DiaryEntry = Database["public"]["Tables"]["diary_entries"]["Row"];
 type ViewMode = "year" | "timeline";
@@ -307,7 +307,11 @@ export default function DiaryPage({
                               className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                             >
                               <span>{isExpanded ? "Show less" : "Read full entry"}</span>
-                              {isExpanded ? <ChevronUp aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" /> : <ChevronDown aria-hidden="true" className="text-[15px] h-[15px] w-[15px]" />}
+                              {isExpanded ? (
+                                <ChevronUp className="w-3.5 h-3.5" />
+                              ) : (
+                                <ChevronDown className="w-3.5 h-3.5" />
+                              )}
                             </button>
                           )}
                         </article>
@@ -319,33 +323,82 @@ export default function DiaryPage({
             </div>
           ) : (
             <div className="relative pl-6 sm:pl-8 border-l border-outline-variant/30 space-y-8">
-              {entries.map((entry) => (
-                <article
-                  key={entry.id}
-                  className="relative rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 sm:p-8"
-                >
-                  <span className="absolute -left-[31px] sm:-left-[39px] top-7 w-3.5 h-3.5 rounded-full bg-secondary ring-4 ring-surface" />
-                  <div className="flex items-center justify-between gap-2 text-xs font-code text-outline mb-2">
-                    <span className="text-secondary font-semibold">
-                      {formatReadableDate(entry.entry_date)}
-                    </span>
-                    {isAdmin && (
-                      <Link
-                        href={`/admin/diary/edit/${entry.id}`}
-                        className="text-primary hover:underline"
-                      >
-                        Edit →
-                      </Link>
+              {entries.map((entry) => {
+                const isExpanded = Boolean(expandedMap[entry.id]);
+                const wordCount = (entry.content || "").trim().split(/\s+/).filter(Boolean).length;
+                const readMins = Math.max(1, Math.ceil(wordCount / 200));
+
+                return (
+                  <article
+                    key={entry.id}
+                    className="relative rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 sm:p-8 hover:border-outline-variant/60 transition-all"
+                  >
+                    <span className="absolute -left-[31px] sm:-left-[39px] top-7 w-3.5 h-3.5 rounded-full bg-secondary ring-4 ring-surface" />
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2.5 text-xs font-code">
+                        <span className="px-2.5 py-1 rounded-md bg-primary/10 border border-primary/25 text-primary font-semibold">
+                          {formatReadableDate(entry.entry_date)}
+                        </span>
+                        {(entry as any).topic_tag && (
+                          <span className="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/30 text-on-surface-variant">
+                            {(entry as any).topic_tag}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 text-xs font-code text-outline">
+                        <span>{readMins} min read</span>
+                        {isAdmin && (
+                          <Link
+                            href={`/admin/diary/edit/${entry.id}`}
+                            className="text-primary hover:underline"
+                          >
+                            Edit →
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+
+                    <h2 className="text-xl sm:text-2xl font-display font-bold text-on-surface tracking-tight mb-3">
+                      {entry.title || formatReadableDate(entry.entry_date)}
+                    </h2>
+
+                    {entry.image_url && (
+                      <div className="my-4 rounded-xl overflow-hidden border border-outline-variant/30 max-h-80">
+                        <OptimizedImage
+                          src={entry.image_url}
+                          alt={entry.image_alt || entry.title || "Diary photo"}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          sizes="(max-width: 768px) 100vw, 720px"
+                        />
+                      </div>
                     )}
-                  </div>
-                  <h2 className="text-xl font-display font-bold text-on-surface mb-2">
-                    {entry.title || formatReadableDate(entry.entry_date)}
-                  </h2>
-                  <p className="text-on-surface-variant font-body-md text-body-md leading-relaxed whitespace-pre-line">
-                    {entry.content}
-                  </p>
-                </article>
-              ))}
+
+                    <div
+                      className={`text-on-surface-variant font-body-lg text-body-lg leading-relaxed whitespace-pre-line ${
+                        !isExpanded && (entry.content || "").length > 360 ? "line-clamp-4" : ""
+                      }`}
+                    >
+                      {entry.content}
+                    </div>
+
+                    {(entry.content || "").length > 360 && (
+                      <button
+                        type="button"
+                        onClick={() => toggleExpanded(entry.id)}
+                        className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                      >
+                        <span>{isExpanded ? "Show less" : "Read full entry"}</span>
+                        {isExpanded ? (
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    )}
+                  </article>
+                );
+              })}
             </div>
           )}
 

@@ -2,17 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    // Inline the small Tailwind CSS payload to avoid the extra stylesheet request on cold loads.
-    inlineCss: true,
     optimizePackageImports: ["lucide-react", "date-fns", "framer-motion"],
   },
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "kexmzaaufxbzegurxuqz.supabase.co",
-        pathname: "/storage/**",
-      },
       {
         protocol: "https",
         hostname: "**.supabase.co",
@@ -36,10 +29,6 @@ const nextConfig = {
           {
             key: "X-Frame-Options",
             value: "DENY",
-          },
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
           },
           {
             key: "Referrer-Policy",

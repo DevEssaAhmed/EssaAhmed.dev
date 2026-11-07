@@ -16,14 +16,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
-        <Card className="bg-card/50 backdrop-blur-md border-primary/20">
+      <div className="min-h-screen bg-surface text-on-surface flex items-center justify-center p-4">
+        <Card className="bg-surface-container-low border border-outline-variant/30 rounded-3xl shadow-xl">
           <CardContent className="p-8 text-center">
-            <div className="w-12 h-12 mx-auto mb-4 bg-gradient-primary rounded-xl flex items-center justify-center">
-              <Lock className="w-6 h-6 text-[#090c13]" />
+            <div className="w-12 h-12 mx-auto mb-4 bg-primary/10 border border-primary/25 text-primary rounded-xl flex items-center justify-center">
+              <Lock className="w-6 h-6 text-primary" />
             </div>
             <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-muted-foreground">Checking authentication...</p>
+            <p className="text-on-surface-variant">Checking authentication...</p>
           </CardContent>
         </Card>
       </div>
@@ -38,7 +38,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-surface text-on-surface flex items-center justify-center p-4">
-        <Card className="bg-surface-container-low border-destructive/30 max-w-md w-full shadow-xl">
+        <Card className="bg-surface-container-low border border-destructive/30 max-w-md w-full shadow-xl">
           <CardContent className="p-8 text-center space-y-4">
             <div className="w-12 h-12 mx-auto bg-destructive/10 rounded-xl flex items-center justify-center text-destructive">
               <ShieldAlert className="w-6 h-6" />

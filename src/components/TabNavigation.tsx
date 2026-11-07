@@ -95,7 +95,7 @@ const TabNavigation = ({
           <div
             role="tablist"
             aria-label="Portfolio sections"
-            className="flex items-center gap-1.5 sm:gap-2 bg-surface-low/90 backdrop-blur-xl border border-border/80 rounded-2xl p-1.5 sm:p-2 shadow-2xl overflow-x-auto max-w-full scrollbar-none"
+            className="flex items-center gap-1.5 sm:gap-2 bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/60 rounded-2xl p-1.5 sm:p-2 shadow-ambient overflow-x-auto max-w-full scrollbar-none"
           >
             {tabs.map((tab) => {
               const IconComponent = tab.icon;
@@ -111,10 +111,10 @@ const TabNavigation = ({
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
                     "shrink-0 flex items-center gap-2 sm:gap-3 px-3.5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold tracking-wider transition-all duration-200 whitespace-nowrap",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-2 focus-visible:ring-offset-surface-canvas",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
                     isActive
-                      ? "bg-champagne text-[#07090e] shadow-md border border-champagne"
-                      : "text-muted-foreground hover:text-foreground hover:bg-surface-high/60 border border-transparent hover:border-border/60"
+                      ? "bg-primary text-on-primary shadow-md border border-primary"
+                      : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/60 border border-transparent hover:border-outline-variant/60"
                   )}
                 >
                   <IconComponent className="w-4 h-4 shrink-0" />
@@ -123,8 +123,8 @@ const TabNavigation = ({
                     className={cn(
                       "font-mono text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded transition-colors",
                       isActive
-                        ? "bg-[#07090e]/15 text-[#07090e] font-bold"
-                        : "bg-surface-high text-muted-foreground/90 border border-border/60"
+                        ? "bg-on-primary/15 text-on-primary font-bold"
+                        : "bg-surface-container-high text-on-surface-variant border border-outline-variant/60"
                     )}
                   >
                     {tab.badge}
@@ -149,44 +149,44 @@ const AboutSection = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* About Content Card */}
-        <Card className="bg-surface-low/90 backdrop-blur-md border border-border hover:border-champagne/40 transition-colors duration-300 rounded-2xl shadow-xl">
+        <Card className="bg-surface-container-low/90 backdrop-blur-md border border-outline-variant/40 hover:border-primary/40 transition-colors duration-300 rounded-2xl shadow-ambient">
           <CardContent className="p-6 sm:p-8">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-champagne/10 border border-champagne/20 flex items-center justify-center text-champagne shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
                 <User2 className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-2xl font-display font-bold text-foreground">About Me</h2>
-                <p className="text-xs font-mono text-champagne/80 tracking-wide uppercase mt-0.5">
+                <h2 className="text-2xl font-display font-bold text-on-surface">About Me</h2>
+                <p className="text-xs font-mono text-primary/80 tracking-wide uppercase mt-0.5">
                   ANALYTICS ENGINEERING & ARCHITECTURE
                 </p>
               </div>
             </div>
 
             <div className="space-y-6">
-              <p className="text-base text-muted-foreground leading-relaxed">
+              <p className="text-base text-on-surface-variant leading-relaxed">
                 {profile?.bio ||
                   'I write about data, build dashboards, and turn insights into action.'}
               </p>
 
-              <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-muted-foreground pt-1">
+              <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-on-surface-variant pt-1">
                 {profile?.location && (
                   <span className="flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-champagne/80" />
+                    <MapPin className="w-3.5 h-3.5 text-primary/80" />
                     {profile.location}
                   </span>
                 )}
                 {profile?.title && (
                   <>
-                    <span className="text-border">•</span>
-                    <span className="text-platinum/90 font-medium">{profile.title}</span>
+                    <span className="text-outline-variant">•</span>
+                    <span className="text-on-surface font-medium">{profile.title}</span>
                   </>
                 )}
               </div>
 
               {Array.isArray(profile?.skills) && profile!.skills.length > 0 && (
-                <div className="pt-2 border-t border-border/60">
-                  <div className="text-xs font-mono text-muted-foreground mb-3 uppercase tracking-wider">
+                <div className="pt-2 border-t border-outline-variant/40">
+                  <div className="text-xs font-mono text-on-surface-variant mb-3 uppercase tracking-wider">
                     Core Technical Competencies
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -194,7 +194,7 @@ const AboutSection = () => {
                       <Badge
                         key={skill}
                         variant="outline"
-                        className="font-mono text-xs px-3 py-1 rounded-full bg-surface-high text-platinum/90 border-border hover:border-champagne/40 transition-colors"
+                        className="font-mono text-xs px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant border-outline-variant/40 hover:border-primary/40 transition-colors"
                       >
                         {skill}
                       </Badge>
@@ -207,10 +207,10 @@ const AboutSection = () => {
         </Card>
 
         {/* Contact Links Card */}
-        <Card className="bg-surface-low/90 backdrop-blur-md border border-border hover:border-champagne/40 transition-colors duration-300 rounded-2xl shadow-xl">
+        <Card className="bg-surface-container-low/90 backdrop-blur-md border border-outline-variant/40 hover:border-primary/40 transition-colors duration-300 rounded-2xl shadow-ambient">
           <CardContent className="p-6 sm:p-8">
-            <h3 className="text-xl font-display font-bold text-foreground mb-6 flex items-center gap-3">
-              <Globe className="w-5 h-5 text-champagne" />
+            <h3 className="text-xl font-display font-bold text-on-surface mb-6 flex items-center gap-3">
+              <Globe className="w-5 h-5 text-primary" />
               Connect With Me
             </h3>
 
@@ -218,20 +218,20 @@ const AboutSection = () => {
               {profile?.email && (
                 <a
                   href={`mailto:${profile.email}`}
-                  className="flex items-center gap-4 p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container border border-border/60 hover:border-champagne/40 transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-2 focus-visible:ring-offset-surface-canvas"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container border border-outline-variant/40 hover:border-primary/40 transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-surface-high border border-border/60 flex items-center justify-center text-champagne group-hover:border-champagne/40 transition-colors shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary group-hover:border-primary/40 transition-colors shrink-0">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-medium text-foreground group-hover:text-champagne transition-colors">
+                    <p className="font-medium text-on-surface group-hover:text-primary transition-colors">
                       Email
                     </p>
-                    <p className="text-xs font-mono text-muted-foreground truncate">
+                    <p className="text-xs font-mono text-on-surface-variant truncate">
                       {profile.email}
                     </p>
                   </div>
-                  <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground group-hover:text-champagne transition-colors shrink-0" />
+                  <ExternalLink className="w-4 h-4 ml-auto text-on-surface-variant group-hover:text-primary transition-colors shrink-0" />
                 </a>
               )}
 
@@ -240,20 +240,20 @@ const AboutSection = () => {
                   href={profile.linkedin_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container border border-border/60 hover:border-champagne/40 transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-2 focus-visible:ring-offset-surface-canvas"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container border border-outline-variant/40 hover:border-primary/40 transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-surface-high border border-border/60 flex items-center justify-center text-champagne group-hover:border-champagne/40 transition-colors shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary group-hover:border-primary/40 transition-colors shrink-0">
                     <Linkedin className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-medium text-foreground group-hover:text-champagne transition-colors">
+                    <p className="font-medium text-on-surface group-hover:text-primary transition-colors">
                       LinkedIn
                     </p>
-                    <p className="text-xs font-mono text-muted-foreground">
+                    <p className="text-xs font-mono text-on-surface-variant">
                       Professional Network
                     </p>
                   </div>
-                  <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground group-hover:text-champagne transition-colors shrink-0" />
+                  <ExternalLink className="w-4 h-4 ml-auto text-on-surface-variant group-hover:text-primary transition-colors shrink-0" />
                 </a>
               )}
 
@@ -262,20 +262,20 @@ const AboutSection = () => {
                   href={profile.github_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container border border-border/60 hover:border-champagne/40 transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-2 focus-visible:ring-offset-surface-canvas"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container border border-outline-variant/40 hover:border-primary/40 transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-surface-high border border-border/60 flex items-center justify-center text-champagne group-hover:border-champagne/40 transition-colors shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary group-hover:border-primary/40 transition-colors shrink-0">
                     <Github className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-medium text-foreground group-hover:text-champagne transition-colors">
+                    <p className="font-medium text-on-surface group-hover:text-primary transition-colors">
                       GitHub
                     </p>
-                    <p className="text-xs font-mono text-muted-foreground">
+                    <p className="text-xs font-mono text-on-surface-variant">
                       Repositories & Code
                     </p>
                   </div>
-                  <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground group-hover:text-champagne transition-colors shrink-0" />
+                  <ExternalLink className="w-4 h-4 ml-auto text-on-surface-variant group-hover:text-primary transition-colors shrink-0" />
                 </a>
               )}
 
@@ -284,20 +284,20 @@ const AboutSection = () => {
                   href={profile.website_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container border border-border/60 hover:border-champagne/40 transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-2 focus-visible:ring-offset-surface-canvas"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-surface-container/60 hover:bg-surface-container border border-outline-variant/40 hover:border-primary/40 transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-surface-high border border-border/60 flex items-center justify-center text-champagne group-hover:border-champagne/40 transition-colors shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary group-hover:border-primary/40 transition-colors shrink-0">
                     <Globe className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-medium text-foreground group-hover:text-champagne transition-colors">
+                    <p className="font-medium text-on-surface group-hover:text-primary transition-colors">
                       Website
                     </p>
-                    <p className="text-xs font-mono text-muted-foreground">
+                    <p className="text-xs font-mono text-on-surface-variant">
                       Portfolio & Telemetry
                     </p>
                   </div>
-                  <ExternalLink className="w-4 h-4 ml-auto text-muted-foreground group-hover:text-champagne transition-colors shrink-0" />
+                  <ExternalLink className="w-4 h-4 ml-auto text-on-surface-variant group-hover:text-primary transition-colors shrink-0" />
                 </a>
               )}
             </div>

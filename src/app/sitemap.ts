@@ -1,11 +1,6 @@
 import { getSupabaseServer } from "@/lib/supabase-server";
 import type { MetadataRoute } from "next";
-import { getContentAvailability } from "@/lib/content-availability";
-import { DEFAULT_CONTENT_AVAILABILITY } from "@/types/content-availability";
-import {
-  isPublicListedArticle,
-  PUBLIC_LISTED_ARTICLE_FILTERS,
-} from "@/lib/public-content";
+import { isPublicTravelHighlight } from "@/data/travelVisibility";
 
 const SITE_URL = "https://essaahmed.dev";
 
@@ -31,29 +26,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: SITE_URL + "/articles/categories",
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: SITE_URL + "/articles/series",
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: SITE_URL + "/articles/tags",
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
       url: SITE_URL + "/about",
       changeFrequency: "monthly",
       priority: 0.8,
-    },
-    {
-      url: SITE_URL + "/talks",
-      changeFrequency: "monthly",
-      priority: 0.7,
     },
     {
       url: SITE_URL + "/diary",
@@ -68,26 +43,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { data: categoriesData },
     { data: seriesData },
     { data: tagsData },
+    { data: travelData },
   ] = await Promise.all([
     supabase
       .from("blog_posts")
-      .select("slug, updated_at, created_at, category_id, series_id")
-      .eq("published", PUBLIC_LISTED_ARTICLE_FILTERS.published)
-      .eq("unlisted", PUBLIC_LISTED_ARTICLE_FILTERS.unlisted)
+      .select("slug, updated_at, created_at, category_id, series_id, is_external, external_url")
+      .eq("published", true)
+      .eq("unlisted", false)
       .order("created_at", { ascending: false }),
     supabase
-      // All project rows are public in the current schema: there is no
-      // published/unlisted/status field. Keep this aligned with the public
-      // projects listing and detail route unless a visibility field is added.
       .from("projects")
       .select("id, updated_at, created_at")
       .order("created_at", { ascending: false }),
     supabase.from("categories").select("id, slug"),
     supabase.from("series").select("id, slug"),
-    // A tag is discoverable only when linked to a published, listed article.
+    supabase.from("tags").select("id, name, slug"),
     supabase
-      .from("tags")
-      .select("id, name, slug, blog_post_tags(blog_posts(published, unlisted))"),
+      .from("travel_highlights")
+      .select("city_name,country_name,lat,lng,cover_image_url,story_slides,is_published")
+      .eq("is_published", true),
   ]);
 
   const articles = articlesData || [];
@@ -99,8 +73,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     articles.map((article: any) => article.series_id).filter(Boolean)
   );
 
+  const articleHubPages: MetadataRoute.Sitemap =
+    articles.length > 0
+      ? [
+          {
+            url: SITE_URL + "/articles/categories",
+            changeFrequency: "weekly",
+            priority: 0.7,
+          },
+          {
+            url: SITE_URL + "/articles/series",
+            changeFrequency: "weekly",
+            priority: 0.7,
+          },
+          {
+            url: SITE_URL + "/articles/tags",
+            changeFrequency: "weekly",
+            priority: 0.7,
+          },
+        ]
+      : [];
+
   const articlePages: MetadataRoute.Sitemap = articles
-    .filter((article: any) => Boolean(article.slug))
+    .filter((article: any) => Boolean(article.slug) && !article.is_external)
     .map((article: any) => ({
       url: SITE_URL + "/articles/" + article.slug,
       ...(article.updated_at || article.created_at
@@ -143,29 +138,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
   const tagPages: MetadataRoute.Sitemap = (tagsData || [])
-    .filter((tag: any) => {
-      if (!tag?.slug) return false;
-      return (tag.blog_post_tags || []).some((link: any) => {
-        const linkedPosts = Array.isArray(link.blog_posts)
-          ? link.blog_posts
-          : link.blog_posts
-            ? [link.blog_posts]
-            : [];
-        return linkedPosts.some(isPublicListedArticle);
-      });
-    })
-    .map((tag: any) => ({
-      url: SITE_URL + "/articles/tags/" + encodeURIComponent(tag.slug),
-      changeFrequency: "weekly" as const,
-      priority: 0.6,
-    }));
+    .filter((tag: any) => Boolean(tag?.name))
+    .map((tag: any) => {
+      const tagSlug = tag.slug || encodeURIComponent(tag.name.toLowerCase().replace(/\s+/g, "-"));
+      return {
+        url: SITE_URL + "/articles/tags/" + tagSlug,
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      };
+    });
 
-  const availability = await getContentAvailability().catch((error) => {
-    console.error("[sitemap] Failed to load content availability", error);
-    return DEFAULT_CONTENT_AVAILABILITY;
-  });
-
-  const travelPages: MetadataRoute.Sitemap = availability.hasTravel
+  const travelPages: MetadataRoute.Sitemap = (travelData || []).some(
+    isPublicTravelHighlight
+  )
     ? [
         {
           url: SITE_URL + "/travel",
@@ -177,6 +162,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticPages,
+    ...articleHubPages,
     ...travelPages,
     ...articlePages,
     ...projectPages,

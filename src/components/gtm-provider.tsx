@@ -1,14 +1,26 @@
 "use client";
 
 import { useEffect } from "react";
-import { ensureDataLayer, GTM_ID } from "@/lib/gtm";
+import { GTM_ID } from "@/lib/gtm";
+
+declare global {
+  interface Window {
+    gtmDidInit?: boolean;
+    dataLayer?: Array<Record<string, unknown>>;
+  }
+}
 
 export default function GTMProvider() {
   useEffect(() => {
     const loadGTM = () => {
-      ensureDataLayer();
       if (window.gtmDidInit) return;
       window.gtmDidInit = true;
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        "gtm.start": new Date().getTime(),
+        event: "gtm.js",
+      });
 
       const script = document.createElement("script");
       script.async = true;

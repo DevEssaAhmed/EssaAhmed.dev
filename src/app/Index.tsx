@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Zap, Package, LineChart, ArrowRight, ExternalLink, Mail, Check, Copy, Code2, Briefcase } from "lucide-react";
+import { Zap, Package, LineChart, ArrowRight, ExternalLink, Mail, Check, Copy, Github, Linkedin } from "lucide-react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
@@ -78,15 +78,15 @@ const Index = ({
           <div className="flex flex-wrap gap-3 pt-2">
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
               <Zap className="w-4 h-4 text-primary shrink-0" />
-              <span>⚡ Process &amp; Workflow Automation</span>
+              <span>Process &amp; Workflow Automation</span>
             </div>
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
               <Package className="w-4 h-4 text-secondary shrink-0" />
-              <span>📦 Supply Chain &amp; Demand Planning</span>
+              <span>Supply Chain &amp; Demand Planning</span>
             </div>
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
               <LineChart className="w-4 h-4 text-tertiary-fixed-dim shrink-0" />
-              <span>📊 Executive Analytics &amp; BI</span>
+              <span>Executive Analytics &amp; BI</span>
             </div>
           </div>
 
@@ -115,7 +115,7 @@ const Index = ({
                 rel="noreferrer"
                 target="_blank"
               >
-                <Code2 className="w-4 h-4 text-on-surface-variant" />
+                <Github className="w-4 h-4 text-on-surface-variant" />
               </a>
               <a
                 aria-label="LinkedIn"
@@ -124,7 +124,7 @@ const Index = ({
                 rel="noreferrer"
                 target="_blank"
               >
-                <Briefcase className="w-4 h-4 text-on-surface-variant" />
+                <Linkedin className="w-4 h-4 text-on-surface-variant" />
               </a>
               <a
                 aria-label="Email"

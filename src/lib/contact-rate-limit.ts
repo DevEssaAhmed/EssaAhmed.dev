@@ -6,11 +6,23 @@ const MAX_IDENTIFIERS = 2_048;
 const requestHistory = new Map<string, number[]>();
 
 function getClientIp(request: Request): string | null {
-  // Use only a single address supplied by the hosting proxy. Do not parse an
-  // X-Forwarded-For chain, whose leftmost value may be provided by the caller.
-  const value = request.headers.get("x-real-ip")?.trim();
-  if (!value || value.includes(",") || isIP(value) === 0) return null;
-  return value;
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp && !realIp.includes(",") && isIP(realIp) !== 0) {
+    return realIp;
+  }
+
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    const candidates = forwardedFor.split(",").map((part) => part.trim());
+    for (let i = candidates.length - 1; i >= 0; i--) {
+      const candidate = candidates[i];
+      if (candidate && isIP(candidate) !== 0) {
+        return candidate;
+      }
+    }
+  }
+
+  return null;
 }
 
 function pruneExpiredEntries(now: number) {

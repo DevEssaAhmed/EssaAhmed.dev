@@ -22,20 +22,20 @@ export const EnhancedCard: React.FC<EnhancedCardProps> = ({
   const getVariantClasses = () => {
     switch (variant) {
       case 'glass':
-        return 'bg-card/80 backdrop-blur-md border border-border/50 shadow-card';
+        return 'bg-surface-container-low/80 backdrop-blur-md border border-outline-variant/30 shadow-card';
       case 'glow':
-        return 'bg-card/90 backdrop-blur-sm border border-primary/20 shadow-glow hover:shadow-glow';
+        return 'bg-surface-container-low border border-outline-variant/30 shadow-lg hover:border-primary/40';
       case 'gradient':
-        return 'bg-gradient-primary text-primary-foreground border-0 shadow-soft';
+        return 'bg-surface-container-low border border-outline-variant/30 shadow-lg';
       case 'minimal':
-        return 'bg-transparent border border-border/30 shadow-none hover:border-border/60';
+        return 'bg-transparent border border-outline-variant/30 shadow-none hover:border-outline-variant/60';
       default:
-        return 'bg-card border border-border shadow-card';
+        return 'bg-surface-container-low border border-outline-variant/30 shadow-card';
     }
   };
 
   const interactiveClasses = interactive
-    ? 'transition-all duration-300 hover:scale-[1.02] hover:shadow-glow cursor-pointer'
+    ? 'transition-all duration-300 hover:scale-[1.02] hover:border-primary/40 hover:shadow-lg cursor-pointer'
     : 'transition-all duration-200';
 
   return (
@@ -43,17 +43,12 @@ export const EnhancedCard: React.FC<EnhancedCardProps> = ({
       {(title || description) && (
         <CardHeader className="animate-fade-up">
           {title && (
-            <CardTitle className={cn(
-              'font-bold',
-              variant === 'gradient' ? 'text-primary-foreground' : 'text-foreground'
-            )}>
+            <CardTitle className="font-bold text-on-surface">
               {title}
             </CardTitle>
           )}
           {description && (
-            <CardDescription className={cn(
-              variant === 'gradient' ? 'text-primary-foreground/80' : 'text-muted-foreground'
-            )}>
+            <CardDescription className="text-on-surface-variant">
               {description}
             </CardDescription>
           )}

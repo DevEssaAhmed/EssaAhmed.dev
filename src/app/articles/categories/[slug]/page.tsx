@@ -2,7 +2,6 @@ import { cache } from "react";
 import CategoryDetailPage from "./CategoryDetailPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
-import { PUBLIC_LISTED_ARTICLE_FILTERS } from "@/lib/public-content";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -53,8 +52,8 @@ export default async function Page({ params }: Props) {
     .from("blog_posts")
     .select("*")
     .eq("category_id", categoryData.id)
-    .eq("published", PUBLIC_LISTED_ARTICLE_FILTERS.published)
-    .eq("unlisted", PUBLIC_LISTED_ARTICLE_FILTERS.unlisted)
+    .eq("published", true)
+    .eq("unlisted", false)
     .order("created_at", { ascending: false });
 
   return (
