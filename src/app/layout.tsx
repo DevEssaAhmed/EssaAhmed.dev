@@ -6,6 +6,7 @@ import "../index.css";
 import Providers from "./providers";
 import GTMProvider from "@/components/gtm-provider";
 import GTMPageView from "@/components/gtm-pageview";
+import { getPublicSiteShellData } from "@/lib/site-data";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -108,11 +109,12 @@ const supabaseOrigin = (() => {
   }
 })();
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { profile, availability } = await getPublicSiteShellData();
   return (
     <html
       lang="en"
@@ -120,8 +122,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <meta name="color-scheme" content="light dark" />
         <Script id="theme-initializer" strategy="beforeInteractive">
           {`(()=>{try{const saved=localStorage.getItem('theme');const theme=saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const root=document.documentElement;root.classList.remove('light','dark');root.classList.add(theme);root.style.colorScheme=theme}catch{const theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(theme)}})()`}
         </Script>
@@ -149,7 +150,7 @@ export default function RootLayout({
         className="bg-surface text-on-surface antialiased selection:bg-primary/20 selection:text-primary min-h-screen transition-colors duration-200"
         suppressHydrationWarning
       >
-        <Providers>
+        <Providers initialProfile={profile} initialAvailability={availability}>
           <Suspense fallback={null}>
             <GTMPageView />
           </Suspense>

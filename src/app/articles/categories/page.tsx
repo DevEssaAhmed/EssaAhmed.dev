@@ -15,7 +15,7 @@ export default async function Page() {
   const [{ data: categories }, { data: publicPosts }] = await Promise.all([
     supabase
       .from("categories")
-      .select("*")
+      .select("id,name,slug,description,article_count,featured")
       .order("featured", { ascending: false })
       .order("article_count", { ascending: false }),
     supabase

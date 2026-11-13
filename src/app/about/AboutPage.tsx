@@ -10,7 +10,7 @@ import { useContentAvailability } from "@/contexts/ContentAvailabilityContext";
 
 export default function AboutPage({ initialProfile }: { initialProfile?: any } = {}) {
   const { profile: contextProfile } = useProfile();
-  const profile = contextProfile || initialProfile;
+  const profile = initialProfile || contextProfile;
   const { hasProjects } = useContentAvailability();
   const [copied, setCopied] = useState(false);
 

@@ -1,6 +1,6 @@
 import AboutPage from "./AboutPage";
-import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
+import { getPublicSiteShellData } from "@/lib/site-data";
 
 export const revalidate = 120;
 
@@ -11,13 +11,7 @@ export const metadata = buildPageMetadata({
 });
 
 export default async function Page() {
-  const supabase = getSupabaseServer();
-  const { data } = await supabase
-    .from("profile")
-    .select("*")
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .single();
+  const { profile: data } = await getPublicSiteShellData();
 
   const person: any = data || {};
   const sameAs = Array.from(

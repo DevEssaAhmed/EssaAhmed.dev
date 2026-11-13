@@ -15,7 +15,7 @@ export default async function Page() {
   const [{ data: series }, { data: publicPosts }] = await Promise.all([
     supabase
       .from("series")
-      .select("*")
+      .select("id,title,slug,description,image_url,featured_image_url,article_count,featured,status,created_at")
       .order("featured", { ascending: false })
       .order("created_at", { ascending: false }),
     supabase

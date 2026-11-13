@@ -11,7 +11,8 @@ import {
   type ArticlePlatform,
 } from "@/data/externalArticlesStore";
 import { useAuth } from "@/contexts/AuthContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
+import { formatDateUTC } from "@/lib/date";
 
 interface ArticlesPageProps {
   initialArticles?: any[];
@@ -122,7 +123,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                         className="relative min-h-11 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex items-center justify-center"
                       >
                         {active && (
-                          <motion.span
+                          <m.span
                             layoutId="activeArticlePlatformPill"
                             className="absolute inset-0 bg-on-surface rounded-full -z-10 shadow-xs"
                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -152,7 +153,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
         {/* SECTION 2: ARTICLES LIST */}
         <section className="pt-10">
           <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
               key={selectedPlatform + (searchTerm ? `_${searchTerm}` : "")}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -192,12 +193,14 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                     const href = isExternal
                       ? article._externalUrl
                       : `/articles/${encodeURIComponent(article.slug || article.id)}`;
-                    const formattedDate = article.created_at
-                      ? new Date(article.created_at).toLocaleDateString("en-US", {
-                          month: "long",
-                          year: "numeric",
-                        })
-                      : "Recent";
+                    const formattedDate = formatDateUTC(
+                      article.created_at,
+                      {
+                        month: "long",
+                        year: "numeric",
+                      },
+                      "Recent"
+                    );
 
                     const badgeClass =
                       platform === "Medium"
@@ -269,7 +272,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                   })}
                 </div>
               )}
-            </motion.div>
+            </m.div>
           </AnimatePresence>
         </section>
       </main>

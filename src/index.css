@@ -7,6 +7,10 @@
    * Stitch Light Mode Tokens (:root / .light)
    * Based on Stitch screen 722c0281bbec4517ae5a379a38c8b3e1 ("Developer Portfolio - Warm Porcelain & Ink")
    */
+  :root {
+    color-scheme: light dark;
+  }
+
   :root,
   .light {
     color-scheme: light;
@@ -221,6 +225,23 @@
   h6 {
     font-family: var(--font-jakarta), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
     letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p,
+  blockquote,
+  li {
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+  }
+
+  dialog:modal {
+    overscroll-behavior: contain;
+  }
+
+  dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
   }
 }
 

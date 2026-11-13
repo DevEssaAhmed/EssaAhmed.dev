@@ -1,6 +1,7 @@
 ﻿import TagsPage from "./TagsPage";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
+import { getTagSlug } from "@/lib/tag-slug";
 
 export const revalidate = 120;
 
@@ -14,7 +15,7 @@ export default async function Page() {
   const supabase = getSupabaseServer();
   const { data } = await supabase
     .from("tags")
-    .select("name, blog_post_tags(blog_posts(published, unlisted))");
+    .select("name, slug, blog_post_tags(blog_posts(published, unlisted))");
 
   const tagInfoArray = (data || [])
     .map((tag: any) => {
@@ -25,7 +26,7 @@ export default async function Page() {
 
       return {
         name: tag.name,
-        slug: tag.name.toLowerCase().replace(/\s+/g, "-"),
+        slug: getTagSlug(tag),
         count: articleCount,
         articleCount,
         trending: articleCount >= 3,

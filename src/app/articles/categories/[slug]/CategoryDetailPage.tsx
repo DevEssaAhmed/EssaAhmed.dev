@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { formatDateUTC } from "@/lib/date";
+import { calculateReadingTime } from "@/utils/readingTime";
 
 interface CategoryDetailPageProps {
   initialCategory?: any;
@@ -31,7 +33,7 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
     try {
       const { data: categoryData, error: categoryError } = await supabase
         .from("categories")
-        .select("*")
+        .select("id,name,slug,description")
         .eq("slug", slug)
         .single();
 
@@ -40,7 +42,7 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
 
       const { data: articlesData, error: articlesError } = await supabase
         .from("blog_posts")
-        .select("*")
+        .select("id,title,slug,excerpt,image_url,reading_time,content,created_at")
         .eq("category_id", categoryData.id)
         .eq("published", true)
         .eq("unlisted", false)
@@ -182,11 +184,11 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
                       <div className="flex items-center gap-4 text-xs font-mono text-outline mb-3">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5 text-primary/70" />
-                          {new Date(article.created_at).toLocaleDateString()}
+                          {formatDateUTC(article.created_at)}
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5 text-primary/70" />
-                          {article.read_time || 5} min
+                          {article.reading_time || calculateReadingTime(article.content || "")} min
                         </div>
                       </div>
                       <div className="flex items-center justify-between pt-3 border-t border-outline-variant/30">

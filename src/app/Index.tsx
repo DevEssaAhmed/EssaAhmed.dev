@@ -9,6 +9,7 @@ import FeaturedWork from "@/components/home/FeaturedWork";
 import CapabilitiesSection from "@/components/home/CapabilitiesSection";
 import { useProfile } from "@/contexts/ProfileContext";
 import { extractArticleExternalMeta } from "@/data/externalArticlesStore";
+import { formatDateUTC } from "@/lib/date";
 
 interface IndexProps {
   initialProjects?: any[];
@@ -175,12 +176,14 @@ const Index = ({
                 const href = isExternal
                   ? extMeta.externalUrl!
                   : `/articles/${encodeURIComponent(article.slug || article.id)}`;
-                const formattedDate = article.created_at
-                  ? new Date(article.created_at).toLocaleDateString("en-US", {
+                const formattedDate = formatDateUTC(
+                  article.created_at,
+                  {
                       month: "long",
                       year: "numeric",
-                    })
-                  : "Recent";
+                  },
+                  "Recent"
+                );
 
                 const badgeClass =
                   platform === "Medium"

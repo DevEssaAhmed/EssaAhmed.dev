@@ -4,6 +4,7 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 import { buildPageMetadata } from "@/lib/metadata";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { calculateReadingTime } from "@/utils/readingTime";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -15,7 +16,7 @@ const getCategoryBySlug = cache(async (slug: string) => {
   const supabase = getSupabaseServer();
   return supabase
     .from("categories")
-    .select("*")
+    .select("id,name,slug,description")
     .eq("slug", slug)
     .maybeSingle();
 });
@@ -50,16 +51,21 @@ export default async function Page({ params }: Props) {
   const supabase = getSupabaseServer();
   const { data: articlesData } = await supabase
     .from("blog_posts")
-    .select("*")
+    .select("id,title,slug,excerpt,content,image_url,reading_time,created_at")
     .eq("category_id", categoryData.id)
     .eq("published", true)
     .eq("unlisted", false)
     .order("created_at", { ascending: false });
 
+  const initialArticles = (articlesData || []).map(({ content, ...rest }: any) => ({
+    ...rest,
+    reading_time: rest.reading_time || calculateReadingTime(content || ""),
+  }));
+
   return (
     <CategoryDetailPage
       initialCategory={categoryData}
-      initialArticles={articlesData || []}
+      initialArticles={initialArticles}
     />
   );
 }

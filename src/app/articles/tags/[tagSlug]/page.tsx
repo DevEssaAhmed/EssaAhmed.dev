@@ -4,6 +4,7 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
+import { resolveTagByParam } from "@/lib/tag-slug";
 
 export const revalidate = 120;
 
@@ -11,19 +12,14 @@ type Props = {
   params: Promise<{ tagSlug: string }>;
 };
 
-const getTagByName = cache(async (decodedTag: string) => {
+const getTagByParam = cache(async (tagSlug: string) => {
   const supabase = getSupabaseServer();
-  return supabase
-    .from("tags")
-    .select("id, name")
-    .eq("name", decodedTag)
-    .maybeSingle();
+  return resolveTagByParam(supabase, tagSlug);
 });
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
-  const decodedTag = decodeURIComponent(resolvedParams.tagSlug.replace(/-/g, " "));
-  const { data: tagData } = await getTagByName(decodedTag);
+  const { data: tagData } = await getTagByParam(resolvedParams.tagSlug);
 
   if (!tagData) {
     return buildPageMetadata({
@@ -36,14 +32,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return buildPageMetadata({
     title: `#${tagData.name}`,
     description: `Explore all articles and projects tagged with #${tagData.name}.`,
-    path: `/articles/tags/${resolvedParams.tagSlug}`,
+    path: `/articles/tags/${tagData.slug || resolvedParams.tagSlug}`,
   });
 }
 
 export default async function Page({ params }: Props) {
   const resolvedParams = await params;
-  const decodedTag = decodeURIComponent(resolvedParams.tagSlug.replace(/-/g, " "));
-  const { data: tagData } = await getTagByName(decodedTag);
+  const { data: tagData } = await getTagByParam(resolvedParams.tagSlug);
 
   if (!tagData) {
     notFound();
@@ -52,7 +47,9 @@ export default async function Page({ params }: Props) {
   const supabase = getSupabaseServer();
   const { data: blogPostTagData } = await supabase
     .from("blog_post_tags")
-    .select("blog_post_id, blog_posts!inner(*)")
+    .select(
+      "blog_post_id, blog_posts!inner(id,title,slug,excerpt,image_url,tags,created_at,published,unlisted)"
+    )
     .eq("tag_id", tagData.id)
     .eq("blog_posts.published", true)
     .eq("blog_posts.unlisted", false);
@@ -62,22 +59,37 @@ export default async function Page({ params }: Props) {
   const { data: relatedTagLinks } = publicPostIds.length > 0
     ? await supabase
         .from("blog_post_tags")
-        .select("tags(name)")
+        .select("tags(name, slug)")
         .in("blog_post_id", publicPostIds)
         .neq("tag_id", tagData.id)
     : { data: [] };
 
-  const relatedTagCounts = (relatedTagLinks || []).reduce((counts: Map<string, number>, link: any) => {
-    const relatedTag = Array.isArray(link.tags) ? link.tags[0] : link.tags;
-    if (relatedTag?.name) counts.set(relatedTag.name, (counts.get(relatedTag.name) || 0) + 1);
-    return counts;
-  }, new Map<string, number>());
-  const relatedTags = Array.from(relatedTagCounts, ([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count);
+  const relatedTagMap = (relatedTagLinks || []).reduce(
+    (acc: Map<string, { name: string; slug: string | null; count: number }>, link: any) => {
+      const relatedTag = Array.isArray(link.tags) ? link.tags[0] : link.tags;
+      if (relatedTag?.name) {
+        const existing = acc.get(relatedTag.name);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          acc.set(relatedTag.name, {
+            name: relatedTag.name,
+            slug: relatedTag.slug ?? null,
+            count: 1,
+          });
+        }
+      }
+      return acc;
+    },
+    new Map<string, { name: string; slug: string | null; count: number }>()
+  );
+  const relatedTags = Array.from(relatedTagMap.values()).sort(
+    (a, b) => b.count - a.count
+  );
 
   return (
     <TagDetailPage
-      initialTagName={decodedTag}
+      initialTagName={tagData.name}
       initialBlogPosts={blogPosts}
       initialRelatedTags={relatedTags}
     />

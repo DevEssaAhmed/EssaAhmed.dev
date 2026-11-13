@@ -53,16 +53,27 @@ const AdminMaintenancePage: React.FC = () => {
   const loadCategories = async () => {
     try {
       setLoadingCats(true);
-      const { data: catRows, error } = await supabase.from('categories').select('id, name, slug, description, color');
-      if (error) throw error;
-      const withCounts: (Category & { totalRefs: number })[] = [];
-      for (const cat of (catRows || [])) {
-        const [{ count: projCount }, { count: artCount }] = await Promise.all([
-          supabase.from('projects').select('id', { count: 'exact', head: true }).eq('category_id', cat.id),
-          supabase.from('blog_posts').select('id', { count: 'exact', head: true }).eq('category_id', cat.id),
-        ]);
-        withCounts.push({ ...cat, totalRefs: (projCount || 0) + (artCount || 0) });
+      const [catRes, projRes, postRes] = await Promise.all([
+        supabase.from('categories').select('id, name, slug, description, color'),
+        supabase.from('projects').select('category_id'),
+        supabase.from('blog_posts').select('category_id'),
+      ]);
+      if (catRes.error) throw catRes.error;
+      const countMap = new Map<string, number>();
+      for (const row of projRes.data || []) {
+        if (row.category_id) {
+          countMap.set(row.category_id, (countMap.get(row.category_id) || 0) + 1);
+        }
       }
+      for (const row of postRes.data || []) {
+        if (row.category_id) {
+          countMap.set(row.category_id, (countMap.get(row.category_id) || 0) + 1);
+        }
+      }
+      const withCounts = (catRes.data || []).map((cat) => ({
+        ...cat,
+        totalRefs: countMap.get(cat.id) || 0,
+      }));
       setCategories(withCounts);
     } catch (error) {
       console.error('Failed to fetch categories:', error);

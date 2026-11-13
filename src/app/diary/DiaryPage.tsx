@@ -9,32 +9,30 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { extractIsoYear, formatDateUTC } from "@/lib/date";
+import {
+  DIARY_PAGE_SIZE,
+  dedupeById,
+  mergeSortedYearsDesc,
+} from "@/lib/diary";
 
 type DiaryEntry = Database["public"]["Tables"]["diary_entries"]["Row"];
 type ViewMode = "year" | "timeline";
 
-const PAGE_SIZE = 10;
-
 interface DiaryPageProps {
   initialEntries?: DiaryEntry[];
+  initialHasMore?: boolean;
+  initialAvailableYears?: number[];
+  initialTotalCount?: number;
   initialViewMode?: ViewMode;
   initialYear?: number | "all" | null;
 }
 
-function formatReadableDate(isoDate: string): string {
-  try {
-    return new Date(`${isoDate}T00:00:00`).toLocaleDateString("en-US", {
-      month: "short",
-      day: "2-digit",
-      year: "numeric",
-    });
-  } catch {
-    return isoDate;
-  }
-}
-
 export default function DiaryPage({
   initialEntries = [],
+  initialHasMore,
+  initialAvailableYears = [],
+  initialTotalCount,
   initialViewMode = "year",
   initialYear = "all",
 }: DiaryPageProps) {
@@ -42,23 +40,24 @@ export default function DiaryPage({
   const [entries, setEntries] = useState<DiaryEntry[]>(initialEntries);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
-  const [hasMore, setHasMore] = useState<boolean>(initialEntries.length >= PAGE_SIZE);
+  const [hasMore, setHasMore] = useState<boolean>(
+    initialHasMore ?? initialEntries.length >= DIARY_PAGE_SIZE
+  );
   const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
   const [selectedYear, setSelectedYear] = useState<number | "all">(initialYear ?? "all");
   const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({});
-  const [page, setPage] = useState<number>(0);
 
   const hasHydratedRef = useRef<boolean>(false);
+  const requestSeqRef = useRef<number>(0);
 
   const availableYears = useMemo(() => {
-    const years = Array.from(
-      new Set(entries.map((entry) => new Date(`${entry.entry_date}T00:00:00`).getFullYear()))
-    ).sort((a, b) => b - a);
-    return years;
-  }, [entries]);
+    const loadedYears = entries.map((entry) => extractIsoYear(entry.entry_date));
+    return mergeSortedYearsDesc(initialAvailableYears, loadedYears);
+  }, [entries, initialAvailableYears]);
 
   const fetchEntries = useCallback(
-    async (pageIndex: number, append: boolean) => {
+    async (offset: number, append: boolean) => {
+      const requestId = ++requestSeqRef.current;
       try {
         if (append) setLoadingMore(true);
         else setLoading(true);
@@ -69,7 +68,7 @@ export default function DiaryPage({
           .eq("is_published", true)
           .order("entry_date", { ascending: false })
           .order("created_at", { ascending: false })
-          .range(pageIndex * PAGE_SIZE, pageIndex * PAGE_SIZE + PAGE_SIZE - 1);
+          .range(offset, offset + DIARY_PAGE_SIZE);
 
         if (selectedYear !== "all") {
           const startDate = `${selectedYear}-01-01`;
@@ -79,15 +78,19 @@ export default function DiaryPage({
 
         const { data, error } = await query;
         if (error) throw error;
+        if (requestId !== requestSeqRef.current) return;
 
-        const nextRows = data || [];
-        setHasMore(nextRows.length === PAGE_SIZE);
-        setEntries((prev) => (append ? [...prev, ...nextRows] : nextRows));
+        const rows = data || [];
+        const pageRows = rows.slice(0, DIARY_PAGE_SIZE);
+        setHasMore(rows.length > DIARY_PAGE_SIZE);
+        setEntries((prev) => (append ? dedupeById(prev, pageRows) : pageRows));
       } catch {
         // Keep current entries on transient error
       } finally {
-        setLoading(false);
-        setLoadingMore(false);
+        if (requestId === requestSeqRef.current) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
       }
     },
     [selectedYear]
@@ -96,22 +99,27 @@ export default function DiaryPage({
   useEffect(() => {
     if (!hasHydratedRef.current) {
       hasHydratedRef.current = true;
-      if (initialEntries.length > 0) return;
+      return;
     }
-    setPage(0);
     fetchEntries(0, false);
-  }, [fetchEntries, initialEntries.length]);
+  }, [fetchEntries]);
 
   const groupedByYear = useMemo(() => {
     const map = new Map<number, DiaryEntry[]>();
     entries.forEach((entry) => {
-      const year = new Date(`${entry.entry_date}T00:00:00`).getFullYear();
+      const year = extractIsoYear(entry.entry_date);
+      if (year === null) return;
       const list = map.get(year) || [];
       list.push(entry);
       map.set(year, list);
     });
     return Array.from(map.entries()).sort((a, b) => b[0] - a[0]);
   }, [entries]);
+
+  const allYearsCount =
+    selectedYear === "all"
+      ? Math.max(initialTotalCount ?? 0, entries.length)
+      : (initialTotalCount ?? entries.length);
 
   const toggleExpanded = (id: string) => {
     setExpandedMap((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -162,7 +170,7 @@ export default function DiaryPage({
                     : "min-h-11 px-3.5 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-xs transition-all"
                 }
               >
-                All Years ({entries.length})
+                All Years ({allYearsCount})
               </button>
               {availableYears.map((yr) => (
                 <button
@@ -255,7 +263,7 @@ export default function DiaryPage({
                           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                             <div className="flex items-center gap-2.5 text-xs font-code">
                               <span className="px-2.5 py-1 rounded-md bg-primary/10 border border-primary/25 text-primary font-semibold">
-                                {formatReadableDate(entry.entry_date)}
+                                {formatDateUTC(entry.entry_date, { month: "short", day: "2-digit", year: "numeric" }, entry.entry_date)}
                               </span>
                               {(entry as any).topic_tag && (
                                 <span className="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/30 text-on-surface-variant">
@@ -277,7 +285,7 @@ export default function DiaryPage({
                           </div>
 
                           <h2 className="text-xl sm:text-2xl font-display font-bold text-on-surface tracking-tight mb-3">
-                            {entry.title || formatReadableDate(entry.entry_date)}
+                            {entry.title || formatDateUTC(entry.entry_date, { month: "short", day: "2-digit", year: "numeric" }, entry.entry_date)}
                           </h2>
 
                           {entry.image_url && (
@@ -337,7 +345,7 @@ export default function DiaryPage({
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                       <div className="flex items-center gap-2.5 text-xs font-code">
                         <span className="px-2.5 py-1 rounded-md bg-primary/10 border border-primary/25 text-primary font-semibold">
-                          {formatReadableDate(entry.entry_date)}
+                          {formatDateUTC(entry.entry_date, { month: "short", day: "2-digit", year: "numeric" }, entry.entry_date)}
                         </span>
                         {(entry as any).topic_tag && (
                           <span className="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/30 text-on-surface-variant">
@@ -359,7 +367,7 @@ export default function DiaryPage({
                     </div>
 
                     <h2 className="text-xl sm:text-2xl font-display font-bold text-on-surface tracking-tight mb-3">
-                      {entry.title || formatReadableDate(entry.entry_date)}
+                      {entry.title || formatDateUTC(entry.entry_date, { month: "short", day: "2-digit", year: "numeric" }, entry.entry_date)}
                     </h2>
 
                     {entry.image_url && (
@@ -408,9 +416,7 @@ export default function DiaryPage({
                 type="button"
                 disabled={loadingMore}
                 onClick={() => {
-                  const next = page + 1;
-                  setPage(next);
-                  fetchEntries(next, true);
+                  fetchEntries(entries.length, true);
                 }}
                 className="px-6 py-2.5 rounded-full bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/40 text-xs font-semibold text-on-surface transition-all"
               >

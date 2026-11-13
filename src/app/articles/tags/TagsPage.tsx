@@ -32,7 +32,7 @@ const getTagSize = (count: number, max: number) => {
 
 const TagsPage = ({ initialTags = [] }: TagsPageProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState<"all" | "trending">("trending");
+  const [activeFilter, setActiveFilter] = useState<"all" | "trending">("all");
   const tags = initialTags;
 
   const filteredTags = useMemo(
@@ -125,17 +125,28 @@ const TagsPage = ({ initialTags = [] }: TagsPageProps) => {
                   <Tag className="w-10 h-10 text-primary" />
                 </div>
                 <h3 className="text-2xl font-display font-bold text-on-surface mb-3">
-                  {searchTerm ? "No Tags Found" : "No Tags Yet"}
+                  {searchTerm
+                    ? "No Tags Found"
+                    : activeFilter === "trending" && tags.length > 0
+                    ? "No Trending Tags Yet"
+                    : "No Tags Yet"}
                 </h3>
                 <p className="text-base text-on-surface-variant max-w-lg mx-auto mb-8 font-sans">
                   {searchTerm
                     ? `No tags match "${searchTerm}". Try a different search term.`
+                    : activeFilter === "trending" && tags.length > 0
+                    ? "No topics have 3 or more published articles yet. Browse all available tags instead."
                     : "Tags will appear here once articles are published."}
                 </p>
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   {searchTerm && (
                     <Button onClick={() => setSearchTerm("")} className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-full px-8 h-12 transition-all duration-200">
                       Clear Search
+                    </Button>
+                  )}
+                  {!searchTerm && activeFilter === "trending" && tags.length > 0 && (
+                    <Button onClick={() => setActiveFilter("all")} className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-full px-8 h-12 transition-all duration-200">
+                      Show All Tags ({tags.length})
                     </Button>
                   )}
                   <Button asChild variant="outline" className="rounded-full px-8 h-12 border border-outline-variant/30 bg-surface-container text-on-surface hover:bg-surface-container-high transition-all duration-200">

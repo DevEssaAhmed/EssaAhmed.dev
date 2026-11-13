@@ -6,7 +6,7 @@ import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { cleanMarkdownExcerpt } from "@/lib/clean-markdown";
 import { OptimizedImage } from "@/components/OptimizedImage";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Search, PlayCircle, ArrowRight, ExternalLink, Code2 } from "lucide-react";
 
 interface ProjectItem {
@@ -117,7 +117,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                     className="relative min-h-11 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex items-center justify-center"
                   >
                     {active && (
-                      <motion.span
+                      <m.span
                         layoutId="activeProjectCategoryPill"
                         className="absolute inset-0 bg-on-surface rounded-full -z-10 shadow-xs"
                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -143,7 +143,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
         </section>
 
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={selectedCategory + (searchTerm ? `_${searchTerm}` : "")}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -428,7 +428,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
             )}
           </>
         )}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </main>
 

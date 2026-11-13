@@ -5,6 +5,7 @@ import Link from "next/link";
 import { cn } from '@/lib/utils';
 import { useNavigate, useParams } from '@/lib/router-compat';
 import { useDebounce } from '@/hooks/use-debouncer';
+import { useEditorAutosave } from '@/hooks/use-editor-autosave';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -71,13 +72,13 @@ import {
   type BlockNoteContent,
   markdownToBlocks,
   blocksToMarkdown,
-} from '@/components/editor/BlockNoteEditor';
+} from '@/lib/blocknote-markdown';
 
 const BlockNoteEditorComponent = dynamic(
   () => import('@/components/editor/BlockNoteEditor'),
   { ssr: false }
 );
-import { BlockNoteEditor } from '@blocknote/core';
+import type { BlockNoteEditor } from '@blocknote/core';
 import { PerformanceSkeleton } from '@/components/ui/performance-skeleton';
 import {
   extractArticleExternalMeta,
@@ -177,6 +178,7 @@ const BlogEditorEnhanced: React.FC = () => {
   }, []);
 
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Debounced values for autosave
   const debouncedBlockNoteContent = useDebounce(blockNoteContent, 3000);
@@ -461,7 +463,7 @@ const BlogEditorEnhanced: React.FC = () => {
 
   // Main Save function
   const handleSave = useCallback(
-    async (visibilityOverride?: PostVisibility, isAutoSave = false) => {
+    async (visibilityOverride?: PostVisibility, isAutoSave = false): Promise<boolean> => {
       const currentForm = isAutoSave ? debouncedFormData : formData;
       const currentContent = isAutoSave ? debouncedBlockNoteContent : blockNoteContent;
       const currentTags = isAutoSave ? debouncedTags : selectedTags;
@@ -469,8 +471,9 @@ const BlogEditorEnhanced: React.FC = () => {
       const currentExtUrl = isAutoSave ? debouncedExternalUrl : externalUrl;
       const currentPlat = isAutoSave ? debouncedPlatform : platform;
 
-      if (!currentForm.title.trim()) return;
+      if (!currentForm.title.trim()) return false;
       setIsSaving(true);
+      setSaveError(null);
 
       try {
         const md = editorRef.current ? await blocksToMarkdown(editorRef.current) : '';
@@ -529,7 +532,8 @@ const BlogEditorEnhanced: React.FC = () => {
         if (id) {
           const { error } = await supabase.from('blog_posts').update(blogData).eq('id', id);
           if (error) throw error;
-          await associateBlogPostTags(id, currentTags);
+          const tagsOk = await associateBlogPostTags(id, currentTags);
+          if (!tagsOk) throw new Error('Failed to save article tags.');
         } else {
           const { data, error } = await supabase
             .from('blog_posts')
@@ -538,10 +542,12 @@ const BlogEditorEnhanced: React.FC = () => {
             .single();
           if (error) throw error;
           savedId = data.id;
-          await associateBlogPostTags(data.id, currentTags);
+          const tagsOk = await associateBlogPostTags(data.id, currentTags);
+          if (!tagsOk) throw new Error('Failed to save article tags.');
         }
 
         setLastSavedAt(new Date());
+        setSaveError(null);
 
         const updatedFormState = {
           ...currentForm,
@@ -552,7 +558,15 @@ const BlogEditorEnhanced: React.FC = () => {
           video_url: legacyArticleMetaInVideoFields ? '' : currentForm.video_url,
         };
 
-        setFormData(updatedFormState);
+        if (!isAutoSave || visibilityOverride !== undefined || legacyArticleMetaInVideoFields) {
+          setFormData((prev) => ({
+            ...(isAutoSave ? prev : updatedFormState),
+            published: targetPublished,
+            unlisted: targetUnlisted,
+            reading_time: blogData.reading_time,
+            ...(legacyArticleMetaInVideoFields ? { video_type: '', video_url: '' } : {}),
+          }));
+        }
         setLastSaved({
           formData: updatedFormState,
           content: currentContent,
@@ -571,8 +585,10 @@ const BlogEditorEnhanced: React.FC = () => {
             navigate(`/admin/blog/edit/${savedId}`, { replace: true });
           }
         }
+        return true;
       } catch (error: any) {
         console.error('Save error:', error);
+        setSaveError(error?.message || 'Save failed');
         if (!isAutoSave) {
           toast({
             title: 'Error saving article',
@@ -580,6 +596,7 @@ const BlogEditorEnhanced: React.FC = () => {
             variant: 'destructive',
           });
         }
+        return false;
       } finally {
         setIsSaving(false);
       }
@@ -618,39 +635,39 @@ const BlogEditorEnhanced: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Autosave when debounced values change
-  useEffect(() => {
-    if (!id || !lastSaved) return;
+  const savedSnapshotKey = useMemo(
+    () => (lastSaved ? JSON.stringify(lastSaved) : null),
+    [lastSaved]
+  );
 
-    const hasChanges =
-      JSON.stringify(debouncedFormData) !== JSON.stringify(lastSaved.formData) ||
-      JSON.stringify(debouncedBlockNoteContent) !== JSON.stringify(lastSaved.content) ||
-      JSON.stringify(debouncedTags) !== JSON.stringify(lastSaved.tags) ||
-      debouncedEntryMode !== lastSaved.entryMode ||
-      debouncedExternalUrl !== lastSaved.externalUrl ||
-      debouncedPlatform !== lastSaved.platform;
-
-    if (hasChanges && debouncedFormData.title.trim()) {
-      setLastSaved({
+  const debouncedSnapshotKey = useMemo(
+    () =>
+      JSON.stringify({
         formData: debouncedFormData,
         content: debouncedBlockNoteContent,
         tags: debouncedTags,
         entryMode: debouncedEntryMode,
         externalUrl: debouncedExternalUrl,
         platform: debouncedPlatform,
-      });
-      handleSaveRef.current?.(undefined, true)?.catch(console.error);
-    }
-  }, [
-    id,
-    debouncedFormData,
-    debouncedBlockNoteContent,
-    debouncedTags,
-    debouncedEntryMode,
-    debouncedExternalUrl,
-    debouncedPlatform,
-    lastSaved,
-  ]);
+      }),
+    [
+      debouncedFormData,
+      debouncedBlockNoteContent,
+      debouncedTags,
+      debouncedEntryMode,
+      debouncedExternalUrl,
+      debouncedPlatform,
+    ]
+  );
+
+  const { resetAutoSaveAttempt } = useEditorAutosave({
+    enabled: Boolean(id && lastSaved && debouncedFormData.title.trim()),
+    hasChanges: savedSnapshotKey !== null && debouncedSnapshotKey !== savedSnapshotKey,
+    snapshotKey: debouncedSnapshotKey,
+    savedKey: savedSnapshotKey,
+    isSaving,
+    onAutoSave: () => handleSaveRef.current(undefined, true),
+  });
 
   const copyArticleLink = async () => {
     if (!formData.slug) return;
@@ -699,18 +716,36 @@ const BlogEditorEnhanced: React.FC = () => {
             <span
               className={cn(
                 "w-2 h-2 rounded-full transition-colors",
-                isSaving ? "bg-amber-500 animate-pulse" : "bg-emerald-500"
+                saveError
+                  ? "bg-red-500"
+                  : isSaving
+                  ? "bg-amber-500 animate-pulse"
+                  : "bg-emerald-500"
               )}
             />
-            <span className="truncate">
+            <span className="truncate" title={saveError || undefined}>
               {isSaving
                 ? "Saving…"
+                : saveError
+                ? "Save failed"
                 : lastSavedAt
                 ? `Saved ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                 : id
                 ? "Saved"
                 : "Draft"}
             </span>
+            {saveError && !isSaving && (
+              <button
+                type="button"
+                onClick={() => {
+                  resetAutoSaveAttempt();
+                  void handleSaveRef.current(undefined, false);
+                }}
+                className="text-red-700 hover:underline font-semibold"
+              >
+                Retry
+              </button>
+            )}
           </div>
 
           {/* Live Word Count & Reading Time */}

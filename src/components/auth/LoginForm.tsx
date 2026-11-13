@@ -81,10 +81,16 @@ const LoginForm = () => {
                   Email Address
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3.5 h-5 w-5 text-on-surface-variant" />
+                  <Mail aria-hidden="true" className="absolute left-3 top-3.5 h-5 w-5 text-on-surface-variant" />
                   <Input
                     id="email"
+                    name="email"
                     type="email"
+                    autoComplete="username"
+                    spellCheck={false}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    enterKeyHint="next"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -100,10 +106,13 @@ const LoginForm = () => {
                   Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3.5 h-5 w-5 text-on-surface-variant" />
+                  <Lock aria-hidden="true" className="absolute left-3 top-3.5 h-5 w-5 text-on-surface-variant" />
                   <Input
                     id="password"
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    enterKeyHint="done"
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

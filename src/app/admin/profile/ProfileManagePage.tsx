@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useNavigate } from "@/lib/router-compat";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,10 +30,19 @@ import { toast } from "sonner";
 import { FileUpload } from "@/components/FileUpload";
 import { useProfile } from "@/contexts/ProfileContext";
 import AdminLayout from "@/components/admin/layout/AdminLayout";
-import BlockNoteEditorComponent, { BlockNoteContent, markdownToBlocks, blocksToMarkdown } from "@/components/editor/BlockNoteEditor";
+import {
+  type BlockNoteContent,
+  markdownToBlocks,
+  blocksToMarkdown,
+} from "@/lib/blocknote-markdown";
 import HeroStatsManager from "@/components/admin/HeroStatsManager";
 import { supabase } from "@/integrations/supabase/client";
-import { BlockNoteEditor } from "@blocknote/core";
+import type { BlockNoteEditor } from "@blocknote/core";
+
+const BlockNoteEditorComponent = dynamic(
+  () => import("@/components/editor/BlockNoteEditor"),
+  { ssr: false }
+);
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -54,7 +64,7 @@ const ProfileManagePage = () => {
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
-  const { profile, loading, updateProfile } = useProfile();
+  const { profile, loading, hasFullProfile, updateProfile, refreshFullProfile } = useProfile();
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -66,6 +76,10 @@ const ProfileManagePage = () => {
   const editorRef = useRef<BlockNoteEditor | null>(null);
   const hydratedSignatureRef = useRef<string | null>(null);
   const [contentLoading, setContentLoading] = useState(true);
+
+  useEffect(() => {
+    refreshFullProfile();
+  }, [refreshFullProfile]);
 
   // Populate form when profile loads
   useEffect(() => {
@@ -84,9 +98,9 @@ const ProfileManagePage = () => {
     }
   }, [profile, setValue]);
 
-  // Hydrate editor content when profile changes
+  // Hydrate editor content when profile loads with full About fields
   useEffect(() => {
-    if (!profile) return;
+    if (!profile || !hasFullProfile) return;
 
     const json = (profile as any).about_content_jsonb;
     const md = (profile as any).about_markdown as string | undefined;
@@ -118,7 +132,7 @@ const ProfileManagePage = () => {
 
     setAboutContent(contentToSet);
     setContentLoading(false);
-  }, [profile]);
+  }, [profile, hasFullProfile]);
 
   const onSubmit = async (data: ProfileFormData) => {
     setSaving(true);

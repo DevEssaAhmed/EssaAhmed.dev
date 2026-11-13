@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { LayoutGrid, Layers, Tag, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -52,7 +52,7 @@ export default function ArticlesSubNav({ className = "" }: { className?: string 
               )}
             >
               {isActive && (
-                <motion.div
+                <m.div
                   layoutId="activeSubNav"
                   className="absolute inset-0 bg-on-surface rounded-full shadow-xs"
                   initial={false}

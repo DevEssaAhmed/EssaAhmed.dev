@@ -13,6 +13,7 @@ import {
   getProjectTags,
 } from '@/lib/tagUtils';
 import { useDebounce } from '@/hooks/use-debouncer';
+import { useEditorAutosave } from '@/hooks/use-editor-autosave';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -59,13 +60,13 @@ import {
   type BlockNoteContent,
   markdownToBlocks,
   blocksToMarkdown,
-} from '@/components/editor/BlockNoteEditor';
+} from '@/lib/blocknote-markdown';
 
 const BlockNoteEditorComponent = dynamic(
   () => import('@/components/editor/BlockNoteEditor'),
   { ssr: false }
 );
-import { BlockNoteEditor } from '@blocknote/core';
+import type { BlockNoteEditor } from '@blocknote/core';
 import { PerformanceSkeleton } from '@/components/ui/performance-skeleton';
 import FileUpload from '@/components/FileUpload';
 
@@ -120,6 +121,7 @@ const ProjectEditorEnhanced: React.FC = () => {
   const [blockNoteContent, setBlockNoteContent] = useState<BlockNoteContent>([]);
 
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Debounced mirrors for autosave
   const debouncedBlockNoteContent = useDebounce(blockNoteContent, 3000);
@@ -229,13 +231,14 @@ const ProjectEditorEnhanced: React.FC = () => {
 
   // Save Project Handler
   const handleSave = useCallback(
-    async (isAutoSave = false) => {
+    async (isAutoSave = false): Promise<boolean> => {
       const currentForm = isAutoSave ? debouncedFormData : formData;
       const currentContent = isAutoSave ? debouncedBlockNoteContent : blockNoteContent;
       const currentTags = isAutoSave ? debouncedTags : selectedTags;
 
-      if (!currentForm.title.trim()) return;
+      if (!currentForm.title.trim()) return false;
       setIsSaving(true);
+      setSaveError(null);
 
       try {
         const additionalImagesArray = Array.isArray(currentForm.additional_images)
@@ -279,10 +282,12 @@ const ProjectEditorEnhanced: React.FC = () => {
         }
 
         if (projectId) {
-          await associateProjectTags(projectId, currentTags);
+          const tagsOk = await associateProjectTags(projectId, currentTags);
+          if (!tagsOk) throw new Error('Failed to save project tags.');
         }
 
         setLastSavedAt(new Date());
+        setSaveError(null);
 
         setLastSaved({
           formData: currentForm,
@@ -299,8 +304,10 @@ const ProjectEditorEnhanced: React.FC = () => {
             navigate(`/admin/project/edit/${projectId}`, { replace: true });
           }
         }
+        return true;
       } catch (err: any) {
         console.error('Save project error:', err);
+        setSaveError(err?.message || 'Save failed');
         if (!isAutoSave) {
           toast({
             title: 'Error saving project',
@@ -308,6 +315,7 @@ const ProjectEditorEnhanced: React.FC = () => {
             variant: 'destructive',
           });
         }
+        return false;
       } finally {
         setIsSaving(false);
       }
@@ -340,24 +348,29 @@ const ProjectEditorEnhanced: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Autosave when debounced values change
-  useEffect(() => {
-    if (!id || !lastSaved) return;
+  const savedSnapshotKey = useMemo(
+    () => (lastSaved ? JSON.stringify(lastSaved) : null),
+    [lastSaved]
+  );
 
-    const hasChanges =
-      JSON.stringify(debouncedFormData) !== JSON.stringify(lastSaved.formData) ||
-      JSON.stringify(debouncedBlockNoteContent) !== JSON.stringify(lastSaved.content) ||
-      JSON.stringify(debouncedTags) !== JSON.stringify(lastSaved.tags);
-
-    if (hasChanges && debouncedFormData.title.trim()) {
-      setLastSaved({
+  const debouncedSnapshotKey = useMemo(
+    () =>
+      JSON.stringify({
         formData: debouncedFormData,
         content: debouncedBlockNoteContent,
         tags: debouncedTags,
-      });
-      handleSaveRef.current?.(true)?.catch(console.error);
-    }
-  }, [id, debouncedFormData, debouncedBlockNoteContent, debouncedTags, lastSaved]);
+      }),
+    [debouncedFormData, debouncedBlockNoteContent, debouncedTags]
+  );
+
+  const { resetAutoSaveAttempt } = useEditorAutosave({
+    enabled: Boolean(id && lastSaved && debouncedFormData.title.trim()),
+    hasChanges: savedSnapshotKey !== null && debouncedSnapshotKey !== savedSnapshotKey,
+    snapshotKey: debouncedSnapshotKey,
+    savedKey: savedSnapshotKey,
+    isSaving,
+    onAutoSave: () => handleSaveRef.current(true),
+  });
 
   // Tags handlers
   const handleAddTag = () => {
@@ -458,18 +471,36 @@ const ProjectEditorEnhanced: React.FC = () => {
             <span
               className={cn(
                 "w-2 h-2 rounded-full transition-colors",
-                isSaving ? "bg-amber-500 animate-pulse" : "bg-emerald-500"
+                saveError
+                  ? "bg-red-500"
+                  : isSaving
+                  ? "bg-amber-500 animate-pulse"
+                  : "bg-emerald-500"
               )}
             />
-            <span className="truncate">
+            <span className="truncate" title={saveError || undefined}>
               {isSaving
                 ? "Saving…"
+                : saveError
+                ? "Save failed"
                 : lastSavedAt
                 ? `Saved ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                 : id
                 ? "Saved"
                 : "Draft"}
             </span>
+            {saveError && !isSaving && (
+              <button
+                type="button"
+                onClick={() => {
+                  resetAutoSaveAttempt();
+                  void handleSaveRef.current(false);
+                }}
+                className="text-red-700 hover:underline font-semibold"
+              >
+                Retry
+              </button>
+            )}
           </div>
         </div>
 

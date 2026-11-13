@@ -13,9 +13,12 @@ import { Input } from '@/components/ui/input';
 import { Calendar, ArrowLeft, Tag, Search, Hash } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { formatDateUTC } from '@/lib/date';
+import { getTagHref, resolveTagByParam } from '@/lib/tag-slug';
 
 interface Tag {
   name: string;
+  slug?: string | null;
   count: number;
 }
 
@@ -33,11 +36,9 @@ interface BlogPost {
   views?: number;
   likes?: number;
   image_url?: string;
-  content: string;
+  content?: string;
   content_jsonb?: Json;
 }
-
-const tagToHref = (tag: string) => `/articles/tags/${encodeURIComponent(tag.toLowerCase().replace(/\s+/g, "-"))}`;
 
 interface TagDetailPageProps {
   initialTagName?: string;
@@ -63,15 +64,7 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
 
     setLoading(true);
     try {
-      const decodedTag = decodeURIComponent(tagSlug.replace(/-/g, ' '));
-      setTagName(decodedTag);
-
-      // First, get the ID of the current tag
-      const { data: tagData, error: tagError } = await supabase
-        .from('tags')
-        .select('id')
-        .eq('name', decodedTag)
-        .single();
+      const { data: tagData, error: tagError } = await resolveTagByParam(supabase, tagSlug);
 
       if (tagError || !tagData) {
         console.error('Tag not found:', tagError?.message);
@@ -80,12 +73,13 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
         return;
       }
 
+      setTagName(tagData.name);
       const tagId = tagData.id;
 
       // Fetch blog posts using the join table
       const { data: blogPostTagData } = await supabase
         .from('blog_post_tags')
-        .select('blog_post_id, blog_posts!inner(*)')
+        .select('blog_post_id, blog_posts!inner(id,title,slug,excerpt,image_url,tags,created_at,published,unlisted)')
         .eq('tag_id', tagId)
         .eq('blog_posts.published', true)
         .eq('blog_posts.unlisted', false);
@@ -98,17 +92,24 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
       if (publicPostIds.length > 0) {
         const { data: relatedTagLinks, error: relatedTagError } = await supabase
           .from('blog_post_tags')
-          .select('tags(name)')
+          .select('tags(name, slug)')
           .in('blog_post_id', publicPostIds)
           .neq('tag_id', tagId);
 
         if (relatedTagError) throw relatedTagError;
-        const counts = (relatedTagLinks || []).reduce((result: Map<string, number>, link: any) => {
-          const relatedTag = Array.isArray(link.tags) ? link.tags[0] : link.tags;
-          if (relatedTag?.name) result.set(relatedTag.name, (result.get(relatedTag.name) || 0) + 1);
-          return result;
-        }, new Map<string, number>());
-        setRelatedTags(Array.from(counts, ([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count));
+        const map = (relatedTagLinks || []).reduce(
+          (result: Map<string, Tag>, link: any) => {
+            const relatedTag = Array.isArray(link.tags) ? link.tags[0] : link.tags;
+            if (relatedTag?.name) {
+              const existing = result.get(relatedTag.name);
+              if (existing) existing.count += 1;
+              else result.set(relatedTag.name, { name: relatedTag.name, slug: relatedTag.slug ?? null, count: 1 });
+            }
+            return result;
+          },
+          new Map<string, Tag>()
+        );
+        setRelatedTags(Array.from(map.values()).sort((a, b) => b.count - a.count));
       } else {
         setRelatedTags([]);
       }
@@ -194,7 +195,7 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
                   <h3 className="text-xs font-mono uppercase tracking-wider text-outline mb-3">Related Tags</h3>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {relatedTags.slice(0, 10).map((tag) => (
-                      <Link key={tag.name} href={tagToHref(tag.name)}>
+                      <Link key={tag.name} href={getTagHref(tag)}>
                         <Badge
                           variant="outline"
                           className="border border-outline-variant/30 bg-surface-container text-on-surface hover:border-primary/40 hover:text-primary cursor-pointer transition-colors font-mono text-xs"
@@ -247,7 +248,7 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
                         <div className="flex items-center gap-4 text-xs font-mono text-outline pt-4 border-t border-outline-variant/30">
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3.5 h-3.5 text-primary/70" />
-                            {new Date(post.created_at).toLocaleDateString()}
+                            {formatDateUTC(post.created_at)}
                           </div>
                         </div>
                       </CardContent>
@@ -290,7 +291,7 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
               <CardContent>
                 <div className="flex flex-wrap gap-2">
                   {relatedTags.map((tag) => (
-                    <Link key={tag.name} href={tagToHref(tag.name)}>
+                    <Link key={tag.name} href={getTagHref(tag)}>
                       <Badge
                         variant="outline"
                         className="cursor-pointer border border-outline-variant/30 bg-surface-container text-on-surface hover:border-primary/40 hover:text-primary transition-colors font-mono text-xs"

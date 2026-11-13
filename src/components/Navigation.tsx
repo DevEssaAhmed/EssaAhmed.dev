@@ -21,7 +21,7 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -158,15 +158,6 @@ const Navigation = memo(() => {
   }, [cmdQuery, cmdOpen]);
 
   useEffect(() => {
-    if (!cmdOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [cmdOpen]);
-
-  useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -287,21 +278,23 @@ const Navigation = memo(() => {
     isMounted && cmdOpen
       ? createPortal(
           <div
-            className="fixed inset-0 z-[1200] bg-black/60 backdrop-blur-sm flex items-start justify-center pt-24 px-4"
+            className="fixed inset-0 z-[1200] bg-black/60 backdrop-blur-sm flex items-start justify-center pt-24 px-4 overflow-hidden overscroll-contain"
             onClick={() => setCmdOpen(false)}
           >
             <div
               role="dialog"
               aria-modal="true"
               aria-label="Command palette"
-              className="w-full max-w-lg rounded-2xl bg-surface-container-low border border-outline-variant/40 shadow-2xl overflow-hidden text-on-surface"
+              className="w-full max-w-lg rounded-2xl bg-surface-container-low border border-outline-variant/40 shadow-2xl overflow-hidden overscroll-contain text-on-surface"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 px-4 py-3.5 border-b border-outline-variant/30">
-                <Search className="w-4 h-4 text-on-surface-variant shrink-0" />
+                <Search aria-hidden="true" className="w-4 h-4 text-on-surface-variant shrink-0" />
                 <input
                   autoFocus
                   type="text"
+                  aria-label="Search commands"
+                  enterKeyHint="go"
                   value={cmdQuery}
                   onChange={(e) => setCmdQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -318,6 +311,9 @@ const Navigation = memo(() => {
                           : 0
                       );
                     } else if (e.key === "Enter") {
+                      if (e.nativeEvent.isComposing || e.keyCode === 229) {
+                        return;
+                      }
                       const item = filteredCmdActions[cmdSelectedIndex];
                       if (item) {
                         e.preventDefault();
@@ -338,7 +334,7 @@ const Navigation = memo(() => {
                   ESC
                 </kbd>
               </div>
-              <div className="max-h-80 overflow-y-auto p-2 space-y-1">
+              <div className="max-h-80 overflow-y-auto overscroll-contain p-2 space-y-1">
                 {filteredCmdActions.map((item, index) => {
                   const isSelected = index === cmdSelectedIndex;
                   return (
@@ -401,7 +397,7 @@ const Navigation = memo(() => {
           <AnimatePresence>
             {isOpen ? (
               <>
-                <motion.div
+                <m.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -409,7 +405,7 @@ const Navigation = memo(() => {
                   className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[998] md:hidden"
                   onClick={() => setIsOpen(false)}
                 />
-                <motion.div
+                <m.div
                   id="mobile-menu"
                   ref={mobileMenuRef}
                   initial={{ x: "100%" }}
@@ -545,7 +541,7 @@ const Navigation = memo(() => {
                       )}
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               </>
             ) : null}
           </AnimatePresence>,
@@ -586,7 +582,7 @@ const Navigation = memo(() => {
                   aria-current={active ? "page" : undefined}
                 >
                   {active && (
-                    <motion.span
+                    <m.span
                       layoutId="activeNavPill"
                       className="absolute inset-0 bg-surface-container-high/90 border border-outline-variant/30 rounded-full -z-10 shadow-xs"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
@@ -653,7 +649,7 @@ const Navigation = memo(() => {
               <span>⌘K</span>
             </button>
 
-            <motion.button
+            <m.button
               type="button"
               onClick={toggleTheme}
               whileTap={{ scale: 0.9 }}
@@ -663,7 +659,7 @@ const Navigation = memo(() => {
               title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
             >
               <AnimatePresence mode="wait" initial={false}>
-                <motion.div
+                <m.div
                   key={theme}
                   initial={{ rotate: -90, scale: 0.5, opacity: 0 }}
                   animate={{ rotate: 0, scale: 1, opacity: 1 }}
@@ -676,9 +672,9 @@ const Navigation = memo(() => {
                   ) : (
                     <Moon className="w-4 h-4 text-on-surface" />
                   )}
-                </motion.div>
+                </m.div>
               </AnimatePresence>
-            </motion.button>
+            </m.button>
 
             <HashLink smooth to="/#contact">
               <span className="bg-on-surface text-surface font-display text-label-md font-semibold px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all duration-150 inline-flex items-center whitespace-nowrap">
@@ -700,7 +696,7 @@ const Navigation = memo(() => {
 
           {/* Mobile Controls */}
           <div className="flex items-center gap-2 md:hidden">
-            <motion.button
+            <m.button
               type="button"
               onClick={toggleTheme}
               whileTap={{ scale: 0.9 }}
@@ -709,7 +705,7 @@ const Navigation = memo(() => {
               aria-label="Toggle theme"
             >
               <AnimatePresence mode="wait" initial={false}>
-                <motion.div
+                <m.div
                   key={theme}
                   initial={{ rotate: -90, scale: 0.5, opacity: 0 }}
                   animate={{ rotate: 0, scale: 1, opacity: 1 }}
@@ -722,9 +718,9 @@ const Navigation = memo(() => {
                   ) : (
                     <Moon className="w-4 h-4 text-on-surface" />
                   )}
-                </motion.div>
+                </m.div>
               </AnimatePresence>
-            </motion.button>
+            </m.button>
             <button
               type="button"
               onClick={() => setCmdOpen(true)}

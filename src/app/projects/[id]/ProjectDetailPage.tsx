@@ -1,16 +1,27 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import {
+  getCleanProjectMarkdown,
+  getUniqueProjectImages,
+} from "@/lib/project-markdown";
+
+const MarkdownRenderer = dynamic(
+  () => import("@/components/MarkdownRenderer"),
+  { ssr: false }
+);
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getProjectTags } from "@/lib/tagUtils";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatDateUTC } from "@/lib/date";
 import {
   FolderX,
   ArrowLeft,
@@ -22,69 +33,6 @@ import {
   Image as ImageIcon,
   FileText,
 } from "lucide-react";
-
-function tryConvertJsonToMarkdown(content: string): string {
-  if (!content) return "";
-  try {
-    const json = JSON.parse(content);
-    if (!json || typeof json !== "object") return content;
-    if (Array.isArray(json)) {
-      return json
-        .map((block: any) => {
-          const text = Array.isArray(block.content)
-            ? block.content.map((c: any) => c.text || "").join("")
-            : typeof block.content === "string"
-            ? block.content
-            : "";
-          switch (block.type) {
-            case "heading":
-              return `${"#".repeat(block.props?.level || 1)} ${text}`;
-            case "bulletListItem":
-              return `- ${text}`;
-            case "numberedListItem":
-              return `1. ${text}`;
-            case "codeBlock":
-              return `\`\`\`${block.props?.language || ""}\n${text}\n\`\`\``;
-            case "image":
-              return `![${block.props?.caption || ""}](${block.props?.url || ""})`;
-            default:
-              return text;
-          }
-        })
-        .join("\n\n");
-    }
-    return content;
-  } catch {
-    return content;
-  }
-}
-
-const getImageBasename = (url?: string | null): string => {
-  if (!url || typeof url !== "string") return "";
-  return url.split("?")[0].split("#")[0].split("/").pop()?.trim().toLowerCase() || "";
-};
-
-function getProjectBodyMarkdown(project: any, uniqueImages: string[] = []): string {
-  const longForm = project?.description_jsonb;
-  if (Array.isArray(longForm) && longForm.length > 0) {
-    let blocks = longForm;
-    const firstBlock = blocks[0];
-    if (firstBlock?.type === "image" && firstBlock?.props?.url) {
-      const firstBasename = getImageBasename(firstBlock.props.url);
-      const isDuplicate = uniqueImages.some(
-        (img) => getImageBasename(img) === firstBasename
-      );
-      if (isDuplicate) {
-        blocks = blocks.slice(1);
-      }
-    }
-    return tryConvertJsonToMarkdown(JSON.stringify(blocks));
-  }
-  if (typeof longForm === "string" && longForm.trim()) {
-    return tryConvertJsonToMarkdown(longForm);
-  }
-  return tryConvertJsonToMarkdown(project?.description || "");
-}
 
 const getYouTubeEmbedUrl = (url: string) => {
   if (!url) return "";
@@ -104,11 +52,13 @@ const getVimeoEmbedUrl = (url: string) => {
 type ProjectDetailPageProps = {
   initialProject?: any;
   initialProjectTags?: any[];
+  renderedBody?: ReactNode;
 };
 
 const ProjectDetailPage = ({
   initialProject,
   initialProjectTags,
+  renderedBody,
 }: ProjectDetailPageProps) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -145,7 +95,9 @@ const ProjectDetailPage = ({
     try {
       const { data, error } = await supabase
         .from("projects")
-        .select("*, categories ( id, name, slug )")
+        .select(
+          "id,title,description,description_jsonb,image_url,additional_images,featured,created_at,updated_at,category_id,demo_url,github_url,demo_video_url,demo_video_type,tags,categories(id,name,slug)"
+        )
         .eq("id", id)
         .single();
       if (error) throw error;
@@ -184,50 +136,19 @@ const ProjectDetailPage = ({
   };
 
   // Deduplicate all project images (combining image_url and additional_images)
+  const projectImageUrl = project?.image_url;
+  const projectAdditionalImages = project?.additional_images;
   const uniqueImages = useMemo(() => {
-    const list: string[] = [];
-    const seen = new Set<string>();
-
-    const addImage = (rawUrl?: string | null) => {
-      if (!rawUrl || typeof rawUrl !== "string") return;
-      const trimmed = rawUrl.trim();
-      if (!trimmed || trimmed.includes("placeholder")) return;
-      const basename = getImageBasename(trimmed) || trimmed;
-      if (!seen.has(basename)) {
-        seen.add(basename);
-        list.push(trimmed);
-      }
-    };
-
-    addImage(project?.image_url);
-    if (Array.isArray(project?.additional_images)) {
-      for (const img of project.additional_images) {
-        addImage(img);
-      }
-    }
-    return list;
-  }, [project?.image_url, project?.additional_images]);
+    return getUniqueProjectImages({
+      image_url: projectImageUrl,
+      additional_images: projectAdditionalImages,
+    });
+  }, [projectImageUrl, projectAdditionalImages]);
 
   const cleanedMarkdownBody = useMemo(() => {
-    let raw = getProjectBodyMarkdown(project, uniqueImages);
-    if (!raw) return "";
-
-    // Remove leading markdown image if it duplicates any hero/gallery image
-    const leadingImageMatch = raw.match(
-      /^\s*(?:!\[[^\]]*\]\(([^)]+)\)|<img[^>]+src=["']([^"']+)["'][^>]*>)\s*/i
-    );
-    if (leadingImageMatch) {
-      const matchedUrl = leadingImageMatch[1] || leadingImageMatch[2];
-      const matchedBasename = getImageBasename(matchedUrl);
-      const isDuplicate = uniqueImages.some(
-        (img) => getImageBasename(img) === matchedBasename
-      );
-      if (isDuplicate) {
-        raw = raw.slice(leadingImageMatch[0].length);
-      }
-    }
-    return raw.trim();
-  }, [project, uniqueImages]);
+    if (renderedBody !== undefined) return "";
+    return getCleanProjectMarkdown(project, uniqueImages);
+  }, [project, renderedBody, uniqueImages]);
 
   if (loading) {
     return (
@@ -318,7 +239,7 @@ const ProjectDetailPage = ({
             )}
             {project.created_at && (
               <span className="text-xs font-code text-outline">
-                {new Date(project.created_at).toLocaleDateString("en-US", {
+                {formatDateUTC(project.created_at, {
                   month: "short",
                   day: "numeric",
                   year: "numeric",
@@ -531,7 +452,11 @@ const ProjectDetailPage = ({
               Case Study &amp; Technical Analysis
             </h2>
           </div>
-          <MarkdownRenderer content={cleanedMarkdownBody} />
+          {renderedBody !== undefined ? (
+            renderedBody
+          ) : (
+            <MarkdownRenderer content={cleanedMarkdownBody} />
+          )}
         </article>
       </main>
 

@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { formatDateUTC } from "@/lib/date";
+import { calculateReadingTime } from "@/utils/readingTime";
 
 interface SeriesDetailPageProps {
   initialSeries?: any;
@@ -32,7 +34,7 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
     try {
       const { data: seriesData, error: seriesError } = await supabase
         .from("series")
-        .select("*")
+        .select("id,title,slug,description,image_url,featured_image_url,featured,status")
         .eq("slug", slug)
         .single();
 
@@ -41,7 +43,7 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
 
       const { data: articlesData, error: articlesError } = await supabase
         .from("blog_posts")
-        .select("*")
+        .select("id,title,slug,excerpt,reading_time,content,series_order,created_at")
         .eq("series_id", seriesData.id)
         .eq("published", true)
         .eq("unlisted", false)
@@ -199,8 +201,8 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
                           <CardTitle className="mb-2 line-clamp-2 font-display text-lg text-on-surface group-hover:text-primary transition-colors">{article.title}</CardTitle>
                           <CardDescription className="mb-3 line-clamp-2 text-on-surface-variant font-sans">{article.excerpt || "No excerpt available."}</CardDescription>
                           <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-outline">
-                            <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-primary/70" /> {new Date(article.created_at).toLocaleDateString()}</span>
-                            <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-primary/70" /> {article.read_time || 5} min</span>
+                            <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-primary/70" /> {formatDateUTC(article.created_at)}</span>
+                            <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-primary/70" /> {article.reading_time || calculateReadingTime(article.content || "")} min</span>
                           </div>
                         </div>
                       </div>

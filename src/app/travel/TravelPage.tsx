@@ -61,8 +61,6 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
 
   useEffect(() => {
     if (!storyModalOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setStoryModalOpen(false);
@@ -70,7 +68,6 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [storyModalOpen]);
@@ -741,11 +738,11 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
           role="dialog"
           aria-modal="true"
           aria-label="Travel story viewer"
-          className="fixed inset-0 z-[1300] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4"
+          className="fixed inset-0 z-[1300] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 overflow-hidden overscroll-contain"
           onClick={() => setStoryModalOpen(false)}
         >
           <div
-            className="relative w-full max-w-[390px] aspect-[9/16] rounded-[32px] overflow-hidden border border-white/20 bg-black shadow-2xl flex flex-col justify-between p-5"
+            className="relative w-full max-w-[390px] aspect-[9/16] rounded-[32px] overflow-hidden overscroll-contain border border-white/20 bg-black shadow-2xl flex flex-col justify-between p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <OptimizedImage

@@ -1,8 +1,18 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isPublicTravelHighlight } from "@/data/travelVisibility";
+import {
+  DEFAULT_CONTENT_AVAILABILITY_COUNTS,
+  type AvailabilityCounts,
+} from "@/lib/profile-defaults";
 
 export interface ContentAvailability {
   hasProjects: boolean;
@@ -19,22 +29,30 @@ const defaultAvailability: ContentAvailability = {
   hasProjects: true,
   hasArticles: true,
   hasTravel: false,
-  projectsCount: 5,
-  articlesCount: 1,
-  travelCount: 0,
+  projectsCount: DEFAULT_CONTENT_AVAILABILITY_COUNTS.projectsCount,
+  articlesCount: DEFAULT_CONTENT_AVAILABILITY_COUNTS.articlesCount,
+  travelCount: DEFAULT_CONTENT_AVAILABILITY_COUNTS.travelCount,
   loading: true,
   refreshAvailability: async () => {},
 };
 
-const ContentAvailabilityContext = createContext<ContentAvailability>(defaultAvailability);
+const ContentAvailabilityContext =
+  createContext<ContentAvailability>(defaultAvailability);
 
-export function ContentAvailabilityProvider({ children }: { children: React.ReactNode }) {
-  const [counts, setCounts] = useState({
-    projectsCount: 5,
-    articlesCount: 1,
-    travelCount: 0,
-  });
-  const [loading, setLoading] = useState(true);
+interface ContentAvailabilityProviderProps {
+  children: React.ReactNode;
+  initialAvailability?: AvailabilityCounts;
+}
+
+export function ContentAvailabilityProvider({
+  children,
+  initialAvailability,
+}: ContentAvailabilityProviderProps) {
+  const hasInitial = initialAvailability !== undefined;
+  const [counts, setCounts] = useState<AvailabilityCounts>(() =>
+    initialAvailability ?? DEFAULT_CONTENT_AVAILABILITY_COUNTS
+  );
+  const [loading, setLoading] = useState(!hasInitial);
 
   const refreshAvailability = useCallback(async () => {
     try {
@@ -47,13 +65,19 @@ export function ContentAvailabilityProvider({ children }: { children: React.Reac
           .eq("unlisted", false),
         supabase
           .from("travel_highlights")
-          .select("city_name,country_name,lat,lng,cover_image_url,story_slides,is_published")
+          .select(
+            "city_name,country_name,lat,lng,cover_image_url,story_slides,is_published"
+          )
           .eq("is_published", true),
       ]);
 
       setCounts((prev) => ({
-        projectsCount: projectsRes.error ? prev.projectsCount : (projectsRes.count ?? 0),
-        articlesCount: blogsRes.error ? prev.articlesCount : (blogsRes.count ?? 0),
+        projectsCount: projectsRes.error
+          ? prev.projectsCount
+          : projectsRes.count ?? 0,
+        articlesCount: blogsRes.error
+          ? prev.articlesCount
+          : blogsRes.count ?? 0,
         travelCount: travelRes.error
           ? prev.travelCount
           : (travelRes.data ?? []).filter(isPublicTravelHighlight).length,
@@ -66,8 +90,10 @@ export function ContentAvailabilityProvider({ children }: { children: React.Reac
   }, []);
 
   useEffect(() => {
-    refreshAvailability();
-  }, [refreshAvailability]);
+    if (!hasInitial) {
+      refreshAvailability();
+    }
+  }, [hasInitial, refreshAvailability]);
 
   const value: ContentAvailability = {
     hasProjects: counts.projectsCount > 0,

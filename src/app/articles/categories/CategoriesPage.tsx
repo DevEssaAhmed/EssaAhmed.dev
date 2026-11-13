@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Folder, ArrowRight, BookOpen } from "lucide-react";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import ArticlesSubNav from "@/components/ArticlesSubNav";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 interface Category {
   id: string;
@@ -46,14 +46,14 @@ const CategoriesPage = ({ initialCategories = [] }: CategoriesPageProps) => {
             <ArticlesSubNav />
           </div>
 
-          <motion.div
+          <m.div
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-5"
             variants={{ show: { transition: { staggerChildren: 0.07 } } }}
             initial="hidden"
             animate="show"
           >
             {categories.map((category) => (
-              <motion.div key={category.id} variants={fadeUp}>
+              <m.div key={category.id} variants={fadeUp}>
                 <Link href={`/articles/categories/${category.slug}`} className="group block h-full">
                   <div className="relative h-full rounded-2xl border border-outline-variant/30 bg-surface-container-low overflow-hidden hover:border-primary/40 hover:bg-surface-container/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                     <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary/20 group-hover:bg-primary/60 transition-colors" />
@@ -88,9 +88,9 @@ const CategoriesPage = ({ initialCategories = [] }: CategoriesPageProps) => {
                     </div>
                   </div>
                 </Link>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
 
           {categories.length === 0 && (
             <div className="w-full relative overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-low p-16 text-center mt-8">

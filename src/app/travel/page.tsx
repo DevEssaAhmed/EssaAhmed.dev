@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import TravelPage from "./TravelPage";
@@ -6,7 +7,10 @@ import { buildPageMetadata } from "@/lib/metadata";
 import { normalizeTravelRow } from "@/data/travelData";
 import { isPublicTravelHighlight } from "@/data/travelVisibility";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
+
+const TRAVEL_HIGHLIGHTS_SELECT =
+  "id,slug,city_name,country_name,country_code,flag,year,month,subtitle,lat,lng,cover_image_url,instagram_highlight_url,essay_title,essay_blocks,story_slides,is_published";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Travel Highlights",
@@ -19,7 +23,7 @@ export default async function Page() {
   const supabase = getSupabaseServer();
   const { data, error } = await supabase
     .from("travel_highlights")
-    .select("*")
+    .select(TRAVEL_HIGHLIGHTS_SELECT)
     .eq("is_published", true)
     .order("year", { ascending: false });
 
@@ -39,5 +43,9 @@ export default async function Page() {
 
   if (highlights.length === 0) notFound();
 
-  return <TravelPage initialHighlights={highlights} />;
+  return (
+    <Suspense fallback={null}>
+      <TravelPage initialHighlights={highlights} />
+    </Suspense>
+  );
 }

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft, BookOpen, Folders } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 const NotFound = () => {
   const location = useLocation();
@@ -30,7 +30,7 @@ const NotFound = () => {
         <div className="w-full max-w-lg text-center">
 
           {/* Animated 404 glyph */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
@@ -41,9 +41,9 @@ const NotFound = () => {
             </div>
             {/* Decorative subtle glow behind the number */}
             <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl -z-10 scale-75" />
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
@@ -56,10 +56,10 @@ const NotFound = () => {
               <span className="text-on-surface-variant">Path:</span>
               <code className="text-primary">{location.pathname}</code>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Quick navigation cards */}
-          <motion.div
+          <m.div
             className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -80,9 +80,9 @@ const NotFound = () => {
                 </div>
               </Link>
             ))}
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.4 }}
@@ -96,7 +96,7 @@ const NotFound = () => {
               <ArrowLeft className="w-4 h-4 text-primary" />
               Go back
             </Button>
-          </motion.div>
+          </m.div>
 
         </div>
       </main>

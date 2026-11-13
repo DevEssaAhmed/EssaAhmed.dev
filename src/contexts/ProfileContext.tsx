@@ -1,77 +1,88 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Tables } from "@/integrations/supabase/types";
+import {
+  DEFAULT_PUBLIC_PROFILE,
+  FULL_PROFILE_COLUMNS,
+  normalizePublicProfile,
+  PUBLIC_PROFILE_COLUMNS,
+  type PublicProfile,
+} from "@/lib/profile-defaults";
 
-type Profile = Tables<"profile"> & { [key: string]: any };
+type Profile = PublicProfile;
 
 interface ProfileContextType {
   profile: Profile | null;
   loading: boolean;
+  hasFullProfile: boolean;
   error: string | null;
   updateProfile: (updates: any) => Promise<void>;
   refreshProfile: () => Promise<void>;
+  refreshFullProfile: () => Promise<void>;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
-const defaultProfile: Profile = {
-  id: "default",
-  name: "Essa Ahmed",
-  username: "essaahmed",
-  title: "Workflow Automation, Supply Chain S&OP & Analytics",
-  bio: "Bridging supply chain operations, end-to-end process automation, and decision analytics—turning complex operational data into self-running workflows and clear forecasts.",
-  email: "essaahmedsiddiqui@gmail.com",
-  avatar_url: "/placeholder.svg",
-  github_url: "https://github.com/DevEssaAhmed",
-  linkedin_url: "https://www.linkedin.com/in/essa-ahmed",
-  website_url: "https://essaahmed.dev",
-  location: "Karachi, Pakistan",
-  skills: ["Python", "SQL", "dbt", "Power BI", "Snowflake", "Airflow", "S&OP Modeling", "Next.js"],
-  stats: {},
-  about_markdown: null,
-  about_content_jsonb: null,
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-} as any;
+interface ProfileProviderProps {
+  children: React.ReactNode;
+  initialProfile?: Profile | null;
+}
 
-export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [profile, setProfile] = useState<Profile | null>(defaultProfile);
-  const [loading, setLoading] = useState(true);
+export const ProfileProvider: React.FC<ProfileProviderProps> = ({
+  children,
+  initialProfile,
+}) => {
+  const hasInitialProfile = initialProfile !== undefined;
+  const [profile, setProfile] = useState<Profile | null>(() =>
+    hasInitialProfile
+      ? normalizePublicProfile(initialProfile)
+      : DEFAULT_PUBLIC_PROFILE
+  );
+  const [loading, setLoading] = useState(!hasInitialProfile);
+  const [hasFullProfile, setHasFullProfile] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProfile = useCallback(async () => {
+  const fetchProfile = useCallback(async (includeAbout = false) => {
     try {
       setLoading(true);
       setError(null);
 
-      const { data, error } = await supabase
-        .from("profile")
-        .select("id,name,username,title,bio,email,avatar_url,github_url,linkedin_url,website_url,location,skills,stats,created_at,updated_at,about_markdown,about_content_jsonb")
-        .order("updated_at", { ascending: false })
-        .limit(1);
+      const { data, error } = includeAbout
+        ? await supabase
+            .from("profile")
+            .select(FULL_PROFILE_COLUMNS)
+            .order("updated_at", { ascending: false })
+            .limit(1)
+        : await supabase
+            .from("profile")
+            .select(PUBLIC_PROFILE_COLUMNS)
+            .order("updated_at", { ascending: false })
+            .limit(1);
 
       if (error) throw error;
 
-      const raw = data && data.length > 0 ? (data[0] as Profile) : defaultProfile;
-      const profileData: Profile = {
-        ...raw,
-        title:
-          !raw.title || raw.title === "BI Analyst"
-            ? defaultProfile.title
-            : raw.title,
-        stats:
-          raw.stats && typeof raw.stats === "object" && !Array.isArray(raw.stats)
-            ? raw.stats
-            : defaultProfile.stats,
-      };
-      setProfile(profileData);
+      const raw =
+        data && data.length > 0
+          ? (data[0] as unknown as Profile)
+          : DEFAULT_PUBLIC_PROFILE;
+      setProfile(normalizePublicProfile(raw));
     } catch (err) {
       console.error("Error fetching profile:", err);
-      setProfile(defaultProfile);
-      setError("Using default profile data. Please check your database connection.");
+      setProfile((prev) => prev || DEFAULT_PUBLIC_PROFILE);
+      setError(
+        "Using default profile data. Please check your database connection."
+      );
     } finally {
+      if (includeAbout) {
+        setHasFullProfile(true);
+      }
       setLoading(false);
     }
   }, []);
@@ -86,9 +97,14 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
           ...updates,
           updated_at: new Date().toISOString(),
         };
-        const { data, error } = await supabase.from("profile").insert([profileData]).select().single();
+        const { data, error } = await supabase
+          .from("profile")
+          .insert([profileData])
+          .select()
+          .single();
         if (error) throw error;
         setProfile(data as Profile);
+        setHasFullProfile(true);
       } else {
         const { data, error } = await supabase
           .from("profile")
@@ -98,6 +114,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
           .single();
         if (error) throw error;
         setProfile(data as Profile);
+        setHasFullProfile(true);
       }
     } catch (err) {
       console.error("Error updating profile:", err);
@@ -107,15 +124,31 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const refreshProfile = useCallback(async () => {
-    await fetchProfile();
+    await fetchProfile(false);
+  }, [fetchProfile]);
+
+  const refreshFullProfile = useCallback(async () => {
+    await fetchProfile(true);
   }, [fetchProfile]);
 
   useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+    if (!hasInitialProfile) {
+      fetchProfile(false);
+    }
+  }, [fetchProfile, hasInitialProfile]);
 
   return (
-    <ProfileContext.Provider value={{ profile, loading, error, updateProfile, refreshProfile }}>
+    <ProfileContext.Provider
+      value={{
+        profile,
+        loading,
+        hasFullProfile,
+        error,
+        updateProfile,
+        refreshProfile,
+        refreshFullProfile,
+      }}
+    >
       {children}
     </ProfileContext.Provider>
   );
@@ -130,5 +163,3 @@ export const useProfile = () => {
 };
 
 export default ProfileContext;
-
-

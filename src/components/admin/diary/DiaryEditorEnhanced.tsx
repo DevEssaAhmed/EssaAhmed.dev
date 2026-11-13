@@ -4,9 +4,19 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useNavigate, useParams } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import dynamic from "next/dynamic";
 import FileUpload from "@/components/FileUpload";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { OptimizedImage } from "@/components/OptimizedImage";
+
+const MarkdownRenderer = dynamic(
+  () => import("@/components/MarkdownRenderer"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-48 w-full rounded-xl bg-zinc-100 animate-pulse" />
+    ),
+  }
+);
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

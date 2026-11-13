@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useNavigate, useLocation } from "@/lib/router-compat";
 import { cn } from "@/lib/utils";
+import { formatDateUTC } from "@/lib/date";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -164,33 +165,34 @@ export default function AdminPage() {
   const fetchAllData = async () => {
     setIsLoading(true);
     try {
-      // 1. Fetch Blog Posts
-      const { data: blogData, error: blogErr } = await supabase
-        .from("blog_posts")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (blogErr) console.warn("Error fetching blog posts:", blogErr);
-      setBlogPosts(blogData || []);
+      const [blogRes, projRes, mergedTravel, diaryRes] = await Promise.all([
+        supabase
+          .from("blog_posts")
+          .select(
+            "id,title,slug,excerpt,content,image_url,published,unlisted,reading_time,is_external,external_url,platform,video_type,video_url,created_at"
+          )
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("projects")
+          .select("id,title,description,image_url,tags,featured,views,likes,created_at,category_id")
+          .order("created_at", { ascending: false }),
+        fetchTravelHighlightsFromSupabase(),
+        supabase
+          .from("diary_entries")
+          .select("id,title,excerpt,content,entry_date,topic_tag,is_published,image_url,image_alt")
+          .order("entry_date", { ascending: false }),
+      ]);
 
-      // 2. Fetch Projects
-      const { data: projData, error: projErr } = await supabase
-        .from("projects")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (projErr) console.warn("Error fetching projects:", projErr);
-      setProjects(projData || []);
+      if (blogRes.error) console.warn("Error fetching blog posts:", blogRes.error);
+      setBlogPosts(blogRes.data || []);
 
-      // 3. Fetch Travel Highlights (from Supabase travel_highlights table + local fallback)
-      const mergedTravel = await fetchTravelHighlightsFromSupabase();
+      if (projRes.error) console.warn("Error fetching projects:", projRes.error);
+      setProjects(projRes.data || []);
+
       setTravelHighlights(mergedTravel);
 
-      // 4. Fetch Diary Entries
-      const { data: diaryData, error: diaryErr } = await supabase
-        .from("diary_entries")
-        .select("*")
-        .order("entry_date", { ascending: false });
-      if (diaryErr) console.warn("Error fetching diary entries:", diaryErr);
-      setDiaryEntries(diaryData || []);
+      if (diaryRes.error) console.warn("Error fetching diary entries:", diaryRes.error);
+      setDiaryEntries(diaryRes.data || []);
     } catch (error) {
       console.error("Error loading admin data:", error);
       toast.error("Failed to load some admin data");
@@ -677,7 +679,7 @@ function ArticlesDirectoryTab({
 
                       {/* Date */}
                       <td className="py-3 px-3 text-zinc-600 whitespace-nowrap text-[11px] font-mono">
-                        {new Date(post.created_at).toLocaleDateString(undefined, {
+                        {formatDateUTC(post.created_at, {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
@@ -973,7 +975,7 @@ function ProjectsDirectoryTab({
 
                         {/* Created */}
                         <td className="py-3 px-3 text-zinc-500 whitespace-nowrap text-[11px] font-mono">
-                          {new Date(p.created_at).toLocaleDateString(undefined, {
+                          {formatDateUTC(p.created_at, {
                             year: "numeric",
                             month: "short",
                             day: "numeric",
@@ -1500,13 +1502,15 @@ function DiaryDirectoryTab({
                       <div className="flex items-center gap-2 text-zinc-600 font-mono text-xs">
                         <Calendar className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                         <span>
-                          {entry.entry_date
-                            ? new Date(entry.entry_date).toLocaleDateString(undefined, {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              })
-                            : "Undated"}
+                          {formatDateUTC(
+                            entry.entry_date,
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            },
+                            "Undated"
+                          )}
                         </span>
                       </div>
                     </td>
@@ -1866,8 +1870,10 @@ function CategorySeriesManager() {
   const fetchTaxonomy = async () => {
     try {
       setLoading(true);
-      const { data: catData } = await supabase.from("categories").select("*").order("name");
-      const { data: seriesData } = await supabase.from("series").select("*").order("title");
+      const [{ data: catData }, { data: seriesData }] = await Promise.all([
+        supabase.from("categories").select("id,name,slug").order("name"),
+        supabase.from("series").select("id,title,slug").order("title"),
+      ]);
       setCategories(catData || []);
       setSeriesList(seriesData || []);
     } catch (e) {

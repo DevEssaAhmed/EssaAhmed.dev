@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, ArrowRight, Sparkles, Clock, CheckCircle, Pause } from "lucide-react";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import ArticlesSubNav from "@/components/ArticlesSubNav";
+import { formatDateUTC } from "@/lib/date";
 
 interface Series {
   id: string;
@@ -92,7 +93,7 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
                       <CardHeader>
                         <div className="flex items-center justify-between mb-2 text-sm text-on-surface-variant">
                           <div>
-                            {new Date(seriesItem.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long" })}
+                            {formatDateUTC(seriesItem.created_at, { year: "numeric", month: "long" })}
                           </div>
                           <div className="inline-flex items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container px-2.5 py-1 text-xs font-mono text-on-surface-variant">
                             {getStatusIcon(seriesItem.status)}
@@ -141,7 +142,7 @@ const SeriesPage = ({ initialSeries = [] }: SeriesPageProps) => {
                     )}
                     <CardHeader className="pb-4">
                       <div className="flex items-center justify-between gap-3 text-sm text-on-surface-variant mb-2">
-                        <span>{new Date(seriesItem.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long" })}</span>
+                        <span>{formatDateUTC(seriesItem.created_at, { year: "numeric", month: "long" })}</span>
                         <span className="inline-flex items-center gap-1 text-xs font-mono">{getStatusIcon(seriesItem.status)} {getStatusText(seriesItem.status)}</span>
                       </div>
                       <CardTitle className="group-hover:text-primary transition-colors font-display text-lg font-bold text-on-surface line-clamp-1">

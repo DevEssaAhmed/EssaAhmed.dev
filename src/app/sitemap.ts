@@ -1,6 +1,7 @@
 import { getSupabaseServer } from "@/lib/supabase-server";
 import type { MetadataRoute } from "next";
 import { isPublicTravelHighlight } from "@/data/travelVisibility";
+import { getTagHref } from "@/lib/tag-slug";
 
 const SITE_URL = "https://essaahmed.dev";
 
@@ -43,6 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { data: categoriesData },
     { data: seriesData },
     { data: tagsData },
+    { data: publicTagLinksData },
     { data: travelData },
   ] = await Promise.all([
     supabase
@@ -59,6 +61,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     supabase.from("series").select("id, slug"),
     supabase.from("tags").select("id, name, slug"),
     supabase
+      .from("blog_post_tags")
+      .select("tag_id, blog_posts!inner(id)")
+      .eq("blog_posts.published", true)
+      .eq("blog_posts.unlisted", false),
+    supabase
       .from("travel_highlights")
       .select("city_name,country_name,lat,lng,cover_image_url,story_slides,is_published")
       .eq("is_published", true),
@@ -71,6 +78,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
   const publicSeriesIds = new Set(
     articles.map((article: any) => article.series_id).filter(Boolean)
+  );
+  const publicTagIds = new Set(
+    (publicTagLinksData || []).map((link: any) => link.tag_id).filter(Boolean)
   );
 
   const articleHubPages: MetadataRoute.Sitemap =
@@ -138,15 +148,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
   const tagPages: MetadataRoute.Sitemap = (tagsData || [])
-    .filter((tag: any) => Boolean(tag?.name))
-    .map((tag: any) => {
-      const tagSlug = tag.slug || encodeURIComponent(tag.name.toLowerCase().replace(/\s+/g, "-"));
-      return {
-        url: SITE_URL + "/articles/tags/" + tagSlug,
-        changeFrequency: "weekly" as const,
-        priority: 0.6,
-      };
-    });
+    .filter((tag: any) => Boolean(tag?.name) && publicTagIds.has(tag.id))
+    .map((tag: any) => ({
+      url: SITE_URL + getTagHref(tag),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }));
 
   const travelPages: MetadataRoute.Sitemap = (travelData || []).some(
     isPublicTravelHighlight

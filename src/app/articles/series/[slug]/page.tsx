@@ -4,6 +4,7 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
+import { calculateReadingTime } from "@/utils/readingTime";
 
 export const revalidate = 120;
 
@@ -15,7 +16,7 @@ const getSeriesBySlug = cache(async (slug: string) => {
   const supabase = getSupabaseServer();
   return supabase
     .from("series")
-    .select("*")
+    .select("id,title,slug,description,image_url,featured_image_url,featured,status")
     .eq("slug", slug)
     .maybeSingle();
 });
@@ -52,17 +53,22 @@ export default async function Page({ params }: Props) {
   const supabase = getSupabaseServer();
   const { data: articlesData } = await supabase
     .from("blog_posts")
-    .select("*")
+    .select("id,title,slug,excerpt,content,reading_time,series_order,created_at")
     .eq("series_id", seriesData.id)
     .eq("published", true)
     .eq("unlisted", false)
     .order("series_order", { ascending: true })
     .order("created_at", { ascending: true });
 
+  const initialArticles = (articlesData || []).map(({ content, ...rest }: any) => ({
+    ...rest,
+    reading_time: rest.reading_time || calculateReadingTime(content || ""),
+  }));
+
   return (
     <SeriesDetailPage
       initialSeries={seriesData}
-      initialArticles={articlesData || []}
+      initialArticles={initialArticles}
     />
   );
 }

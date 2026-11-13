@@ -1,19 +1,24 @@
 import { cache } from "react";
 import ArticleDetailPageEnhanced from "./ArticleDetailPageEnhanced";
+import ServerMarkdownRenderer from "@/components/markdown/ServerMarkdownRenderer";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
+import { calculateReadingTime } from "@/utils/readingTime";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
 const UUID_ROUTE_KEY = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+const ARTICLE_DETAIL_SELECT =
+  "id,title,slug,excerpt,content,image_url,tags,reading_time,published,unlisted,created_at,updated_at,video_url,video_type";
+
 const getPublishedArticle = cache(async (routeKey: string): Promise<any> => {
   const supabase = getSupabaseServer();
   const bySlug = await supabase
     .from("blog_posts")
-    .select("*")
+    .select(ARTICLE_DETAIL_SELECT)
     .eq("slug", routeKey)
     .eq("published", true)
     .maybeSingle();
@@ -22,7 +27,7 @@ const getPublishedArticle = cache(async (routeKey: string): Promise<any> => {
 
   const byId = await supabase
     .from("blog_posts")
-    .select("*")
+    .select(ARTICLE_DETAIL_SELECT)
     .eq("id", routeKey)
     .eq("published", true)
     .maybeSingle();
@@ -92,6 +97,10 @@ export default async function Page({ params }: PageProps) {
     image: data.image_url ? [data.image_url] : ["https://essaahmed.dev/og-image.png"],
   };
 
+  const { content, ...serializableArticle } = data;
+  const resolvedReadingTime =
+    data.reading_time || calculateReadingTime(content || "");
+
   return (
     <>
       <script
@@ -101,7 +110,12 @@ export default async function Page({ params }: PageProps) {
         }}
       />
       <ArticleDetailPageEnhanced
-        initialArticle={{ ...data, slug: data.slug || data.id } as any}
+        initialArticle={{
+          ...serializableArticle,
+          reading_time: resolvedReadingTime,
+          slug: data.slug || data.id,
+        } as any}
+        renderedContent={<ServerMarkdownRenderer content={content || ""} />}
       />
     </>
   );

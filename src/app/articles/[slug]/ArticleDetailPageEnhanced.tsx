@@ -1,11 +1,17 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import Navigation from "@/components/Navigation";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { Card, CardContent } from "@/components/ui/card";
+
+const MarkdownRenderer = dynamic(
+  () => import("@/components/MarkdownRenderer"),
+  { ssr: false }
+);
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, ArrowLeft, Twitter, Linkedin, Link2, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,39 +21,47 @@ import { OptimizedImage } from "@/components/OptimizedImage";
 import { calculateReadingTime, formatReadingTime } from "@/utils/readingTime";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { motion, useScroll, useSpring } from "framer-motion";
+import { m, useScroll, useSpring } from "framer-motion";
+import { formatDateUTC } from "@/lib/date";
+import { getTagHref } from "@/lib/tag-slug";
 
 type Article = {
   id: string;
   title: string;
   slug: string;
-  content: string;
+  content?: string;
   excerpt: string;
   tags: string[];
   image_url: string;
   video_url?: string;
   video_type?: string;
-  views: number;
-  likes: number;
+  views?: number;
+  likes?: number;
   reading_time: number;
   created_at: string;
 };
 
-type ArticleDetailPageEnhancedProps = { initialArticle?: Article | null };
+type ArticleDetailPageEnhancedProps = {
+  initialArticle?: Article | null;
+  renderedContent?: ReactNode;
+};
 
 // Reading Progress Bar Component
 const ReadingProgressBar = () => {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 200, damping: 40 });
   return (
-    <motion.div
+    <m.div
       className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-on-surface to-secondary origin-left z-[1001]"
       style={{ scaleX }}
     />
   );
 };
 
-const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhancedProps) => {
+const ArticleDetailPageEnhanced = ({
+  initialArticle,
+  renderedContent,
+}: ArticleDetailPageEnhancedProps) => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { profile } = useProfile();
@@ -60,7 +74,9 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
     try {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("*")
+        .select(
+          "id,title,slug,excerpt,content,image_url,tags,reading_time,created_at,video_url,video_type"
+        )
         .eq("slug", slug)
         .eq("published", true)
         .single();
@@ -87,7 +103,7 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
   };
 
   const readingTime = useMemo(() =>
-    article ? formatReadingTime(article.reading_time || calculateReadingTime(article.content)) : "",
+    article ? formatReadingTime(article.reading_time || calculateReadingTime(article.content || "")) : "",
     [article]
   );
 
@@ -161,7 +177,7 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
             <div className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4 text-outline" />
               <span>
-                {new Date(article.created_at).toLocaleDateString("en-US", {
+                {formatDateUTC(article.created_at, {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -186,7 +202,7 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
               {(article.tags || []).map((tag) => (
                 <Link
                   key={tag}
-                  href={`/articles/tags/${encodeURIComponent(tag.toLowerCase().replace(/\s+/g, "-"))}`}
+                  href={getTagHref(tag)}
                 >
                   <span className="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors text-xs font-code cursor-pointer">
                     #{tag}
@@ -245,7 +261,11 @@ const ArticleDetailPageEnhanced = ({ initialArticle }: ArticleDetailPageEnhanced
 
         {/* Article Body wrapped in article container without conflicting prose prose-lg classes */}
         <article className="max-w-4xl mx-auto rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 sm:p-10 shadow-xl mb-10">
-          <MarkdownRenderer content={article.content || ""} />
+          {renderedContent !== undefined ? (
+            renderedContent
+          ) : (
+            <MarkdownRenderer content={article.content || ""} />
+          )}
         </article>
 
         {/* Share Buttons */}

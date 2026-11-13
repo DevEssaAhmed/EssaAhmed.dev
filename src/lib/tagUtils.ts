@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { generateTagSlug } from './tag-slug';
 
 export interface Tag {
   id: string;
@@ -22,13 +23,7 @@ export interface Category {
 }
 
 // Generate slug from text
-export const generateSlug = (text: string): string => {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-};
+export const generateSlug = generateTagSlug;
 
 // Create or get existing tag from tags table
 export const createOrGetTag = async (tagName: string): Promise<Tag | null> => {
@@ -107,6 +102,68 @@ export const createOrGetCategory = async (categoryName: string): Promise<Categor
   }
 };
 
+const DEFAULT_TAG_COLOR = '#3B82F6';
+
+const resolveOrCreateTags = async (tagNames: string[]): Promise<Tag[]> => {
+  const uniqueBySlug = new Map<string, string>();
+  for (const rawName of tagNames) {
+    const trimmed = rawName.trim();
+    if (!trimmed) continue;
+    const slug = generateSlug(trimmed);
+    if (slug && !uniqueBySlug.has(slug)) {
+      uniqueBySlug.set(slug, trimmed);
+    }
+  }
+
+  if (uniqueBySlug.size === 0) return [];
+  const slugs = Array.from(uniqueBySlug.keys());
+
+  const { data: existingTags, error: fetchError } = await supabase
+    .from('tags')
+    .select('*')
+    .in('slug', slugs);
+
+  if (fetchError) {
+    console.error('Error fetching tags batch:', fetchError);
+  }
+
+  const bySlug = new Map<string, Tag>();
+  for (const tag of existingTags || []) {
+    bySlug.set(tag.slug, tag);
+  }
+
+  const missingRows = slugs
+    .filter((slug) => !bySlug.has(slug))
+    .map((slug) => ({
+      name: uniqueBySlug.get(slug)!,
+      slug,
+      color: DEFAULT_TAG_COLOR,
+    }));
+
+  if (missingRows.length > 0) {
+    const { data: insertedTags, error: insertError } = await supabase
+      .from('tags')
+      .insert(missingRows)
+      .select();
+
+    if (!insertError && insertedTags) {
+      for (const tag of insertedTags) {
+        bySlug.set(tag.slug, tag);
+      }
+    } else {
+      // Fall back per-tag on conflict/partial insert so valid tags still associate
+      for (const row of missingRows) {
+        const tag = await createOrGetTag(row.name);
+        if (tag) bySlug.set(tag.slug, tag);
+      }
+    }
+  }
+
+  return slugs
+    .map((slug) => bySlug.get(slug))
+    .filter((tag): tag is Tag => Boolean(tag));
+};
+
 // Associate tags with blog post using junction table
 export const associateBlogPostTags = async (blogPostId: string, tagNames: string[]): Promise<boolean> => {
   try {
@@ -121,24 +178,16 @@ export const associateBlogPostTags = async (blogPostId: string, tagNames: string
       return false;
     }
 
-    // If no tags to associate, return success
     if (!tagNames || tagNames.length === 0) {
       return true;
     }
 
-    // Create or get tags and prepare junction data
-    const tagAssociations = [];
-    for (const tagName of tagNames) {
-      const tag = await createOrGetTag(tagName);
-      if (tag) {
-        tagAssociations.push({
-          blog_post_id: blogPostId,
-          tag_id: tag.id
-        });
-      }
-    }
+    const tags = await resolveOrCreateTags(tagNames);
+    const tagAssociations = tags.map((tag) => ({
+      blog_post_id: blogPostId,
+      tag_id: tag.id,
+    }));
 
-    // Insert new tag associations
     if (tagAssociations.length > 0) {
       const { error: insertError } = await supabase
         .from('blog_post_tags')
@@ -171,24 +220,16 @@ export const associateProjectTags = async (projectId: string, tagNames: string[]
       return false;
     }
 
-    // If no tags to associate, return success
     if (!tagNames || tagNames.length === 0) {
       return true;
     }
 
-    // Create or get tags and prepare junction data
-    const tagAssociations = [];
-    for (const tagName of tagNames) {
-      const tag = await createOrGetTag(tagName);
-      if (tag) {
-        tagAssociations.push({
-          project_id: projectId,
-          tag_id: tag.id
-        });
-      }
-    }
+    const tags = await resolveOrCreateTags(tagNames);
+    const tagAssociations = tags.map((tag) => ({
+      project_id: projectId,
+      tag_id: tag.id,
+    }));
 
-    // Insert new tag associations
     if (tagAssociations.length > 0) {
       const { error: insertError } = await supabase
         .from('project_tags')

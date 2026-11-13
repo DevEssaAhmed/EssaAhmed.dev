@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { memo } from "react";
+import { isOptimizableImageSrc } from "@/lib/image-optimization";
 
 type OptimizedImageProps = {
   src?: any;
@@ -41,9 +42,8 @@ export const OptimizedImage = memo(
     const resolvedSrc =
       typeof src === "string" && src.trim() ? src : "/placeholder.svg";
 
-    // Only optimize Supabase-hosted or local images; external URLs stay unoptimized
-    const isOptimizable =
-      resolvedSrc.startsWith("/") || resolvedSrc.includes("supabase.co");
+    // Only optimize local non-SVG assets and configured remote hosts; skip SVGs and arbitrary URLs
+    const isOptimizable = isOptimizableImageSrc(resolvedSrc);
 
     return (
       <Image

@@ -1,20 +1,28 @@
 import { cache } from "react";
 import ProjectDetailPage from "./ProjectDetailPage";
+import ServerMarkdownRenderer from "@/components/markdown/ServerMarkdownRenderer";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
 import { cleanMarkdownExcerpt } from "@/lib/clean-markdown";
+import {
+  getCleanProjectMarkdown,
+  getUniqueProjectImages,
+} from "@/lib/project-markdown";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export const revalidate = 120;
 
+const PROJECT_DETAIL_SELECT =
+  "id,title,description,description_jsonb,image_url,additional_images,featured,created_at,updated_at,category_id,demo_url,github_url,demo_video_url,demo_video_type,tags";
+
 const getProject = cache(async (id: string) => {
   const supabase = getSupabaseServer();
   return supabase
     .from("projects")
-    .select("*")
+    .select(PROJECT_DETAIL_SELECT)
     .eq("id", id)
     .maybeSingle();
 });
@@ -112,6 +120,14 @@ export default async function Page({ params }: PageProps) {
     },
   };
 
+  const uniqueImages = getUniqueProjectImages(project);
+  const cleanMarkdown = getCleanProjectMarkdown(project, uniqueImages);
+  const {
+    description: _description,
+    description_jsonb: _descriptionJsonb,
+    ...serializableProject
+  } = project;
+
   return (
     <>
       <script
@@ -121,8 +137,12 @@ export default async function Page({ params }: PageProps) {
         }}
       />
       <ProjectDetailPage
-        initialProject={{ ...project, categories: categoryResult.data ?? null }}
+        initialProject={{
+          ...serializableProject,
+          categories: categoryResult.data ?? null,
+        }}
         initialProjectTags={initialProjectTags}
+        renderedBody={<ServerMarkdownRenderer content={cleanMarkdown} />}
       />
     </>
   );
