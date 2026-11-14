@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
+  LayoutDashboard,
   FileText,
   Layers,
   Compass,
@@ -17,6 +18,8 @@ import {
   Menu,
   X,
   ChevronDown,
+  User,
+  Wrench,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -59,6 +62,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   const router = useRouter();
 
   const navItems = [
+    {
+      id: "overview",
+      label: "Overview & Health",
+      icon: LayoutDashboard,
+      count: undefined,
+      accent: "text-emerald-600",
+    },
     {
       id: "blogs",
       label: "All Articles & Blogs",
@@ -207,6 +217,39 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
             >
               <Plus className="w-3.5 h-3.5 text-amber-500" />
               <span>+ New Diary Entry</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Standalone Maintenance & Profile Consoles */}
+        <div className="p-3 pt-1">
+          <div className="px-2.5 py-1.5 text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
+            Workspace Consoles
+          </div>
+          <div className="space-y-1">
+            <Link
+              href="/admin/profile"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition-colors ${
+                pathname === "/admin/profile"
+                  ? "bg-zinc-100 text-zinc-900 font-medium"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
+              }`}
+            >
+              <User className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Full Profile Editor</span>
+            </Link>
+            <Link
+              href="/admin/maintenance"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition-colors ${
+                pathname === "/admin/maintenance"
+                  ? "bg-zinc-100 text-zinc-900 font-medium"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
+              }`}
+            >
+              <Wrench className="w-3.5 h-3.5 text-zinc-500" />
+              <span>Tag &amp; Category Cleanup</span>
             </Link>
           </div>
         </div>

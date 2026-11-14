@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useNavigate, useParams } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useDebounce } from "@/hooks/use-debouncer";
+import { useEditorAutosave } from "@/hooks/use-editor-autosave";
 import dynamic from "next/dynamic";
 import FileUpload from "@/components/FileUpload";
 import { OptimizedImage } from "@/components/OptimizedImage";
@@ -44,6 +46,9 @@ import {
   Tag,
   X,
   Sparkles,
+  Focus,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 
 export default function DiaryEditorEnhanced() {
@@ -57,6 +62,8 @@ export default function DiaryEditorEnhanced() {
   const [isLoading, setIsLoading] = useState(isEditing);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [focusMode, setFocusMode] = useState(false);
   const [viewMode, setViewMode] = useState<"edit" | "split" | "preview">("edit");
   const [showUploader, setShowUploader] = useState(false);
 
@@ -70,12 +77,32 @@ export default function DiaryEditorEnhanced() {
   const [imageAlt, setImageAlt] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [topicTag, setTopicTag] = useState("Engineering & Reflections");
+  const [lastSaved, setLastSaved] = useState<{
+    title: string;
+    content: string;
+    entryDate: string;
+    isPublished: boolean;
+    imageUrl: string;
+    imageAlt: string;
+    excerpt: string;
+    topicTag: string;
+  } | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Load existing entry
   useEffect(() => {
     if (!isEditing || !id) {
+      setLastSaved({
+        title: "",
+        content: "",
+        entryDate: new Date().toISOString().slice(0, 10),
+        isPublished: true,
+        imageUrl: "",
+        imageAlt: "",
+        excerpt: "",
+        topicTag: "Engineering & Reflections",
+      });
       setIsLoading(false);
       return;
     }
@@ -94,15 +121,26 @@ export default function DiaryEditorEnhanced() {
 
         if (error) throw error;
         if (data && isMounted) {
+          const loaded = {
+            title: data.title || "",
+            content: data.content || "",
+            entryDate: data.entry_date || new Date().toISOString().slice(0, 10),
+            isPublished: Boolean(data.is_published),
+            imageUrl: data.image_url || "",
+            imageAlt: data.image_alt || "",
+            excerpt: data.excerpt || "",
+            topicTag: data.topic_tag || "Engineering & Reflections",
+          };
           setCurrentId(data.id);
-          setTitle(data.title || "");
-          setContent(data.content || "");
-          setEntryDate(data.entry_date || new Date().toISOString().slice(0, 10));
-          setIsPublished(Boolean(data.is_published));
-          setImageUrl(data.image_url || "");
-          setImageAlt(data.image_alt || "");
-          setExcerpt(data.excerpt || "");
-          setTopicTag(data.topic_tag || "Engineering & Reflections");
+          setTitle(loaded.title);
+          setContent(loaded.content);
+          setEntryDate(loaded.entryDate);
+          setIsPublished(loaded.isPublished);
+          setImageUrl(loaded.imageUrl);
+          setImageAlt(loaded.imageAlt);
+          setExcerpt(loaded.excerpt);
+          setTopicTag(loaded.topicTag);
+          setLastSaved(loaded);
         }
       } catch (err: any) {
         console.error("Failed to load diary entry:", err);
@@ -157,33 +195,77 @@ export default function DiaryEditorEnhanced() {
     }, 0);
   };
 
-  // Save handler
-  const handleSave = useCallback(
-    async (targetPublishStatus?: boolean) => {
-      const publishState =
-        typeof targetPublishStatus === "boolean" ? targetPublishStatus : isPublished;
+  const currentSnapshot = useMemo(
+    () => ({
+      title,
+      content,
+      entryDate,
+      isPublished,
+      imageUrl,
+      imageAlt,
+      excerpt,
+      topicTag,
+    }),
+    [title, content, entryDate, isPublished, imageUrl, imageAlt, excerpt, topicTag]
+  );
 
-      const trimmedTitle = title.trim();
+  const debouncedSnapshot = useDebounce(currentSnapshot, 3000);
+
+  const savedSnapshotKey = useMemo(
+    () => (lastSaved ? JSON.stringify(lastSaved) : null),
+    [lastSaved]
+  );
+  const liveSnapshotKey = useMemo(
+    () => JSON.stringify(currentSnapshot),
+    [currentSnapshot]
+  );
+  const debouncedSnapshotKey = useMemo(
+    () => JSON.stringify(debouncedSnapshot),
+    [debouncedSnapshot]
+  );
+
+  const hasUnsavedChanges = useMemo(
+    () => savedSnapshotKey !== null && liveSnapshotKey !== savedSnapshotKey,
+    [savedSnapshotKey, liveSnapshotKey]
+  );
+
+  const resetAutoSaveRef = useRef<(() => void) | null>(null);
+
+  // Save handler (manual & silent autosave)
+  const handleSave = useCallback(
+    async (targetPublishStatus?: boolean, isAutoSave = false): Promise<boolean> => {
+      const source = isAutoSave ? debouncedSnapshot : currentSnapshot;
+      const publishState =
+        typeof targetPublishStatus === "boolean" ? targetPublishStatus : source.isPublished;
+
+      const trimmedTitle = source.title.trim();
       if (!trimmedTitle) {
-        toast({
-          title: "Title required",
-          description: "Please enter a title for your diary entry before saving.",
-          variant: "destructive",
-        });
-        return;
+        if (!isAutoSave) {
+          toast({
+            title: "Title required",
+            description: "Please enter a title for your diary entry before saving.",
+            variant: "destructive",
+          });
+        }
+        return false;
+      }
+
+      if (isAutoSave && !currentId) {
+        return false;
       }
 
       setIsSaving(true);
+      setSaveError(null);
       try {
         const payload = {
           title: trimmedTitle,
-          content,
-          entry_date: entryDate,
-          excerpt: excerpt.trim() || null,
-          image_url: imageUrl.trim() || null,
-          image_alt: imageAlt.trim() || null,
+          content: source.content,
+          entry_date: source.entryDate,
+          excerpt: source.excerpt.trim() || null,
+          image_url: source.imageUrl.trim() || null,
+          image_alt: source.imageAlt.trim() || null,
           is_published: publishState,
-          topic_tag: topicTag.trim() || "Engineering & Reflections",
+          topic_tag: source.topicTag.trim() || "Engineering & Reflections",
           updated_at: new Date().toISOString(),
         };
 
@@ -197,10 +279,16 @@ export default function DiaryEditorEnhanced() {
 
           setIsPublished(publishState);
           setLastSavedAt(new Date());
-          toast({
-            title: publishState ? "Entry Published" : "Draft Saved",
-            description: `Diary entry was successfully ${publishState ? "published" : "saved as draft"}.`,
-          });
+          setSaveError(null);
+          setLastSaved({ ...source, isPublished: publishState });
+          if (!isAutoSave) {
+            resetAutoSaveRef.current?.();
+            toast({
+              title: publishState ? "Entry Published" : "Draft Saved",
+              description: `Diary entry was successfully ${publishState ? "published" : "saved as draft"}.`,
+            });
+          }
+          return true;
         } else {
           const { data, error } = await supabase
             .from("diary_entries")
@@ -214,53 +302,75 @@ export default function DiaryEditorEnhanced() {
             setCurrentId(data.id);
             setIsPublished(publishState);
             setLastSavedAt(new Date());
-            toast({
-              title: publishState ? "Entry Created & Published" : "Draft Created",
-              description: `Diary entry was created and ${publishState ? "published" : "saved as draft"}.`,
-            });
-            // Update URL without full page reload
-            if (typeof window !== "undefined") {
-              window.history.replaceState(null, "", `/admin/diary/edit/${data.id}`);
+            setSaveError(null);
+            setLastSaved({ ...source, isPublished: publishState });
+            if (!isAutoSave) {
+              resetAutoSaveRef.current?.();
+              toast({
+                title: publishState ? "Entry Created & Published" : "Draft Created",
+                description: `Diary entry was created and ${publishState ? "published" : "saved as draft"}.`,
+              });
+              if (typeof window !== "undefined") {
+                window.history.replaceState(null, "", `/admin/diary/edit/${data.id}`);
+              }
             }
           }
+          return true;
         }
       } catch (err: any) {
         console.error("Save diary entry error:", err);
-        toast({
-          title: "Save failed",
-          description: err.message || "An error occurred while saving the diary entry.",
-          variant: "destructive",
-        });
+        setSaveError(err?.message || "Save failed");
+        if (!isAutoSave) {
+          toast({
+            title: "Save failed",
+            description: err.message || "An error occurred while saving the diary entry.",
+            variant: "destructive",
+          });
+        }
+        return false;
       } finally {
         setIsSaving(false);
       }
     },
-    [
-      title,
-      content,
-      entryDate,
-      excerpt,
-      imageUrl,
-      imageAlt,
-      isPublished,
-      topicTag,
-      currentId,
-      toast,
-    ]
+    [currentSnapshot, debouncedSnapshot, currentId, toast]
   );
+
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
+
+  const { resetAutoSaveAttempt } = useEditorAutosave({
+    enabled: Boolean(currentId && title.trim() && lastSaved),
+    hasChanges: savedSnapshotKey !== null && debouncedSnapshotKey !== savedSnapshotKey,
+    snapshotKey: debouncedSnapshotKey,
+    savedKey: savedSnapshotKey,
+    isSaving,
+    onAutoSave: () => handleSaveRef.current(undefined, true),
+  });
+  resetAutoSaveRef.current = resetAutoSaveAttempt;
 
   // Cmd+S / Ctrl+S keyboard shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        handleSave();
+        void handleSaveRef.current(undefined, false);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleSave]);
+  }, []);
+
+  // Unsaved changes browser close/navigation guard
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!hasUnsavedChanges) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   if (isLoading) {
     return (
@@ -310,26 +420,67 @@ export default function DiaryEditorEnhanced() {
               {isPublished ? "Published" : "Draft"}
             </Badge>
 
-            {/* Save Status */}
-            {lastSavedAt && (
-              <span className="text-[11px] font-mono text-zinc-500 hidden md:inline">
-                Saved at{" "}
-                {lastSavedAt.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            )}
+            {/* Live Save Status Pill */}
+            <div className="hidden md:flex items-center gap-2">
+              {isSaving ? (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-700 border border-zinc-200">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Saving...
+                </span>
+              ) : saveError ? (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                  <AlertCircle className="w-3 h-3" />
+                  Save failed
+                  <button
+                    type="button"
+                    onClick={() => void handleSaveRef.current(undefined, false)}
+                    className="underline font-semibold ml-1 hover:text-rose-900"
+                  >
+                    Retry
+                  </button>
+                </span>
+              ) : hasUnsavedChanges ? (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Unsaved changes
+                </span>
+              ) : lastSavedAt ? (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Saved{" "}
+                  {lastSavedAt.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              ) : null}
+            </div>
           </div>
 
           {/* Action buttons */}
           <div className="flex items-center gap-2">
             <Button
               type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setFocusMode((v) => !v)}
+              title="Toggle Focus Mode (collapse page properties)"
+              className={`h-8 px-2.5 text-xs ${
+                focusMode
+                  ? "bg-zinc-900 text-white hover:bg-zinc-800 hover:text-white"
+                  : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
+              }`}
+            >
+              <Focus className="w-3.5 h-3.5 sm:mr-1.5" />
+              <span className="hidden sm:inline">{focusMode ? "Exit Focus" : "Focus"}</span>
+            </Button>
+
+            <Button
+              type="button"
               variant="outline"
               size="sm"
               disabled={isSaving}
-              onClick={() => handleSave(false)}
+              onClick={() => void handleSave(false, false)}
               className="h-8 px-3 text-xs bg-white border-zinc-300 hover:bg-zinc-50 text-zinc-700 hover:text-zinc-900 shadow-2xs transition-colors"
             >
               {isSaving && !isPublished ? (
@@ -344,7 +495,7 @@ export default function DiaryEditorEnhanced() {
               type="button"
               size="sm"
               disabled={isSaving}
-              onClick={() => handleSave(true)}
+              onClick={() => void handleSave(true, false)}
               className="h-8 px-3.5 text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800 transition-all shadow-xs"
             >
               {isSaving && isPublished ? (
@@ -394,7 +545,8 @@ export default function DiaryEditorEnhanced() {
         </div>
 
         {/* ══════════ NOTION INLINE PAGE PROPERTIES TABLE ══════════ */}
-        <section className="mb-8 rounded-xl border border-zinc-200/90 bg-white divide-y divide-zinc-200 shadow-2xs overflow-hidden">
+        {!focusMode && (
+          <section className="mb-8 rounded-xl border border-zinc-200/90 bg-white divide-y divide-zinc-200 shadow-2xs overflow-hidden">
           {/* Row 1: Entry Date */}
           <div className="grid grid-cols-1 sm:grid-cols-12 items-center px-4 py-2.5 gap-2 sm:gap-4 hover:bg-zinc-50/60 transition-colors">
             <div className="sm:col-span-3 flex items-center gap-2 text-xs font-mono text-zinc-500">
@@ -561,7 +713,8 @@ export default function DiaryEditorEnhanced() {
               </div>
             </div>
           </div>
-        </section>
+          </section>
+        )}
 
         {/* ══════════ FULL-PAGE CONTENT EDITOR ══════════ */}
         <section className="space-y-4">

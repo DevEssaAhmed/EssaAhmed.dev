@@ -206,9 +206,13 @@ export const associateBlogPostTags = async (blogPostId: string, tagNames: string
   }
 };
 
-// Associate tags with project using junction table
+// Associate tags with project using junction table and sync canonical projects.tags array
 export const associateProjectTags = async (projectId: string, tagNames: string[]): Promise<boolean> => {
   try {
+    const cleanedNames = Array.from(
+      new Set((tagNames || []).map((t) => t.trim()).filter(Boolean))
+    );
+
     // First, remove existing tag associations
     const { error: deleteError } = await supabase
       .from('project_tags')
@@ -220,11 +224,22 @@ export const associateProjectTags = async (projectId: string, tagNames: string[]
       return false;
     }
 
-    if (!tagNames || tagNames.length === 0) {
+    // Keep the canonical projects.tags array column in sync (including clearing when empty)
+    const { error: updateProjError } = await supabase
+      .from('projects')
+      .update({ tags: cleanedNames })
+      .eq('id', projectId);
+
+    if (updateProjError) {
+      console.error('Error syncing projects.tags column:', updateProjError);
+      return false;
+    }
+
+    if (cleanedNames.length === 0) {
       return true;
     }
 
-    const tags = await resolveOrCreateTags(tagNames);
+    const tags = await resolveOrCreateTags(cleanedNames);
     const tagAssociations = tags.map((tag) => ({
       project_id: projectId,
       tag_id: tag.id,

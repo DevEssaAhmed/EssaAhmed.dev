@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useNavigate, useParams } from "@/lib/router-compat";
+import { useDebounce } from "@/hooks/use-debouncer";
+import { useEditorAutosave } from "@/hooks/use-editor-autosave";
 import {
   TravelCityHighlight,
   TravelStorySlide,
@@ -39,6 +41,8 @@ import {
   Type,
   Upload,
   X,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 
 function slugify(text: string): string {
@@ -80,9 +84,14 @@ export default function TravelHighlightEditor() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [allHighlights, setAllHighlights] = useState<TravelCityHighlight[]>([]);
   const [highlight, setHighlight] = useState<TravelCityHighlight>(emptyHighlightTemplate);
+  const [lastSaved, setLastSaved] = useState<TravelCityHighlight | null>(null);
   const [showCoverUploader, setShowCoverUploader] = useState(false);
+  const [activeSlideUploadIdx, setActiveSlideUploadIdx] = useState<number | null>(null);
+  const [activePhotoPairUploadKey, setActivePhotoPairUploadKey] = useState<string | null>(null);
 
   // Load highlights from localStorage & Supabase
   useEffect(() => {
@@ -111,14 +120,19 @@ export default function TravelHighlightEditor() {
             h.slug.toLowerCase() === paramId.toLowerCase()
         );
         if (found) {
-          setHighlight(JSON.parse(JSON.stringify(found)));
+          const parsed = JSON.parse(JSON.stringify(found)) as TravelCityHighlight;
+          setHighlight(parsed);
+          setLastSaved(parsed);
         } else {
+          setLastSaved(JSON.parse(JSON.stringify(emptyHighlightTemplate)));
           toast({
             title: "Highlight not found",
             description: `Could not find highlight matching "${paramId}". Initialized empty highlight.`,
             variant: "destructive",
           });
         }
+      } else {
+        setLastSaved(JSON.parse(JSON.stringify(emptyHighlightTemplate)));
       }
       setIsLoading(false);
     }
@@ -276,85 +290,169 @@ export default function TravelHighlightEditor() {
   };
 
   // ══════════ SAVE & PUBLISH ══════════
-  const handleSaveAndPublish = async () => {
-    if (!highlight.city_name.trim()) {
-      toast({
-        title: "City Name required",
-        description: "Please specify a city name before publishing.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const debouncedHighlight = useDebounce(highlight, 3000);
 
-    if (highlight.is_published && !isPublicTravelHighlight(highlight)) {
-      toast({
-        title: "Travel details incomplete",
-        description:
-          "To publish, add a country, valid map coordinates, and a cover photo or story image.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const savedSnapshotKey = useMemo(
+    () => (lastSaved ? JSON.stringify(lastSaved) : null),
+    [lastSaved]
+  );
+  const liveSnapshotKey = useMemo(() => JSON.stringify(highlight), [highlight]);
+  const debouncedSnapshotKey = useMemo(
+    () => JSON.stringify(debouncedHighlight),
+    [debouncedHighlight]
+  );
 
-    setIsSaving(true);
-    try {
-      const generatedId =
-        highlight.id.trim() ||
-        `${slugify(highlight.city_name)}-${(highlight.country_code || "loc").toLowerCase()}`;
+  const hasUnsavedChanges = useMemo(
+    () => savedSnapshotKey !== null && liveSnapshotKey !== savedSnapshotKey,
+    [savedSnapshotKey, liveSnapshotKey]
+  );
 
-      const finalHighlight: TravelCityHighlight = {
-        ...highlight,
-        id: generatedId,
-        slug: highlight.slug.trim() || slugify(highlight.city_name),
-        country_code: highlight.country_code.toUpperCase(),
-        year: Number(highlight.year) || new Date().getFullYear(),
-        lat: Number(highlight.lat) || 0,
-        lng: Number(highlight.lng) || 0,
-      };
+  const resetAutoSaveRef = useRef<(() => void) | null>(null);
 
-      // Merge into allHighlights
-      const existingIdx = allHighlights.findIndex(
-        (h) => h.id === finalHighlight.id || (paramId && h.id === paramId)
-      );
+  const handleSave = useCallback(
+    async (isAutoSave = false): Promise<boolean> => {
+      const target = isAutoSave ? debouncedHighlight : highlight;
 
-      let updatedList: TravelCityHighlight[];
-      if (existingIdx >= 0) {
-        updatedList = [...allHighlights];
-        updatedList[existingIdx] = finalHighlight;
-      } else {
-        updatedList = [finalHighlight, ...allHighlights];
+      if (!target.city_name.trim()) {
+        if (!isAutoSave) {
+          toast({
+            title: "City Name required",
+            description: "Please specify a city name before publishing.",
+            variant: "destructive",
+          });
+        }
+        return false;
       }
 
-      // Persist to travel_highlights table as single source of truth
-      await upsertTravelHighlightInSupabase(finalHighlight);
-
-      // Update local and UI state only after successful persistence
-      saveTravelHighlightsLocal(updatedList);
-      setAllHighlights(updatedList);
-      setHighlight(finalHighlight);
-
-      toast({
-        title: finalHighlight.is_published ? "Highlight Published" : "Draft Saved",
-        description: finalHighlight.is_published
-          ? `${finalHighlight.city_name} (${finalHighlight.country_name}) has been published to the travel atlas.`
-          : `${finalHighlight.city_name} has been saved as a draft.`,
-      });
-
-      // Update URL if new
-      if (typeof window !== "undefined" && (!paramId || paramId === "new")) {
-        window.history.replaceState(null, "", `/admin/travel/edit/${finalHighlight.id}`);
+      if (isAutoSave && !target.country_name.trim()) {
+        return false;
       }
-    } catch (err: any) {
-      console.error("Save travel highlight error:", err);
-      toast({
-        title: "Failed to save highlight",
-        description: err.message || "An error occurred while saving the highlight.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
+
+      if (target.is_published && !isPublicTravelHighlight(target)) {
+        if (!isAutoSave) {
+          toast({
+            title: "Travel details incomplete",
+            description:
+              "To publish, add a country, valid map coordinates, and a cover photo or story image.",
+            variant: "destructive",
+          });
+        }
+        return false;
+      }
+
+      setIsSaving(true);
+      setSaveError(null);
+      try {
+        const generatedId =
+          target.id.trim() ||
+          `${slugify(target.city_name)}-${(target.country_code || "loc").toLowerCase()}`;
+
+        const finalHighlight: TravelCityHighlight = {
+          ...target,
+          id: generatedId,
+          slug: target.slug.trim() || slugify(target.city_name),
+          country_code: target.country_code.toUpperCase(),
+          year: Number(target.year) || new Date().getFullYear(),
+          lat: Number(target.lat) || 0,
+          lng: Number(target.lng) || 0,
+        };
+
+        // Merge into allHighlights
+        const existingIdx = allHighlights.findIndex(
+          (h) => h.id === finalHighlight.id || (paramId && h.id === paramId)
+        );
+
+        let updatedList: TravelCityHighlight[];
+        if (existingIdx >= 0) {
+          updatedList = [...allHighlights];
+          updatedList[existingIdx] = finalHighlight;
+        } else {
+          updatedList = [finalHighlight, ...allHighlights];
+        }
+
+        // Persist to travel_highlights table as single source of truth
+        await upsertTravelHighlightInSupabase(finalHighlight);
+
+        // Update local and UI state only after successful persistence
+        saveTravelHighlightsLocal(updatedList);
+        setAllHighlights(updatedList);
+        setHighlight(finalHighlight);
+        setLastSaved(JSON.parse(JSON.stringify(finalHighlight)));
+        setLastSavedAt(new Date());
+        setSaveError(null);
+
+        if (!isAutoSave) {
+          resetAutoSaveRef.current?.();
+          toast({
+            title: finalHighlight.is_published ? "Highlight Published" : "Draft Saved",
+            description: finalHighlight.is_published
+              ? `${finalHighlight.city_name} (${finalHighlight.country_name}) has been published to the travel atlas.`
+              : `${finalHighlight.city_name} has been saved as a draft.`,
+          });
+
+          // Update URL if new
+          if (typeof window !== "undefined" && (!paramId || paramId === "new")) {
+            window.history.replaceState(null, "", `/admin/travel/edit/${finalHighlight.id}`);
+          }
+        }
+        return true;
+      } catch (err: any) {
+        console.error("Save travel highlight error:", err);
+        setSaveError(err?.message || "Save failed");
+        if (!isAutoSave) {
+          toast({
+            title: "Failed to save highlight",
+            description: err.message || "An error occurred while saving the highlight.",
+            variant: "destructive",
+          });
+        }
+        return false;
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [allHighlights, debouncedHighlight, highlight, paramId, toast]
+  );
+
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
+
+  const { resetAutoSaveAttempt } = useEditorAutosave({
+    enabled: Boolean(
+      (isEditing || highlight.id.trim()) &&
+        lastSaved &&
+        debouncedHighlight.city_name.trim()
+    ),
+    hasChanges: savedSnapshotKey !== null && debouncedSnapshotKey !== savedSnapshotKey,
+    snapshotKey: debouncedSnapshotKey,
+    savedKey: savedSnapshotKey,
+    isSaving,
+    onAutoSave: () => handleSaveRef.current(true),
+  });
+  resetAutoSaveRef.current = resetAutoSaveAttempt;
+
+  // Keyboard shortcut: Cmd+S / Ctrl+S
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        void handleSaveRef.current(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Warn before leaving with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!hasUnsavedChanges) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   if (isLoading) {
     return (
@@ -402,6 +500,42 @@ export default function TravelHighlightEditor() {
               />
               {highlight.is_published ? "Published" : "Draft"}
             </Badge>
+
+            {/* Live Save Status Pill */}
+            <div className="hidden md:flex items-center gap-2">
+              {isSaving ? (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-700 border border-zinc-200">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Saving...
+                </span>
+              ) : saveError ? (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                  <AlertCircle className="w-3 h-3" />
+                  Save failed
+                  <button
+                    type="button"
+                    onClick={() => void handleSaveRef.current(false)}
+                    className="underline font-semibold ml-1 hover:text-rose-900"
+                  >
+                    Retry
+                  </button>
+                </span>
+              ) : hasUnsavedChanges ? (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Unsaved changes
+                </span>
+              ) : lastSavedAt ? (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Saved{" "}
+                  {lastSavedAt.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              ) : null}
+            </div>
           </div>
 
           {/* Action buttons */}
@@ -418,7 +552,7 @@ export default function TravelHighlightEditor() {
               type="button"
               size="sm"
               disabled={isSaving}
-              onClick={handleSaveAndPublish}
+              onClick={() => void handleSave(false)}
               className="h-8 px-4 text-xs font-semibold bg-zinc-900 text-white hover:bg-zinc-800 transition-all shadow-xs flex items-center gap-1.5"
             >
               {isSaving ? (
@@ -782,9 +916,18 @@ export default function TravelHighlightEditor() {
                 <div className="p-3.5 space-y-2.5 bg-white flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
                     <div>
-                      <label className="text-[10px] font-mono text-zinc-600 block mb-1">
-                        Image URL
-                      </label>
+                      <div className="flex items-center justify-between text-[10px] font-mono text-zinc-600 mb-1">
+                        <label>Image URL</label>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActiveSlideUploadIdx((prev) => (prev === idx ? null : idx))
+                          }
+                          className="text-rose-600 hover:text-rose-700 font-medium transition-colors"
+                        >
+                          {activeSlideUploadIdx === idx ? "Hide Uploader" : "Upload File"}
+                        </button>
+                      </div>
                       <Input
                         type="url"
                         placeholder="https://..."
@@ -792,6 +935,25 @@ export default function TravelHighlightEditor() {
                         onChange={(e) => updateSlide(idx, { image_url: e.target.value })}
                         className="h-7 text-xs bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                       />
+                      {activeSlideUploadIdx === idx && (
+                        <div className="mt-2 p-2 rounded-lg bg-zinc-50 border border-zinc-200">
+                          <FileUpload
+                            label={`Upload Slide ${idx + 1} Image`}
+                            uploadType="image"
+                            accept="image/*"
+                            maxFiles={1}
+                            existingFiles={slide.image_url ? [slide.image_url] : []}
+                            onUploadComplete={(urls) => {
+                              if (urls && urls[0]) {
+                                updateSlide(idx, { image_url: urls[0] });
+                                setActiveSlideUploadIdx(null);
+                              }
+                            }}
+                            allowUrlInput={false}
+                            showPreview={false}
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -1010,7 +1172,22 @@ export default function TravelHighlightEditor() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                     {/* Photo 1 */}
                     <div className="p-3.5 rounded-xl bg-zinc-50/80 border border-zinc-200 space-y-2">
-                      <span className="font-mono text-[11px] text-zinc-600 block">Photo 1</span>
+                      <div className="flex items-center justify-between font-mono text-[11px] text-zinc-600">
+                        <span>Photo 1</span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActivePhotoPairUploadKey((prev) =>
+                              prev === `${idx}-0` ? null : `${idx}-0`
+                            )
+                          }
+                          className="text-rose-600 hover:text-rose-700 font-medium transition-colors"
+                        >
+                          {activePhotoPairUploadKey === `${idx}-0`
+                            ? "Hide Uploader"
+                            : "Upload File"}
+                        </button>
+                      </div>
                       <Input
                         type="url"
                         placeholder="Image 1 URL"
@@ -1022,6 +1199,27 @@ export default function TravelHighlightEditor() {
                         }}
                         className="h-8 text-xs bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                       />
+                      {activePhotoPairUploadKey === `${idx}-0` && (
+                        <div className="p-2 rounded-lg bg-white border border-zinc-200">
+                          <FileUpload
+                            label="Upload Photo 1"
+                            uploadType="image"
+                            accept="image/*"
+                            maxFiles={1}
+                            existingFiles={block.images?.[0]?.url ? [block.images[0].url] : []}
+                            onUploadComplete={(urls) => {
+                              if (urls && urls[0]) {
+                                const imgs = [...(block.images || [{}, {}])];
+                                imgs[0] = { ...imgs[0], url: urls[0] };
+                                updateBlock(idx, { images: imgs as any });
+                                setActivePhotoPairUploadKey(null);
+                              }
+                            }}
+                            allowUrlInput={false}
+                            showPreview={false}
+                          />
+                        </div>
+                      )}
                       <Input
                         placeholder="Caption"
                         value={block.images?.[0]?.caption || ""}
@@ -1046,7 +1244,22 @@ export default function TravelHighlightEditor() {
 
                     {/* Photo 2 */}
                     <div className="p-3.5 rounded-xl bg-zinc-50/80 border border-zinc-200 space-y-2">
-                      <span className="font-mono text-[11px] text-zinc-600 block">Photo 2</span>
+                      <div className="flex items-center justify-between font-mono text-[11px] text-zinc-600">
+                        <span>Photo 2</span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActivePhotoPairUploadKey((prev) =>
+                              prev === `${idx}-1` ? null : `${idx}-1`
+                            )
+                          }
+                          className="text-rose-600 hover:text-rose-700 font-medium transition-colors"
+                        >
+                          {activePhotoPairUploadKey === `${idx}-1`
+                            ? "Hide Uploader"
+                            : "Upload File"}
+                        </button>
+                      </div>
                       <Input
                         type="url"
                         placeholder="Image 2 URL"
@@ -1058,6 +1271,27 @@ export default function TravelHighlightEditor() {
                         }}
                         className="h-8 text-xs bg-white border-zinc-300 focus:border-zinc-500 text-zinc-900 shadow-2xs placeholder:text-zinc-400"
                       />
+                      {activePhotoPairUploadKey === `${idx}-1` && (
+                        <div className="p-2 rounded-lg bg-white border border-zinc-200">
+                          <FileUpload
+                            label="Upload Photo 2"
+                            uploadType="image"
+                            accept="image/*"
+                            maxFiles={1}
+                            existingFiles={block.images?.[1]?.url ? [block.images[1].url] : []}
+                            onUploadComplete={(urls) => {
+                              if (urls && urls[0]) {
+                                const imgs = [...(block.images || [{}, {}])];
+                                imgs[1] = { ...imgs[1], url: urls[0] };
+                                updateBlock(idx, { images: imgs as any });
+                                setActivePhotoPairUploadKey(null);
+                              }
+                            }}
+                            allowUrlInput={false}
+                            showPreview={false}
+                          />
+                        </div>
+                      )}
                       <Input
                         placeholder="Caption"
                         value={block.images?.[1]?.caption || ""}

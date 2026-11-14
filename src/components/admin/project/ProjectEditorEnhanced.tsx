@@ -250,10 +250,35 @@ const ProjectEditorEnhanced: React.FC = () => {
               .filter(Boolean)
           : [];
 
+        let markdownFallback = '';
+        if (editorRef.current) {
+          try {
+            const md = await blocksToMarkdown(editorRef.current);
+            markdownFallback = md
+              .replace(/[#>*`_\[\]()!-]/g, ' ')
+              .replace(/\s+/g, ' ')
+              .trim()
+              .slice(0, 240);
+          } catch {
+            markdownFallback = '';
+          }
+        }
+
+        const resolvedDescription =
+          currentForm.description.trim() ||
+          currentForm.og_description.trim() ||
+          markdownFallback ||
+          '';
+
+        const cleanedTags = Array.from(
+          new Set((currentTags || []).map((t) => t.trim()).filter(Boolean))
+        );
+
         const payload: any = {
           title: currentForm.title.trim(),
-          description: currentForm.description.trim() || currentForm.og_description.trim() || '',
+          description: resolvedDescription,
           description_jsonb: currentContent as any,
+          tags: cleanedTags,
           image_url: currentForm.image_url || null,
           additional_images: additionalImagesArray,
           featured: currentForm.featured,
@@ -263,7 +288,7 @@ const ProjectEditorEnhanced: React.FC = () => {
           demo_video_url: currentForm.demo_video_url.trim() || null,
           demo_video_type: currentForm.demo_video_url ? currentForm.demo_video_type : 'youtube',
           og_title: currentForm.og_title || currentForm.title,
-          og_description: currentForm.og_description || currentForm.description || '',
+          og_description: currentForm.og_description || resolvedDescription || '',
           og_image: currentForm.og_image || currentForm.image_url || null,
         };
 
