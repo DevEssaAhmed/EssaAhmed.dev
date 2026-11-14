@@ -50,24 +50,24 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
               I operate at the intersection of supply chain operations, workflow automation, and executive business intelligence. Instead of building static reports that sit on a shelf, I design automated data pipelines, rolling multi-echelon S&amp;OP demand planning models, and sub-second dimensional warehouses that drive daily operational execution.
             </p>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-3 pt-2 animate-fade-in animate-stagger-1">
               <a
                 href={`mailto:${email}`}
-                className="px-6 py-3 rounded-full bg-on-surface text-surface font-label-md text-label-md font-semibold hover:opacity-90 transition-all inline-flex items-center gap-2"
+                className="group px-6 py-3 rounded-full bg-on-surface text-surface font-label-md text-label-md font-semibold hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 transition-all inline-flex items-center gap-2 shadow-sm"
               >
                 <span>Initiate Consultation</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </a>
               {hasProjects && (
                 <Link
                   href="/projects"
-                  className="px-5 py-3 rounded-full bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/40 text-on-surface font-label-md text-label-md transition-all"
+                  className="px-5 py-3 rounded-full bg-surface-container-lowest dark:bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/55 dark:border-outline-variant/40 text-on-surface font-label-md text-label-md hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs"
                 >
                   Explore Projects
                 </Link>
               )}
               <a
-                className="w-11 h-11 rounded-full border border-outline-variant/30 bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline-variant/70 transition-all"
+                className="w-11 h-11 rounded-full border border-outline-variant/55 dark:border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline hover:-translate-y-0.5 transition-all"
                 href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -76,7 +76,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                 <Github className="w-4 h-4" />
               </a>
               <a
-                className="w-11 h-11 rounded-full border border-outline-variant/30 bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline-variant/70 transition-all"
+                className="w-11 h-11 rounded-full border border-outline-variant/55 dark:border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline hover:-translate-y-0.5 transition-all"
                 href={linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -85,7 +85,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                 <Linkedin className="w-4 h-4" />
               </a>
               <a
-                className="w-11 h-11 rounded-full border border-outline-variant/30 bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline-variant/70 transition-all"
+                className="w-11 h-11 rounded-full border border-outline-variant/55 dark:border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline hover:-translate-y-0.5 transition-all"
                 href={`mailto:${email}`}
                 aria-label="Email"
               >
@@ -96,7 +96,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
 
           {/* Right Column: Telemetry & Spatial Identity Card */}
           <div className="lg:col-span-5">
-            <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+            <div className="rounded-3xl card-elevated border p-6 relative overflow-hidden backdrop-blur-md">
               <div className="absolute -right-16 -top-16 w-44 h-44 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
               {/* Profile Badge Header */}
@@ -194,9 +194,9 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
           {/* 3 Equal Pillar Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Pillar 1 */}
-            <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-primary/40 transition-all duration-200 group">
+            <div className="rounded-3xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-amber-500 text-xl group-hover:scale-105 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/40 flex items-center justify-center text-secondary text-xl group-hover:scale-105 transition-transform duration-300">
                   <Zap className="w-6 h-6" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
@@ -238,9 +238,9 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
             </div>
 
             {/* Pillar 2 */}
-            <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-secondary/40 transition-all duration-200 group">
+            <div className="rounded-3xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-secondary text-xl group-hover:scale-105 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/40 flex items-center justify-center text-secondary text-xl group-hover:scale-105 transition-transform duration-300">
                   <Package className="w-6 h-6" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
@@ -282,9 +282,9 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
             </div>
 
             {/* Pillar 3 */}
-            <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-tertiary/40 transition-all duration-200 group">
+            <div className="rounded-3xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary text-xl group-hover:scale-105 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/40 flex items-center justify-center text-primary text-xl group-hover:scale-105 transition-transform duration-300">
                   <LineChart className="w-6 h-6" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
@@ -339,7 +339,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
           </div>
 
           <div className="space-y-4">
-            <div className="p-6 rounded-3xl bg-surface-container-lowest border border-outline-variant/30 hover:border-outline-variant/70 transition-all space-y-4">
+            <div className="p-6 rounded-3xl card-elevated card-interactive border space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                 <div>
                   <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
@@ -373,7 +373,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
               </div>
             </div>
 
-            <div className="p-6 rounded-3xl bg-surface-container-lowest border border-outline-variant/30 hover:border-outline-variant/70 transition-all space-y-4">
+            <div className="p-6 rounded-3xl card-elevated card-interactive border space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                 <div>
                   <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
@@ -408,7 +408,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
 
         {/* SECTION 4: CONTACT & INITIATE ENGAGEMENT BANNER */}
         <section
-          className="rounded-3xl bg-surface-container-lowest border border-outline-variant/30 p-8 md:p-12 relative overflow-hidden backdrop-blur-xl"
+          className="rounded-3xl card-elevated border p-8 md:p-12 relative overflow-hidden backdrop-blur-xl"
           id="contact"
         >
           <div className="absolute -right-24 -bottom-24 w-72 h-72 bg-secondary/10 rounded-full blur-3xl pointer-events-none" />

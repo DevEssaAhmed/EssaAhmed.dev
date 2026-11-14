@@ -32,9 +32,9 @@ const CapabilitiesSection = () => {
       {/* 3 Sleek Pillar Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Pillar 1 */}
-        <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/60 transition-all">
+        <div className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
           <div>
-            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-5">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary mb-5 group-hover:scale-105 transition-transform duration-300">
               <Terminal className="w-6 h-6" />
             </div>
             <h3 className="text-headline-sm font-headline-sm text-on-surface mb-2">
@@ -44,7 +44,7 @@ const CapabilitiesSection = () => {
               Eliminating repetitive spreadsheet and ERP bottlenecks with automated Python microservices, scheduled pipelines, and real-time webhook/Slack alerts.
             </p>
           </div>
-          <ul className="space-y-2 text-label-md font-label-md text-on-surface pt-4 border-t border-outline-variant/20">
+          <ul className="space-y-2 text-label-md font-label-md text-on-surface pt-4 border-t border-outline-variant/25">
             <li className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-primary" />
               Zero-touch scheduled jobs
@@ -61,9 +61,9 @@ const CapabilitiesSection = () => {
         </div>
 
         {/* Pillar 2 */}
-        <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/60 transition-all">
+        <div className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
           <div>
-            <div className="w-12 h-12 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary mb-5">
+            <div className="w-12 h-12 rounded-xl bg-secondary/10 border border-secondary/25 flex items-center justify-center text-secondary mb-5 group-hover:scale-105 transition-transform duration-300">
               <Package className="w-6 h-6" />
             </div>
             <h3 className="text-headline-sm font-headline-sm text-on-surface mb-2">
@@ -73,7 +73,7 @@ const CapabilitiesSection = () => {
               Multi-echelon demand forecasting, inventory replenishment modeling, vendor lead-time tracking, and S&amp;OP scenario planning.
             </p>
           </div>
-          <ul className="space-y-2 text-label-md font-label-md text-on-surface pt-4 border-t border-outline-variant/20">
+          <ul className="space-y-2 text-label-md font-label-md text-on-surface pt-4 border-t border-outline-variant/25">
             <li className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
               S&amp;OP forecast modeling
@@ -90,9 +90,9 @@ const CapabilitiesSection = () => {
         </div>
 
         {/* Pillar 3 */}
-        <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/60 transition-all">
+        <div className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
           <div>
-            <div className="w-12 h-12 rounded-xl bg-tertiary-fixed-dim/10 border border-tertiary-fixed-dim/20 flex items-center justify-center text-tertiary-fixed-dim mb-5">
+            <div className="w-12 h-12 rounded-xl bg-tertiary-fixed-dim/10 border border-tertiary-fixed-dim/25 flex items-center justify-center text-tertiary-fixed-dim mb-5 group-hover:scale-105 transition-transform duration-300">
               <LineChart className="w-6 h-6" />
             </div>
             <h3 className="text-headline-sm font-headline-sm text-on-surface mb-2">
@@ -102,7 +102,7 @@ const CapabilitiesSection = () => {
               High-speed dimensional warehouses and executive Power BI cockpits designed for instant root-cause slicing and operational clarity.
             </p>
           </div>
-          <ul className="space-y-2 text-label-md font-label-md text-on-surface pt-4 border-t border-outline-variant/20">
+          <ul className="space-y-2 text-label-md font-label-md text-on-surface pt-4 border-t border-outline-variant/25">
             <li className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim" />
               Sub-second DAX/SQL queries
@@ -120,7 +120,7 @@ const CapabilitiesSection = () => {
       </div>
 
       {/* Core Technical Stack Box */}
-      <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6">
+      <div className="rounded-2xl card-elevated border p-6">
         <span className="text-label-sm font-label-sm font-bold tracking-wider text-outline uppercase block mb-4">
           ENGINEERED TOOLKIT &amp; PRODUCTION STACK
         </span>
@@ -128,7 +128,7 @@ const CapabilitiesSection = () => {
           {stackItems.map((item) => (
             <span
               key={item.name}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/25 text-on-surface font-label-md text-label-md"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/45 dark:border-outline-variant/25 hover:border-primary/40 text-on-surface font-label-md text-label-md transition-colors"
             >
               <span className={`w-2 h-2 rounded-full ${item.dot}`} />
               {item.name}

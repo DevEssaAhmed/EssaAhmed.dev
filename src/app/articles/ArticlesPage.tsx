@@ -106,7 +106,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search articles by topic, tool, or title..."
-                    className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/30 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary"
+                    className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary shadow-xs transition-colors"
                   />
                 </div>
 
@@ -256,7 +256,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                         href={href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
+                        className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group block"
                       >
                         {cardContent}
                       </a>
@@ -264,7 +264,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                       <Link
                         key={article.id}
                         href={href}
-                        className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
+                        className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group block"
                       >
                         {cardContent}
                       </Link>

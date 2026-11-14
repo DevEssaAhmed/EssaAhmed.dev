@@ -374,7 +374,7 @@ const ProjectDetailPage = ({
 
             {/* Media Player or Screenshot Frame */}
             {hasVideo && mediaView === "video" ? (
-              <div className="aspect-video w-full rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
+              <div className="aspect-video w-full rounded-2xl overflow-hidden border card-elevated">
                 {project.demo_video_type === "youtube" ||
                 project.demo_video_url.includes("youtube") ||
                 project.demo_video_url.includes("youtu.be") ? (
@@ -403,7 +403,7 @@ const ProjectDetailPage = ({
               </div>
             ) : hasHeroVisual ? (
               <div className="space-y-4">
-                <div className="rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
+                <div className="rounded-2xl overflow-hidden border card-elevated">
                   <OptimizedImage
                     src={currentImageUrl}
                     alt={project.title}
@@ -445,7 +445,7 @@ const ProjectDetailPage = ({
         )}
 
         {/* Case Study & Technical Analysis Body (Always rendered) */}
-        <article className="rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 sm:p-10 shadow-xl">
+        <article className="rounded-2xl border border-outline-variant/55 dark:border-outline-variant/30 editorial-sheet p-6 sm:p-10">
           <div className="flex items-center gap-2 mb-6 pb-4 border-b border-outline-variant/20">
             <FileText className="text-primary w-5 h-5" />
             <h2 className="text-xs font-code uppercase tracking-wider text-on-surface-variant font-semibold">

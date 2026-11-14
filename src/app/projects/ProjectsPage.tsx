@@ -100,7 +100,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search projects by title, stack, or domain..."
-                className="min-h-11 bg-surface-container-low border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-on-surface placeholder:text-outline w-full transition-all duration-150 outline-none"
+                className="min-h-11 bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-on-surface placeholder:text-outline w-full transition-all duration-150 outline-none shadow-xs"
               />
             </div>
 
@@ -176,7 +176,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
             {/* SECTION 2: FEATURED FLAGSHIP CASE STUDY (Full-Width Bento Banner) */}
             {flagshipProject && (
               <section className="mb-12">
-                <div className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 md:p-8 shadow-2xl relative overflow-hidden group hover:border-outline-variant/60 transition-all duration-300">
+                <div className="rounded-2xl card-elevated card-interactive border p-6 md:p-8 relative overflow-hidden group">
                   <div className="absolute -top-32 -right-32 w-80 h-80 bg-secondary/10 rounded-full blur-3xl pointer-events-none" />
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     {/* Left 6 Columns: Preview Image or Clean Summary Card */}
@@ -318,7 +318,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                   return (
                     <div
                       key={project.id}
-                      className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group"
+                      className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group"
                     >
                       <div>
                         <Link

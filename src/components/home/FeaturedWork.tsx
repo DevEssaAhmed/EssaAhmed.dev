@@ -121,7 +121,7 @@ export default function FeaturedWork({ initialProjects = [] }: FeaturedWorkProps
             <Link
               key={project.id}
               href={`/projects/${project.id}`}
-              className="rounded-2xl bg-surface-container-lowest border border-outline-variant/40 p-6 flex flex-col justify-between hover:border-outline-variant/80 shadow-[0_4px_24px_-4px_rgba(28,25,23,0.06)] hover:shadow-[0_8px_30px_-4px_rgba(28,25,23,0.1)] transition-all group block"
+              className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group block"
             >
               <div>
                 <ProjectCardPreview project={project} />
@@ -132,13 +132,13 @@ export default function FeaturedWork({ initialProjects = [] }: FeaturedWorkProps
                   {cleanSummary}
                 </p>
               </div>
-              <div className="pt-6 mt-4 border-t border-outline-variant/20 flex items-center justify-between gap-3">
+              <div className="pt-6 mt-4 border-t border-outline-variant/25 flex items-center justify-between gap-3">
                 <div className="flex flex-wrap gap-2">
                   {project.tags &&
                     project.tags.slice(0, 5).map((tag) => (
                       <span
                         key={tag}
-                        className="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/25 text-on-surface-variant text-label-sm font-code"
+                        className="px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/25 text-on-surface-variant text-label-sm font-code"
                       >
                         {tag}
                       </span>

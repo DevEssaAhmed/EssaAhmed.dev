@@ -134,7 +134,7 @@ export default function DiaryPage({
         <section className="pb-10 border-b border-outline-variant/20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant/30 text-secondary text-label-sm font-label-sm uppercase tracking-wider mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 text-secondary text-label-sm font-label-sm uppercase tracking-wider mb-4 shadow-xs">
                 <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
                 <span>Personal Log · Field Notes</span>
               </div>
@@ -258,7 +258,7 @@ export default function DiaryPage({
                       return (
                         <article
                           key={entry.id}
-                          className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 sm:p-8 hover:border-outline-variant/60 transition-all"
+                          className="rounded-2xl card-elevated card-interactive border p-6 sm:p-8"
                         >
                           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                             <div className="flex items-center gap-2.5 text-xs font-code">
@@ -339,7 +339,7 @@ export default function DiaryPage({
                 return (
                   <article
                     key={entry.id}
-                    className="relative rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 sm:p-8 hover:border-outline-variant/60 transition-all"
+                    className="relative rounded-2xl card-elevated card-interactive border p-6 sm:p-8"
                   >
                     <span className="absolute -left-[31px] sm:-left-[39px] top-7 w-3.5 h-3.5 rounded-full bg-secondary ring-4 ring-surface" />
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-3">

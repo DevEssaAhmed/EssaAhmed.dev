@@ -57,7 +57,7 @@ const Index = ({
           id="home"
         >
           {/* Status Pill */}
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/30 text-secondary text-label-sm font-label-sm tracking-wide">
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 text-secondary text-label-sm font-label-sm tracking-wide shadow-xs animate-fade-in">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary" />
@@ -76,34 +76,34 @@ const Index = ({
           </p>
 
           {/* Domain Focus Pills (3 Equal Pillars) */}
-          <div className="flex flex-wrap gap-3 pt-2">
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
+          <div className="flex flex-wrap gap-3 pt-2 animate-fade-in animate-stagger-1">
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 text-on-surface font-label-md text-label-md shadow-xs">
               <Zap className="w-4 h-4 text-primary shrink-0" />
               <span>Process &amp; Workflow Automation</span>
             </div>
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 text-on-surface font-label-md text-label-md shadow-xs">
               <Package className="w-4 h-4 text-secondary shrink-0" />
               <span>Supply Chain &amp; Demand Planning</span>
             </div>
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-low border border-outline-variant/30 text-on-surface font-label-md text-label-md">
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 text-on-surface font-label-md text-label-md shadow-xs">
               <LineChart className="w-4 h-4 text-tertiary-fixed-dim shrink-0" />
               <span>Executive Analytics &amp; BI</span>
             </div>
           </div>
 
           {/* Action Buttons Row */}
-          <div className="flex flex-wrap items-center gap-4 pt-3">
+          <div className="flex flex-wrap items-center gap-4 pt-3 animate-fade-in animate-stagger-2">
             {initialProjects.length > 0 && (
               <a
-                className="text-surface bg-on-surface font-label-md text-label-md font-semibold px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2"
+                className="group text-surface bg-on-surface font-label-md text-label-md font-semibold px-6 py-3 rounded-full hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center gap-2 shadow-sm"
                 href="#projects"
               >
                 <span>Explore Work</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </a>
             )}
             <a
-              className="bg-surface-container border border-outline-variant/40 text-on-surface font-label-md text-label-md px-6 py-3 rounded-full hover:bg-surface-container-high active:scale-[0.98] transition-all"
+              className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/60 dark:border-outline-variant/40 text-on-surface font-label-md text-label-md px-6 py-3 rounded-full hover:bg-surface-container-high hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all shadow-xs"
               href="#contact"
             >
               Contact Me
@@ -111,7 +111,7 @@ const Index = ({
             <div className="flex items-center gap-2.5 ml-1">
               <a
                 aria-label="GitHub"
-                className="w-11 h-11 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline transition-all"
+                className="w-11 h-11 rounded-full bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/55 dark:border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline hover:-translate-y-0.5 transition-all"
                 href={githubUrl}
                 rel="noreferrer"
                 target="_blank"
@@ -120,7 +120,7 @@ const Index = ({
               </a>
               <a
                 aria-label="LinkedIn"
-                className="w-11 h-11 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline transition-all"
+                className="w-11 h-11 rounded-full bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/55 dark:border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline hover:-translate-y-0.5 transition-all"
                 href={linkedinUrl}
                 rel="noreferrer"
                 target="_blank"
@@ -129,7 +129,7 @@ const Index = ({
               </a>
               <a
                 aria-label="Email"
-                className="w-11 h-11 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline transition-all"
+                className="w-11 h-11 rounded-full bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/55 dark:border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-outline hover:-translate-y-0.5 transition-all"
                 href={`mailto:${email}`}
               >
                 <Mail className="w-4 h-4 text-on-surface-variant" />
@@ -233,7 +233,7 @@ const Index = ({
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
+                    className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group block"
                   >
                     {cardInner}
                   </a>
@@ -241,7 +241,7 @@ const Index = ({
                   <Link
                     key={article.id}
                     href={href}
-                    className="rounded-2xl bg-surface-container-low border border-outline-variant/30 p-6 flex flex-col justify-between hover:border-outline-variant/70 transition-all group block"
+                    className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group block"
                   >
                     {cardInner}
                   </Link>
@@ -253,9 +253,9 @@ const Index = ({
 
         {/* 7. CTA BANNER */}
         <section className="max-w-[1080px] mx-auto py-12 px-6" id="contact">
-          <div className="rounded-3xl bg-gradient-to-b from-surface-container-low to-surface-container-lowest border border-outline-variant/30 p-10 md:p-14 text-center relative overflow-hidden shadow-2xl">
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-40 bg-primary/20 blur-[90px] pointer-events-none" />
-            <span className="inline-block px-3.5 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-outline text-label-sm font-label-sm uppercase tracking-wider mb-6">
+          <div className="rounded-3xl card-elevated border p-10 md:p-14 text-center relative overflow-hidden">
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-40 bg-primary/10 dark:bg-primary/20 blur-[90px] pointer-events-none" />
+            <span className="inline-block px-3.5 py-1 rounded-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/50 dark:border-outline-variant/30 text-outline text-label-sm font-label-sm uppercase tracking-wider mb-6">
               • INITIATE ENGAGEMENT
             </span>
             <h2 className="text-3xl md:text-4xl font-headline-lg font-bold text-on-surface tracking-tight max-w-2xl mx-auto">
@@ -266,15 +266,15 @@ const Index = ({
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
               <a
-                className="bg-on-surface text-surface font-label-md text-label-md font-semibold px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2 shadow-lg"
+                className="group bg-on-surface text-surface font-label-md text-label-md font-semibold px-6 py-3 rounded-full hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center gap-2 shadow-md"
                 href={`mailto:${email}`}
               >
                 <span>Get in touch</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </a>
               <button
                 type="button"
-                className="bg-surface-container border border-outline-variant/40 text-on-surface font-code text-label-md px-5 py-3 rounded-full hover:bg-surface-container-high active:scale-[0.98] transition-all flex items-center gap-2"
+                className="bg-surface-container-low dark:bg-surface-container border border-outline-variant/55 dark:border-outline-variant/40 text-on-surface font-code text-label-md px-5 py-3 rounded-full hover:bg-surface-container-high hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center gap-2"
                 onClick={handleCopyEmail}
               >
                 <span>{copiedEmail ? "Copied to clipboard!" : email}</span>

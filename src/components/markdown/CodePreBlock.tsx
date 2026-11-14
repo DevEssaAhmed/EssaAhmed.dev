@@ -33,15 +33,22 @@ export function CodePreBlock({ children, lang: langProp }: CodePreBlockProps) {
   };
 
   return (
-    <div className="group relative my-6 rounded-xl border border-outline-variant/30 bg-surface-container-lowest overflow-hidden shadow-sm">
-      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b border-outline-variant/20 bg-surface-container-low">
-        <span className="text-[11px] font-code tracking-wider uppercase px-2 py-0.5 rounded bg-primary/10 text-primary">
-          {lang}
-        </span>
+    <div className="group relative my-6 rounded-xl border border-outline-variant/50 dark:border-outline-variant/30 bg-[#F6F5F1] dark:bg-[#0d1117] overflow-hidden shadow-sm">
+      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b border-outline-variant/40 dark:border-outline-variant/25 bg-[#ECEAE3] dark:bg-[#161b22]">
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-1.5" aria-hidden="true">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-400/80 border border-rose-500/30" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80 border border-amber-500/30" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/80 border border-emerald-500/30" />
+          </div>
+          <span className="text-[11px] font-code tracking-wider uppercase px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">
+            {lang}
+          </span>
+        </div>
         <button
           type="button"
           onClick={handleCopy}
-          className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border border-outline-variant/50 bg-white/90 dark:bg-surface-container-high/90 text-on-surface-variant hover:text-on-surface hover:bg-white dark:hover:bg-surface-container-highest transition-colors"
           aria-label={copied ? "Copied" : "Copy code"}
         >
           {copied ? (
@@ -54,7 +61,7 @@ export function CodePreBlock({ children, lang: langProp }: CodePreBlockProps) {
       </div>
       <pre
         ref={codeRef}
-        className="m-0 p-4 overflow-x-auto text-sm leading-relaxed font-code bg-[#0e0e10] text-zinc-100 [color-scheme:dark]"
+        className="m-0 p-4 overflow-x-auto text-sm leading-relaxed font-code bg-[#F6F5F1] dark:bg-[#0d1117] text-slate-800 dark:text-slate-200"
       >
         {codeChild}
       </pre>

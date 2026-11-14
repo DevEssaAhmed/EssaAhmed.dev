@@ -222,7 +222,7 @@ const ArticleDetailPageEnhanced = ({
 
         {/* Video Player if present */}
         {article.video_url && (
-          <div className="max-w-4xl mx-auto mb-10 rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
+          <div className="max-w-4xl mx-auto mb-10 rounded-2xl overflow-hidden border card-elevated">
             <div className="aspect-video bg-surface-container-lowest">
               {article.video_type === 'youtube' || article.video_url.includes('youtube') || article.video_url.includes('youtu.be') ? (
                 <iframe
@@ -248,7 +248,7 @@ const ArticleDetailPageEnhanced = ({
 
         {/* Framed hero image */}
         {article.image_url && (
-          <div className="max-w-4xl mx-auto mb-10 rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
+          <div className="max-w-4xl mx-auto mb-10 rounded-2xl overflow-hidden border card-elevated">
             <OptimizedImage
               src={article.image_url}
               alt={article.title}
@@ -260,7 +260,7 @@ const ArticleDetailPageEnhanced = ({
         )}
 
         {/* Article Body wrapped in article container without conflicting prose prose-lg classes */}
-        <article className="max-w-4xl mx-auto rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 sm:p-10 shadow-xl mb-10">
+        <article className="max-w-4xl mx-auto rounded-2xl border border-outline-variant/55 dark:border-outline-variant/30 editorial-sheet p-6 sm:p-10 mb-10">
           {renderedContent !== undefined ? (
             renderedContent
           ) : (
@@ -300,7 +300,7 @@ const ArticleDetailPageEnhanced = ({
         {/* Author Card */}
         {profile && (
           <div className="max-w-4xl mx-auto">
-            <Card className="border border-outline-variant/30 bg-surface-container-low overflow-hidden">
+            <Card className="border card-elevated overflow-hidden">
               <CardContent className="p-6 flex items-center gap-5">
                 {profile.avatar_url && (
                   <OptimizedImage

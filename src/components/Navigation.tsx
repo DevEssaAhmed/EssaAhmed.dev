@@ -278,14 +278,14 @@ const Navigation = memo(() => {
     isMounted && cmdOpen
       ? createPortal(
           <div
-            className="fixed inset-0 z-[1200] bg-black/60 backdrop-blur-sm flex items-start justify-center pt-24 px-4 overflow-hidden overscroll-contain"
+            className="fixed inset-0 z-[1200] bg-slate-950/40 dark:bg-black/65 backdrop-blur-sm animate-fade-in flex items-start justify-center pt-24 px-4 overflow-hidden overscroll-contain"
             onClick={() => setCmdOpen(false)}
           >
             <div
               role="dialog"
               aria-modal="true"
               aria-label="Command palette"
-              className="w-full max-w-lg rounded-2xl bg-surface-container-low border border-outline-variant/40 shadow-2xl overflow-hidden overscroll-contain text-on-surface"
+              className="w-full max-w-lg rounded-2xl bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/60 dark:border-outline-variant/40 shadow-2xl overflow-hidden overscroll-contain text-on-surface animate-page-enter"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 px-4 py-3.5 border-b border-outline-variant/30">
@@ -555,14 +555,14 @@ const Navigation = memo(() => {
         className="sticky top-6 z-50 px-4 md:px-6 w-full max-w-[1080px] mx-auto"
         aria-label="Main Navigation"
       >
-        <div className="flex justify-between items-center h-16 px-4 sm:px-5 w-full bg-surface-container-low/85 backdrop-blur-xl border border-outline-variant/30 rounded-2xl shadow-xl transition-colors duration-200">
+        <div className="flex justify-between items-center h-16 px-4 sm:px-5 w-full nav-glass backdrop-blur-xl border rounded-2xl transition-all duration-300">
           {/* Left: Dedicated 40x40 Logo & Identity */}
           <Link
             href="/"
             className="flex items-center gap-3 min-w-[150px] group shrink-0"
             aria-label="Navigate to home page"
           >
-            <div className="w-10 h-10 rounded-xl bg-surface-container border border-outline-variant/40 group-hover:border-primary/50 flex items-center justify-center font-display font-bold text-on-surface tracking-wider text-xs shadow-inner transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-surface-container-low dark:bg-surface-container border border-outline-variant/50 dark:border-outline-variant/40 group-hover:border-primary/50 flex items-center justify-center font-display font-bold text-on-surface tracking-wider text-xs shadow-inner transition-colors">
               EA
             </div>
             <span className="text-headline-sm font-display font-bold text-on-surface tracking-tight whitespace-nowrap">
@@ -584,7 +584,7 @@ const Navigation = memo(() => {
                   {active && (
                     <m.span
                       layoutId="activeNavPill"
-                      className="absolute inset-0 bg-surface-container-high/90 border border-outline-variant/30 rounded-full -z-10 shadow-xs"
+                      className="absolute inset-0 bg-surface-container-low dark:bg-surface-container-high/90 border border-outline-variant/50 dark:border-outline-variant/30 rounded-full -z-10 shadow-xs"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -604,14 +604,14 @@ const Navigation = memo(() => {
               <summary
                 className={`min-h-11 list-none cursor-pointer px-3.5 py-1.5 rounded-full transition-colors duration-150 flex items-center gap-1.5 ${
                   isAboutActive
-                    ? "text-on-surface font-semibold bg-surface-container-high/90 border border-outline-variant/30"
+                    ? "text-on-surface font-semibold bg-surface-container-low dark:bg-surface-container-high/90 border border-outline-variant/50 dark:border-outline-variant/30"
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
                 <span>About</span>
-                <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
+                <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
               </summary>
-              <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-outline-variant/40 bg-surface-container-low p-1.5 shadow-xl">
+              <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-outline-variant/60 dark:border-outline-variant/40 bg-surface-container-lowest dark:bg-surface-container-low p-1.5 shadow-xl animate-fade-in">
                 {aboutSubnav.map((item) => {
                   const isSubActive = isSubnavItemActive(item.href);
                   return (
@@ -642,7 +642,7 @@ const Navigation = memo(() => {
             <button
               type="button"
               onClick={() => setCmdOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-label-sm font-code transition-colors"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container-low dark:bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-label-sm font-code transition-colors"
               aria-label="Open command palette (Cmd+K)"
             >
               <Search className="w-4 h-4 text-on-surface-variant" />
@@ -654,7 +654,7 @@ const Navigation = memo(() => {
               onClick={toggleTheme}
               whileTap={{ scale: 0.9 }}
               whileHover={{ scale: 1.05 }}
-              className="w-11 h-11 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors overflow-hidden"
+              className="group w-11 h-11 rounded-full bg-surface-container-low dark:bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors overflow-hidden"
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
               title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
             >
@@ -668,9 +668,9 @@ const Navigation = memo(() => {
                   className="flex items-center justify-center"
                 >
                   {theme === "dark" ? (
-                    <Sun className="w-4 h-4 text-amber-400" />
+                    <Sun className="w-4 h-4 text-amber-400 transition-transform duration-300 group-hover:rotate-12" />
                   ) : (
-                    <Moon className="w-4 h-4 text-on-surface" />
+                    <Moon className="w-4 h-4 text-on-surface transition-transform duration-300 group-hover:-rotate-12" />
                   )}
                 </m.div>
               </AnimatePresence>

@@ -22,15 +22,15 @@
     --stitch-surface-dim: 219 218 215; /* #DBDAD7 */
     --stitch-surface-bright: 255 255 255; /* #FFFFFF crisp white */
     --stitch-surface-container-lowest: 255 255 255; /* #FFFFFF elevated cards */
-    --stitch-surface-container-low: 244 243 240; /* #F4F3F0 soft lifted containers */
-    --stitch-surface-container: 239 238 235; /* #EFEEEB interactive pills & chips */
-    --stitch-surface-container-high: 233 232 229; /* #E9E8E5 */
-    --stitch-surface-container-highest: 227 226 223; /* #E3E2DF */
-    --stitch-surface-variant: 227 226 223; /* #E3E2DF */
+    --stitch-surface-container-low: 242 240 235; /* #F2F0EB soft lifted containers */
+    --stitch-surface-container: 235 233 227; /* #EBE9E3 interactive pills & chips */
+    --stitch-surface-container-high: 228 225 218; /* #E4E1DA */
+    --stitch-surface-container-highest: 221 218 211; /* #DDDAD3 */
+    --stitch-surface-variant: 221 218 211; /* #DDDAD3 */
     --stitch-on-surface: 15 23 42; /* #0F172A high-contrast deep ink headlines */
     --stitch-on-surface-variant: 71 85 105; /* #475569 warm slate secondary copy */
-    --stitch-outline: 118 119 123; /* #76777B */
-    --stitch-outline-variant: 230 228 223; /* #E6E4DF warm hairline borders */
+    --stitch-outline: 108 105 99; /* #6C6963 */
+    --stitch-outline-variant: 198 194 186; /* #C6C2BA warm stone hairline borders */
 
     /* Kinetic Primary: Electric Cobalt link highlights & active states */
     --stitch-primary: 37 99 235; /* #2563EB electric cobalt */
@@ -42,23 +42,23 @@
     --stitch-on-primary-fixed: 30 58 138; /* #1E3A8A */
     --stitch-on-primary-fixed-variant: 29 78 216; /* #1D4ED8 */
 
-    /* Secondary Character Accent: Warm Amber kinetic tags, alerts & highlights */
-    --stitch-secondary: 217 119 6; /* #D97706 warm amber */
+    /* Secondary Character Accent: Warm Burnished Amber (WCAG AA contrast on porcelain) */
+    --stitch-secondary: 180 83 9; /* #B45309 rich burnished amber */
     --stitch-on-secondary: 255 255 255; /* #FFFFFF */
     --stitch-secondary-container: 254 243 199; /* #FEF3C7 */
     --stitch-on-secondary-container: 146 64 14; /* #92400E */
     --stitch-secondary-fixed: 254 243 199; /* #FEF3C7 */
-    --stitch-secondary-fixed-dim: 245 158 11; /* #F59E0B */
+    --stitch-secondary-fixed-dim: 217 119 6; /* #D97706 */
     --stitch-on-secondary-fixed: 120 53 15; /* #78350F */
     --stitch-on-secondary-fixed-variant: 180 83 9; /* #B45309 */
 
-    /* Tertiary Character Accent: Vibrant Emerald live telemetry & availability beacon */
-    --stitch-tertiary: 13 148 136; /* #0D9488 emerald */
+    /* Tertiary Character Accent: Deep Teal-Emerald (WCAG AA contrast on porcelain) */
+    --stitch-tertiary: 15 118 110; /* #0F766E deep teal */
     --stitch-on-tertiary: 255 255 255; /* #FFFFFF */
     --stitch-tertiary-container: 209 250 229; /* #D1FAE5 */
     --stitch-on-tertiary-container: 6 95 70; /* #065F46 */
     --stitch-tertiary-fixed: 209 250 229; /* #D1FAE5 */
-    --stitch-tertiary-fixed-dim: 16 185 129; /* #10B981 */
+    --stitch-tertiary-fixed-dim: 13 148 136; /* #0D9488 */
     --stitch-on-tertiary-fixed: 4 47 46; /* #042F2E */
     --stitch-on-tertiary-fixed-variant: 5 150 105; /* #059669 */
 
@@ -376,9 +376,215 @@
   font-weight: 600;
 }
 
+/* Scroll Reveal Utilities (used by src/components/ui/reveal.tsx) */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-up.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Subtle Non-Blocking Entrance Animations */
+@keyframes page-enter {
+  0% {
+    opacity: 0.01;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-stagger-1 {
+  animation-delay: 60ms;
+}
+
+.animate-stagger-2 {
+  animation-delay: 120ms;
+}
+
+.animate-stagger-3 {
+  animation-delay: 180ms;
+}
+
+/* Adaptive Light/Dark Surfaces & Card Micro-Interactions */
+.card-elevated {
+  background-color: rgb(var(--stitch-surface-container-lowest) / 0.94);
+  border-color: rgb(var(--stitch-outline-variant) / 0.6);
+  box-shadow:
+    0 1px 2px rgba(24, 24, 27, 0.04),
+    0 8px 24px -6px rgba(24, 24, 27, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.dark .card-elevated {
+  background-color: rgb(var(--stitch-surface-container-low));
+  border-color: rgb(var(--stitch-outline-variant) / 0.3);
+  box-shadow:
+    0 12px 32px -8px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.card-interactive {
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.28s ease,
+    background-color 0.28s ease;
+}
+
+@media (hover: hover) {
+  .card-interactive:hover {
+    transform: translateY(-3px);
+    border-color: rgb(var(--stitch-primary) / 0.45);
+    box-shadow:
+      0 12px 28px -6px rgba(37, 99, 235, 0.08),
+      0 4px 12px -2px rgba(24, 24, 27, 0.06);
+  }
+
+  .dark .card-interactive:hover {
+    border-color: rgb(var(--stitch-outline-variant) / 0.7);
+    box-shadow:
+      0 16px 36px -8px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(173, 198, 255, 0.14);
+  }
+}
+
+.editorial-sheet {
+  background-color: rgb(var(--stitch-surface-container-lowest));
+  box-shadow:
+    0 2px 6px rgba(24, 24, 27, 0.04),
+    0 16px 40px -8px rgba(24, 24, 27, 0.07);
+}
+
+.dark .editorial-sheet {
+  background-color: rgb(var(--stitch-surface-container-low));
+  box-shadow: 0 20px 44px -12px rgba(0, 0, 0, 0.55);
+}
+
+.nav-glass {
+  background-color: rgba(255, 255, 255, 0.88);
+  border-color: rgb(var(--stitch-outline-variant) / 0.65);
+  box-shadow:
+    0 4px 20px -2px rgba(24, 24, 27, 0.07),
+    0 1px 3px rgba(24, 24, 27, 0.04);
+}
+
+.dark .nav-glass {
+  background-color: rgb(var(--stitch-surface-container) / 0.85);
+  border-color: rgb(var(--stitch-outline-variant) / 0.35);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.5);
+}
+
+/* Adaptive Syntax Highlighting Inside Markdown Code Blocks */
+.markdown-content pre code.hljs {
+  background: transparent !important;
+  padding: 0;
+}
+
+:root:not(.dark) .markdown-content pre code.hljs {
+  color: #383a42;
+}
+
+:root:not(.dark) .markdown-content pre .hljs-comment,
+:root:not(.dark) .markdown-content pre .hljs-quote {
+  color: #696c77;
+  font-style: italic;
+}
+
+:root:not(.dark) .markdown-content pre .hljs-doctag,
+:root:not(.dark) .markdown-content pre .hljs-keyword,
+:root:not(.dark) .markdown-content pre .hljs-formula {
+  color: #a626a4;
+}
+
+:root:not(.dark) .markdown-content pre .hljs-section,
+:root:not(.dark) .markdown-content pre .hljs-name,
+:root:not(.dark) .markdown-content pre .hljs-selector-tag,
+:root:not(.dark) .markdown-content pre .hljs-deletion,
+:root:not(.dark) .markdown-content pre .hljs-subst {
+  color: #e45649;
+}
+
+:root:not(.dark) .markdown-content pre .hljs-literal {
+  color: #0184bb;
+}
+
+:root:not(.dark) .markdown-content pre .hljs-string,
+:root:not(.dark) .markdown-content pre .hljs-regexp,
+:root:not(.dark) .markdown-content pre .hljs-addition,
+:root:not(.dark) .markdown-content pre .hljs-attribute,
+:root:not(.dark) .markdown-content pre .hljs-meta .hljs-string {
+  color: #50a14f;
+}
+
+:root:not(.dark) .markdown-content pre .hljs-attr,
+:root:not(.dark) .markdown-content pre .hljs-variable,
+:root:not(.dark) .markdown-content pre .hljs-template-variable,
+:root:not(.dark) .markdown-content pre .hljs-type,
+:root:not(.dark) .markdown-content pre .hljs-selector-class,
+:root:not(.dark) .markdown-content pre .hljs-selector-attr,
+:root:not(.dark) .markdown-content pre .hljs-selector-pseudo,
+:root:not(.dark) .markdown-content pre .hljs-number {
+  color: #986801;
+}
+
+:root:not(.dark) .markdown-content pre .hljs-symbol,
+:root:not(.dark) .markdown-content pre .hljs-bullet,
+:root:not(.dark) .markdown-content pre .hljs-link,
+:root:not(.dark) .markdown-content pre .hljs-meta,
+:root:not(.dark) .markdown-content pre .hljs-selector-id,
+:root:not(.dark) .markdown-content pre .hljs-title {
+  color: #4078f2;
+}
+
+:root:not(.dark) .markdown-content pre .hljs-built_in,
+:root:not(.dark) .markdown-content pre .hljs-title.class_,
+:root:not(.dark) .markdown-content pre .hljs-class .hljs-title {
+  color: #c18401;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html:focus-within {
     scroll-behavior: auto !important;
+  }
+
+  .reveal-up,
+  .animate-page-enter,
+  .animate-fade-in,
+  .card-interactive,
+  .card-interactive:hover {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
   }
 
   *,
