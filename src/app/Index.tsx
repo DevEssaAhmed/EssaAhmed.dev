@@ -41,16 +41,18 @@ const Index = ({
   };
 
   return (
-    <div className="bg-surface text-on-surface antialiased relative min-h-screen selection:bg-amber-100 selection:text-amber-900 dark:selection:bg-primary dark:selection:text-on-primary overflow-x-hidden transition-colors duration-200">
+    <div className="bg-surface text-on-surface antialiased relative min-h-screen selection:bg-amber-100 selection:text-amber-900 dark:selection:bg-primary dark:selection:text-on-primary overflow-x-clip flex flex-col justify-between transition-colors duration-200">
       {/* Background Ambient Spotlight Glow (Warm Amber & Cobalt in Light Mode, Luminous Cones in Dark Mode) */}
-      <div className="pointer-events-none fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[420px] bg-[radial-gradient(ellipse_at_top,_rgba(245,158,11,0.08),_rgba(37,99,235,0.04)_40%,_transparent_75%)] dark:hidden -z-10" />
-      <div className="hidden dark:block fixed top-[-100px] left-[-100px] w-[550px] h-[550px] rounded-full bg-primary/10 blur-[130px] pointer-events-none -z-10" />
-      <div className="hidden dark:block fixed bottom-[-100px] right-[-100px] w-[600px] h-[600px] rounded-full bg-secondary/10 blur-[140px] pointer-events-none -z-10" />
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[420px] bg-[radial-gradient(ellipse_at_top,_rgba(245,158,11,0.08),_rgba(37,99,235,0.04)_40%,_transparent_75%)] dark:hidden" />
+        <div className="hidden dark:block absolute top-[-100px] left-[-100px] w-[550px] h-[550px] rounded-full bg-primary/10 blur-[130px]" />
+        <div className="hidden dark:block absolute bottom-[-100px] right-[-100px] w-[600px] h-[600px] rounded-full bg-secondary/10 blur-[140px]" />
+      </div>
 
       {/* 1. TOP NAVIGATION BAR */}
       <Navigation />
 
-      <main id="main-content" tabIndex={-1} className="w-full">
+      <main id="main-content" tabIndex={-1} className="w-full flex-1 relative z-10">
         {/* 2. HERO SECTION */}
         <section
           className="max-w-[1080px] mx-auto pt-16 pb-14 px-6 text-left flex flex-col items-start gap-6"
@@ -286,7 +288,9 @@ const Index = ({
       </main>
 
       {/* 8. FOOTER */}
-      <OptimizedFooter />
+      <div className="relative z-10">
+        <OptimizedFooter />
+      </div>
     </div>
   );
 };
