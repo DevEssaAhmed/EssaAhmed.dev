@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useParams, useNavigate } from "@/lib/router-compat";
+import { useParams, useRouter } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,8 +22,9 @@ interface SeriesDetailPageProps {
 }
 
 const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPageProps) => {
-  const { slug } = useParams();
-  const navigate = useNavigate();
+  const params = useParams<{ slug?: string }>();
+  const slug = typeof params?.slug === "string" ? params.slug : "";
+  const router = useRouter();
   const [series, setSeries] = useState<any>(initialSeries || null);
   const [articles, setArticles] = useState<any[]>(initialArticles || []);
   const [loading, setLoading] = useState(!initialSeries);
@@ -55,11 +56,11 @@ const SeriesDetailPage = ({ initialSeries, initialArticles }: SeriesDetailPagePr
     } catch (error) {
       console.error("Error fetching series:", error);
       toast.error("Series not found");
-      navigate("/articles/series");
+      router.push("/articles/series");
     } finally {
       setLoading(false);
     }
-  }, [slug, navigate]);
+  }, [slug, router]);
 
   useEffect(() => {
     if (!initialSeries) {

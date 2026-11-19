@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useParams, useNavigate } from "@/lib/router-compat";
+import { useParams, useRouter } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,8 +21,9 @@ interface CategoryDetailPageProps {
 }
 
 const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetailPageProps) => {
-  const { slug } = useParams();
-  const navigate = useNavigate();
+  const params = useParams<{ slug?: string }>();
+  const slug = typeof params?.slug === "string" ? params.slug : "";
+  const router = useRouter();
   const [category, setCategory] = useState<any>(initialCategory || null);
   const [articles, setArticles] = useState<any[]>(initialArticles || []);
   const [loading, setLoading] = useState(!initialCategory);
@@ -53,11 +54,11 @@ const CategoryDetailPage = ({ initialCategory, initialArticles }: CategoryDetail
     } catch (error) {
       console.error("Error fetching category:", error);
       toast.error("Category not found");
-      navigate("/articles/categories");
+      router.push("/articles/categories");
     } finally {
       setLoading(false);
     }
-  }, [slug, navigate]);
+  }, [slug, router]);
 
   useEffect(() => {
     if (!initialCategory) {

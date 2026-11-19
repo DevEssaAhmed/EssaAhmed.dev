@@ -6,8 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import ProfileAvatarUpload from "@/components/ProfileAvatarUpload";
+import { revalidatePortfolioCache } from "@/lib/revalidate-client";
 
 interface ProfileFormProps {
   profile?: any;
@@ -16,7 +17,6 @@ interface ProfileFormProps {
 }
 
 const ProfileForm = ({ profile, onClose, onSuccess }: ProfileFormProps) => {
-  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -66,21 +66,20 @@ const ProfileForm = ({ profile, onClose, onSuccess }: ProfileFormProps) => {
           .from("profile")
           .update(profileData)
           .eq("id", profile.id);
-        toast({ title: "Profile updated successfully" });
+        toast.success("Profile updated successfully");
       } else {
         // Create new profile (shouldn't happen in normal flow)
         await supabase
           .from("profile")
           .insert([profileData]);
-        toast({ title: "Profile created successfully" });
+        toast.success("Profile created successfully");
       }
+      void revalidatePortfolioCache({ paths: ["/", "/about"], tags: ["site-shell"] });
       onSuccess();
     } catch (error) {
-      toast({ 
-        title: "Error saving profile", 
-        description: error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive" 
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Error saving profile"
+      );
     }
   };
 

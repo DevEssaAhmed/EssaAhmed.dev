@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useNavigate, useParams } from "@/lib/router-compat";
+import { useParams, useRouter } from "next/navigation";
+import { revalidatePortfolioCache } from "@/lib/revalidate-client";
 import { useDebounce } from "@/hooks/use-debouncer";
 import { useEditorAutosave } from "@/hooks/use-editor-autosave";
 import {
@@ -14,7 +15,7 @@ import {
   upsertTravelHighlightInSupabase,
 } from "@/data/travelData";
 import { isPublicTravelHighlight } from "@/data/travelVisibility";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import FileUpload from "@/components/FileUpload";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { Button } from "@/components/ui/button";
@@ -75,12 +76,10 @@ const emptyHighlightTemplate: TravelCityHighlight = {
 };
 
 export default function TravelHighlightEditor() {
-  const navigate = useNavigate();
-  const params = useParams();
-  const paramId = params?.id as string | undefined;
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const paramId = typeof params?.id === "string" ? params.id : undefined;
   const isEditing = Boolean(paramId && paramId !== "new");
-
-  const { toast } = useToast();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -125,10 +124,8 @@ export default function TravelHighlightEditor() {
           setLastSaved(parsed);
         } else {
           setLastSaved(JSON.parse(JSON.stringify(emptyHighlightTemplate)));
-          toast({
-            title: "Highlight not found",
+          toast.error("Highlight not found", {
             description: `Could not find highlight matching "${paramId}". Initialized empty highlight.`,
-            variant: "destructive",
           });
         }
       } else {
@@ -141,7 +138,7 @@ export default function TravelHighlightEditor() {
     return () => {
       isMounted = false;
     };
-  }, [paramId, isEditing, toast]);
+  }, [paramId, isEditing]);
 
   // Handle field change helper
   const updateField = <K extends keyof TravelCityHighlight>(
@@ -315,10 +312,8 @@ export default function TravelHighlightEditor() {
 
       if (!target.city_name.trim()) {
         if (!isAutoSave) {
-          toast({
-            title: "City Name required",
+          toast.error("City Name required", {
             description: "Please specify a city name before publishing.",
-            variant: "destructive",
           });
         }
         return false;
@@ -330,11 +325,9 @@ export default function TravelHighlightEditor() {
 
       if (target.is_published && !isPublicTravelHighlight(target)) {
         if (!isAutoSave) {
-          toast({
-            title: "Travel details incomplete",
+          toast.error("Travel details incomplete", {
             description:
               "To publish, add a country, valid map coordinates, and a cover photo or story image.",
-            variant: "destructive",
           });
         }
         return false;
@@ -383,8 +376,8 @@ export default function TravelHighlightEditor() {
 
         if (!isAutoSave) {
           resetAutoSaveRef.current?.();
-          toast({
-            title: finalHighlight.is_published ? "Highlight Published" : "Draft Saved",
+          void revalidatePortfolioCache({ paths: ["/travel"], tags: ["site-shell"] });
+          toast.success(finalHighlight.is_published ? "Highlight Published" : "Draft Saved", {
             description: finalHighlight.is_published
               ? `${finalHighlight.city_name} (${finalHighlight.country_name}) has been published to the travel atlas.`
               : `${finalHighlight.city_name} has been saved as a draft.`,
@@ -400,10 +393,8 @@ export default function TravelHighlightEditor() {
         console.error("Save travel highlight error:", err);
         setSaveError(err?.message || "Save failed");
         if (!isAutoSave) {
-          toast({
-            title: "Failed to save highlight",
+          toast.error("Failed to save highlight", {
             description: err.message || "An error occurred while saving the highlight.",
-            variant: "destructive",
           });
         }
         return false;
@@ -411,7 +402,7 @@ export default function TravelHighlightEditor() {
         setIsSaving(false);
       }
     },
-    [allHighlights, debouncedHighlight, highlight, paramId, toast]
+    [allHighlights, debouncedHighlight, highlight, paramId]
   );
 
   const handleSaveRef = useRef(handleSave);
@@ -475,7 +466,7 @@ export default function TravelHighlightEditor() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/admin?tab=travel")}
+              onClick={() => router.push("/admin?tab=travel")}
               className="text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 -ml-2 px-2.5 h-8 font-mono text-xs flex items-center gap-2 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />

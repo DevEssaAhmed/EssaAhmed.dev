@@ -5,12 +5,13 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProfileProvider } from "@/contexts/ProfileContext";
 import { ContentAvailabilityProvider } from "@/contexts/ContentAvailabilityContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import SkipLink from "@/components/SkipLink";
-import PageTransition from "@/components/PageTransition";
-import { MotionConfig, LazyMotion, domMax } from "framer-motion";
+import { MotionConfig, LazyMotion } from "framer-motion";
 import type { AvailabilityCounts, PublicProfile } from "@/lib/profile-defaults";
+
+const loadMotionFeatures = () =>
+  import("framer-motion").then((mod) => mod.domMax);
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -24,7 +25,7 @@ export default function Providers({
   initialAvailability,
 }: ProvidersProps) {
   return (
-    <LazyMotion features={domMax}>
+    <LazyMotion features={loadMotionFeatures}>
       <MotionConfig reducedMotion="user">
         <ThemeProvider>
           <AuthProvider>
@@ -34,9 +35,8 @@ export default function Providers({
               >
                 <TooltipProvider>
                   <SkipLink />
-                  <Toaster />
-                  <Sonner />
-                  <PageTransition>{children}</PageTransition>
+                  <Sonner richColors closeButton />
+                  {children}
                 </TooltipProvider>
               </ContentAvailabilityProvider>
             </ProfileProvider>

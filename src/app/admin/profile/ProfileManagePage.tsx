@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useNavigate } from "@/lib/router-compat";
+import { useRouter } from "next/navigation";
+import { revalidatePortfolioCache } from "@/lib/revalidate-client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -59,7 +60,7 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 const ProfileManagePage = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
@@ -140,8 +141,9 @@ const ProfileManagePage = () => {
       const md = editorRef.current ? await blocksToMarkdown(editorRef.current) : '';
       const updateData: any = { ...data, skills, avatar_url: avatarUrl, about_markdown: md, about_content_jsonb: aboutContent };
       await updateProfile(updateData as any);
+      void revalidatePortfolioCache({ paths: ["/", "/about"], tags: ["site-shell"] });
       toast.success("Profile updated successfully!");
-      navigate("/admin");
+      router.push("/admin");
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Error updating profile");

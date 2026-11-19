@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+"use client";
+
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { useNavigate } from '@/lib/router-compat';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,21 +12,31 @@ import { Eye, EyeOff, Lock, Mail, LogIn } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
+function resolveSafeAdminRedirect(): string {
+  if (typeof window === 'undefined') return '/admin';
+  const raw = new URLSearchParams(window.location.search).get('next') || '';
+  if (raw.startsWith('/admin') && !raw.startsWith('//') && !raw.startsWith('/admin/login')) {
+    return raw;
+  }
+  return '/admin';
+}
+
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   const { signIn, user, loading } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const redirectTarget = useMemo(() => resolveSafeAdminRedirect(), []);
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/admin', { replace: true });
+      router.replace(redirectTarget);
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, router, redirectTarget]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,15 +45,15 @@ const LoginForm = () => {
 
     try {
       const { error } = await signIn(email, password);
-      
+
       if (error) {
         setError(error);
         toast.error(error);
       } else {
         toast.success('Welcome back!');
-        navigate('/admin');
+        router.replace(redirectTarget);
       }
-    } catch (err) {
+    } catch {
       const errorMessage = 'An unexpected error occurred';
       setError(errorMessage);
       toast.error(errorMessage);

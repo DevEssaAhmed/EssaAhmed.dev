@@ -51,6 +51,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description: cleanMarkdownExcerpt(data.description || data.title, 160),
     path: `/projects/${id}`,
     image: data.image_url,
+    badge: "Case Study",
   });
 }
 

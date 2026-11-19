@@ -3,8 +3,9 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import Link from "next/link";
 import { cn } from '@/lib/utils';
-import { useNavigate, useParams } from '@/lib/router-compat';
-import { useToast } from '@/hooks/use-toast';
+import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { revalidatePortfolioCache } from '@/lib/revalidate-client';
 import { supabase } from '@/integrations/supabase/client';
 import {
   associateProjectTags,
@@ -79,9 +80,9 @@ const DOMAIN_PILLARS = [
 const VIDEO_TYPES = ['youtube', 'vimeo', 'loom'] as const;
 
 const ProjectEditorEnhanced: React.FC = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const { toast } = useToast();
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const id = typeof params?.id === 'string' ? params.id : undefined;
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -201,17 +202,15 @@ const ProjectEditorEnhanced: React.FC = () => {
         tags: loadedTags,
       });
     } catch (error: any) {
-      toast({
-        title: 'Error loading project',
+      toast.error('Error loading project', {
         description: error.message,
-        variant: 'destructive',
       });
-      navigate('/admin?tab=projects');
+      router.push('/admin?tab=projects');
     } finally {
       setIsLoading(false);
       setContentLoading(false);
     }
-  }, [id, navigate, toast]);
+  }, [id, router]);
 
   // Load all categories on mount
   useEffect(() => {
@@ -321,12 +320,15 @@ const ProjectEditorEnhanced: React.FC = () => {
         });
 
         if (!isAutoSave) {
-          toast({
-            title: `Project ${id ? 'updated' : 'created'} successfully!`,
+          void revalidatePortfolioCache({
+            paths: ['/', '/projects', ...(projectId ? [`/projects/${projectId}`] : [])],
+            tags: ['site-shell'],
+          });
+          toast.success(`Project ${id ? 'updated' : 'created'} successfully!`, {
             description: currentForm.featured ? 'Saved as Featured Case Study.' : 'Project changes saved.',
           });
           if (!id && projectId) {
-            navigate(`/admin/project/edit/${projectId}`, { replace: true });
+            router.replace(`/admin/project/edit/${projectId}`);
           }
         }
         return true;
@@ -334,10 +336,8 @@ const ProjectEditorEnhanced: React.FC = () => {
         console.error('Save project error:', err);
         setSaveError(err?.message || 'Save failed');
         if (!isAutoSave) {
-          toast({
-            title: 'Error saving project',
+          toast.error('Error saving project', {
             description: err.message,
-            variant: 'destructive',
           });
         }
         return false;
@@ -353,8 +353,7 @@ const ProjectEditorEnhanced: React.FC = () => {
       debouncedFormData,
       debouncedBlockNoteContent,
       debouncedTags,
-      navigate,
-      toast,
+      router,
     ]
   );
 
@@ -432,10 +431,10 @@ const ProjectEditorEnhanced: React.FC = () => {
       if (created) {
         setCategories((prev) => [...prev, created]);
         setFormData((prev) => ({ ...prev, category_id: created.id }));
-        toast({ title: `Category set to ${pillarName}` });
+        toast.success(`Category set to ${pillarName}`);
       }
     } catch {
-      toast({ title: 'Could not create category', variant: 'destructive' });
+      toast.error('Could not create category');
     }
   };
 
@@ -481,7 +480,7 @@ const ProjectEditorEnhanced: React.FC = () => {
         <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
-            onClick={() => navigate('/admin?tab=projects')}
+            onClick={() => router.push('/admin?tab=projects')}
             className="group inline-flex items-center gap-2 text-xs font-mono text-zinc-600 hover:text-zinc-900 transition-colors px-2 py-1.5 rounded-md hover:bg-zinc-100 shrink-0"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
@@ -738,10 +737,10 @@ const ProjectEditorEnhanced: React.FC = () => {
                           setCategories((prev) => [...prev, newCat]);
                           setFormData((prev) => ({ ...prev, category_id: newCat.id }));
                           setNewCategoryInput('');
-                          toast({ title: 'Category added!' });
+                          toast.success('Category added!');
                         }
                       } catch {
-                        toast({ title: 'Could not create category', variant: 'destructive' });
+                        toast.error('Could not create category');
                       }
                     }}
                     className="h-8 px-2 text-xs border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"

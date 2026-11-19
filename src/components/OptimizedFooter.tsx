@@ -76,6 +76,12 @@ const OptimizedFooter = memo(() => {
               Articles
             </Link>
           )}
+          <a
+            className="hover:text-on-surface transition-colors duration-150"
+            href="/rss.xml"
+          >
+            RSS
+          </a>
         </div>
       </div>
     </footer>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocation, useNavigate } from "@/lib/router-compat";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,12 @@ import OptimizedFooter from "@/components/OptimizedFooter";
 import { m } from "framer-motion";
 
 const NotFound = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname() || "/";
+  const router = useRouter();
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
+    console.error("404 Error: User attempted to access non-existent route:", pathname);
+  }, [pathname]);
 
   const navLinks = [
     { label: "Home", href: "/", icon: Home, description: "Back to the start" },
@@ -54,7 +54,7 @@ const NotFound = () => {
             </p>
             <div className="inline-flex items-center gap-1.5 text-xs text-on-surface-variant bg-surface-container border border-outline-variant/30 rounded-lg px-3 py-1.5 mb-8 font-mono">
               <span className="text-on-surface-variant">Path:</span>
-              <code className="text-primary">{location.pathname}</code>
+              <code className="text-primary">{pathname}</code>
             </div>
           </m.div>
 
@@ -90,7 +90,7 @@ const NotFound = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(-1)}
+              onClick={() => router.back()}
               className="text-on-surface-variant hover:text-on-surface gap-2 font-mono text-xs rounded-xl"
             >
               <ArrowLeft className="w-4 h-4 text-primary" />

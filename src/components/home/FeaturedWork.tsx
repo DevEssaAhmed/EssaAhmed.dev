@@ -38,6 +38,7 @@ function ProjectCardPreview({ project }: { project: Project }) {
         <OptimizedImage
           src={project.image_url}
           alt={project.title}
+          sizes="(max-width: 768px) 100vw, 540px"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />

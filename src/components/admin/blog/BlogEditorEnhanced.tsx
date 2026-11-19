@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Link from "next/link";
 import { cn } from '@/lib/utils';
-import { useNavigate, useParams } from '@/lib/router-compat';
+import { useParams, useRouter } from 'next/navigation';
+import { revalidatePortfolioCache } from '@/lib/revalidate-client';
 import { useDebounce } from '@/hooks/use-debouncer';
 import { useEditorAutosave } from '@/hooks/use-editor-autosave';
 import { Button } from '@/components/ui/button';
@@ -58,7 +59,7 @@ import {
   Check,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import {
   createOrGetCategory,
   getAllCategories,
@@ -110,9 +111,9 @@ const PLATFORMS = [
 ] as const;
 
 const BlogEditorEnhanced: React.FC = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const { toast } = useToast();
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const id = typeof params?.id === 'string' ? params.id : undefined;
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -313,17 +314,15 @@ const BlogEditorEnhanced: React.FC = () => {
       });
     } catch (error: any) {
       console.error('Fetch post error:', error);
-      toast({
-        title: 'Error loading blog post',
+      toast.error('Error loading blog post', {
         description: error.message,
-        variant: 'destructive',
       });
-      navigate('/admin?tab=blogs');
+      router.push('/admin?tab=blogs');
     } finally {
       setIsLoading(false);
       setContentLoading(false);
     }
-  }, [id, navigate, toast]);
+  }, [id, router]);
 
   useEffect(() => {
     void loadCategories();
@@ -346,10 +345,8 @@ const BlogEditorEnhanced: React.FC = () => {
   const handleImportExternal = async () => {
     const rawUrl = externalUrl.trim();
     if (!rawUrl) {
-      toast({
-        title: 'Please enter an external URL first',
+      toast.error('Please enter an external URL first', {
         description: 'Provide an article link from Medium, Dev.to, Substack, etc.',
-        variant: 'destructive',
       });
       return;
     }
@@ -391,15 +388,12 @@ const BlogEditorEnhanced: React.FC = () => {
       }
       setEntryMode('external');
 
-      toast({
-        title: 'Metadata imported successfully!',
+      toast.success('Metadata imported successfully!', {
         description: `Imported "${data.title}" from ${data.platform || 'source'}.`,
       });
     } catch (err: any) {
-      toast({
-        title: 'Import failed',
+      toast.error('Import failed', {
         description: err.message,
-        variant: 'destructive',
       });
     } finally {
       setIsImporting(false);
@@ -448,16 +442,16 @@ const BlogEditorEnhanced: React.FC = () => {
         .single();
       if (error) {
         console.error('Error creating series:', error);
-        toast({ title: 'Error creating series', description: error.message, variant: 'destructive' });
+        toast.error('Error creating series', { description: error.message });
       } else {
         setSeries((prev) => [...prev, data]);
         setFormData((prev) => ({ ...prev, series_id: data.id }));
-        toast({ title: 'Series created successfully' });
+        toast.success('Series created successfully');
       }
       setShowNewSeriesDialog(false);
       setNewSeries({ title: '', slug: '', description: '' });
     } catch (error: any) {
-      toast({ title: 'Error creating series', description: error.message, variant: 'destructive' });
+      toast.error('Error creating series', { description: error.message });
     }
   };
 
@@ -577,12 +571,15 @@ const BlogEditorEnhanced: React.FC = () => {
         });
 
         if (!isAutoSave) {
-          toast({
-            title: id ? 'Article updated successfully!' : 'Article created successfully!',
+          void revalidatePortfolioCache({
+            paths: ['/', '/articles', '/articles/categories', '/articles/series', '/articles/tags', '/rss.xml', ...(currentForm.slug ? [`/articles/${currentForm.slug}`] : [])],
+            tags: ['site-shell'],
+          });
+          toast.success(id ? 'Article updated successfully!' : 'Article created successfully!', {
             description: targetPublished ? 'Post is published and live.' : 'Draft saved.',
           });
           if (!id && savedId) {
-            navigate(`/admin/blog/edit/${savedId}`, { replace: true });
+            router.replace(`/admin/blog/edit/${savedId}`);
           }
         }
         return true;
@@ -590,10 +587,8 @@ const BlogEditorEnhanced: React.FC = () => {
         console.error('Save error:', error);
         setSaveError(error?.message || 'Save failed');
         if (!isAutoSave) {
-          toast({
-            title: 'Error saving article',
+          toast.error('Error saving article', {
             description: error.message,
-            variant: 'destructive',
           });
         }
         return false;
@@ -615,8 +610,7 @@ const BlogEditorEnhanced: React.FC = () => {
       debouncedEntryMode,
       debouncedExternalUrl,
       debouncedPlatform,
-      navigate,
-      toast,
+      router,
     ]
   );
 
@@ -673,9 +667,9 @@ const BlogEditorEnhanced: React.FC = () => {
     if (!formData.slug) return;
     try {
       await navigator.clipboard.writeText(`${window.location.origin}/articles/${formData.slug}`);
-      toast({ title: 'Article link copied to clipboard!' });
+      toast.success('Article link copied to clipboard!');
     } catch {
-      toast({ title: 'Failed to copy link', variant: 'destructive' });
+      toast.error('Failed to copy link');
     }
   };
 
@@ -701,7 +695,7 @@ const BlogEditorEnhanced: React.FC = () => {
         <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
-            onClick={() => navigate('/admin?tab=blogs')}
+            onClick={() => router.push('/admin?tab=blogs')}
             className="group inline-flex items-center gap-2 text-xs font-mono text-zinc-600 hover:text-zinc-900 transition-colors px-2 py-1.5 rounded-md hover:bg-zinc-100 shrink-0"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
@@ -1068,10 +1062,10 @@ const BlogEditorEnhanced: React.FC = () => {
                         setCategories((prev) => [...prev, newCat]);
                         setFormData((prev) => ({ ...prev, category_id: newCat.id }));
                         setNewCategoryName('');
-                        toast({ title: 'Category created!' });
+                        toast.success('Category created!');
                       }
                     } catch {
-                      toast({ title: 'Failed to create category', variant: 'destructive' });
+                      toast.error('Failed to create category');
                     }
                   }}
                   className="h-8 px-2 text-xs border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
@@ -1530,7 +1524,7 @@ const BlogEditorEnhanced: React.FC = () => {
               type="button"
               onClick={() => {
                 setSeoDrawerOpen(false);
-                toast({ title: 'SEO overrides saved in draft!' });
+                toast.success('SEO overrides saved in draft!');
               }}
               className="w-full h-8 text-xs font-mono bg-zinc-900 text-white hover:bg-zinc-800 mt-4 shadow-xs"
             >

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useParams, useNavigate } from "@/lib/router-compat";
+import { useParams, useRouter } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -62,8 +62,9 @@ const ArticleDetailPageEnhanced = ({
   initialArticle,
   renderedContent,
 }: ArticleDetailPageEnhancedProps) => {
-  const { slug } = useParams();
-  const navigate = useNavigate();
+  const params = useParams<{ slug?: string }>();
+  const slug = typeof params?.slug === "string" ? params.slug : "";
+  const router = useRouter();
   const { profile } = useProfile();
   const { isAdmin } = useAuth();
   const [article, setArticle] = useState<Article | null>(initialArticle ?? null);
@@ -86,11 +87,11 @@ const ArticleDetailPageEnhanced = ({
     } catch (error) {
       console.error("Error fetching article:", error);
       toast.error("Article not found");
-      navigate("/articles");
+      router.push("/articles");
     } finally {
       setLoading(false);
     }
-  }, [slug, navigate]);
+  }, [slug, router]);
 
   useEffect(() => { if (initialArticle === undefined) fetchArticle(); }, [fetchArticle, initialArticle]);
 

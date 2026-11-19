@@ -15,12 +15,14 @@ import {
   Search,
   Sparkles,
   Trash2,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import {
   Select,
   SelectContent,
@@ -37,7 +39,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { filterAndSortArticles, type ArticleSortOption } from "@/lib/admin-helpers";
 import { extractArticleExternalMeta } from "@/data/externalArticlesStore";
@@ -49,6 +50,8 @@ interface ArticlesDirectoryTabProps {
   onImportExternal: (url: string) => Promise<boolean>;
   onUpdateStatus: (post: any, mode: "published" | "draft" | "unlisted") => Promise<void>;
   onDeletePost: (id: string) => Promise<void>;
+  onBatchUpdateStatus?: (ids: string[], mode: "published" | "draft" | "unlisted") => Promise<void>;
+  onBatchDelete?: (ids: string[]) => Promise<void>;
 }
 
 function getPostStatusMode(post: any): "published" | "draft" | "unlisted" {
@@ -63,6 +66,8 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
   onImportExternal,
   onUpdateStatus,
   onDeletePost,
+  onBatchUpdateStatus,
+  onBatchDelete,
 }) => {
   const [importUrl, setImportUrl] = useState("");
   const [isImporting, setIsImporting] = useState(false);
@@ -75,6 +80,13 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
 
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [batchBusy, setBatchBusy] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<
+    | { mode: "single"; post: any }
+    | { mode: "batch"; ids: string[] }
+    | null
+  >(null);
 
   const categoryMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -96,6 +108,31 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
       }),
     [posts, sourceFilter, statusFilter, categoryFilter, searchQuery, sortBy]
   );
+
+  const visibleSelectedIds = useMemo(
+    () => filteredPosts.filter((p) => selectedIds.has(p.id)).map((p) => p.id),
+    [filteredPosts, selectedIds]
+  );
+
+  const allVisibleSelected =
+    filteredPosts.length > 0 && visibleSelectedIds.length === filteredPosts.length;
+
+  const toggleSelectAll = () => {
+    if (allVisibleSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredPosts.map((p) => p.id)));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const handleImportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +156,17 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
       await onUpdateStatus(post, mode);
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleBatchStatus = async (mode: "published" | "draft" | "unlisted") => {
+    if (!onBatchUpdateStatus || visibleSelectedIds.length === 0) return;
+    setBatchBusy(true);
+    try {
+      await onBatchUpdateStatus(visibleSelectedIds, mode);
+      setSelectedIds(new Set());
+    } finally {
+      setBatchBusy(false);
     }
   };
 
@@ -146,22 +194,24 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
     searchQuery.trim().length > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* 1-Click External Article Importer */}
-      <Card className="bg-white border-zinc-200/90 shadow-2xs">
+      <Card className="bg-white border-zinc-200/80 shadow-2xs rounded-2xl">
         <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <CardTitle className="text-base font-semibold text-zinc-900 flex items-center gap-2">
-                <Link2 className="w-4 h-4 text-sky-600" />
+              <CardTitle className="text-sm font-semibold text-zinc-900 flex items-center gap-2">
+                <span className="w-7 h-7 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center">
+                  <Link2 className="w-3.5 h-3.5 text-sky-600" />
+                </span>
                 1-Click External Article Importer
               </CardTitle>
-              <CardDescription className="text-xs text-zinc-500 mt-0.5">
-                Paste any Medium, Substack, dev.to, Hashnode, Kaggle, or LinkedIn article URL to auto-extract title, excerpt, cover, and publish directly.
+              <CardDescription className="text-xs text-zinc-500 mt-1">
+                Paste any Medium, Substack, dev.to, Hashnode, Kaggle, or LinkedIn URL to auto-extract metadata and publish.
               </CardDescription>
             </div>
             <Link href="/admin/blog/new">
-              <Button size="sm" className="bg-zinc-900 text-white hover:bg-zinc-800">
+              <Button size="sm" className="bg-zinc-900 text-white hover:bg-zinc-800 rounded-lg h-8 text-xs shadow-xs">
                 <Plus className="w-3.5 h-3.5 mr-1.5" />
                 Write On-Site Article
               </Button>
@@ -176,21 +226,21 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
               value={importUrl}
               onChange={(e) => setImportUrl(e.target.value)}
               disabled={isImporting}
-              className="flex-1 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400"
+              className="flex-1 bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 rounded-lg h-9 text-sm"
             />
             <Button
               type="submit"
               disabled={isImporting || !importUrl.trim()}
-              className="bg-sky-600 hover:bg-sky-700 text-white shrink-0"
+              className="bg-sky-600 hover:bg-sky-700 text-white shrink-0 rounded-lg h-9 text-xs font-medium"
             >
               {isImporting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   Importing...
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 mr-1.5" />
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
                   Import &amp; Publish
                 </>
               )}
@@ -199,12 +249,11 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
         </CardContent>
       </Card>
 
-      {/* Filters & Power Tools */}
-      <Card className="bg-white border-zinc-200/90 shadow-2xs">
+      {/* Filters & Search */}
+      <Card className="bg-white border-zinc-200/80 shadow-2xs rounded-2xl">
         <CardContent className="p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            {/* Source & Status Filter Chips */}
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5">
               <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-lg">
                 {(["all", "onsite", "external"] as const).map((src) => (
                   <button
@@ -241,7 +290,7 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
             </div>
 
             <div className="text-xs font-mono text-zinc-500">
-              Showing {filteredPosts.length} of {posts.length} articles
+              {filteredPosts.length} / {posts.length} articles
             </div>
           </div>
 
@@ -252,12 +301,22 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search title, excerpt, slug, or platform..."
-                className="pl-9 bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400"
+                className="pl-9 pr-8 bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 rounded-lg h-9 text-sm"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full md:w-[200px] bg-white border-zinc-300 text-zinc-900">
+              <SelectTrigger className="w-full md:w-[190px] bg-white border-zinc-200 text-zinc-900 rounded-lg h-9 text-xs">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent className="bg-white border-zinc-200 text-zinc-900">
@@ -272,7 +331,7 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
             </Select>
 
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as ArticleSortOption)}>
-              <SelectTrigger className="w-full md:w-[175px] bg-white border-zinc-300 text-zinc-900">
+              <SelectTrigger className="w-full md:w-[170px] bg-white border-zinc-200 text-zinc-900 rounded-lg h-9 text-xs">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent className="bg-white border-zinc-200 text-zinc-900">
@@ -294,7 +353,7 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
                   setCategoryFilter("all");
                   setSearchQuery("");
                 }}
-                className="text-xs text-zinc-600 hover:text-zinc-900"
+                className="text-xs text-zinc-600 hover:text-zinc-900 h-9 rounded-lg"
               >
                 Reset
               </Button>
@@ -303,22 +362,118 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
         </CardContent>
       </Card>
 
+      {/* Batch Action Bar */}
+      {visibleSelectedIds.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-zinc-900 text-white shadow-lg">
+          <div className="flex items-center gap-2.5 text-xs">
+            <span className="font-mono font-semibold px-2 py-0.5 rounded-md bg-white/15">
+              {visibleSelectedIds.length} selected
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedIds(new Set())}
+              className="text-zinc-300 hover:text-white underline-offset-2 hover:underline"
+            >
+              Clear
+            </button>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {onBatchUpdateStatus && (
+              <>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={batchBusy}
+                  onClick={() => void handleBatchStatus("published")}
+                  className="h-7 text-xs bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30 border border-emerald-400/20"
+                >
+                  Publish
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={batchBusy}
+                  onClick={() => void handleBatchStatus("draft")}
+                  className="h-7 text-xs bg-white/10 text-zinc-100 hover:bg-white/20"
+                >
+                  Set Draft
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={batchBusy}
+                  onClick={() => void handleBatchStatus("unlisted")}
+                  className="h-7 text-xs bg-purple-500/20 text-purple-200 hover:bg-purple-500/30 border border-purple-400/20"
+                >
+                  Unlist
+                </Button>
+              </>
+            )}
+            {onBatchDelete && (
+              <Button
+                size="sm"
+                variant="destructive"
+                disabled={batchBusy}
+                onClick={() => setDeleteTarget({ mode: "batch", ids: visibleSelectedIds })}
+                className="h-7 text-xs bg-rose-600 hover:bg-rose-700 text-white"
+              >
+                <Trash2 className="w-3 h-3 mr-1" />
+                Delete
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Directory Table */}
-      <Card className="bg-white border-zinc-200/90 shadow-2xs overflow-hidden">
+      <Card className="bg-white border-zinc-200/80 shadow-2xs rounded-2xl overflow-hidden">
         {filteredPosts.length === 0 ? (
-          <div className="p-12 text-center space-y-2">
-            <FileText className="w-8 h-8 text-zinc-300 mx-auto" />
-            <p className="text-sm font-medium text-zinc-700">No articles match these filters</p>
-            <p className="text-xs text-zinc-500">
-              Try clearing filters or create a new article.
+          <div className="p-14 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-zinc-100 flex items-center justify-center mx-auto">
+              <FileText className="w-6 h-6 text-zinc-400" />
+            </div>
+            <p className="text-sm font-semibold text-zinc-800">No articles match these filters</p>
+            <p className="text-xs text-zinc-500 max-w-sm mx-auto">
+              Try clearing active filters or write a new on-site article.
             </p>
+            <div className="pt-1 flex items-center justify-center gap-2">
+              {hasActiveFilters && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSourceFilter("all");
+                    setStatusFilter("all");
+                    setCategoryFilter("all");
+                    setSearchQuery("");
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              )}
+              <Link href="/admin/blog/new">
+                <Button size="sm" className="bg-zinc-900 text-white hover:bg-zinc-800">
+                  <Plus className="w-3.5 h-3.5 mr-1.5" />
+                  New Article
+                </Button>
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-zinc-200 bg-zinc-50/80 text-[11px] font-mono uppercase tracking-wider text-zinc-500">
-                  <th className="py-3 px-4 font-semibold">Article</th>
+                <tr className="border-b border-zinc-200/80 bg-zinc-50/70 text-[11px] font-mono uppercase tracking-wider text-zinc-500">
+                  <th className="py-3 pl-4 pr-2 w-10">
+                    <input
+                      type="checkbox"
+                      checked={allVisibleSelected}
+                      onChange={toggleSelectAll}
+                      aria-label="Select all visible articles"
+                      className="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900 cursor-pointer"
+                    />
+                  </th>
+                  <th className="py-3 px-3 font-semibold">Article</th>
                   <th className="py-3 px-4 font-semibold">Status</th>
                   <th className="py-3 px-4 font-semibold">Category &amp; Metrics</th>
                   <th className="py-3 px-4 font-semibold text-right">Actions</th>
@@ -328,6 +483,7 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
                 {filteredPosts.map((post) => {
                   const meta = extractArticleExternalMeta(post);
                   const mode = getPostStatusMode(post);
+                  const isChecked = selectedIds.has(post.id);
                   const categoryName =
                     post.categories?.name ||
                     (post.category_id && categoryMap.get(post.category_id)) ||
@@ -338,17 +494,36 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
                       : `/articles/${post.slug}`;
 
                   return (
-                    <tr key={post.id} className="hover:bg-zinc-50/70 transition-colors">
-                      <td className="py-3.5 px-4 max-w-[380px]">
+                    <tr
+                      key={post.id}
+                      className={`group transition-colors ${
+                        isChecked ? "bg-sky-50/50" : "hover:bg-zinc-50/80"
+                      }`}
+                    >
+                      <td className="py-3.5 pl-4 pr-2">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleSelectOne(post.id)}
+                          aria-label={`Select ${post.title || "article"}`}
+                          className="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900 cursor-pointer"
+                        />
+                      </td>
+                      <td className="py-3.5 px-3 max-w-[380px]">
                         <div className="flex items-start gap-3">
                           {post.image_url ? (
-                            <img
-                              src={post.image_url}
-                              alt=""
-                              className="w-12 h-9 rounded object-cover border border-zinc-200 shrink-0 mt-0.5"
-                            />
+                            <div className="w-12 h-9 rounded-lg overflow-hidden border border-zinc-200/90 shrink-0 mt-0.5 bg-zinc-100">
+                              <OptimizedImage
+                                src={post.image_url}
+                                alt={post.title || "Article thumbnail"}
+                                width={96}
+                                height={72}
+                                sizes="48px"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
                           ) : (
-                            <div className="w-12 h-9 rounded bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0 mt-0.5">
+                            <div className="w-12 h-9 rounded-lg bg-zinc-100 border border-zinc-200/80 flex items-center justify-center shrink-0 mt-0.5">
                               {meta.isExternal ? (
                                 <Globe className="w-4 h-4 text-sky-600" />
                               ) : (
@@ -390,7 +565,7 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
                             }
                           >
                             <SelectTrigger
-                              className={`h-7 w-[124px] text-xs font-medium border ${
+                              className={`h-7 w-[124px] text-xs font-medium border rounded-lg ${
                                 mode === "published"
                                   ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                                   : mode === "unlisted"
@@ -427,13 +602,13 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
                       </td>
 
                       <td className="py-3.5 px-4 text-right">
-                        <div className="inline-flex items-center gap-1">
+                        <div className="inline-flex items-center gap-0.5">
                           <Button
                             size="icon"
                             variant="ghost"
                             onClick={() => void handleCopyUrl(post)}
                             title="Copy URL"
-                            className="h-8 w-8 text-zinc-500 hover:text-zinc-900"
+                            className="h-8 w-8 text-zinc-400 hover:text-zinc-900 rounded-lg"
                           >
                             {copiedId === post.id ? (
                               <Check className="w-3.5 h-3.5 text-emerald-600" />
@@ -452,7 +627,7 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="h-8 w-8 text-zinc-500 hover:text-zinc-900"
+                                className="h-8 w-8 text-zinc-400 hover:text-zinc-900 rounded-lg"
                               >
                                 <ExternalLink className="w-3.5 h-3.5" />
                               </Button>
@@ -463,43 +638,21 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-8 w-8 text-zinc-600 hover:text-zinc-900"
+                              className="h-8 w-8 text-zinc-600 hover:text-zinc-900 rounded-lg"
                             >
                               <Pencil className="w-3.5 h-3.5" />
                             </Button>
                           </Link>
 
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                title="Delete Article"
-                                className="h-8 w-8 text-zinc-400 hover:text-rose-600"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-white border-zinc-200 text-zinc-900 shadow-xl">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete this article?</AlertDialogTitle>
-                                <AlertDialogDescription className="text-zinc-500">
-                                  &ldquo;{post.title}&rdquo; will be permanently deleted from your portfolio.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className="bg-zinc-100 border-zinc-200 text-zinc-700 hover:bg-zinc-200">
-                                  Cancel
-                                </AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => void onDeletePost(post.id)}
-                                  className="bg-rose-600 hover:bg-rose-700 text-white"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            title="Delete Article"
+                            onClick={() => setDeleteTarget({ mode: "single", post })}
+                            className="h-8 w-8 text-zinc-400 hover:text-rose-600 rounded-lg"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -510,6 +663,55 @@ export const ArticlesDirectoryTab: React.FC<ArticlesDirectoryTabProps> = ({
           </div>
         )}
       </Card>
+
+      {/* Shared Delete Confirmation Dialog */}
+      <AlertDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+      >
+        <AlertDialogContent className="bg-white border-zinc-200 text-zinc-900 shadow-xl rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {deleteTarget?.mode === "batch"
+                ? `Delete ${deleteTarget.ids.length} selected article(s)?`
+                : "Delete this article?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-500">
+              {deleteTarget?.mode === "batch"
+                ? "These articles will be permanently removed from your portfolio."
+                : `“${deleteTarget?.post?.title || "Untitled Article"}” will be permanently deleted from your portfolio.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-zinc-100 border-zinc-200 text-zinc-700 hover:bg-zinc-200 rounded-lg">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!deleteTarget) return;
+                const current = deleteTarget;
+                setDeleteTarget(null);
+                if (current.mode === "single") {
+                  await onDeletePost(current.post.id);
+                } else if (onBatchDelete) {
+                  setBatchBusy(true);
+                  try {
+                    await onBatchDelete(current.ids);
+                    setSelectedIds(new Set());
+                  } finally {
+                    setBatchBusy(false);
+                  }
+                }
+              }}
+              className="bg-rose-600 hover:bg-rose-700 text-white rounded-lg"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -1,3 +1,3 @@
 export default function Template({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return <div className="w-full animate-page-enter">{children}</div>;
 }

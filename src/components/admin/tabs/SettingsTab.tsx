@@ -27,6 +27,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/contexts/ProfileContext";
 import { associateProjectTags } from "@/lib/tagUtils";
+import { revalidatePortfolioCache } from "@/lib/revalidate-client";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import {
   blocksToMarkdown,
   markdownToBlocks,
@@ -281,6 +283,7 @@ function ProfileAndAboutSection() {
         about_markdown: md,
         about_content_jsonb: aboutContent,
       });
+      void revalidatePortfolioCache({ paths: ["/", "/about"], tags: ["site-shell"] });
       toast.success("Profile and About content updated");
     } catch (err: any) {
       console.error("Error updating profile:", err);
@@ -325,7 +328,14 @@ function ProfileAndAboutSection() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-5 p-4 rounded-xl bg-zinc-50 border border-zinc-200/80">
             <div className="w-20 h-20 rounded-full overflow-hidden bg-zinc-200 border border-zinc-300 shrink-0 flex items-center justify-center">
               {avatarUrl ? (
-                <img src={avatarUrl} alt="Profile avatar" className="w-full h-full object-cover" />
+                <OptimizedImage
+                  src={avatarUrl}
+                  alt="Profile avatar"
+                  width={160}
+                  height={160}
+                  sizes="80px"
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <User className="w-8 h-8 text-zinc-400" />
               )}
@@ -633,6 +643,7 @@ function TaxonomyManagerSection({
         toast.success(`Created category "${payload.name}"`);
       }
       setCatModalOpen(false);
+      void revalidatePortfolioCache({ paths: ["/articles", "/articles/categories", "/projects"] });
       await loadTaxonomy();
       if (onTaxonomyChanged) await onTaxonomyChanged();
     } catch (err: any) {
@@ -647,6 +658,7 @@ function TaxonomyManagerSection({
       const { error } = await supabase.from("categories").delete().eq("id", cat.id);
       if (error) throw error;
       toast.success(`Deleted category "${cat.name}"`);
+      void revalidatePortfolioCache({ paths: ["/articles", "/articles/categories", "/projects"] });
       await loadTaxonomy();
       if (onTaxonomyChanged) await onTaxonomyChanged();
     } catch (err: any) {
@@ -695,6 +707,7 @@ function TaxonomyManagerSection({
         toast.success(`Created series "${payload.title}"`);
       }
       setSeriesModalOpen(false);
+      void revalidatePortfolioCache({ paths: ["/articles", "/articles/series"] });
       await loadTaxonomy();
       if (onTaxonomyChanged) await onTaxonomyChanged();
     } catch (err: any) {
@@ -709,6 +722,7 @@ function TaxonomyManagerSection({
       const { error } = await supabase.from("series").delete().eq("id", ser.id);
       if (error) throw error;
       toast.success(`Deleted series "${ser.title}"`);
+      void revalidatePortfolioCache({ paths: ["/articles", "/articles/series"] });
       await loadTaxonomy();
       if (onTaxonomyChanged) await onTaxonomyChanged();
     } catch (err: any) {
@@ -1078,6 +1092,7 @@ function MaintenanceSection({
       const { error } = await supabase.from("tags").delete().in("name", orphanTags);
       if (error) throw error;
       toast.success(`Removed ${orphanTags.length} unused tag(s)`);
+      void revalidatePortfolioCache({ paths: ["/articles", "/articles/tags"] });
       await scanMaintenance();
       if (onTaxonomyChanged) await onTaxonomyChanged();
     } catch (err: any) {
@@ -1095,6 +1110,7 @@ function MaintenanceSection({
       const { error } = await supabase.from("categories").delete().in("id", ids);
       if (error) throw error;
       toast.success(`Removed ${ids.length} unused categor${ids.length === 1 ? "y" : "ies"}`);
+      void revalidatePortfolioCache({ paths: ["/articles", "/articles/categories", "/projects"] });
       await scanMaintenance();
       if (onTaxonomyChanged) await onTaxonomyChanged();
     } catch (err: any) {

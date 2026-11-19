@@ -15,11 +15,13 @@ import {
   BookOpen,
   UserCircle,
   Search,
-  Command,
   ArrowRight,
   ChevronDown,
   Sun,
   Moon,
+  ExternalLink,
+  FileText,
+  Layers,
 } from "lucide-react";
 import { AnimatePresence, m } from "framer-motion";
 import { useProfile } from "@/contexts/ProfileContext";
@@ -46,15 +48,28 @@ NavIcon.displayName = "NavIcon";
 const ABOUT_SUBNAV = [
   { name: "Overview", href: "/about#overview" },
   { name: "Diary", href: "/diary" },
-  { name: "Talks & Sessions", href: "/talks" },
   { name: "Travel Highlights", href: "/travel" },
 ] as const;
+
+type CmdActionItem = {
+  id: string;
+  label: string;
+  sub: string;
+  path: string;
+  badge?: string;
+  external?: boolean;
+  kind?: "nav" | "article" | "project";
+  action?: () => void;
+};
 
 const Navigation = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [cmdQuery, setCmdQuery] = useState("");
   const [cmdSelectedIndex, setCmdSelectedIndex] = useState(0);
+  const [searchItems, setSearchItems] = useState<CmdActionItem[]>([]);
+  const [searchLoaded, setSearchLoaded] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
@@ -89,57 +104,99 @@ const Navigation = memo(() => {
     [hasTravel]
   );
 
+  useEffect(() => {
+    if (!cmdOpen || searchLoaded) return;
+    let active = true;
+    setSearchLoading(true);
+    fetch("/api/search")
+      .then((res) => (res.ok ? res.json() : { items: [] }))
+      .then((payload) => {
+        if (!active) return;
+        const loaded: CmdActionItem[] = Array.isArray(payload?.items)
+          ? payload.items.map((item: any) => ({
+              id: String(item.id),
+              label: String(item.title || ""),
+              sub: String(item.subtitle || ""),
+              path: String(item.href || "/"),
+              badge: item.badge ? String(item.badge) : undefined,
+              external: Boolean(item.external),
+              kind: item.type === "project" ? "project" : "article",
+            }))
+          : [];
+        setSearchItems(loaded);
+        setSearchLoaded(true);
+      })
+      .catch(() => {
+        if (active) setSearchLoaded(true);
+      })
+      .finally(() => {
+        if (active) setSearchLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [cmdOpen, searchLoaded]);
+
   const cmdActions = useMemo(() => {
-    const list: Array<{ label: string; sub: string; path: string; action?: () => void }> = [
-      { label: "Home Overview", sub: "3 Core Pillars, Capabilities & Overview", path: "/" },
+    const list: CmdActionItem[] = [
+      { id: "nav-home", label: "Home Overview", sub: "3 Core Pillars, Capabilities & Overview", path: "/", kind: "nav" },
     ];
     if (hasProjects) {
       list.push({
+        id: "nav-projects",
         label: "Projects & Case Studies",
         sub: "Automation, Supply Chain S&OP & Analytics",
         path: "/projects",
+        kind: "nav",
       });
     }
     if (hasArticles) {
       list.push({
+        id: "nav-articles",
         label: "Articles & External Writing",
         sub: "On-site deep dives, Medium, dev.to & Substack",
         path: "/articles",
+        kind: "nav",
       });
     }
     list.push({
+      id: "nav-diary",
       label: "Diary & Field Notes",
       sub: "Personal notes, experiments, and learning",
       path: "/diary",
+      kind: "nav",
     });
     list.push({
-      label: "Talks & Sessions",
-      sub: "Speaking, workshops, and technical sessions",
-      path: "/talks",
-    });
-    list.push({
+      id: "nav-about",
       label: "About & Experience",
       sub: "Career timeline, credentials & toolkit",
       path: "/about",
+      kind: "nav",
     });
     if (hasTravel) {
       list.push({
+        id: "nav-travel",
         label: "Travel Highlights",
         sub: "Field dispatches, interactive maps & photo reels",
         path: "/travel",
+        kind: "nav",
       });
     }
     list.push({
+      id: "nav-theme",
       label: `Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`,
       sub: "Toggle portfolio appearance between Stitch Light & Dark themes",
       path: "#theme",
+      kind: "nav",
       action: () => toggleTheme(),
     });
     if (isAdmin) {
       list.push({
-        label: "Notion Admin CMS Hub",
+        id: "nav-admin",
+        label: "Admin CMS Workspace",
         sub: "Manage Articles, Projects, Travel & Diary",
         path: "/admin",
+        kind: "nav",
       });
     }
     return list;
@@ -147,11 +204,34 @@ const Navigation = memo(() => {
 
   const filteredCmdActions = useMemo(() => {
     const q = cmdQuery.trim().toLowerCase();
-    if (!q) return cmdActions;
-    return cmdActions.filter(
-      (a) => a.label.toLowerCase().includes(q) || a.sub.toLowerCase().includes(q)
-    );
-  }, [cmdQuery, cmdActions]);
+    if (!q) {
+      return [...cmdActions, ...searchItems.slice(0, 6)];
+    }
+    const all = [...cmdActions, ...searchItems];
+    return all
+      .filter(
+        (a) =>
+          a.label.toLowerCase().includes(q) ||
+          a.sub.toLowerCase().includes(q) ||
+          (a.badge && a.badge.toLowerCase().includes(q))
+      )
+      .slice(0, 14);
+  }, [cmdQuery, cmdActions, searchItems]);
+
+  const executeCmdAction = useCallback(
+    (item: CmdActionItem) => {
+      setCmdOpen(false);
+      setCmdQuery("");
+      if (item.action) {
+        item.action();
+      } else if (item.external) {
+        window.open(item.path, "_blank", "noopener,noreferrer");
+      } else {
+        router.push(item.path);
+      }
+    },
+    [router]
+  );
 
   useEffect(() => {
     setCmdSelectedIndex(0);
@@ -317,17 +397,11 @@ const Navigation = memo(() => {
                       const item = filteredCmdActions[cmdSelectedIndex];
                       if (item) {
                         e.preventDefault();
-                        setCmdOpen(false);
-                        setCmdQuery("");
-                        if (item.action) {
-                          item.action();
-                        } else {
-                          router.push(item.path);
-                        }
+                        executeCmdAction(item);
                       }
                     }
                   }}
-                  placeholder="Jump to page, pillar, or toggle theme..."
+                  placeholder="Search articles, projects, pages, or actions..."
                   className="w-full bg-transparent text-sm text-on-surface placeholder:text-outline focus:outline-none"
                 />
                 <kbd className="px-2 py-0.5 text-[10px] font-mono text-on-surface-variant bg-surface-container rounded border border-outline-variant/30">
@@ -335,53 +409,70 @@ const Navigation = memo(() => {
                 </kbd>
               </div>
               <div className="max-h-80 overflow-y-auto overscroll-contain p-2 space-y-1">
+                {searchLoading && !searchLoaded && (
+                  <div className="px-3 py-1.5 text-[11px] font-mono text-on-surface-variant">
+                    Indexing articles &amp; projects...
+                  </div>
+                )}
                 {filteredCmdActions.map((item, index) => {
                   const isSelected = index === cmdSelectedIndex;
                   return (
                     <button
-                      key={item.label}
+                      key={item.id}
                       type="button"
                       onMouseEnter={() => setCmdSelectedIndex(index)}
-                      onClick={() => {
-                        setCmdOpen(false);
-                        setCmdQuery("");
-                        if (item.action) {
-                          item.action();
-                        } else {
-                          router.push(item.path);
-                        }
-                      }}
-                      className={`w-full min-h-11 flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-colors group ${
+                      onClick={() => executeCmdAction(item)}
+                      className={`w-full min-h-11 flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl text-left transition-colors group ${
                         isSelected
                           ? "bg-surface-container text-primary"
                           : "hover:bg-surface-container"
                       }`}
                     >
-                      <div>
-                        <div
-                          className={`text-sm font-medium transition-colors ${
-                            isSelected
-                              ? "text-primary"
-                              : "text-on-surface group-hover:text-primary"
-                          }`}
-                        >
-                          {item.label}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          {item.kind === "article" ? (
+                            <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
+                          ) : item.kind === "project" ? (
+                            <Layers className="w-3.5 h-3.5 text-secondary shrink-0" />
+                          ) : null}
+                          <div
+                            className={`text-sm font-medium truncate transition-colors ${
+                              isSelected
+                                ? "text-primary"
+                                : "text-on-surface group-hover:text-primary"
+                            }`}
+                          >
+                            {item.label}
+                          </div>
+                          {item.badge && (
+                            <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-container-high border border-outline-variant/30 text-on-surface-variant">
+                              {item.badge}
+                            </span>
+                          )}
                         </div>
-                        <div className="text-xs text-on-surface-variant">{item.sub}</div>
+                        <div className="text-xs text-on-surface-variant truncate mt-0.5">{item.sub}</div>
                       </div>
-                      <ArrowRight
-                        className={`w-4 h-4 transition-all ${
-                          isSelected
-                            ? "text-primary translate-x-0.5"
-                            : "text-outline group-hover:text-on-surface group-hover:translate-x-0.5"
-                        }`}
-                      />
+                      {item.external ? (
+                        <ExternalLink
+                          className={`w-3.5 h-3.5 shrink-0 transition-all ${
+                            isSelected ? "text-primary" : "text-outline group-hover:text-on-surface"
+                          }`}
+                        />
+                      ) : (
+                        <ArrowRight
+                          className={`w-4 h-4 shrink-0 transition-all ${
+                            isSelected
+                              ? "text-primary translate-x-0.5"
+                              : "text-outline group-hover:text-on-surface group-hover:translate-x-0.5"
+                          }`}
+                        />
+                      )}
                     </button>
                   );
                 })}
                 {filteredCmdActions.length === 0 && (
                   <div className="py-8 text-center text-sm text-on-surface-variant">
-                    No matching destinations found.
+                    No matching articles, projects, or pages found.
                   </div>
                 )}
               </div>

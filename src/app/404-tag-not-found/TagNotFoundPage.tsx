@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from "@/lib/router-compat";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Tag, Search } from "lucide-react";
 
 const TagNotFoundPage = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-surface text-on-surface flex flex-col justify-between">
@@ -30,7 +30,7 @@ const TagNotFoundPage = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
               <Button
-                onClick={() => navigate(-1)}
+                onClick={() => router.back()}
                 variant="outline"
                 className="rounded-xl px-6 h-11 border border-outline-variant/40 bg-surface-container text-on-surface hover:bg-surface-container-high transition-all duration-200 font-mono text-xs"
               >

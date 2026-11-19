@@ -2,10 +2,9 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import { useLocation } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { createOrGetCategory } from "@/lib/tagUtils";
+import { revalidatePortfolioCache } from "@/lib/revalidate-client";
 import {
   detectPlatformFromUrl,
   encodeArticleExternalMeta,
@@ -35,19 +34,19 @@ const TAB_HEADER_META: Record<string, { title: string; subtitle: string }> = {
     subtitle: "Portfolio Operations Console",
   },
   blogs: {
-    title: "All Articles & Blogs",
+    title: "Articles & Blogs",
     subtitle: "Editorial & External Syndicate Directory",
   },
   projects: {
-    title: "All Projects (3 Pillars)",
+    title: "3-Pillar Projects",
     subtitle: "Case Studies & Engineering Pillars",
   },
   travel: {
-    title: "Travel Atlas & IG Cities",
+    title: "Travel Atlas",
     subtitle: "Interactive Pins, 9:16 Stories & Essays",
   },
   diary: {
-    title: "Personal Diary Entries",
+    title: "Personal Diary",
     subtitle: "Chronological Field Notes & Reflections",
   },
   settings: {
@@ -62,8 +61,59 @@ function resolveInitialTab(searchStr: string): string {
   return VALID_TABS.has(tab) ? tab : "overview";
 }
 
+function AdminDashboardSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      <div className="h-24 rounded-2xl bg-white border border-zinc-200/80 p-5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-zinc-200/80" />
+          <div className="space-y-2">
+            <div className="h-5 w-52 rounded-md bg-zinc-200/80" />
+            <div className="h-3.5 w-72 rounded-md bg-zinc-100" />
+          </div>
+        </div>
+        <div className="hidden lg:flex gap-2">
+          <div className="h-8 w-24 rounded-lg bg-zinc-100" />
+          <div className="h-8 w-24 rounded-lg bg-zinc-100" />
+          <div className="h-8 w-28 rounded-lg bg-zinc-200/80" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, idx) => (
+          <div
+            key={idx}
+            className="h-40 rounded-2xl bg-white border border-zinc-200/80 p-5 flex flex-col justify-between"
+          >
+            <div className="w-9 h-9 rounded-xl bg-zinc-100" />
+            <div className="space-y-2">
+              <div className="h-3 w-24 rounded bg-zinc-100" />
+              <div className="h-7 w-16 rounded bg-zinc-200/80" />
+            </div>
+            <div className="h-2 w-full rounded-full bg-zinc-100" />
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-2 h-80 rounded-2xl bg-white border border-zinc-200/80 p-5 space-y-3">
+          <div className="h-4 w-40 rounded bg-zinc-200/80" />
+          <div className="h-16 rounded-xl bg-zinc-100" />
+          <div className="h-16 rounded-xl bg-zinc-100" />
+          <div className="h-16 rounded-xl bg-zinc-100" />
+        </div>
+        <div className="lg:col-span-3 h-80 rounded-2xl bg-white border border-zinc-200/80 p-5 space-y-3">
+          <div className="h-4 w-44 rounded bg-zinc-200/80" />
+          {Array.from({ length: 5 }).map((_, idx) => (
+            <div key={idx} className="h-11 rounded-xl bg-zinc-100/80" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
-  const location = useLocation();
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window !== "undefined") {
       return resolveInitialTab(window.location.search);
@@ -81,17 +131,15 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Sync URL query param -> activeTab when navigating between ?tab=... links
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const sp = new URLSearchParams(window.location.search);
-    const paramTab = sp.get("tab");
-    if (paramTab && VALID_TABS.has(paramTab)) {
-      setActiveTab(paramTab);
-    } else if (!paramTab) {
-      setActiveTab("overview");
-    }
-  }, [location.search]);
+    const syncTabFromUrl = () => {
+      setActiveTab(resolveInitialTab(window.location.search));
+    };
+    syncTabFromUrl();
+    window.addEventListener("popstate", syncTabFromUrl);
+    return () => window.removeEventListener("popstate", syncTabFromUrl);
+  }, []);
 
   const handleTabChange = (newTab: string) => {
     const safeTab = VALID_TABS.has(newTab) ? newTab : "overview";
@@ -145,7 +193,6 @@ export default function AdminPage() {
       if (diaryRes.error) console.warn("Error fetching diary entries:", diaryRes.error);
       setDiaryEntries(diaryRes.data || []);
 
-      // Best-effort orphan tag audit count for Overview Health
       try {
         const { data: tagStats, error: tagErr } = await supabase.rpc("get_all_tags_with_counts");
         if (!tagErr && Array.isArray(tagStats)) {
@@ -177,6 +224,21 @@ export default function AdminPage() {
   // -------------------------------------------------------------------------
   // Article Mutations
   // -------------------------------------------------------------------------
+  const revalidateArticles = (slug?: string) => {
+    void revalidatePortfolioCache({
+      paths: [
+        "/",
+        "/articles",
+        "/articles/categories",
+        "/articles/series",
+        "/articles/tags",
+        "/rss.xml",
+        ...(slug ? [`/articles/${slug}`] : []),
+      ],
+      tags: ["site-shell"],
+    });
+  };
+
   const handleImportExternalArticle = async (url: string): Promise<boolean> => {
     try {
       const {
@@ -234,6 +296,7 @@ export default function AdminPage() {
 
       if (newRow) {
         setBlogPosts((prev) => [newRow, ...prev]);
+        revalidateArticles(newRow.slug);
         toast.success(`Imported "${newRow.title}" (${encoded.platform || "External"})`);
       }
       return true;
@@ -258,9 +321,33 @@ export default function AdminPage() {
       setBlogPosts((prev) =>
         prev.map((item) => (item.id === post.id ? { ...item, ...updates } : item))
       );
+      revalidateArticles(post.slug);
       toast.success(`Article marked as ${mode}`);
     } catch (err: any) {
       toast.error(err?.message || "Failed updating article status");
+    }
+  };
+
+  const handleBatchUpdateArticlesStatus = async (
+    ids: string[],
+    mode: "published" | "draft" | "unlisted"
+  ) => {
+    if (ids.length === 0) return;
+    const updates = {
+      published: mode !== "draft",
+      unlisted: mode === "unlisted",
+    };
+    try {
+      const { error } = await supabase.from("blog_posts").update(updates).in("id", ids);
+      if (error) throw error;
+      const idSet = new Set(ids);
+      setBlogPosts((prev) =>
+        prev.map((item) => (idSet.has(item.id) ? { ...item, ...updates } : item))
+      );
+      revalidateArticles();
+      toast.success(`Updated ${ids.length} article(s) to ${mode}`);
+    } catch (err: any) {
+      toast.error(err?.message || "Batch update failed");
     }
   };
 
@@ -269,15 +356,37 @@ export default function AdminPage() {
       const { error } = await supabase.from("blog_posts").delete().eq("id", id);
       if (error) throw error;
       setBlogPosts((prev) => prev.filter((p) => p.id !== id));
+      revalidateArticles();
       toast.success("Article deleted");
     } catch (err: any) {
       toast.error(err?.message || "Failed deleting article");
     }
   };
 
+  const handleBatchDeleteArticles = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    try {
+      const { error } = await supabase.from("blog_posts").delete().in("id", ids);
+      if (error) throw error;
+      const idSet = new Set(ids);
+      setBlogPosts((prev) => prev.filter((p) => !idSet.has(p.id)));
+      revalidateArticles();
+      toast.success(`Deleted ${ids.length} article(s)`);
+    } catch (err: any) {
+      toast.error(err?.message || "Batch delete failed");
+    }
+  };
+
   // -------------------------------------------------------------------------
   // Project Mutations
   // -------------------------------------------------------------------------
+  const revalidateProjects = (id?: string) => {
+    void revalidatePortfolioCache({
+      paths: ["/", "/projects", ...(id ? [`/projects/${id}`] : [])],
+      tags: ["site-shell"],
+    });
+  };
+
   const handleToggleProjectFeatured = async (project: any) => {
     const nextFeatured = !project.featured;
     try {
@@ -289,9 +398,30 @@ export default function AdminPage() {
       setProjects((prev) =>
         prev.map((p) => (p.id === project.id ? { ...p, featured: nextFeatured } : p))
       );
+      revalidateProjects(project.id);
       toast.success(nextFeatured ? "Marked as Featured" : "Removed from Featured");
     } catch (err: any) {
       toast.error(err?.message || "Failed updating featured flag");
+    }
+  };
+
+  const handleBatchProjectsFeatured = async (ids: string[], featured: boolean) => {
+    if (ids.length === 0) return;
+    try {
+      const { error } = await supabase.from("projects").update({ featured }).in("id", ids);
+      if (error) throw error;
+      const idSet = new Set(ids);
+      setProjects((prev) =>
+        prev.map((p) => (idSet.has(p.id) ? { ...p, featured } : p))
+      );
+      revalidateProjects();
+      toast.success(
+        featured
+          ? `Marked ${ids.length} project(s) as Featured`
+          : `Removed Featured from ${ids.length} project(s)`
+      );
+    } catch (err: any) {
+      toast.error(err?.message || "Batch update failed");
     }
   };
 
@@ -325,6 +455,7 @@ export default function AdminPage() {
           ? prev
           : [...prev, resolvedCategory].sort((a, b) => String(a.name).localeCompare(String(b.name)));
       });
+      revalidateProjects(project.id);
       toast.success(`Moved project to ${pillar}`);
     } catch (err: any) {
       toast.error(err?.message || "Failed switching project pillar");
@@ -337,9 +468,25 @@ export default function AdminPage() {
       const { error } = await supabase.from("projects").delete().eq("id", id);
       if (error) throw error;
       setProjects((prev) => prev.filter((p) => p.id !== id));
+      revalidateProjects();
       toast.success("Project deleted");
     } catch (err: any) {
       toast.error(err?.message || "Failed deleting project");
+    }
+  };
+
+  const handleBatchDeleteProjects = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    try {
+      await supabase.from("project_tags").delete().in("project_id", ids);
+      const { error } = await supabase.from("projects").delete().in("id", ids);
+      if (error) throw error;
+      const idSet = new Set(ids);
+      setProjects((prev) => prev.filter((p) => !idSet.has(p.id)));
+      revalidateProjects();
+      toast.success(`Deleted ${ids.length} project(s)`);
+    } catch (err: any) {
+      toast.error(err?.message || "Batch delete failed");
     }
   };
 
@@ -364,6 +511,7 @@ export default function AdminPage() {
       );
       setTravelHighlights(updatedList);
       saveTravelHighlightsLocal(updatedList);
+      void revalidatePortfolioCache({ paths: ["/travel"], tags: ["site-shell"] });
       toast.success(nextPublished ? `Published ${city.city_name}` : `${city.city_name} set to Draft`);
     } catch (err: any) {
       toast.error(err?.message || "Failed updating travel destination visibility");
@@ -376,6 +524,7 @@ export default function AdminPage() {
       const updatedList = travelHighlights.filter((c) => c.id !== id);
       setTravelHighlights(updatedList);
       saveTravelHighlightsLocal(updatedList);
+      void revalidatePortfolioCache({ paths: ["/travel"], tags: ["site-shell"] });
       toast.success("Travel destination deleted");
     } catch (err: any) {
       toast.error(err?.message || "Failed deleting travel destination");
@@ -396,9 +545,33 @@ export default function AdminPage() {
       setDiaryEntries((prev) =>
         prev.map((d) => (d.id === entry.id ? { ...d, is_published: nextPublished } : d))
       );
+      void revalidatePortfolioCache({ paths: ["/diary"], tags: ["site-shell"] });
       toast.success(nextPublished ? "Diary entry published" : "Diary entry moved to Draft");
     } catch (err: any) {
       toast.error(err?.message || "Failed toggling diary status");
+    }
+  };
+
+  const handleBatchDiaryPublish = async (ids: string[], isPublished: boolean) => {
+    if (ids.length === 0) return;
+    try {
+      const { error } = await supabase
+        .from("diary_entries")
+        .update({ is_published: isPublished })
+        .in("id", ids);
+      if (error) throw error;
+      const idSet = new Set(ids);
+      setDiaryEntries((prev) =>
+        prev.map((d) => (idSet.has(d.id) ? { ...d, is_published: isPublished } : d))
+      );
+      void revalidatePortfolioCache({ paths: ["/diary"], tags: ["site-shell"] });
+      toast.success(
+        isPublished
+          ? `Published ${ids.length} diary entry(s)`
+          : `Moved ${ids.length} diary entry(s) to Draft`
+      );
+    } catch (err: any) {
+      toast.error(err?.message || "Batch update failed");
     }
   };
 
@@ -407,9 +580,24 @@ export default function AdminPage() {
       const { error } = await supabase.from("diary_entries").delete().eq("id", id);
       if (error) throw error;
       setDiaryEntries((prev) => prev.filter((d) => d.id !== id));
+      void revalidatePortfolioCache({ paths: ["/diary"], tags: ["site-shell"] });
       toast.success("Diary entry deleted");
     } catch (err: any) {
       toast.error(err?.message || "Failed deleting diary entry");
+    }
+  };
+
+  const handleBatchDeleteDiary = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    try {
+      const { error } = await supabase.from("diary_entries").delete().in("id", ids);
+      if (error) throw error;
+      const idSet = new Set(ids);
+      setDiaryEntries((prev) => prev.filter((d) => !idSet.has(d.id)));
+      void revalidatePortfolioCache({ paths: ["/diary"], tags: ["site-shell"] });
+      toast.success(`Deleted ${ids.length} diary entry(s)`);
+    } catch (err: any) {
+      toast.error(err?.message || "Batch delete failed");
     }
   };
 
@@ -428,10 +616,7 @@ export default function AdminPage() {
       fullWidthContent={true}
     >
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-24 text-zinc-500 gap-3">
-          <Loader2 className="w-7 h-7 animate-spin text-zinc-400" />
-          <p className="text-sm font-medium">Loading portfolio CMS workspace...</p>
-        </div>
+        <AdminDashboardSkeleton />
       ) : (
         <>
           {activeTab === "overview" && (
@@ -457,6 +642,8 @@ export default function AdminPage() {
               onImportExternal={handleImportExternalArticle}
               onUpdateStatus={handleUpdateArticleStatus}
               onDeletePost={handleDeleteArticle}
+              onBatchUpdateStatus={handleBatchUpdateArticlesStatus}
+              onBatchDelete={handleBatchDeleteArticles}
             />
           )}
 
@@ -467,6 +654,8 @@ export default function AdminPage() {
               onToggleFeatured={handleToggleProjectFeatured}
               onChangePillar={handleChangeProjectPillar}
               onDeleteProject={handleDeleteProject}
+              onBatchFeatured={handleBatchProjectsFeatured}
+              onBatchDelete={handleBatchDeleteProjects}
             />
           )}
 
@@ -483,6 +672,8 @@ export default function AdminPage() {
               diaryEntries={diaryEntries}
               onTogglePublish={handleToggleDiaryPublish}
               onDeleteEntry={handleDeleteDiaryEntry}
+              onBatchPublish={handleBatchDiaryPublish}
+              onBatchDelete={handleBatchDeleteDiary}
             />
           )}
 

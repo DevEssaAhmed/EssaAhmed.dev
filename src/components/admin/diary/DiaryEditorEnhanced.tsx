@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useNavigate, useParams } from "@/lib/router-compat";
+import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { revalidatePortfolioCache } from "@/lib/revalidate-client";
 import { useDebounce } from "@/hooks/use-debouncer";
 import { useEditorAutosave } from "@/hooks/use-editor-autosave";
 import dynamic from "next/dynamic";
@@ -52,12 +53,10 @@ import {
 } from "lucide-react";
 
 export default function DiaryEditorEnhanced() {
-  const navigate = useNavigate();
-  const params = useParams();
-  const id = params?.id as string | undefined;
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const id = typeof params?.id === "string" ? params.id : undefined;
   const isEditing = Boolean(id && id !== "new");
-
-  const { toast } = useToast();
 
   const [isLoading, setIsLoading] = useState(isEditing);
   const [isSaving, setIsSaving] = useState(false);
@@ -144,10 +143,8 @@ export default function DiaryEditorEnhanced() {
         }
       } catch (err: any) {
         console.error("Failed to load diary entry:", err);
-        toast({
-          title: "Error loading entry",
+        toast.error("Error loading entry", {
           description: err.message || "Could not retrieve the diary entry.",
-          variant: "destructive",
         });
       } finally {
         if (isMounted) setIsLoading(false);
@@ -158,7 +155,7 @@ export default function DiaryEditorEnhanced() {
     return () => {
       isMounted = false;
     };
-  }, [id, isEditing, toast]);
+  }, [id, isEditing]);
 
   // Word count & reading time
   const stats = useMemo(() => {
@@ -241,10 +238,8 @@ export default function DiaryEditorEnhanced() {
       const trimmedTitle = source.title.trim();
       if (!trimmedTitle) {
         if (!isAutoSave) {
-          toast({
-            title: "Title required",
+          toast.error("Title required", {
             description: "Please enter a title for your diary entry before saving.",
-            variant: "destructive",
           });
         }
         return false;
@@ -283,8 +278,8 @@ export default function DiaryEditorEnhanced() {
           setLastSaved({ ...source, isPublished: publishState });
           if (!isAutoSave) {
             resetAutoSaveRef.current?.();
-            toast({
-              title: publishState ? "Entry Published" : "Draft Saved",
+            void revalidatePortfolioCache({ paths: ["/diary"], tags: ["site-shell"] });
+            toast.success(publishState ? "Entry Published" : "Draft Saved", {
               description: `Diary entry was successfully ${publishState ? "published" : "saved as draft"}.`,
             });
           }
@@ -306,8 +301,8 @@ export default function DiaryEditorEnhanced() {
             setLastSaved({ ...source, isPublished: publishState });
             if (!isAutoSave) {
               resetAutoSaveRef.current?.();
-              toast({
-                title: publishState ? "Entry Created & Published" : "Draft Created",
+              void revalidatePortfolioCache({ paths: ["/diary"], tags: ["site-shell"] });
+              toast.success(publishState ? "Entry Created & Published" : "Draft Created", {
                 description: `Diary entry was created and ${publishState ? "published" : "saved as draft"}.`,
               });
               if (typeof window !== "undefined") {
@@ -321,10 +316,8 @@ export default function DiaryEditorEnhanced() {
         console.error("Save diary entry error:", err);
         setSaveError(err?.message || "Save failed");
         if (!isAutoSave) {
-          toast({
-            title: "Save failed",
+          toast.error("Save failed", {
             description: err.message || "An error occurred while saving the diary entry.",
-            variant: "destructive",
           });
         }
         return false;
@@ -332,7 +325,7 @@ export default function DiaryEditorEnhanced() {
         setIsSaving(false);
       }
     },
-    [currentSnapshot, debouncedSnapshot, currentId, toast]
+    [currentSnapshot, debouncedSnapshot, currentId]
   );
 
   const handleSaveRef = useRef(handleSave);
@@ -393,7 +386,7 @@ export default function DiaryEditorEnhanced() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/admin?tab=diary")}
+              onClick={() => router.push("/admin?tab=diary")}
               className="text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 -ml-2 px-2.5 h-8 font-mono text-xs flex items-center gap-2 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />

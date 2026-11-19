@@ -8,14 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertTriangle, Tags, Folder, RefreshCw, CheckCircle2, Trash2, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { revalidatePortfolioCache } from '@/lib/revalidate-client';
 
 interface OrphanTag { name: string; count: number; }
 interface Category { id: string; name: string; slug: string; description?: string | null; color?: string | null; }
 
 const AdminMaintenancePage: React.FC = () => {
-  const { toast } = useToast();
 
   // Tags
   const [loadingTags, setLoadingTags] = useState(true);
@@ -92,10 +92,11 @@ const AdminMaintenancePage: React.FC = () => {
       const names = orphanTags.map(t => t.name);
       const { error } = await supabase.from('tags').delete().in('name', names);
       if (error) throw error;
-      toast({ title: 'Orphan tags deleted', description: `${names.length} tag(s) removed.` });
+      toast.success(`Orphan tags deleted (${names.length} removed)`);
+      void revalidatePortfolioCache({ paths: ['/articles', '/articles/tags'] });
       await loadTags();
     } catch (error: any) {
-      toast({ title: 'Failed to delete tags', description: error.message || 'Unknown error', variant: 'destructive' });
+      toast.error(error.message || 'Failed to delete tags');
     }
   };
 
@@ -105,10 +106,11 @@ const AdminMaintenancePage: React.FC = () => {
       const ids = orphanCategories.map(c => c.id);
       const { error } = await supabase.from('categories').delete().in('id', ids);
       if (error) throw error;
-      toast({ title: 'Orphan categories deleted', description: `${ids.length} categor${ids.length === 1 ? 'y' : 'ies'} removed.` });
+      toast.success(`Orphan categories deleted (${ids.length} removed)`);
+      void revalidatePortfolioCache({ paths: ['/articles', '/articles/categories', '/projects'] });
       await loadCategories();
     } catch (error: any) {
-      toast({ title: 'Failed to delete categories', description: error.message || 'Unknown error', variant: 'destructive' });
+      toast.error(error.message || 'Failed to delete categories');
     }
   };
 

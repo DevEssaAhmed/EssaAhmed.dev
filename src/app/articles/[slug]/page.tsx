@@ -4,7 +4,7 @@ import ServerMarkdownRenderer from "@/components/markdown/ServerMarkdownRenderer
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { buildPageMetadata } from "@/lib/metadata";
+import { buildDynamicOgUrl, buildPageMetadata } from "@/lib/metadata";
 import { calculateReadingTime } from "@/utils/readingTime";
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -49,12 +49,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
 
+  const ogImage =
+    data.image_url && !String(data.image_url).includes("placeholder.svg")
+      ? data.image_url
+      : buildDynamicOgUrl({
+          title: data.title,
+          subtitle: data.excerpt || data.title,
+          badge: "Article",
+        });
+
   return {
     ...buildPageMetadata({
       title: data.title,
       description: data.excerpt || data.title,
       path: `/articles/${data.slug || slug}`,
-      image: data.image_url,
+      image: ogImage,
       type: "article",
     }),
     openGraph: {
@@ -64,7 +73,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: `/articles/${data.slug || slug}`,
       publishedTime: data.created_at,
       images: [{
-        url: data.image_url || "/og-image.png",
+        url: ogImage,
+        width: 1200,
+        height: 630,
         alt: `${data.title} | Essa Ahmed`,
       }],
     },

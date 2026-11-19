@@ -70,6 +70,11 @@ export const metadata: Metadata = {
     },
   },
   manifest: "/site.webmanifest",
+  alternates: {
+    types: {
+      "application/rss+xml": "/rss.xml",
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },

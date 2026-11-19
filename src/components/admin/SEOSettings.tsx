@@ -24,7 +24,8 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { revalidatePortfolioCache } from '@/lib/revalidate-client';
 
 interface SEOSettingsData {
   site_name: string;
@@ -80,7 +81,6 @@ const SEOSettings: React.FC = () => {
   const [settings, setSettings] = useState<SEOSettingsData>(defaultSEOSettings);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
 
   const loadSettings = useCallback(async () => {
     try {
@@ -90,7 +90,7 @@ const SEOSettings: React.FC = () => {
       if (error) {
         const { error: insertError } = await supabase.from('seo_settings').insert([{ ...defaultSEOSettings, id: 1 }]);
         if (insertError) {
-          toast({ title: 'SEO settings unavailable', description: 'Database not ready. Using defaults in UI only.', variant: 'destructive' });
+          toast.error('SEO settings unavailable: Database not ready. Using defaults in UI only.');
         }
         setSettings(defaultSEOSettings);
       } else {
@@ -104,13 +104,13 @@ const SEOSettings: React.FC = () => {
         }
         setSettings(merged as SEOSettingsData);
       }
-    } catch (error) {
-      toast({ title: 'SEO settings load failed', description: 'Falling back to in-memory defaults.', variant: 'destructive' });
+    } catch {
+      toast.error('SEO settings load failed. Falling back to in-memory defaults.');
       setSettings(defaultSEOSettings);
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     loadSettings();
@@ -121,12 +121,13 @@ const SEOSettings: React.FC = () => {
       setIsSaving(true);
       const { error } = await supabase.from('seo_settings').upsert([{ ...settings, id: 1 }], { onConflict: 'id' });
       if (error) {
-        toast({ title: 'Failed to save SEO settings', description: error.message, variant: 'destructive' });
+        toast.error(`Failed to save SEO settings: ${error.message}`);
         return;
       }
-      toast({ title: 'SEO settings updated', description: 'Your SEO configuration has been saved successfully.' });
+      void revalidatePortfolioCache({ paths: ['/', '/about', '/articles', '/projects'], tags: ['site-shell'] });
+      toast.success('SEO settings updated successfully.');
     } catch (error: any) {
-      toast({ title: 'Failed to save SEO settings', description: error.message || 'Unknown error', variant: 'destructive' });
+      toast.error(`Failed to save SEO settings: ${error.message || 'Unknown error'}`);
     } finally {
       setIsSaving(false);
     }
@@ -134,7 +135,7 @@ const SEOSettings: React.FC = () => {
 
   const resetToDefaults = () => {
     setSettings(defaultSEOSettings);
-    toast({ title: 'Settings reset', description: 'SEO settings have been reset to defaults.' });
+    toast.success('SEO settings have been reset to defaults.');
   };
 
   const preview = {

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useParams, useNavigate } from "@/lib/router-compat";
+import { useParams, useRouter } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { OptimizedImage } from "@/components/OptimizedImage";
@@ -60,8 +60,9 @@ const ProjectDetailPage = ({
   initialProjectTags,
   renderedBody,
 }: ProjectDetailPageProps) => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const params = useParams<{ id?: string }>();
+  const id = typeof params?.id === "string" ? params.id : "";
+  const router = useRouter();
   const { user, isAdmin } = useAuth();
 
   const [project, setProject] = useState<any>(() => {
@@ -111,11 +112,11 @@ const ProjectDetailPage = ({
     } catch (error) {
       console.error("Error fetching project:", error);
       toast.error("Project not found");
-      navigate("/projects");
+      router.push("/projects");
     } finally {
       setLoading(false);
     }
-  }, [id, navigate]);
+  }, [id, router]);
 
   useEffect(() => {
     if (initialProject === undefined && id) {

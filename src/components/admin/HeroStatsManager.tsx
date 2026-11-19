@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Save, BarChart3, Plus, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { revalidatePortfolioCache } from '@/lib/revalidate-client';
 
 interface HeroStat {
   label: string;
@@ -83,6 +84,7 @@ const HeroStatsManager = () => {
         if (error) throw error;
       }
 
+      void revalidatePortfolioCache({ paths: ['/', '/about'], tags: ['site-shell'] });
       toast.success('Hero stats saved successfully!');
     } catch (error) {
       console.error('Error saving hero stats:', error);

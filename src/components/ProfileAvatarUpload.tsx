@@ -1,7 +1,7 @@
 import { OptimizedImage } from "@/components/OptimizedImage";
 import React from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import FileUpload from '@/components/FileUpload';
 
 interface ProfileAvatarUploadProps {
@@ -15,7 +15,6 @@ const ProfileAvatarUpload: React.FC<ProfileAvatarUploadProps> = ({
   onAvatarUpdate,
   className = ""
 }) => {
-  const { toast } = useToast();
 
   const extractAvatarFileName = (url: string) => {
     const marker = '/storage/v1/object/public/avatars/';
@@ -40,17 +39,10 @@ const ProfileAvatarUpload: React.FC<ProfileAvatarUploadProps> = ({
       // Update with new avatar
       onAvatarUpdate(newAvatarUrl);
       
-      toast({
-        title: "Avatar updated successfully",
-        description: "Your profile picture has been updated."
-      });
+      toast.success("Avatar updated successfully");
     } catch (error) {
       console.error('Error updating avatar:', error);
-      toast({
-        title: "Error updating avatar",
-        description: "Failed to update your profile picture.",
-        variant: "destructive"
-      });
+      toast.error("Failed to update your profile picture.");
     }
   };
 

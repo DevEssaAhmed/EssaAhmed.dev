@@ -3,7 +3,7 @@
 import { OptimizedImage } from "@/components/OptimizedImage";
 import React, { useState, useEffect } from 'react';
 import Link from "next/link";
-import { useParams, useNavigate } from '@/lib/router-compat';
+import { useParams } from "next/navigation";
 import Navigation from '@/components/Navigation';
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { Badge } from "@/components/ui/badge";
@@ -51,8 +51,8 @@ const TagDetailPage: React.FC<TagDetailPageProps> = ({
   initialBlogPosts,
   initialRelatedTags
 }) => {
-  const { tagSlug } = useParams<{ tagSlug: string }>();
-  const navigate = useNavigate();
+  const params = useParams<{ tagSlug?: string }>();
+  const tagSlug = typeof params?.tagSlug === "string" ? params.tagSlug : "";
   const [searchTerm, setSearchTerm] = useState('');
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(initialBlogPosts || []);
   const [loading, setLoading] = useState(!initialTagName);

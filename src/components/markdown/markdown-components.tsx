@@ -134,8 +134,15 @@ export function createMarkdownComponents() {
       <li className="text-on-surface-variant leading-relaxed" {...props} />
     ),
 
-    code: ({ node: _node, inline, className: codeClass, children, ...props }: any) => {
-      if (inline) {
+    code: ({ node: _node, className: codeClass, children, ...props }: any) => {
+      const hasLanguageClass =
+        typeof codeClass === "string" && /\blanguage-[\w-]+/.test(codeClass);
+      const textContent = Array.isArray(children)
+        ? children.join("")
+        : String(children ?? "");
+      const isBlockCode = hasLanguageClass || textContent.includes("\n");
+
+      if (!isBlockCode) {
         return (
           <code
             className="px-1.5 py-0.5 rounded-md bg-surface-container border border-outline-variant/25 text-primary font-code text-[0.85em]"
