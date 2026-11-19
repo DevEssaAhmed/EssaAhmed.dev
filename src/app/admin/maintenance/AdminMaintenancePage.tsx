@@ -27,11 +27,6 @@ const AdminMaintenancePage: React.FC = () => {
   const [categories, setCategories] = useState<(Category & { totalRefs: number })[]>([]);
   const [searchCat, setSearchCat] = useState('');
 
-  useEffect(() => {
-    loadTags();
-    loadCategories();
-  }, []);
-
   const loadTags = async () => {
     try {
       setLoadingTags(true);
@@ -82,6 +77,11 @@ const AdminMaintenancePage: React.FC = () => {
       setLoadingCats(false);
     }
   };
+
+  useEffect(() => {
+    void loadTags();
+    void loadCategories();
+  }, []);
 
   const orphanTags = useMemo(() => tags.filter(t => t.count === 0 && t.name.toLowerCase().includes(searchTag.toLowerCase())), [tags, searchTag]);
   const orphanCategories = useMemo(() => categories.filter(c => c.totalRefs === 0 && c.name.toLowerCase().includes(searchCat.toLowerCase())), [categories, searchCat]);

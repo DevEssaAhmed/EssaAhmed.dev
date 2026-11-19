@@ -26,7 +26,10 @@ export function useEditorAutosave({
 }: UseEditorAutosaveOptions) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const onAutoSaveRef = useRef(onAutoSave);
-  onAutoSaveRef.current = onAutoSave;
+
+  useEffect(() => {
+    onAutoSaveRef.current = onAutoSave;
+  }, [onAutoSave]);
 
   const inFlightRef = useRef(false);
   const attemptedKeyRef = useRef<string | null>(null);
@@ -34,7 +37,6 @@ export function useEditorAutosave({
   useEffect(() => {
     if (savedKey !== null && snapshotKey === savedKey) {
       attemptedKeyRef.current = null;
-      setSaveError(null);
     }
   }, [snapshotKey, savedKey]);
 
@@ -66,8 +68,11 @@ export function useEditorAutosave({
     attemptedKeyRef.current = null;
   }, []);
 
+  const effectiveSaveError =
+    savedKey !== null && snapshotKey === savedKey ? null : saveError;
+
   return {
-    saveError,
+    saveError: effectiveSaveError,
     setSaveError,
     resetAutoSaveAttempt,
   };

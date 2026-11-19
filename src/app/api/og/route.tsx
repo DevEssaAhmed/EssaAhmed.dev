@@ -1,8 +1,6 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 
-export const runtime = "edge";
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const title = (searchParams.get("title") || "Essa Ahmed").slice(0, 110);

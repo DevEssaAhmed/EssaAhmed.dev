@@ -166,13 +166,16 @@ const BlogEditorEnhanced: React.FC = () => {
   });
 
   const formDataRef = useRef(formData);
-  formDataRef.current = formData;
   const entryModeRef = useRef(entryMode);
-  entryModeRef.current = entryMode;
   const externalUrlRef = useRef(externalUrl);
-  externalUrlRef.current = externalUrl;
   const platformRef = useRef(platform);
-  platformRef.current = platform;
+
+  useEffect(() => {
+    formDataRef.current = formData;
+    entryModeRef.current = entryMode;
+    externalUrlRef.current = externalUrl;
+    platformRef.current = platform;
+  }, [formData, entryMode, externalUrl, platform]);
 
   const onEditorReady = useCallback((editor: BlockNoteEditor) => {
     editorRef.current = editor;
@@ -615,7 +618,10 @@ const BlogEditorEnhanced: React.FC = () => {
   );
 
   const handleSaveRef = useRef(handleSave);
-  handleSaveRef.current = handleSave;
+
+  useEffect(() => {
+    handleSaveRef.current = handleSave;
+  }, [handleSave]);
 
   // Keyboard shortcut: Ctrl/Cmd + S
   useEffect(() => {

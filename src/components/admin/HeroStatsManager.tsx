@@ -25,10 +25,6 @@ const HeroStatsManager = () => {
   const [newStatLabel, setNewStatLabel] = useState('');
   const [newStatValue, setNewStatValue] = useState('');
 
-  useEffect(() => {
-    fetchHeroStats();
-  }, []);
-
   const fetchHeroStats = async () => {
     try {
       // Get the first profile and its stats
@@ -49,6 +45,10 @@ const HeroStatsManager = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    void fetchHeroStats();
+  }, []);
 
   const saveHeroStats = async () => {
     setSaving(true);

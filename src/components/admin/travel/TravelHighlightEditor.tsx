@@ -406,7 +406,10 @@ export default function TravelHighlightEditor() {
   );
 
   const handleSaveRef = useRef(handleSave);
-  handleSaveRef.current = handleSave;
+
+  useEffect(() => {
+    handleSaveRef.current = handleSave;
+  }, [handleSave]);
 
   const { resetAutoSaveAttempt } = useEditorAutosave({
     enabled: Boolean(
@@ -420,7 +423,10 @@ export default function TravelHighlightEditor() {
     isSaving,
     onAutoSave: () => handleSaveRef.current(true),
   });
-  resetAutoSaveRef.current = resetAutoSaveAttempt;
+
+  useEffect(() => {
+    resetAutoSaveRef.current = resetAutoSaveAttempt;
+  }, [resetAutoSaveAttempt]);
 
   // Keyboard shortcut: Cmd+S / Ctrl+S
   useEffect(() => {

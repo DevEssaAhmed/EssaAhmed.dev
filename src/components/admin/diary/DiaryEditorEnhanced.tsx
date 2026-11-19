@@ -329,7 +329,10 @@ export default function DiaryEditorEnhanced() {
   );
 
   const handleSaveRef = useRef(handleSave);
-  handleSaveRef.current = handleSave;
+
+  useEffect(() => {
+    handleSaveRef.current = handleSave;
+  }, [handleSave]);
 
   const { resetAutoSaveAttempt } = useEditorAutosave({
     enabled: Boolean(currentId && title.trim() && lastSaved),
@@ -339,7 +342,10 @@ export default function DiaryEditorEnhanced() {
     isSaving,
     onAutoSave: () => handleSaveRef.current(undefined, true),
   });
-  resetAutoSaveRef.current = resetAutoSaveAttempt;
+
+  useEffect(() => {
+    resetAutoSaveRef.current = resetAutoSaveAttempt;
+  }, [resetAutoSaveAttempt]);
 
   // Cmd+S / Ctrl+S keyboard shortcut
   useEffect(() => {

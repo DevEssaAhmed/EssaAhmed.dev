@@ -62,11 +62,14 @@ function InteractiveTravelMapComponent({
   const arcsLayerRef = useRef<any>(null);
   const leafletRef = useRef<any>(null);
   const onSelectCityRef = useRef(onSelectCity);
-  onSelectCityRef.current = onSelectCity;
   const citiesRef = useRef(cities);
-  citiesRef.current = cities;
   const activeCityRef = useRef(activeCity);
-  activeCityRef.current = activeCity;
+
+  useEffect(() => {
+    onSelectCityRef.current = onSelectCity;
+    citiesRef.current = cities;
+    activeCityRef.current = activeCity;
+  }, [onSelectCity, cities, activeCity]);
 
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState(false);

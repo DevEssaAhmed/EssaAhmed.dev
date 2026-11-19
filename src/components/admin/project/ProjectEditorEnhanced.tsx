@@ -358,7 +358,10 @@ const ProjectEditorEnhanced: React.FC = () => {
   );
 
   const handleSaveRef = useRef(handleSave);
-  handleSaveRef.current = handleSave;
+
+  useEffect(() => {
+    handleSaveRef.current = handleSave;
+  }, [handleSave]);
 
   // Keyboard shortcut: Ctrl/Cmd + S
   useEffect(() => {

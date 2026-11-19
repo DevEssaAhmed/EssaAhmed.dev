@@ -5,7 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { revalidatePortfolioCache } from "@/lib/revalidate-client";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -67,10 +67,11 @@ const ProfileManagePage = () => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const { profile, loading, hasFullProfile, updateProfile, refreshFullProfile } = useProfile();
 
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<ProfileFormData>({
+  const { register, handleSubmit, formState: { errors }, setValue, control } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: { name: "", username: "", title: "", bio: "", location: "", email: "", github_url: "", linkedin_url: "", website_url: "" },
   });
+  const watchedName = useWatch({ control, name: "name" });
 
   // BlockNote About content
   const [aboutContent, setAboutContent] = useState<BlockNoteContent>([]);
@@ -218,7 +219,13 @@ const ProfileManagePage = () => {
 
   return (
     <AdminLayout title="Profile" subtitle="Update your personal information" actions={actions}>
-      <form id="profile-form" onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        id="profile-form"
+        onSubmit={(e) => {
+          void handleSubmit(onSubmit)(e);
+        }}
+        className="space-y-8"
+      >
         {/* Avatar Section */}
         <Card className="bg-white border-zinc-200/90 text-zinc-900 shadow-2xs">
           <CardHeader className="pb-4">
@@ -231,7 +238,7 @@ const ProfileManagePage = () => {
               <Avatar className="w-20 h-20 mx-auto sm:mx-0 border border-zinc-200">
                 <AvatarImage src={avatarUrl} alt="Profile" />
                 <AvatarFallback className="bg-zinc-100 text-zinc-800 text-xl font-medium">
-                  {watch("name")?.charAt(0) || "U"}
+                  {watchedName?.charAt(0) || "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 w-full">
