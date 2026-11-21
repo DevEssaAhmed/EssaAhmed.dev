@@ -27,6 +27,10 @@ import {
   filterAndSortDiary,
   buildRecentActivityFeed,
 } from "../../src/lib/admin-helpers.ts";
+import {
+  cleanMarkdownExcerpt,
+  formatDisplayTag,
+} from "../../src/lib/clean-markdown.ts";
 
 test("parseDateUTC anchors YYYY-MM-DD dates to UTC midnight and handles invalid inputs", () => {
   const dateOnly = parseDateUTC("2025-03-01");
@@ -387,4 +391,40 @@ test("buildRecentActivityFeed merges across collections in reverse chronological
   assert.equal(feed[0].id, "project-p1");
   assert.equal(feed[1].id, "diary-d1");
   assert.equal(feed[2].id, "blog-b1");
+});
+
+test("cleanMarkdownExcerpt strips leading H1 titles, emojis, and Project Overview preambles", () => {
+  const suzukiMarkdown =
+    "📊 **Project Overview** In a high-volume manufacturing environment, identifying the root cause of defects is critical.";
+  assert.equal(
+    cleanMarkdownExcerpt(suzukiMarkdown, 175, "Case Study: Suzuki Manufacturing Quality Assurance Dashboard"),
+    "In a high-volume manufacturing environment, identifying the root cause of defects is critical."
+  );
+
+  const agiMarkdown =
+    "# 🏭 AGI – Offline Productivity Dashboard\n\n🏭 **Project Overview**\n\nThis interactive dashboard was developed in Power BI to monitor stitching line productivity.";
+  assert.equal(
+    cleanMarkdownExcerpt(agiMarkdown, 175, "Stitching Offline Productivity Dashboard"),
+    "This interactive dashboard was developed in Power BI to monitor stitching line productivity."
+  );
+
+  const duplicateTitleMarkdown =
+    "Stitching Offline Productivity Dashboard — Project Overview: Automated telemetry across sewing lines.";
+  assert.equal(
+    cleanMarkdownExcerpt(duplicateTitleMarkdown, 175, "Stitching Offline Productivity Dashboard"),
+    "Automated telemetry across sewing lines."
+  );
+});
+
+test("formatDisplayTag normalizes acronyms, hyphenated lowercase tags, and preserves mixed case", () => {
+  assert.equal(formatDisplayTag("bi"), "BI");
+  assert.equal(formatDisplayTag("data-analytics"), "Data Analytics");
+  assert.equal(formatDisplayTag("power bi"), "Power BI");
+  assert.equal(formatDisplayTag("power-bi"), "Power BI");
+  assert.equal(formatDisplayTag("dbt"), "dbt");
+  assert.equal(formatDisplayTag("dax"), "DAX");
+  assert.equal(formatDisplayTag("etl"), "ETL");
+  assert.equal(formatDisplayTag("Quality Assurance"), "Quality Assurance");
+  assert.equal(formatDisplayTag("Snowflake"), "Snowflake");
+  assert.equal(formatDisplayTag("supply-chain"), "Supply Chain");
 });

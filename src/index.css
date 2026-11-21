@@ -29,7 +29,7 @@
     --stitch-surface-variant: 221 218 211; /* #DDDAD3 */
     --stitch-on-surface: 15 23 42; /* #0F172A high-contrast deep ink headlines */
     --stitch-on-surface-variant: 71 85 105; /* #475569 warm slate secondary copy */
-    --stitch-outline: 108 105 99; /* #6C6963 */
+    --stitch-outline: 87 83 78; /* #57534E */
     --stitch-outline-variant: 198 194 186; /* #C6C2BA warm stone hairline borders */
 
     /* Kinetic Primary: Electric Cobalt link highlights & active states */
@@ -42,25 +42,25 @@
     --stitch-on-primary-fixed: 30 58 138; /* #1E3A8A */
     --stitch-on-primary-fixed-variant: 29 78 216; /* #1D4ED8 */
 
-    /* Secondary Character Accent: Warm Burnished Amber (WCAG AA contrast on porcelain) */
-    --stitch-secondary: 180 83 9; /* #B45309 rich burnished amber */
+    /* Secondary Character Accent: Deep Teal-Emerald (aligned across Light & Dark) */
+    --stitch-secondary: 15 118 110; /* #0F766E deep teal-emerald */
     --stitch-on-secondary: 255 255 255; /* #FFFFFF */
-    --stitch-secondary-container: 254 243 199; /* #FEF3C7 */
-    --stitch-on-secondary-container: 146 64 14; /* #92400E */
-    --stitch-secondary-fixed: 254 243 199; /* #FEF3C7 */
-    --stitch-secondary-fixed-dim: 217 119 6; /* #D97706 */
-    --stitch-on-secondary-fixed: 120 53 15; /* #78350F */
-    --stitch-on-secondary-fixed-variant: 180 83 9; /* #B45309 */
+    --stitch-secondary-container: 209 250 229; /* #D1FAE5 */
+    --stitch-on-secondary-container: 6 95 70; /* #065F46 */
+    --stitch-secondary-fixed: 209 250 229; /* #D1FAE5 */
+    --stitch-secondary-fixed-dim: 13 148 136; /* #0D9488 */
+    --stitch-on-secondary-fixed: 4 47 46; /* #042F2E */
+    --stitch-on-secondary-fixed-variant: 5 150 105; /* #059669 */
 
-    /* Tertiary Character Accent: Deep Teal-Emerald (WCAG AA contrast on porcelain) */
-    --stitch-tertiary: 15 118 110; /* #0F766E deep teal */
+    /* Tertiary Character Accent: Warm Burnished Amber (WCAG AA contrast on porcelain) */
+    --stitch-tertiary: 180 83 9; /* #B45309 rich burnished amber */
     --stitch-on-tertiary: 255 255 255; /* #FFFFFF */
-    --stitch-tertiary-container: 209 250 229; /* #D1FAE5 */
-    --stitch-on-tertiary-container: 6 95 70; /* #065F46 */
-    --stitch-tertiary-fixed: 209 250 229; /* #D1FAE5 */
-    --stitch-tertiary-fixed-dim: 13 148 136; /* #0D9488 */
-    --stitch-on-tertiary-fixed: 4 47 46; /* #042F2E */
-    --stitch-on-tertiary-fixed-variant: 5 150 105; /* #059669 */
+    --stitch-tertiary-container: 254 243 199; /* #FEF3C7 */
+    --stitch-on-tertiary-container: 146 64 14; /* #92400E */
+    --stitch-tertiary-fixed: 254 243 199; /* #FEF3C7 */
+    --stitch-tertiary-fixed-dim: 217 119 6; /* #D97706 */
+    --stitch-on-tertiary-fixed: 120 53 15; /* #78350F */
+    --stitch-on-tertiary-fixed-variant: 180 83 9; /* #B45309 */
 
     --stitch-error: 186 26 26; /* #BA1A1A */
     --stitch-on-error: 255 255 255; /* #FFFFFF */
@@ -145,14 +145,14 @@
     --stitch-on-secondary-fixed: 0 33 19; /* #002113 */
     --stitch-on-secondary-fixed-variant: 0 82 54; /* #005236 */
 
-    --stitch-tertiary: 192 193 255; /* #C0C1FF */
-    --stitch-on-tertiary: 16 0 169; /* #1000A9 */
-    --stitch-tertiary-container: 128 131 255; /* #8083FF */
-    --stitch-on-tertiary-container: 13 0 150; /* #0D0096 */
-    --stitch-tertiary-fixed: 225 224 255; /* #E1E0FF */
-    --stitch-tertiary-fixed-dim: 192 193 255; /* #C0C1FF */
-    --stitch-on-tertiary-fixed: 7 0 108; /* #07006C */
-    --stitch-on-tertiary-fixed-variant: 47 46 190; /* #2F2EBE */
+    --stitch-tertiary: 251 191 36; /* #FBBF24 warm soft amber */
+    --stitch-on-tertiary: 69 26 3; /* #451A03 */
+    --stitch-tertiary-container: 146 64 14; /* #92400E */
+    --stitch-on-tertiary-container: 254 243 199; /* #FEF3C7 */
+    --stitch-tertiary-fixed: 254 243 199; /* #FEF3C7 */
+    --stitch-tertiary-fixed-dim: 245 158 11; /* #F59E0B */
+    --stitch-on-tertiary-fixed: 69 26 3; /* #451A03 */
+    --stitch-on-tertiary-fixed-variant: 217 119 6; /* #D97706 */
 
     --stitch-error: 255 180 171; /* #FFB4AB */
     --stitch-on-error: 105 0 5; /* #690005 */
@@ -249,39 +249,19 @@
 .bg-grid-pattern {
   background-size: 32px 32px;
   background-image:
-    linear-gradient(to right, rgba(24, 24, 27, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(24, 24, 27, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.045) 1px, transparent 1px);
 }
 
 .dark .bg-grid-pattern {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
 }
 
-/* Stitch Glass Navigation & Cards (Adaptive Light & Dark) */
-.glass-nav {
-  background: rgba(250, 249, 246, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.dark .glass-nav {
-  background: rgba(19, 19, 21, 0.78);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.dark .glass-card {
-  background: rgba(28, 27, 29, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+.hero-grid-mask {
+  mask-image: radial-gradient(ellipse 85% 70% at 50% 0%, black 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 70% at 50% 0%, black 20%, transparent 80%);
 }
 
 /* Instagram Story Highlight Rings */
@@ -374,21 +354,6 @@
   background: rgb(var(--stitch-on-surface));
   color: rgb(var(--stitch-surface));
   font-weight: 600;
-}
-
-/* Scroll Reveal Utilities (used by src/components/ui/reveal.tsx) */
-.reveal-up {
-  opacity: 0;
-  transform: translateY(14px);
-  transition:
-    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
-}
-
-.reveal-up.reveal-visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Subtle Non-Blocking Entrance Animations */
@@ -574,7 +539,6 @@
     scroll-behavior: auto !important;
   }
 
-  .reveal-up,
   .animate-page-enter,
   .animate-fade-in,
   .card-interactive,

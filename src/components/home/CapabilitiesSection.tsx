@@ -2,138 +2,150 @@
 
 import { Terminal, Package, LineChart } from "lucide-react";
 
-const CapabilitiesSection = () => {
-  const stackItems = [
-    { name: "Python", dot: "bg-primary" },
-    { name: "SQL", dot: "bg-secondary" },
-    { name: "dbt", dot: "bg-amber-400" },
-    { name: "Power BI", dot: "bg-amber-500" },
-    { name: "Snowflake", dot: "bg-cyan-400" },
-    { name: "Airflow", dot: "bg-rose-400" },
-    { name: "Demand Forecasting", dot: "bg-secondary-fixed" },
-    { name: "S&OP Modeling", dot: "bg-emerald-400" },
-    { name: "Next.js", dot: "bg-on-surface" },
-    { name: "Supabase", dot: "bg-emerald-500" },
-    { name: "PostgreSQL", dot: "bg-blue-400" },
-    { name: "Docker", dot: "bg-sky-500" },
-  ];
+const PILLARS = [
+  {
+    index: "01",
+    title: "Workflow & Process Automation",
+    description:
+      "Eliminating repetitive spreadsheet and ERP bottlenecks with automated Python microservices, scheduled pipelines, and real-time webhook/Slack alerts.",
+    icon: Terminal,
+    iconClasses: "bg-primary/10 border-primary/20 text-primary",
+    dotClass: "bg-primary",
+    deliverables: [
+      "Zero-touch scheduled jobs",
+      "Webhook & Slack alerts",
+      "Automated ETL reconciliations",
+    ],
+  },
+  {
+    index: "02",
+    title: "Supply Chain & Demand Planning",
+    description:
+      "Multi-echelon demand forecasting, inventory replenishment modeling, vendor lead-time tracking, and S&OP scenario planning.",
+    icon: Package,
+    iconClasses: "bg-secondary/10 border-secondary/20 text-secondary",
+    dotClass: "bg-secondary",
+    deliverables: [
+      "S&OP forecast modeling",
+      "Safety stock optimization",
+      "Vendor SLA & OTIF audit",
+    ],
+  },
+  {
+    index: "03",
+    title: "Analytics & Decision Systems",
+    description:
+      "High-speed dimensional warehouses and executive Power BI cockpits designed for instant root-cause slicing and operational clarity.",
+    icon: LineChart,
+    iconClasses: "bg-tertiary/10 border-tertiary/20 text-tertiary",
+    dotClass: "bg-tertiary",
+    deliverables: [
+      "Sub-second DAX/SQL queries",
+      "Star schema dimensional modeling",
+      "Executive cockpit design",
+    ],
+  },
+] as const;
 
+const STACK_TRACKS = [
+  {
+    track: "Automation",
+    items: ["Python", "Airflow", "FastAPI", "Docker"],
+  },
+  {
+    track: "Supply Chain & Data",
+    items: ["SQL", "Snowflake", "S&OP Modeling", "Demand Forecasting"],
+  },
+  {
+    track: "BI & Delivery",
+    items: ["Power BI", "dbt", "PostgreSQL", "Next.js", "Supabase"],
+  },
+] as const;
+
+const CapabilitiesSection = () => {
   return (
-    <section className="max-w-[1080px] mx-auto py-12 px-6">
-      <div className="pb-8">
-        <h2 className="text-2xl font-headline-md font-bold text-on-surface tracking-tight">
+    <section className="max-w-[1080px] mx-auto py-16 md:py-20 px-6">
+      <div className="pb-6 border-b border-outline-variant/30 mb-10">
+        <span className="font-code text-xs uppercase tracking-[0.14em] text-outline block mb-2">
+          02 / CAPABILITIES
+        </span>
+        <h2 className="text-2xl sm:text-3xl font-display font-bold text-on-surface tracking-tight">
           Core Capabilities
         </h2>
-        <p className="text-on-surface-variant font-body-md text-body-md mt-1">
+        <p className="text-on-surface-variant font-body-md text-body-md mt-1.5">
           Engineered systems built for process velocity, inventory precision, and reliable reporting.
         </p>
       </div>
 
-      {/* 3 Sleek Pillar Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        {/* Pillar 1 */}
-        <div className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
-          <div>
-            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary mb-5 group-hover:scale-105 transition-transform duration-300">
-              <Terminal className="w-6 h-6" />
-            </div>
-            <h3 className="text-headline-sm font-headline-sm text-on-surface mb-2">
-              Workflow &amp; Process Automation
-            </h3>
-            <p className="text-on-surface-variant font-body-md text-body-md leading-relaxed mb-6">
-              Eliminating repetitive spreadsheet and ERP bottlenecks with automated Python microservices, scheduled pipelines, and real-time webhook/Slack alerts.
-            </p>
-          </div>
-          <ul className="space-y-2 text-label-md font-label-md text-on-surface pt-4 border-t border-outline-variant/25">
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-              Zero-touch scheduled jobs
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-              Webhook &amp; Slack alerts
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-              Automated ETL reconciliations
-            </li>
-          </ul>
+      {/* Unified Ruled Architectural Tonal Container */}
+      <div className="rounded-2xl bg-surface-container-low/70 dark:bg-surface-container-low border border-outline-variant/50 dark:border-outline-variant/30 overflow-hidden">
+        {/* 3-Column Ruled Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-outline-variant/40 dark:divide-outline-variant/25">
+          {PILLARS.map((pillar) => {
+            const Icon = pillar.icon;
+            return (
+              <div
+                key={pillar.index}
+                className="p-7 md:p-8 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div
+                      className={`w-10 h-10 rounded-xl border flex items-center justify-center ${pillar.iconClasses}`}
+                    >
+                      <Icon className="w-5 h-5" aria-hidden="true" />
+                    </div>
+                    <span className="font-code text-xs text-outline font-medium">
+                      {pillar.index}
+                    </span>
+                  </div>
+                  <h3 className="text-headline-sm font-display font-semibold text-on-surface mb-2.5">
+                    {pillar.title}
+                  </h3>
+                  <p className="text-on-surface-variant font-body-md text-body-md leading-relaxed mb-6">
+                    {pillar.description}
+                  </p>
+                </div>
+
+                <ul className="space-y-2.5 text-label-md font-label-md text-on-surface pt-5 border-t border-outline-variant/30 dark:border-outline-variant/20">
+                  {pillar.deliverables.map((item) => (
+                    <li key={item} className="flex items-center gap-2.5">
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${pillar.dotClass}`}
+                      />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Pillar 2 */}
-        <div className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
-          <div>
-            <div className="w-12 h-12 rounded-xl bg-secondary/10 border border-secondary/25 flex items-center justify-center text-secondary mb-5 group-hover:scale-105 transition-transform duration-300">
-              <Package className="w-6 h-6" />
-            </div>
-            <h3 className="text-headline-sm font-headline-sm text-on-surface mb-2">
-              Supply Chain &amp; Demand Planning
-            </h3>
-            <p className="text-on-surface-variant font-body-md text-body-md leading-relaxed mb-6">
-              Multi-echelon demand forecasting, inventory replenishment modeling, vendor lead-time tracking, and S&amp;OP scenario planning.
-            </p>
+        {/* Integrated Production Stack Band */}
+        <div className="border-t border-outline-variant/40 dark:border-outline-variant/25 bg-surface-container-lowest/65 dark:bg-surface-container/45 px-7 md:px-8 py-6">
+          <span className="font-code text-[11px] uppercase tracking-[0.14em] text-outline mb-4 block">
+            PRODUCTION STACK &amp; TOOLING
+          </span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {STACK_TRACKS.map((group) => (
+              <div key={group.track} className="space-y-2.5">
+                <div className="font-code text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
+                  {group.track}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {group.items.map((tool) => (
+                    <span
+                      key={tool}
+                      className="px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/45 dark:border-outline-variant/30 text-on-surface text-xs font-code"
+                    >
+                      {tool}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-          <ul className="space-y-2 text-label-md font-label-md text-on-surface pt-4 border-t border-outline-variant/25">
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-              S&amp;OP forecast modeling
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-              Safety stock optimization
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-              Vendor SLA &amp; OTIF audit
-            </li>
-          </ul>
-        </div>
-
-        {/* Pillar 3 */}
-        <div className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
-          <div>
-            <div className="w-12 h-12 rounded-xl bg-tertiary-fixed-dim/10 border border-tertiary-fixed-dim/25 flex items-center justify-center text-tertiary-fixed-dim mb-5 group-hover:scale-105 transition-transform duration-300">
-              <LineChart className="w-6 h-6" />
-            </div>
-            <h3 className="text-headline-sm font-headline-sm text-on-surface mb-2">
-              Analytics &amp; Decision Systems
-            </h3>
-            <p className="text-on-surface-variant font-body-md text-body-md leading-relaxed mb-6">
-              High-speed dimensional warehouses and executive Power BI cockpits designed for instant root-cause slicing and operational clarity.
-            </p>
-          </div>
-          <ul className="space-y-2 text-label-md font-label-md text-on-surface pt-4 border-t border-outline-variant/25">
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim" />
-              Sub-second DAX/SQL queries
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim" />
-              Star schema dimensional modeling
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim" />
-              Executive cockpit design
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Core Technical Stack Box */}
-      <div className="rounded-2xl card-elevated border p-6">
-        <span className="text-label-sm font-label-sm font-bold tracking-wider text-outline uppercase block mb-4">
-          ENGINEERED TOOLKIT &amp; PRODUCTION STACK
-        </span>
-        <div className="flex flex-wrap gap-2.5">
-          {stackItems.map((item) => (
-            <span
-              key={item.name}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/45 dark:border-outline-variant/25 hover:border-primary/40 text-on-surface font-label-md text-label-md transition-colors"
-            >
-              <span className={`w-2 h-2 rounded-full ${item.dot}`} />
-              {item.name}
-            </span>
-          ))}
         </div>
       </div>
     </section>

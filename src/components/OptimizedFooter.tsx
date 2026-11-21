@@ -15,7 +15,7 @@ const OptimizedFooter = memo(() => {
   const linkedinUrl = profile?.linkedin_url || "https://www.linkedin.com/in/essa-ahmed";
 
   return (
-    <footer className="w-full max-w-[1080px] mx-auto border-t border-outline-variant/20 bg-transparent text-body-md font-body-md">
+    <footer className="w-full max-w-[1080px] mx-auto border-t border-outline-variant/30 bg-transparent text-body-md font-body-md">
       <div className="flex flex-col md:flex-row justify-between items-center py-space-xl px-6 w-full max-w-[1080px] mx-auto text-on-surface-variant gap-space-md">
         {/* Left side: Brand identity & Copyright */}
         <div className="flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left">
@@ -31,7 +31,7 @@ const OptimizedFooter = memo(() => {
         {/* Right side: Navigation Links */}
         <div className="flex flex-wrap items-center justify-center gap-6 text-label-md font-label-md">
           <a
-            className="hover:text-on-surface transition-colors duration-150"
+            className="hover:text-on-surface transition-colors duration-150 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             href={githubUrl}
             rel="noreferrer"
             target="_blank"
@@ -39,7 +39,7 @@ const OptimizedFooter = memo(() => {
             GitHub
           </a>
           <a
-            className="hover:text-on-surface transition-colors duration-150"
+            className="hover:text-on-surface transition-colors duration-150 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             href={linkedinUrl}
             rel="noreferrer"
             target="_blank"
@@ -47,7 +47,7 @@ const OptimizedFooter = memo(() => {
             LinkedIn
           </a>
           <a
-            className="hover:text-on-surface transition-colors duration-150"
+            className="hover:text-on-surface transition-colors duration-150 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             href="https://x.com/DevEssaAhmed"
             rel="noreferrer"
             target="_blank"
@@ -55,14 +55,14 @@ const OptimizedFooter = memo(() => {
             Twitter
           </a>
           <a
-            className="hover:text-on-surface transition-colors duration-150"
+            className="hover:text-on-surface transition-colors duration-150 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             href={`mailto:${email}`}
           >
             Email
           </a>
           {hasProjects && (
             <Link
-              className="hover:text-on-surface transition-colors duration-150"
+              className="hover:text-on-surface transition-colors duration-150 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               href="/projects"
             >
               Projects
@@ -70,14 +70,14 @@ const OptimizedFooter = memo(() => {
           )}
           {hasArticles && (
             <Link
-              className="hover:text-on-surface transition-colors duration-150"
+              className="hover:text-on-surface transition-colors duration-150 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               href="/articles"
             >
               Articles
             </Link>
           )}
           <a
-            className="hover:text-on-surface transition-colors duration-150"
+            className="hover:text-on-surface transition-colors duration-150 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             href="/rss.xml"
           >
             RSS

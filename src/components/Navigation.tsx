@@ -28,6 +28,7 @@ import { useProfile } from "@/contexts/ProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useContentAvailability } from "@/contexts/ContentAvailabilityContext";
+import { BrandMark } from "@/components/BrandMark";
 
 const NavIcon = memo(({ name }: { name: string }) => {
   switch (name) {
@@ -71,6 +72,7 @@ const Navigation = memo(() => {
   const [searchLoaded, setSearchLoaded] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
   const mobileMenuWasOpen = useRef(false);
@@ -84,6 +86,15 @@ const Navigation = memo(() => {
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 16);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const navItems = useMemo(() => {
@@ -511,9 +522,7 @@ const Navigation = memo(() => {
                   <div className="flex flex-col h-full justify-between">
                     <div className="flex items-center justify-between p-5 border-b border-outline-variant/30 bg-surface-container-low shrink-0">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-surface-container border border-outline-variant/40 flex items-center justify-center font-display font-bold text-xs text-on-surface">
-                          EA
-                        </div>
+                        <BrandMark />
                         <div>
                           <div className="font-display font-semibold text-on-surface text-sm">
                             {profile?.name || "Essa Ahmed"}
@@ -643,19 +652,23 @@ const Navigation = memo(() => {
   return (
     <>
       <header
-        className="sticky top-6 z-50 px-4 md:px-6 w-full max-w-[1080px] mx-auto"
+        className="sticky top-4 z-50 px-4 md:px-6 w-full max-w-[1080px] mx-auto"
         aria-label="Main Navigation"
       >
-        <div className="flex justify-between items-center h-16 px-4 sm:px-5 w-full nav-glass backdrop-blur-xl border rounded-2xl transition-all duration-300">
-          {/* Left: Dedicated 40x40 Logo & Identity */}
+        <div
+          className={`flex justify-between items-center h-16 px-4 sm:px-5 w-full nav-glass backdrop-blur-xl border rounded-2xl transition-all duration-300 ${
+            isScrolled
+              ? "shadow-md border-outline-variant/80 dark:border-outline-variant/50"
+              : ""
+          }`}
+        >
+          {/* Left: Dedicated Monogram & Identity */}
           <Link
             href="/"
-            className="flex items-center gap-3 min-w-[150px] group shrink-0"
+            className="flex items-center gap-3 min-w-[150px] group shrink-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             aria-label="Navigate to home page"
           >
-            <div className="w-10 h-10 rounded-xl bg-surface-container-low dark:bg-surface-container border border-outline-variant/50 dark:border-outline-variant/40 group-hover:border-primary/50 flex items-center justify-center font-display font-bold text-on-surface tracking-wider text-xs shadow-inner transition-colors">
-              EA
-            </div>
+            <BrandMark className="group-hover:border-primary/50 transition-colors" />
             <span className="text-headline-sm font-display font-bold text-on-surface tracking-tight whitespace-nowrap">
               {profile?.name || "Essa Ahmed"}
             </span>
@@ -669,13 +682,13 @@ const Navigation = memo(() => {
                 <Link
                   key={item.name}
                   href={item.path}
-                  className="relative min-h-11 px-3.5 py-1.5 rounded-full transition-colors duration-150 flex items-center gap-1.5 text-on-surface"
+                  className="relative min-h-11 px-3.5 py-1.5 rounded-full transition-colors duration-150 flex items-center gap-1.5 text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                   aria-current={active ? "page" : undefined}
                 >
                   {active && (
                     <m.span
                       layoutId="activeNavPill"
-                      className="absolute inset-0 bg-surface-container-low dark:bg-surface-container-high/90 border border-outline-variant/50 dark:border-outline-variant/30 rounded-full -z-10 shadow-xs"
+                      className="absolute inset-0 bg-surface-container-low dark:bg-surface-container-high/90 border border-outline-variant/50 dark:border-outline-variant/30 rounded-full -z-10 shadow-sm"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -693,12 +706,19 @@ const Navigation = memo(() => {
             })}
             <details ref={aboutDetailsRef} className="group relative">
               <summary
-                className={`min-h-11 list-none cursor-pointer px-3.5 py-1.5 rounded-full transition-colors duration-150 flex items-center gap-1.5 ${
+                className={`relative min-h-11 list-none cursor-pointer px-3.5 py-1.5 rounded-full transition-colors duration-150 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
                   isAboutActive
-                    ? "text-on-surface font-semibold bg-surface-container-low dark:bg-surface-container-high/90 border border-outline-variant/50 dark:border-outline-variant/30"
+                    ? "text-on-surface font-semibold"
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
+                {isAboutActive && (
+                  <m.span
+                    layoutId="activeNavPill"
+                    className="absolute inset-0 bg-surface-container-low dark:bg-surface-container-high/90 border border-outline-variant/50 dark:border-outline-variant/30 rounded-full -z-10 shadow-sm"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
                 <span>About</span>
                 <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
               </summary>
@@ -713,7 +733,7 @@ const Navigation = memo(() => {
                         const disclosure = event.currentTarget.closest("details");
                         if (disclosure) disclosure.open = false;
                       }}
-                      className={`block rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                      className={`block rounded-lg px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                         isSubActive
                           ? "bg-surface-container text-on-surface font-semibold"
                           : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
@@ -733,7 +753,7 @@ const Navigation = memo(() => {
             <button
               type="button"
               onClick={() => setCmdOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container-low dark:bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-label-sm font-code transition-colors"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-container-low dark:bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-label-sm font-code transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               aria-label="Open command palette (Cmd+K)"
             >
               <Search className="w-4 h-4 text-on-surface-variant" />
@@ -745,7 +765,7 @@ const Navigation = memo(() => {
               onClick={toggleTheme}
               whileTap={{ scale: 0.9 }}
               whileHover={{ scale: 1.05 }}
-              className="group w-11 h-11 rounded-full bg-surface-container-low dark:bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors overflow-hidden"
+              className="group w-11 h-11 rounded-full bg-surface-container-low dark:bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
               title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
             >
@@ -767,7 +787,11 @@ const Navigation = memo(() => {
               </AnimatePresence>
             </m.button>
 
-            <HashLink smooth to="/#contact">
+            <HashLink
+              smooth
+              to="/#contact"
+              className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            >
               <span className="bg-on-surface text-surface font-display text-label-md font-semibold px-4 py-2 rounded-full hover:opacity-90 active:scale-[0.98] transition-all duration-150 inline-flex items-center whitespace-nowrap">
                 Contact Me
               </span>
@@ -776,7 +800,7 @@ const Navigation = memo(() => {
             {isAdmin && (
               <Link
                 href="/admin"
-                className="w-11 h-11 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-primary hover:bg-primary/25 transition-colors"
+                className="w-11 h-11 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-primary hover:bg-primary/25 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 aria-label="Go to Admin CMS Hub"
                 title="Admin CMS Hub (Signed In)"
               >
@@ -792,7 +816,7 @@ const Navigation = memo(() => {
               onClick={toggleTheme}
               whileTap={{ scale: 0.9 }}
               whileHover={{ scale: 1.05 }}
-              className="h-11 w-11 inline-flex items-center justify-center rounded-lg bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-on-surface overflow-hidden"
+              className="h-11 w-11 inline-flex items-center justify-center rounded-lg bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-on-surface overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               aria-label="Toggle theme"
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -815,7 +839,7 @@ const Navigation = memo(() => {
             <button
               type="button"
               onClick={() => setCmdOpen(true)}
-              className="h-11 w-11 inline-flex items-center justify-center rounded-lg bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-on-surface"
+              className="h-11 w-11 inline-flex items-center justify-center rounded-lg bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               aria-label="Search"
             >
               <Search className="w-4 h-4" />
@@ -825,7 +849,7 @@ const Navigation = memo(() => {
               size="icon"
               ref={mobileMenuTriggerRef}
               onClick={() => setIsOpen(!isOpen)}
-              className="h-11 w-11 rounded-xl text-on-surface hover:bg-surface-container"
+              className="h-11 w-11 rounded-xl text-on-surface hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={isOpen}
               aria-controls={isOpen ? "mobile-menu" : undefined}
