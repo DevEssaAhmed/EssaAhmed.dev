@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import OptimizedFooter from "@/components/OptimizedFooter";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { InteractiveAvatar3D } from "@/components/InteractiveAvatar3D";
 import { calculateReadingTime, formatReadingTime } from "@/utils/readingTime";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -303,15 +304,7 @@ const ArticleDetailPageEnhanced = ({
           <div className="max-w-4xl mx-auto">
             <Card className="border card-elevated overflow-hidden">
               <CardContent className="p-6 flex items-center gap-5">
-                {profile.avatar_url && (
-                  <OptimizedImage
-                    src={profile.avatar_url}
-                    alt={profile.name || "Author"}
-                    width={64}
-                    height={64}
-                    className="w-16 h-16 rounded-full object-cover border border-primary/30 shrink-0"
-                  />
-                )}
+                <InteractiveAvatar3D variant="card" name={profile.name || "Essa Ahmed"} />
                 <div className="min-w-0">
                   <p className="text-xs font-mono text-on-surface-variant uppercase tracking-wider mb-0.5">Written by</p>
                   <h3 className="font-display font-bold text-lg text-on-surface">{profile.name}</h3>

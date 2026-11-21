@@ -44,11 +44,7 @@ export default async function Page() {
         person.bio ||
         "Industrial and manufacturing engineering, quality improvement, data analytics, Power BI dashboards, and automation.",
       sameAs,
-      ...(typeof person.avatar_url === "string" &&
-      person.avatar_url.startsWith("https://") &&
-      !person.avatar_url.includes("placeholder.svg")
-        ? { image: person.avatar_url }
-        : {}),
+      image: "https://essaahmed.dev/avatar-3d-persona.png",
     },
   };
 

@@ -13,6 +13,7 @@ import {
   Home,
   FolderOpen,
   BookOpen,
+  FlaskConical,
   UserCircle,
   Search,
   ArrowRight,
@@ -22,7 +23,9 @@ import {
   ExternalLink,
   FileText,
   Layers,
+  Copy,
 } from "lucide-react";
+import { toast } from "sonner";
 import { AnimatePresence, m } from "framer-motion";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,6 +41,8 @@ const NavIcon = memo(({ name }: { name: string }) => {
       return <FolderOpen className="w-4 h-4" />;
     case "BookOpen":
       return <BookOpen className="w-4 h-4" />;
+    case "FlaskConical":
+      return <FlaskConical className="w-4 h-4" />;
     case "UserCircle":
       return <UserCircle className="w-4 h-4" />;
     default:
@@ -59,7 +64,7 @@ type CmdActionItem = {
   path: string;
   badge?: string;
   external?: boolean;
-  kind?: "nav" | "article" | "project";
+  kind?: "action" | "nav" | "article" | "project";
   action?: () => void;
 };
 
@@ -107,6 +112,7 @@ const Navigation = memo(() => {
     if (hasArticles) {
       items.push({ name: "Articles", path: "/articles", icon: "BookOpen" });
     }
+    items.push({ name: "Lab", path: "/lab", icon: "FlaskConical" });
     return items;
   }, [hasProjects, hasArticles]);
 
@@ -171,6 +177,14 @@ const Navigation = memo(() => {
       });
     }
     list.push({
+      id: "nav-lab",
+      label: "S&OP Decision Lab",
+      sub: "Interactive safety stock, ROP & lead-time variance simulator",
+      path: "/lab",
+      badge: "Interactive",
+      kind: "nav",
+    });
+    list.push({
       id: "nav-diary",
       label: "Diary & Field Notes",
       sub: "Personal notes, experiments, and learning",
@@ -193,12 +207,28 @@ const Navigation = memo(() => {
         kind: "nav",
       });
     }
+    const contactEmail = profile?.email || "essaahmedsiddiqui@gmail.com";
+    list.push({
+      id: "act-copy-email",
+      label: "Copy Direct Email",
+      sub: contactEmail,
+      path: "#copy-email",
+      badge: "Utility",
+      kind: "action",
+      action: () => {
+        if (typeof navigator !== "undefined" && navigator.clipboard) {
+          navigator.clipboard.writeText(contactEmail);
+          toast.success("Email copied to clipboard!");
+        }
+      },
+    });
     list.push({
       id: "nav-theme",
       label: `Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`,
       sub: "Toggle portfolio appearance between Stitch Light & Dark themes",
       path: "#theme",
-      kind: "nav",
+      badge: "Theme",
+      kind: "action",
       action: () => toggleTheme(),
     });
     if (isAdmin) {
@@ -211,22 +241,48 @@ const Navigation = memo(() => {
       });
     }
     return list;
-  }, [hasProjects, hasArticles, hasTravel, theme, toggleTheme, isAdmin]);
+  }, [hasProjects, hasArticles, hasTravel, theme, toggleTheme, isAdmin, profile?.email]);
 
-  const filteredCmdActions = useMemo(() => {
+  const { filteredCmdActions, cmdGroups } = useMemo(() => {
     const q = cmdQuery.trim().toLowerCase();
-    if (!q) {
-      return [...cmdActions, ...searchItems.slice(0, 6)];
-    }
-    const all = [...cmdActions, ...searchItems];
-    return all
-      .filter(
-        (a) =>
-          a.label.toLowerCase().includes(q) ||
-          a.sub.toLowerCase().includes(q) ||
-          (a.badge && a.badge.toLowerCase().includes(q))
-      )
-      .slice(0, 14);
+    const matchesQuery = (a: CmdActionItem) =>
+      a.label.toLowerCase().includes(q) ||
+      a.sub.toLowerCase().includes(q) ||
+      (a.badge && a.badge.toLowerCase().includes(q));
+
+    const matchedNav = q ? cmdActions.filter(matchesQuery) : cmdActions;
+    const matchedSearch = q
+      ? searchItems.filter(matchesQuery).slice(0, 10)
+      : searchItems.slice(0, 6);
+
+    const actions = matchedNav.filter((item) => item.kind === "action");
+    const navs = matchedNav.filter((item) => item.kind !== "action");
+    const projects = matchedSearch.filter((item) => item.kind === "project");
+    const articles = matchedSearch.filter((item) => item.kind === "article");
+
+    const sections: Array<{
+      id: string;
+      title: string;
+      items: CmdActionItem[];
+      startIndex: number;
+    }> = [];
+    let cursor = 0;
+
+    const pushGroup = (id: string, title: string, items: CmdActionItem[]) => {
+      if (items.length === 0) return;
+      sections.push({ id, title, items, startIndex: cursor });
+      cursor += items.length;
+    };
+
+    pushGroup("actions", "Quick Actions", actions);
+    pushGroup("nav", "Navigation", navs);
+    pushGroup("projects", "Projects", projects);
+    pushGroup("articles", "Articles", articles);
+
+    return {
+      filteredCmdActions: [...actions, ...navs, ...projects, ...articles],
+      cmdGroups: sections,
+    };
   }, [cmdQuery, cmdActions, searchItems]);
 
   const executeCmdAction = useCallback(
@@ -419,73 +475,99 @@ const Navigation = memo(() => {
                   ESC
                 </kbd>
               </div>
-              <div className="max-h-80 overflow-y-auto overscroll-contain p-2 space-y-1">
+              <div className="max-h-80 overflow-y-auto overscroll-contain p-2 space-y-2">
                 {searchLoading && !searchLoaded && (
                   <div className="px-3 py-1.5 text-[11px] font-mono text-on-surface-variant">
                     Indexing articles &amp; projects...
                   </div>
                 )}
-                {filteredCmdActions.map((item, index) => {
-                  const isSelected = index === cmdSelectedIndex;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onMouseEnter={() => setCmdSelectedIndex(index)}
-                      onClick={() => executeCmdAction(item)}
-                      className={`w-full min-h-11 flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl text-left transition-colors group ${
-                        isSelected
-                          ? "bg-surface-container text-primary"
-                          : "hover:bg-surface-container"
-                      }`}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          {item.kind === "article" ? (
-                            <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
-                          ) : item.kind === "project" ? (
-                            <Layers className="w-3.5 h-3.5 text-secondary shrink-0" />
-                          ) : null}
-                          <div
-                            className={`text-sm font-medium truncate transition-colors ${
-                              isSelected
-                                ? "text-primary"
-                                : "text-on-surface group-hover:text-primary"
-                            }`}
-                          >
-                            {item.label}
-                          </div>
-                          {item.badge && (
-                            <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-container-high border border-outline-variant/30 text-on-surface-variant">
-                              {item.badge}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs text-on-surface-variant truncate mt-0.5">{item.sub}</div>
-                      </div>
-                      {item.external ? (
-                        <ExternalLink
-                          className={`w-3.5 h-3.5 shrink-0 transition-all ${
-                            isSelected ? "text-primary" : "text-outline group-hover:text-on-surface"
-                          }`}
-                        />
-                      ) : (
-                        <ArrowRight
-                          className={`w-4 h-4 shrink-0 transition-all ${
+                {cmdGroups.map((group) => (
+                  <div key={group.id} className="space-y-1">
+                    <div className="px-3 pt-1.5 pb-0.5 font-code text-[10px] uppercase tracking-[0.14em] text-outline">
+                      {group.title}
+                    </div>
+                    {group.items.map((item, offset) => {
+                      const flatIndex = group.startIndex + offset;
+                      const isSelected = flatIndex === cmdSelectedIndex;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onMouseEnter={() => setCmdSelectedIndex(flatIndex)}
+                          onClick={() => executeCmdAction(item)}
+                          className={`w-full min-h-11 flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl text-left transition-colors group ${
                             isSelected
-                              ? "text-primary translate-x-0.5"
-                              : "text-outline group-hover:text-on-surface group-hover:translate-x-0.5"
+                              ? "bg-surface-container text-primary"
+                              : "hover:bg-surface-container"
                           }`}
-                        />
-                      )}
-                    </button>
-                  );
-                })}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              {item.id === "act-copy-email" ? (
+                                <Copy className="w-3.5 h-3.5 text-primary shrink-0" />
+                              ) : item.kind === "action" ? (
+                                theme === "dark" ? (
+                                  <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                                ) : (
+                                  <Moon className="w-3.5 h-3.5 text-primary shrink-0" />
+                                )
+                              ) : item.kind === "article" ? (
+                                <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
+                              ) : item.kind === "project" ? (
+                                <Layers className="w-3.5 h-3.5 text-secondary shrink-0" />
+                              ) : null}
+                              <div
+                                className={`text-sm font-medium truncate transition-colors ${
+                                  isSelected
+                                    ? "text-primary"
+                                    : "text-on-surface group-hover:text-primary"
+                                }`}
+                              >
+                                {item.label}
+                              </div>
+                              {item.badge && (
+                                <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-container-high border border-outline-variant/30 text-on-surface-variant">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-on-surface-variant truncate mt-0.5">
+                              {item.sub}
+                            </div>
+                          </div>
+                          {item.external ? (
+                            <ExternalLink
+                              className={`w-3.5 h-3.5 shrink-0 transition-all ${
+                                isSelected ? "text-primary" : "text-outline group-hover:text-on-surface"
+                              }`}
+                            />
+                          ) : (
+                            <ArrowRight
+                              className={`w-4 h-4 shrink-0 transition-all ${
+                                isSelected
+                                  ? "text-primary translate-x-0.5"
+                                  : "text-outline group-hover:text-on-surface group-hover:translate-x-0.5"
+                              }`}
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
                 {filteredCmdActions.length === 0 && (
                   <div className="py-8 text-center text-sm text-on-surface-variant">
                     No matching articles, projects, or pages found.
                   </div>
                 )}
+              </div>
+              <div className="px-4 py-2.5 border-t border-outline-variant/25 bg-surface-container-low/75 dark:bg-surface-container/60 flex items-center justify-between text-[11px] font-code text-outline">
+                <div className="flex items-center gap-3">
+                  <span>&#8593;&#8595; Navigate</span>
+                  <span>&#8629; Open</span>
+                  <span>ESC Close</span>
+                </div>
+                <span className="tabular-nums">{filteredCmdActions.length} results</span>
               </div>
             </div>
           </div>,
@@ -675,7 +757,7 @@ const Navigation = memo(() => {
           </Link>
 
           {/* Center: Spaced Navigation Links (Filtered by Published Content Availability) */}
-          <nav className="hidden md:flex items-center gap-5 lg:gap-7 text-label-md font-label-md">
+          <nav className="hidden md:flex items-center gap-3 lg:gap-6 text-label-md font-label-md">
             {navItems.map((item) => {
               const active = isActivePath(item.path);
               return (

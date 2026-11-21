@@ -534,6 +534,104 @@
   color: #c18401;
 }
 
+/* Tactile Matte Grain, Pointer Spotlight & Blueprint Signal Flow */
+.surface-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  opacity: 0.03;
+}
+
+.dark .surface-grain {
+  opacity: 0.045;
+}
+
+.spotlight-surface {
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    rgb(var(--stitch-primary) / 0.075),
+    transparent 65%
+  );
+}
+
+.dark .spotlight-surface {
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    rgb(var(--stitch-primary) / 0.12),
+    transparent 65%
+  );
+}
+
+@keyframes signal-flow {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-signal-flow {
+  animation: signal-flow 1.4s linear infinite;
+}
+
+/* Interactive Systems Lab Slider Controls */
+.lab-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    rgb(var(--stitch-primary)) 0%,
+    rgb(var(--stitch-primary)) var(--slider-pct, 0%),
+    rgb(var(--stitch-surface-container-high)) var(--slider-pct, 0%),
+    rgb(var(--stitch-surface-container-high)) 100%
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.lab-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: rgb(var(--stitch-primary));
+  border: 2px solid rgb(var(--stitch-surface-container-lowest));
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.22);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lab-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.lab-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.lab-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: rgb(var(--stitch-primary));
+  border: 2px solid rgb(var(--stitch-surface-container-lowest));
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.22);
+  transition: transform 0.15s ease;
+}
+
+.lab-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}
+
+.lab-slider:focus-visible {
+  outline: 2px solid rgb(var(--stitch-primary));
+  outline-offset: 4px;
+}
+
 /* ==========================================================================
    Admin Studio Dark Mode Adaptation (.dark .admin-shell & Radix Portals)
    ========================================================================== */
@@ -782,6 +880,7 @@
 
   .animate-page-enter,
   .animate-fade-in,
+  .animate-signal-flow,
   .card-interactive,
   .card-interactive:hover {
     opacity: 1 !important;

@@ -80,6 +80,12 @@ const OptimizedFooter = memo(() => {
               Articles
             </Link>
           )}
+          <Link
+            className="hover:text-on-surface transition-colors duration-150 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            href="/lab"
+          >
+            Lab
+          </Link>
           <a
             className="hover:text-on-surface transition-colors duration-150 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             href="/rss.xml"

@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type PointerEvent } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { cleanMarkdownExcerpt, formatDisplayTag } from "@/lib/clean-markdown";
 import { OptimizedImage } from "@/components/OptimizedImage";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 interface Project {
   id: string;
@@ -37,21 +38,36 @@ function getCategoryName(project: Project): string | undefined {
 function ProjectCardPreview({
   project,
   categoryName,
+  indexLabel,
 }: {
   project: Project;
   categoryName?: string;
+  indexLabel: string;
 }) {
   if (project.image_url && !project.image_url.includes("placeholder")) {
     return (
-      <div className="aspect-[16/10] w-full rounded-xl bg-surface-container-low dark:bg-surface-container border border-outline-variant/45 dark:border-outline-variant/30 pt-3 px-3 pb-0 mb-5 overflow-hidden relative flex flex-col">
-        <div className="w-full h-full rounded-t-lg overflow-hidden border border-b-0 border-outline-variant/45 dark:border-outline-variant/30 bg-surface-container-lowest shadow-sm">
-          <OptimizedImage
-            src={project.image_url}
-            alt={project.title}
-            sizes="(max-width: 768px) 100vw, 540px"
-            className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500 ease-out"
-            loading="lazy"
-          />
+      <div className="aspect-[16/10] w-full rounded-xl bg-surface-container-low dark:bg-surface-container border border-outline-variant/45 dark:border-outline-variant/30 pt-2.5 px-2.5 pb-0 mb-5 overflow-hidden relative flex flex-col">
+        <div className="w-full h-full rounded-t-lg overflow-hidden border border-b-0 border-outline-variant/45 dark:border-outline-variant/30 bg-surface-container-lowest shadow-sm flex flex-col">
+          {/* Studio Window Chrome Header */}
+          <div className="px-3 py-1.5 border-b border-outline-variant/30 bg-surface-container-low/80 dark:bg-surface-container/80 flex items-center justify-between gap-2 shrink-0">
+            <div className="flex items-center gap-1.5" aria-hidden="true">
+              <span className="w-1.5 h-1.5 rounded-full bg-outline-variant/70" />
+              <span className="w-1.5 h-1.5 rounded-full bg-outline-variant/70" />
+              <span className="w-1.5 h-1.5 rounded-full bg-outline-variant/70" />
+            </div>
+            <span className="font-code text-[10px] text-outline tracking-wider">
+              {`case-study // ${indexLabel}`}
+            </span>
+          </div>
+          <div className="relative flex-1 overflow-hidden">
+            <OptimizedImage
+              src={project.image_url}
+              alt={project.title}
+              sizes="(max-width: 768px) 100vw, 540px"
+              className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+              loading="lazy"
+            />
+          </div>
         </div>
       </div>
     );
@@ -61,7 +77,7 @@ function ProjectCardPreview({
     <div className="aspect-[16/10] w-full rounded-xl bg-surface-container-low dark:bg-surface-container border border-outline-variant/45 dark:border-outline-variant/30 p-5 mb-5 relative overflow-hidden flex flex-col justify-between bg-grid-pattern">
       <div className="flex items-center justify-between text-[11px] font-code text-outline">
         <span>{categoryName || "Engineering"}</span>
-        <span>Case Study</span>
+        <span>{`CASE // ${indexLabel}`}</span>
       </div>
       <div className="text-on-surface font-display text-base font-semibold line-clamp-2">
         {project.title}
@@ -126,56 +142,72 @@ export default function FeaturedWork({ initialProjects = [] }: FeaturedWorkProps
           const visibleTags = formattedTags.slice(0, 3);
           const overflowCount = Math.max(0, formattedTags.length - 3);
 
+          const handleCardPointerMove = (e: PointerEvent<HTMLAnchorElement>) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            e.currentTarget.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+            e.currentTarget.style.setProperty("--my", `${e.clientY - rect.top}px`);
+          };
+
           return (
-            <Link
-              key={project.id}
-              href={`/projects/${project.id}`}
-              className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-            >
-              <div>
-                <ProjectCardPreview project={project} categoryName={categoryName} />
-                <div className="flex items-center gap-2 mb-2 text-[11px] font-code">
-                  <span className="text-outline font-medium">{indexLabel}</span>
-                  {categoryName && (
-                    <>
-                      <span className="text-outline-variant" aria-hidden="true">
-                        ·
-                      </span>
-                      <span className="uppercase tracking-wider text-primary font-medium">
-                        {categoryName}
-                      </span>
-                    </>
-                  )}
+            <ScrollReveal key={project.id} delay={index * 0.06} className="h-full">
+              <Link
+                href={`/projects/${project.id}`}
+                onPointerMove={handleCardPointerMove}
+                className="relative overflow-hidden h-full rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              >
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity duration-300 spotlight-surface"
+                />
+                <div className="relative z-10">
+                  <ProjectCardPreview
+                    project={project}
+                    categoryName={categoryName}
+                    indexLabel={indexLabel}
+                  />
+                  <div className="flex items-center gap-2 mb-2 text-[11px] font-code">
+                    <span className="text-outline font-medium">{indexLabel}</span>
+                    {categoryName && (
+                      <>
+                        <span className="text-outline-variant" aria-hidden="true">
+                          ·
+                        </span>
+                        <span className="uppercase tracking-wider text-primary font-medium">
+                          {categoryName}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <h3 className="text-headline-sm font-display font-semibold text-on-surface group-hover:text-primary transition-colors">
+                    {project.title}
+                  </h3>
+                  <p className="text-on-surface-variant font-body-md text-body-md mt-2 line-clamp-3 leading-relaxed">
+                    {cleanSummary}
+                  </p>
                 </div>
-                <h3 className="text-headline-sm font-display font-semibold text-on-surface group-hover:text-primary transition-colors">
-                  {project.title}
-                </h3>
-                <p className="text-on-surface-variant font-body-md text-body-md mt-2 line-clamp-3 leading-relaxed">
-                  {cleanSummary}
-                </p>
-              </div>
-              <div className="pt-5 mt-5 border-t border-outline-variant/30 flex items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-1.5 min-w-0">
-                  {visibleTags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/25 text-on-surface-variant text-label-sm font-code"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  {overflowCount > 0 && (
-                    <span className="px-2 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/35 text-outline text-label-sm font-code">
-                      +{overflowCount}
-                    </span>
-                  )}
+                <div className="relative z-10 pt-5 mt-5 border-t border-outline-variant/30 flex items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                    {visibleTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/25 text-on-surface-variant text-label-sm font-code"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    {overflowCount > 0 && (
+                      <span className="px-2 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/35 text-outline text-label-sm font-code">
+                        +{overflowCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs font-semibold text-on-surface group-hover:text-primary shrink-0 inline-flex items-center gap-1 ml-auto transition-colors">
+                    <span>Case study</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
                 </div>
-                <span className="text-xs font-semibold text-on-surface group-hover:text-primary shrink-0 inline-flex items-center gap-1 ml-auto transition-colors">
-                  <span>Case study</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </span>
-              </div>
-            </Link>
+              </Link>
+            </ScrollReveal>
           );
         })}
       </div>

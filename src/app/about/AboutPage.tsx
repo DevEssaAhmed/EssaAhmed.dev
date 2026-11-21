@@ -17,8 +17,7 @@ import {
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
-import { BrandMark } from "@/components/BrandMark";
-import { OptimizedImage } from "@/components/OptimizedImage";
+import { InteractiveAvatar3D } from "@/components/InteractiveAvatar3D";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useContentAvailability } from "@/contexts/ContentAvailabilityContext";
 
@@ -33,10 +32,6 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
   const githubUrl = profile?.github_url || "https://github.com/DevEssaAhmed";
   const linkedinUrl = profile?.linkedin_url || "https://www.linkedin.com/in/essa-ahmed";
   const location = profile?.location || "Karachi / Lahore, Pakistan (UTC+5, Async Ready)";
-  const hasValidAvatar =
-    typeof profile?.avatar_url === "string" &&
-    profile.avatar_url.trim().length > 0 &&
-    !profile.avatar_url.includes("placeholder");
 
   const handleCopyEmail = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -116,39 +111,24 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
             </div>
           </div>
 
-          {/* Right Column: Telemetry & Spatial Identity Card */}
+          {/* Right Column: Interactive 3D Persona & Spatial Identity Card */}
           <div className="lg:col-span-5">
-            <div className="rounded-2xl card-elevated border p-6 relative overflow-hidden backdrop-blur-md">
-              {/* Profile Badge Header */}
-              <div className="flex items-center gap-4 pb-5 border-b border-outline-variant/20">
-                {hasValidAvatar ? (
-                  <div className="w-14 h-14 rounded-2xl overflow-hidden border border-outline-variant/40 bg-surface-container-high shrink-0 shadow-sm">
-                    <OptimizedImage
-                      src={profile.avatar_url}
-                      alt={displayName}
-                      width={56}
-                      height={56}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <BrandMark size="lg" />
-                )}
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
-                      {displayName}
-                    </h2>
-                  </div>
-                  <p className="font-body-md text-body-md text-on-surface-variant flex items-center gap-1.5 mt-0.5">
-                    <MapPin className="w-4 h-4 text-secondary shrink-0" />
-                    <span>{location}</span>
-                  </p>
-                </div>
+            <div className="rounded-2xl card-elevated border p-5 sm:p-6 space-y-5 relative overflow-hidden backdrop-blur-md">
+              <InteractiveAvatar3D variant="showcase" name={displayName} />
+
+              {/* Profile Header */}
+              <div className="pb-4 border-b border-outline-variant/20">
+                <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+                  {displayName}
+                </h2>
+                <p className="font-body-md text-body-md text-on-surface-variant flex items-center gap-1.5 mt-0.5">
+                  <MapPin className="w-4 h-4 text-secondary shrink-0" />
+                  <span>{location}</span>
+                </p>
               </div>
 
               {/* Position Pillars Sub-card */}
-              <div className="py-5 space-y-3">
+              <div className="space-y-3">
                 <span className="font-code text-[11px] text-outline uppercase tracking-[0.14em] block">
                   Core Specializations
                 </span>

@@ -8,6 +8,8 @@ import OptimizedFooter from "@/components/OptimizedFooter";
 import HeroSystemDiagram from "@/components/home/HeroSystemDiagram";
 import FeaturedWork from "@/components/home/FeaturedWork";
 import CapabilitiesSection from "@/components/home/CapabilitiesSection";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { SpotlightCard } from "@/components/ui/SpotlightCard";
 import { useProfile } from "@/contexts/ProfileContext";
 import { extractArticleExternalMeta } from "@/data/externalArticlesStore";
 import { formatDateUTC } from "@/lib/date";
@@ -80,7 +82,9 @@ const Index = ({
               {/* Tightened Main Headline */}
               <h1 className="text-4xl sm:text-5xl lg:text-[48px] leading-[1.08] tracking-[-0.03em] font-display font-extrabold text-on-surface">
                 I engineer workflow automation, supply chain models &amp;{" "}
-                <span className="text-primary">decision analytics.</span>
+                <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+                  decision analytics.
+                </span>
               </h1>
 
               {/* Subtitle */}
@@ -189,121 +193,154 @@ const Index = ({
         {/* 5. LATEST WRITING (Dynamically hidden when 0 published articles in Supabase) */}
         {publishedArticles.length > 0 && (
           <section className="max-w-[1080px] mx-auto py-16 md:py-20 px-6" id="articles">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-6 border-b border-outline-variant/30 mb-10 gap-4">
-              <div>
-                <span className="font-code text-xs uppercase tracking-[0.14em] text-outline block mb-2">
-                  03 / WRITING
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-display font-bold text-on-surface tracking-tight">
-                  Latest Writing
-                </h2>
-                <p className="text-on-surface-variant font-body-md text-body-md mt-1.5">
-                  Notes on supply chain forecasting, pipeline automation, and executive dashboards.
-                </p>
+            <ScrollReveal>
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-6 border-b border-outline-variant/30 mb-10 gap-4">
+                <div>
+                  <span className="font-code text-xs uppercase tracking-[0.14em] text-outline block mb-2">
+                    03 / WRITING
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-display font-bold text-on-surface tracking-tight">
+                    Latest Writing
+                  </h2>
+                  <p className="text-on-surface-variant font-body-md text-body-md mt-1.5">
+                    Notes on supply chain forecasting, pipeline automation, and executive dashboards.
+                  </p>
+                </div>
+                <Link
+                  className="text-primary text-label-md font-label-md flex items-center gap-1.5 hover:underline shrink-0 font-semibold rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                  href="/articles"
+                >
+                  <span>Read all articles</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
-              <Link
-                className="text-primary text-label-md font-label-md flex items-center gap-1.5 hover:underline shrink-0 font-semibold rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-                href="/articles"
-              >
-                <span>Read all articles</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {publishedArticles.map((article) => {
-                const extMeta = extractArticleExternalMeta(article);
-                const isExternal = extMeta.isExternal && Boolean(extMeta.externalUrl);
-                const platform = extMeta.platform || "On Site";
-                const href = isExternal
-                  ? extMeta.externalUrl!
-                  : `/articles/${encodeURIComponent(article.slug || article.id)}`;
-                const formattedDate = formatDateUTC(
-                  article.created_at,
-                  {
-                    month: "long",
-                    year: "numeric",
-                  },
-                  "Recent"
-                );
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {publishedArticles.map((article) => {
+                  const extMeta = extractArticleExternalMeta(article);
+                  const isExternal = extMeta.isExternal && Boolean(extMeta.externalUrl);
+                  const platform = extMeta.platform || "On Site";
+                  const href = isExternal
+                    ? extMeta.externalUrl!
+                    : `/articles/${encodeURIComponent(article.slug || article.id)}`;
+                  const formattedDate = formatDateUTC(
+                    article.created_at,
+                    {
+                      month: "long",
+                      year: "numeric",
+                    },
+                    "Recent"
+                  );
 
-                const badgeClass =
-                  platform === "Medium"
-                    ? "bg-secondary/10 border-secondary/30 text-secondary"
-                    : platform === "dev.to"
-                    ? "bg-tertiary-container/25 border-tertiary/35 text-tertiary"
-                    : "bg-primary/10 border-primary/30 text-primary";
+                  const badgeClass =
+                    platform === "Medium"
+                      ? "bg-secondary/10 border-secondary/30 text-secondary"
+                      : platform === "dev.to"
+                      ? "bg-tertiary-container/25 border-tertiary/35 text-tertiary"
+                      : "bg-primary/10 border-primary/30 text-primary";
 
-                const cardInner = (
-                  <>
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <span
-                          className={`px-2.5 py-1 rounded-full border text-label-sm font-label-sm font-semibold ${badgeClass}`}
-                        >
-                          {isExternal ? `${platform} ↗` : "On Site"}
-                        </span>
-                        {article.reading_time ? (
-                          <span className="text-on-surface-variant text-label-sm font-code">
-                            {article.reading_time} min read
+                  const cardInner = (
+                    <>
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <span
+                            className={`px-2.5 py-1 rounded-full border text-label-sm font-label-sm font-semibold ${badgeClass}`}
+                          >
+                            {isExternal ? `${platform} ↗` : "On Site"}
                           </span>
-                        ) : null}
+                          {article.reading_time ? (
+                            <span className="text-on-surface-variant text-label-sm font-code">
+                              {article.reading_time} min read
+                            </span>
+                          ) : null}
+                        </div>
+                        <h3 className="text-headline-sm font-display font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">
+                          {article.title}
+                        </h3>
+                        <p className="text-on-surface-variant font-body-md text-body-md mt-3 leading-relaxed line-clamp-3">
+                          {article.excerpt}
+                        </p>
                       </div>
-                      <h3 className="text-headline-sm font-display font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">
-                        {article.title}
-                      </h3>
-                      <p className="text-on-surface-variant font-body-md text-body-md mt-3 leading-relaxed line-clamp-3">
-                        {article.excerpt}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between pt-6 mt-4 border-t border-outline-variant/25 text-on-surface-variant text-label-sm font-code">
-                      <span>{formattedDate}</span>
-                      {isExternal ? (
-                        <ExternalLink className="w-4 h-4 text-on-surface group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                      ) : (
-                        <span className="text-primary font-label-sm font-medium flex items-center gap-1 group-hover:underline">
-                          Read Article →
-                        </span>
-                      )}
-                    </div>
-                  </>
-                );
+                      <div className="flex items-center justify-between pt-6 mt-4 border-t border-outline-variant/25 text-on-surface-variant text-label-sm font-code">
+                        <span>{formattedDate}</span>
+                        {isExternal ? (
+                          <ExternalLink className="w-4 h-4 text-on-surface group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        ) : (
+                          <span className="text-primary font-label-sm font-medium flex items-center gap-1 group-hover:underline">
+                            Read Article →
+                          </span>
+                        )}
+                      </div>
+                    </>
+                  );
 
-                return isExternal ? (
-                  <a
-                    key={article.id}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-                  >
-                    {cardInner}
-                  </a>
-                ) : (
-                  <Link
-                    key={article.id}
-                    href={href}
-                    className="rounded-2xl card-elevated card-interactive border p-6 flex flex-col justify-between group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-                  >
-                    {cardInner}
-                  </Link>
-                );
-              })}
-            </div>
+                  return (
+                    <SpotlightCard
+                      key={article.id}
+                      className="rounded-2xl card-elevated card-interactive border h-full"
+                    >
+                      {isExternal ? (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-6 flex flex-col justify-between h-full group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                        >
+                          {cardInner}
+                        </a>
+                      ) : (
+                        <Link
+                          href={href}
+                          className="p-6 flex flex-col justify-between h-full group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                        >
+                          {cardInner}
+                        </Link>
+                      )}
+                    </SpotlightCard>
+                  );
+                })}
+              </div>
+            </ScrollReveal>
           </section>
         )}
 
         {/* 6. INVERTED HIGH-CONTRAST CTA BANNER */}
         <section className="max-w-[1080px] mx-auto py-16 md:py-20 px-6" id="contact">
-          <div className="rounded-2xl bg-inverse-surface text-inverse-on-surface dark:bg-surface-container-low dark:text-on-surface border border-on-surface/10 dark:border-outline-variant/40 p-8 sm:p-12 md:p-14 text-center relative overflow-hidden shadow-xl">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 opacity-60 [background-size:32px_32px] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)]"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-40 bg-primary/20 blur-[100px]"
-            />
+          <ScrollReveal>
+            <div className="rounded-2xl bg-inverse-surface text-inverse-on-surface dark:bg-surface-container-low dark:text-on-surface border border-on-surface/10 dark:border-outline-variant/40 p-8 sm:p-12 md:p-14 text-center relative overflow-hidden shadow-xl">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-60 [background-size:32px_32px] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)]"
+              />
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 surface-grain" />
+              <span
+                aria-hidden="true"
+                className="pointer-events-none select-none absolute top-2 left-2.5 font-code text-[11px] leading-none text-inverse-on-surface/35 dark:text-outline/45"
+              >
+                +
+              </span>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none select-none absolute top-2 right-2.5 font-code text-[11px] leading-none text-inverse-on-surface/35 dark:text-outline/45"
+              >
+                +
+              </span>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none select-none absolute bottom-2 left-2.5 font-code text-[11px] leading-none text-inverse-on-surface/35 dark:text-outline/45"
+              >
+                +
+              </span>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none select-none absolute bottom-2 right-2.5 font-code text-[11px] leading-none text-inverse-on-surface/35 dark:text-outline/45"
+              >
+                +
+              </span>
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-40 bg-primary/20 blur-[100px]"
+              />
 
             <div className="relative z-10">
               <span className="inline-block font-code text-[11px] uppercase tracking-[0.16em] text-inverse-on-surface/70 dark:text-outline mb-5">
@@ -337,7 +374,8 @@ const Index = ({
                 </button>
               </div>
             </div>
-          </div>
+            </div>
+          </ScrollReveal>
         </section>
       </main>
 
