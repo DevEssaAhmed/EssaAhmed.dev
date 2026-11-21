@@ -111,11 +111,14 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
             </div>
           </div>
 
-          {/* Right Column: Interactive 3D Persona & Spatial Identity Card */}
-          <div className="lg:col-span-5">
+          {/* Right Column: Avatar & Core Specializations */}
+          <div className="lg:col-span-5 flex flex-col items-stretch">
+            <InteractiveAvatar3D
+              variant="showcase"
+              name={displayName}
+              className="-mb-3 relative z-10"
+            />
             <div className="rounded-2xl card-elevated border p-5 sm:p-6 space-y-5 relative overflow-hidden backdrop-blur-md">
-              <InteractiveAvatar3D variant="showcase" name={displayName} />
-
               {/* Profile Header */}
               <div className="pb-4 border-b border-outline-variant/20">
                 <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
