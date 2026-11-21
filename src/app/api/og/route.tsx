@@ -20,39 +20,87 @@ export async function GET(req: NextRequest) {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "64px 72px",
+          position: "relative",
           background:
-            "linear-gradient(135deg, #0b1120 0%, #111827 55%, #172554 100%)",
+            "linear-gradient(135deg, #111318 0%, #161922 55%, #0B0D12 100%)",
           color: "#f8fafc",
           fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
         }}
       >
         <div
           style={{
+            position: "absolute",
+            top: "-120px",
+            left: "-80px",
+            width: "520px",
+            height: "520px",
+            borderRadius: "9999px",
+            background:
+              "radial-gradient(circle, rgba(59,130,246,0.18) 0%, rgba(52,211,153,0.06) 45%, rgba(0,0,0,0) 75%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: "-160px",
+            right: "-100px",
+            width: "480px",
+            height: "480px",
+            borderRadius: "9999px",
+            background:
+              "radial-gradient(circle, rgba(52,211,153,0.12) 0%, rgba(0,0,0,0) 70%)",
+          }}
+        />
+
+        <div
+          style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            position: "relative",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
             <div
               style={{
-                width: "52px",
-                height: "52px",
-                borderRadius: "14px",
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.18)",
+                width: "56px",
+                height: "56px",
+                borderRadius: "15px",
+                background: "#141720",
+                border: "1px solid rgba(255,255,255,0.14)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "20px",
-                fontWeight: 800,
-                letterSpacing: "0.04em",
+                overflow: "hidden",
               }}
             >
-              EA
+              <svg
+                width="56"
+                height="56"
+                viewBox="0 0 64 64"
+                fill="none"
+              >
+                <rect width="64" height="64" fill="#141720" />
+                <path
+                  d="M12 17H27.5V22.2H17.2V29.4H25V34.6H17.2V41.8H27.5V47H12V17Z"
+                  fill="#F8FAFC"
+                />
+                <path
+                  d="M38.6 17H43.9L52 47H46.5L41.25 26.8L36 47H30.5L38.6 17Z"
+                  fill="#34D399"
+                />
+                <rect
+                  x="38.25"
+                  y="39.4"
+                  width="6"
+                  height="4.4"
+                  rx="2.2"
+                  fill="#F8FAFC"
+                />
+              </svg>
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: "22px", fontWeight: 700 }}>
+              <span style={{ fontSize: "23px", fontWeight: 700, color: "#f8fafc" }}>
                 Essa Ahmed
               </span>
               <span style={{ fontSize: "15px", color: "#94a3b8" }}>
@@ -65,12 +113,12 @@ export async function GET(req: NextRequest) {
             style={{
               padding: "8px 18px",
               borderRadius: "999px",
-              background: "rgba(59, 130, 246, 0.16)",
+              background: "rgba(59, 130, 246, 0.14)",
               border: "1px solid rgba(96, 165, 250, 0.35)",
               color: "#93c5fd",
-              fontSize: "16px",
+              fontSize: "15px",
               fontWeight: 600,
-              letterSpacing: "0.04em",
+              letterSpacing: "0.06em",
               textTransform: "uppercase",
             }}
           >
@@ -78,7 +126,14 @@ export async function GET(req: NextRequest) {
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "20px",
+            position: "relative",
+          }}
+        >
           <div
             style={{
               fontSize: title.length > 60 ? "48px" : "58px",
@@ -107,14 +162,15 @@ export async function GET(req: NextRequest) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            borderTop: "1px solid rgba(148, 163, 184, 0.22)",
+            borderTop: "1px solid rgba(148, 163, 184, 0.18)",
             paddingTop: "24px",
             fontSize: "17px",
             color: "#94a3b8",
+            position: "relative",
           }}
         >
           <span>Automation · Supply Chain S&amp;OP · Analytics &amp; BI</span>
-          <span style={{ color: "#60a5fa", fontWeight: 600 }}>
+          <span style={{ color: "#34d399", fontWeight: 600 }}>
             https://essaahmed.dev
           </span>
         </div>

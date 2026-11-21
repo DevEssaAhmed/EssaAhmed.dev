@@ -6,6 +6,7 @@ import "../index.css";
 import Providers from "./providers";
 import GTMProvider from "@/components/gtm-provider";
 import GTMPageView from "@/components/gtm-pageview";
+import { buildDynamicOgUrl } from "@/lib/metadata";
 import { getPublicSiteShellData } from "@/lib/site-data";
 
 const inter = Inter({
@@ -51,6 +52,12 @@ const personJsonLd = {
   ],
 };
 
+const defaultOgImage = buildDynamicOgUrl({
+  title: "Essa Ahmed",
+  subtitle: "Workflow Automation · Supply Chain S&OP · Decision Analytics",
+  badge: "Portfolio",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://essaahmed.dev"),
   title: "Essa Ahmed",
@@ -85,19 +92,19 @@ export const metadata: Metadata = {
       { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
-    other: [{ rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#374EAE" }],
+    other: [{ rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#2563EB" }],
   },
   openGraph: {
     title: "Essa Ahmed",
     description:
-      "Industrial engineering, quality improvement, data analytics, dashboards, automation projects, and writing by Essa Ahmed.",
+      "Workflow Automation · Supply Chain S&OP · Decision Analytics",
     type: "website",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Essa Ahmed" }],
+    images: [{ url: defaultOgImage, width: 1200, height: 630, alt: "Essa Ahmed" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@DevEssaAhmed",
-    images: ["/og-image.png"],
+    images: [defaultOgImage],
   },
   verification: {
     google: "FYfYBNT6h1kpZ8TJMt_ZYOZbOK00MX8ZeuLnroemaGc",

@@ -33,6 +33,9 @@ import {
   ChevronRight,
   ExternalLink,
   X,
+  Globe,
+  MapPin,
+  Camera,
 } from "lucide-react";
 
 interface TravelPageProps {
@@ -201,7 +204,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-3 max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant/40 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
-                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-secondary" />
                 <span>Visual Travel Log · Field Notes</span>
               </div>
               <h1 className="text-headline-lg-mobile sm:text-headline-lg font-headline-lg text-on-surface tracking-tight">
@@ -214,8 +217,10 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
 
             {/* Right: Metadata Counters + Authenticated-Only CMS Shortcut */}
             <div className="flex flex-wrap items-center gap-3 self-start md:self-end">
-              <div className="px-4 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-center gap-2.5">
-                <span className="text-base">🌍</span>
+              <div className="px-4 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-center gap-3">
+                <span className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
+                  <Globe className="w-4 h-4" aria-hidden="true" />
+                </span>
                 <div>
                   <div className="text-label-sm font-label-sm text-outline uppercase">
                     Countries
@@ -225,8 +230,10 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                   </div>
                 </div>
               </div>
-              <div className="px-4 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-center gap-2.5">
-                <span className="text-base">📍</span>
+              <div className="px-4 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-center gap-3">
+                <span className="w-9 h-9 rounded-lg bg-secondary/10 border border-secondary/20 text-secondary flex items-center justify-center shrink-0">
+                  <MapPin className="w-4 h-4" aria-hidden="true" />
+                </span>
                 <div>
                   <div className="text-label-sm font-label-sm text-outline uppercase">
                     Cities
@@ -236,8 +243,10 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                   </div>
                 </div>
               </div>
-              <div className="px-4 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-center gap-2.5">
-                <span className="text-base">📸</span>
+              <div className="px-4 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-center gap-3">
+                <span className="w-9 h-9 rounded-lg bg-tertiary/10 border border-tertiary/20 text-tertiary flex items-center justify-center shrink-0">
+                  <Camera className="w-4 h-4" aria-hidden="true" />
+                </span>
                 <div>
                   <div className="text-label-sm font-label-sm text-outline uppercase">
                     Highlights
@@ -414,7 +423,7 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
             {/* Section Breadcrumb & Status */}
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-outline-variant/20 pb-5">
               <div className="flex items-center gap-2.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
                 <span className="text-label-md font-label-md text-on-surface tracking-wider uppercase font-semibold">
                   Selected Highlight: {activeCity.city}, {activeCity.country} (
                   {activeCity.visited_at})
@@ -567,8 +576,9 @@ export default function TravelPage({ initialHighlights }: TravelPageProps) {
                       <div className="px-3.5 py-2.5 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-white text-xs font-body-md leading-relaxed">
                         &ldquo;{currentSlide.caption}&rdquo;
                         {currentSlide.exif && (
-                          <div className="text-[10px] font-code text-zinc-400 mt-1">
-                            📷 {currentSlide.exif}
+                          <div className="text-[10px] font-code text-zinc-400 mt-1 flex items-center gap-1.5">
+                            <Camera className="w-3 h-3 shrink-0" aria-hidden="true" />
+                            <span>{currentSlide.exif}</span>
                           </div>
                         )}
                       </div>

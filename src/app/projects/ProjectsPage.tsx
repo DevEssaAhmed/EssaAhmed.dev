@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
-import { cleanMarkdownExcerpt } from "@/lib/clean-markdown";
+import { cleanMarkdownExcerpt, formatDisplayTag } from "@/lib/clean-markdown";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { m, AnimatePresence } from "framer-motion";
 import { Search, PlayCircle, ArrowRight, ExternalLink, Code2 } from "lucide-react";
@@ -14,6 +14,7 @@ interface ProjectItem {
   title: string;
   description: string;
   image: string;
+  image_url?: string | null;
   tags: string[];
   category: string;
   featured?: boolean;
@@ -24,6 +25,51 @@ interface ProjectItem {
 
 interface ProjectsPageProps {
   initialProjects?: ProjectItem[];
+}
+
+function ProjectPreviewBezel({
+  project,
+  priority = false,
+  sizes,
+}: {
+  project: ProjectItem;
+  priority?: boolean;
+  sizes: string;
+}) {
+  const imageSrc = project.image || project.image_url;
+  const hasImage = Boolean(imageSrc && !imageSrc.includes("placeholder"));
+
+  if (hasImage && imageSrc) {
+    return (
+      <div className="aspect-[16/10] w-full rounded-xl bg-surface-container-low dark:bg-surface-container border border-outline-variant/45 dark:border-outline-variant/30 pt-3 px-3 pb-0 overflow-hidden relative flex flex-col">
+        <div className="w-full h-full rounded-t-lg overflow-hidden border border-b-0 border-outline-variant/45 dark:border-outline-variant/30 bg-surface-container-lowest shadow-sm">
+          <OptimizedImage
+            src={imageSrc}
+            alt={project.title}
+            className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
+            sizes={sizes}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="aspect-[16/10] w-full rounded-xl bg-surface-container-low dark:bg-surface-container border border-outline-variant/45 dark:border-outline-variant/30 p-5 relative overflow-hidden flex flex-col justify-between bg-grid-pattern">
+      <div className="flex items-center justify-between text-[11px] font-code text-outline">
+        <span>{project.category || "Engineering"}</span>
+        <span>{project.featured ? "Featured Case Study" : "Case Study"}</span>
+      </div>
+      <div className="text-on-surface font-display text-base font-semibold line-clamp-2">
+        {project.title}
+      </div>
+      <div className="pt-2 border-t border-outline-variant/30 text-[11px] font-code text-on-surface-variant">
+        Architecture &amp; Outcome Record
+      </div>
+    </div>
+  );
 }
 
 export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps) {
@@ -43,11 +89,12 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
         selectedCategory === "All" ||
         project.category?.toLowerCase() === selectedCategory.toLowerCase();
       const q = searchTerm.trim().toLowerCase();
+      const safeTags = Array.isArray(project.tags) ? project.tags : [];
       const matchesSearch =
         !q ||
         project.title?.toLowerCase().includes(q) ||
         project.description?.toLowerCase().includes(q) ||
-        project.tags?.some((t) => t.toLowerCase().includes(q));
+        safeTags.some((t) => t.toLowerCase().includes(q));
       return matchesCategory && matchesSearch;
     });
   }, [initialProjects, selectedCategory, searchTerm]);
@@ -65,32 +112,33 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
     [filteredProjects, flagshipProject]
   );
 
+  const flagshipFormattedTags = useMemo(() => {
+    const rawTags = Array.isArray(flagshipProject?.tags)
+      ? flagshipProject.tags
+      : flagshipProject?.tags || [];
+    return rawTags.map((tag) => formatDisplayTag(tag)).filter(Boolean);
+  }, [flagshipProject]);
+
   return (
     <div className="min-h-screen bg-surface text-on-surface selection:bg-primary/30 selection:text-primary flex flex-col justify-between transition-colors duration-200">
       <Navigation />
 
-      <main id="main-content" tabIndex={-1} className="max-w-[1080px] w-full mx-auto px-4 md:px-6 pt-12 pb-20">
+      <main id="main-content" tabIndex={-1} className="max-w-[1080px] w-full mx-auto px-6 py-12 md:py-16">
         {/* SECTION 1: PAGE HERO & FILTER BAR */}
-        <section className="pb-10">
-          <div className="inline-flex items-center gap-2 border border-secondary/25 bg-secondary/10 text-secondary text-xs font-semibold px-3 py-1 rounded-full mb-4">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary" />
-            </span>
-            <span className="tracking-wider uppercase text-[11px]">
-              SELECTED WORK &amp; CASE STUDIES
-            </span>
-          </div>
+        <section className="pb-8 border-b border-outline-variant/30 mb-10">
+          <span className="font-code text-xs uppercase tracking-[0.14em] text-outline block mb-2">
+            01 / PROJECTS
+          </span>
 
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-on-surface mb-4 font-display">
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-on-surface mb-4 font-display">
             Projects &amp; Case Studies
           </h1>
-          <p className="text-on-surface-variant text-base md:text-lg max-w-2xl leading-relaxed mb-8 font-body-lg">
+          <p className="text-on-surface-variant font-body-lg text-body-lg max-w-2xl leading-relaxed mb-8">
             Analytics dashboards, workflow automation pipelines, and supply chain demand planning models.
           </p>
 
           {/* Filter & Search Bar Row */}
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between w-full pt-2 pb-6 border-b border-outline-variant/20">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between w-full pt-2">
             {/* Search Input */}
             <div className="relative w-full md:w-96">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline w-4 h-4 pointer-events-none" />
@@ -100,7 +148,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search projects by title, stack, or domain..."
-                className="min-h-11 bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-on-surface placeholder:text-outline w-full transition-all duration-150 outline-none shadow-xs"
+                className="min-h-11 bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-on-surface placeholder:text-outline w-full transition-all duration-150 outline-none shadow-sm"
               />
             </div>
 
@@ -119,7 +167,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                     {active && (
                       <m.span
                         layoutId="activeProjectCategoryPill"
-                        className="absolute inset-0 bg-on-surface rounded-full -z-10 shadow-xs"
+                        className="absolute inset-0 bg-on-surface rounded-full -z-10 shadow-sm"
                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
                       />
                     )}
@@ -175,78 +223,38 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
           <>
             {/* SECTION 2: FEATURED FLAGSHIP CASE STUDY (Full-Width Bento Banner) */}
             {flagshipProject && (
-              <section className="mb-12">
+              <section className="mb-10">
                 <div className="rounded-2xl card-elevated card-interactive border p-6 md:p-8 relative overflow-hidden group">
-                  <div className="absolute -top-32 -right-32 w-80 h-80 bg-secondary/10 rounded-full blur-3xl pointer-events-none" />
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                    {/* Left 6 Columns: Preview Image or Clean Summary Card */}
+                    {/* Left 6 Columns: Unified Matte Presentation Bezel */}
                     <Link
                       href={`/projects/${flagshipProject.id}`}
-                      className="lg:col-span-6 block bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-inner relative"
+                      className="lg:col-span-6 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded-xl"
                     >
-                      {flagshipProject.image &&
-                      !flagshipProject.image.includes("placeholder") ? (
-                        <div className="aspect-[16/10] w-full relative overflow-hidden">
-                          <OptimizedImage
-                            src={flagshipProject.image}
-                            alt={flagshipProject.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            priority
-                            sizes="(max-width: 1024px) 100vw, 50vw"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 via-transparent to-transparent" />
-                          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-code">
-                            {flagshipProject.category && (
-                              <span className="px-2.5 py-1 rounded bg-surface-container-low/90 border border-outline-variant/30 text-on-surface">
-                                {flagshipProject.category}
-                              </span>
-                            )}
-                            {flagshipProject.featured && (
-                              <span className="px-2.5 py-1 rounded bg-secondary/15 border border-secondary/30 text-secondary">
-                                ★ Featured
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="p-6 aspect-[16/10] flex flex-col justify-between">
-                          <div className="flex items-center justify-between text-xs font-code">
-                            <span className="text-primary font-medium">
-                              {flagshipProject.category}
-                            </span>
-                            {flagshipProject.featured && (
-                              <span className="text-secondary font-medium">
-                                ★ Featured
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-lg font-display font-bold text-on-surface">
-                            {flagshipProject.title}
-                          </div>
-                          <div className="text-xs font-code text-outline">
-                            Case Study
-                          </div>
-                        </div>
-                      )}
+                      <ProjectPreviewBezel
+                        project={flagshipProject}
+                        priority
+                        sizes="(max-width: 1024px) 100vw, 540px"
+                      />
                     </Link>
 
                     {/* Right 6 Columns: Case Study Details */}
                     <div className="lg:col-span-6 space-y-5">
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2 text-[11px] font-code">
                         {flagshipProject.featured && (
-                          <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-semibold">
+                          <span className="px-2.5 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary font-semibold uppercase tracking-wider">
                             Featured Case Study
                           </span>
                         )}
-                        {flagshipProject.demoVideoUrl && (
-                          <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-code inline-flex items-center gap-1.5 font-medium">
-                            <PlayCircle className="w-3.5 h-3.5" />
-                            <span>Video Walkthrough</span>
+                        {flagshipProject.category && flagshipProject.category !== "Uncategorized" && (
+                          <span className="uppercase tracking-wider text-primary font-medium">
+                            {flagshipProject.category}
                           </span>
                         )}
-                        {flagshipProject.category && (
-                          <span className="px-3 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface-variant text-xs font-code">
-                            {flagshipProject.category}
+                        {flagshipProject.demoVideoUrl && (
+                          <span className="px-2.5 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary inline-flex items-center gap-1.5 font-medium">
+                            <PlayCircle className="w-3.5 h-3.5" />
+                            <span>Video Walkthrough</span>
                           </span>
                         )}
                       </div>
@@ -259,18 +267,27 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                         </Link>
                       </h2>
                       <p className="text-on-surface-variant font-body-md text-body-md leading-relaxed line-clamp-3">
-                        {cleanMarkdownExcerpt(flagshipProject.description, 220)}
+                        {cleanMarkdownExcerpt(
+                          flagshipProject.description,
+                          220,
+                          flagshipProject.title
+                        )}
                       </p>
-                      {flagshipProject.tags && flagshipProject.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {flagshipProject.tags.map((tag) => (
+                      {flagshipFormattedTags.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {flagshipFormattedTags.slice(0, 4).map((tag) => (
                             <span
                               key={tag}
-                              className="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/25 text-on-surface-variant text-label-sm font-code"
+                              className="px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/25 text-on-surface-variant text-label-sm font-code"
                             >
                               {tag}
                             </span>
                           ))}
+                          {flagshipFormattedTags.length > 4 && (
+                            <span className="px-2 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/35 text-outline text-label-sm font-code">
+                              +{flagshipFormattedTags.length - 4}
+                            </span>
+                          )}
                         </div>
                       )}
                       <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -312,9 +329,25 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
 
             {/* SECTION 3: 2-COLUMN PROJECT ARCHIVE BENTO GRID */}
             {gridProjects.length > 0 && (
-              <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {gridProjects.map((project) => {
-                  const summary = cleanMarkdownExcerpt(project.description, 190);
+              <section className="grid grid-cols-1 md:grid-cols-2 gap-7">
+                {gridProjects.map((project, index) => {
+                  const summary = cleanMarkdownExcerpt(
+                    project.description,
+                    190,
+                    project.title
+                  );
+                  const indexLabel = String(index + 2).padStart(2, "0");
+                  const rawTags = Array.isArray(project.tags) ? project.tags : [];
+                  const formattedTags = rawTags
+                    .map((tag) => formatDisplayTag(tag))
+                    .filter(Boolean);
+                  const visibleTags = formattedTags.slice(0, 3);
+                  const overflowCount = Math.max(0, formattedTags.length - 3);
+                  const categoryName =
+                    project.category && project.category !== "Uncategorized"
+                      ? project.category
+                      : undefined;
+
                   return (
                     <div
                       key={project.id}
@@ -323,43 +356,31 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                       <div>
                         <Link
                           href={`/projects/${project.id}`}
-                          className="block w-full h-48 rounded-xl bg-surface-container-lowest border border-outline-variant/25 mb-6 overflow-hidden relative"
+                          className="block mb-5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                         >
-                          {project.image && !project.image.includes("placeholder") ? (
-                            <OptimizedImage
-                              src={project.image}
-                              alt={project.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              loading="lazy"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                          ) : (
-                            <div className="w-full h-full p-5 flex flex-col justify-between font-code text-xs">
-                              <div className="flex items-center justify-between text-on-surface-variant">
-                                <span className="flex items-center gap-1.5 text-on-surface font-medium">
-                                  <span className="w-2 h-2 rounded-full bg-primary" />
-                                  {project.category}
-                                </span>
-                              </div>
-                              <div className="text-on-surface-variant text-[11px] line-clamp-2">
-                                {summary}
-                              </div>
-                              <div className="flex items-center justify-between text-[11px] text-outline pt-2 border-t border-outline-variant/20">
-                                <span>Case Study</span>
-                              </div>
-                            </div>
-                          )}
+                          <ProjectPreviewBezel
+                            project={project}
+                            sizes="(max-width: 768px) 100vw, 540px"
+                          />
                         </Link>
 
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-label-sm font-code text-primary">
-                              {project.category}
-                            </span>
+                          <div className="flex items-center gap-2 text-[11px] font-code">
+                            <span className="text-outline font-medium">{indexLabel}</span>
+                            {categoryName && (
+                              <>
+                                <span className="text-outline-variant" aria-hidden="true">
+                                  ·
+                                </span>
+                                <span className="uppercase tracking-wider text-primary font-medium">
+                                  {categoryName}
+                                </span>
+                              </>
+                            )}
                             {project.demoVideoUrl && (
                               <span className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-[10px] font-code inline-flex items-center gap-1 font-medium">
                                 <PlayCircle className="w-3 h-3" />
-                                <span>Video Demo</span>
+                                <span>Video</span>
                               </span>
                             )}
                           </div>
@@ -391,7 +412,7 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                           </div>
                         </div>
 
-                        <h3 className="text-headline-sm font-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                        <h3 className="text-headline-sm font-display font-semibold text-on-surface group-hover:text-primary transition-colors">
                           <Link href={`/projects/${project.id}`}>
                             {project.title}
                           </Link>
@@ -401,24 +422,28 @@ export default function ProjectsPage({ initialProjects = [] }: ProjectsPageProps
                         </p>
                       </div>
 
-                      <div className="pt-6 mt-4 border-t border-outline-variant/20 flex items-center justify-between gap-3">
-                        <div className="flex flex-wrap gap-1.5">
-                          {project.tags &&
-                            project.tags.slice(0, 4).map((tag) => (
-                              <span
-                                key={tag}
-                                className="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/25 text-on-surface-variant text-label-sm font-code"
-                              >
-                                {tag}
-                              </span>
-                            ))}
+                      <div className="pt-5 mt-5 border-t border-outline-variant/30 flex items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                          {visibleTags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/25 text-on-surface-variant text-label-sm font-code"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {overflowCount > 0 && (
+                            <span className="px-2 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/35 text-outline text-label-sm font-code">
+                              +{overflowCount}
+                            </span>
+                          )}
                         </div>
                         <Link
                           href={`/projects/${project.id}`}
-                          className="text-xs font-semibold text-primary hover:underline shrink-0 flex items-center gap-1"
+                          className="text-xs font-semibold text-on-surface group-hover:text-primary shrink-0 inline-flex items-center gap-1 ml-auto transition-colors"
                         >
-                          <span>View Case Study</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
+                          <span>Case study</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                         </Link>
                       </div>
                     </div>

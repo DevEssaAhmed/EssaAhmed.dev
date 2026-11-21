@@ -1,5 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
-  <rect width="512" height="512" rx="120" fill="#20242B"/>
-  <path d="M78 126h173v59H142v47h93v58h-93v57h111v59H78V126Z" fill="#FAFAFC"/>
-  <path d="m278 406 63-280h65l95 280h-69l-17-59h-67l-13 59h-57Zm83-115h40l-21-75-19 75Z" fill="#55BDB1" fill-rule="evenodd"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="tileBg" x1="4" y1="2" x2="60" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#161922" />
+      <stop offset="100%" stop-color="#0B0D12" />
+    </linearGradient>
+    <radialGradient id="tileGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(18 14) rotate(45) scale(48)">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.24" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="accentGrad" x1="30.5" y1="17" x2="52" y2="47" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="100%" stop-color="#34D399" />
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="url(#tileBg)" />
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="url(#tileGlow)" />
+  <rect x="1" y="1" width="62" height="62" rx="15" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" />
+  <path d="M12 17H27.5V22.2H17.2V29.4H25V34.6H17.2V41.8H27.5V47H12V17Z" fill="#F8FAFC" />
+  <path d="M38.6 17H43.9L52 47H46.5L41.25 26.8L36 47H30.5L38.6 17Z" fill="url(#accentGrad)" />
+  <rect x="38.25" y="39.4" width="6" height="4.4" rx="2.2" fill="#F8FAFC" />
 </svg>

@@ -1,6 +1,68 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
-  <rect width="1200" height="630" fill="#0f172a"/>
-  <circle cx="320" cy="315" r="180" fill="#38bdf8"/>
-  <circle cx="320" cy="315" r="90" fill="#f8fafc"/>
-  <text x="560" y="340" font-family="Arial, sans-serif" font-size="64" fill="#f8fafc">Soft Muse Folio</text>
+  <defs>
+    <radialGradient id="cobaltGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(180 110) rotate(35) scale(520 420)">
+      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.28" />
+      <stop offset="55%" stop-color="#2563EB" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#0D1117" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="emeraldGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1040 530) rotate(215) scale(500 380)">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.22" />
+      <stop offset="55%" stop-color="#10B981" stop-opacity="0.06" />
+      <stop offset="100%" stop-color="#0D1117" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="hairlineGrid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="1" />
+    </pattern>
+    <linearGradient id="tileBg" x1="4" y1="2" x2="60" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#161922" />
+      <stop offset="100%" stop-color="#0B0D12" />
+    </linearGradient>
+    <radialGradient id="tileGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(18 14) rotate(45) scale(48)">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.28" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="accentGrad" x1="30.5" y1="17" x2="52" y2="47" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="100%" stop-color="#34D399" />
+    </linearGradient>
+  </defs>
+
+  <!-- Obsidian Canvas & Atmospheric Glows -->
+  <rect width="1200" height="630" fill="#0D1117" />
+  <rect width="1200" height="630" fill="url(#hairlineGrid)" />
+  <rect width="1200" height="630" fill="url(#cobaltGlow)" />
+  <rect width="1200" height="630" fill="url(#emeraldGlow)" />
+
+  <!-- Subtle Structural Frame -->
+  <rect x="36" y="36" width="1128" height="558" rx="24" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+
+  <!-- Header Row: EA Brand Mark + Domain Pill -->
+  <g transform="translate(88 88)">
+    <g transform="scale(1.1875)">
+      <rect x="1" y="1" width="62" height="62" rx="15" fill="url(#tileBg)" />
+      <rect x="1" y="1" width="62" height="62" rx="15" fill="url(#tileGlow)" />
+      <rect x="1" y="1" width="62" height="62" rx="15" stroke="rgba(255,255,255,0.16)" stroke-width="1.5" />
+      <path d="M12 17H27.5V22.2H17.2V29.4H25V34.6H17.2V41.8H27.5V47H12V17Z" fill="#F8FAFC" />
+      <path d="M38.6 17H43.9L52 47H46.5L41.25 26.8L36 47H30.5L38.6 17Z" fill="url(#accentGrad)" />
+      <rect x="38.25" y="39.4" width="6" height="4.4" rx="2.2" fill="#F8FAFC" />
+    </g>
+    <text x="98" y="34" font-family="'Segoe UI', Arial, sans-serif" font-size="22" font-weight="700" fill="#F8FAFC" letter-spacing="-0.02em">Essa Ahmed</text>
+    <text x="98" y="61" font-family="Consolas, 'Courier New', monospace" font-size="15" fill="#94A3B8" letter-spacing="0.04em">INDUSTRIAL &amp; SYSTEMS ENGINEER</text>
+  </g>
+
+  <g transform="translate(918 98)">
+    <rect width="194" height="40" rx="20" fill="rgba(37, 99, 235, 0.14)" stroke="rgba(96, 165, 250, 0.35)" stroke-width="1.2" />
+    <circle cx="24" cy="20" r="4.5" fill="#10B981" />
+    <text x="40" y="25" font-family="Consolas, 'Courier New', monospace" font-size="14" font-weight="700" fill="#E2E8F0">essaahmed.dev</text>
+  </g>
+
+  <!-- Main Focal Block -->
+  <text x="88" y="294" font-family="'Segoe UI', Arial, sans-serif" font-size="72" font-weight="800" fill="#F8FAFC" letter-spacing="-0.03em">Essa Ahmed</text>
+  <text x="88" y="358" font-family="'Segoe UI', Arial, sans-serif" font-size="29" font-weight="500" fill="#CBD5E1">Workflow Automation · Supply Chain S&amp;OP · Decision Analytics</text>
+
+  <!-- Accent Divider & Capability Strip -->
+  <line x1="88" y1="454" x2="1112" y2="454" stroke="rgba(148, 163, 184, 0.2)" stroke-width="1.5" />
+
+  <text x="88" y="512" font-family="Consolas, 'Courier New', monospace" font-size="16" fill="#94A3B8" letter-spacing="0.08em">PYTHON · SQL · POWER BI · S&amp;OP MODELING</text>
+  <text x="1112" y="512" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#34D399">essaahmed.dev</text>
 </svg>

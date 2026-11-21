@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import Link from "next/link";
+import { BrandMark } from "@/components/BrandMark";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useContentAvailability } from "@/contexts/ContentAvailabilityContext";
 
@@ -18,10 +19,13 @@ const OptimizedFooter = memo(() => {
     <footer className="w-full max-w-[1080px] mx-auto border-t border-outline-variant/30 bg-transparent text-body-md font-body-md">
       <div className="flex flex-col md:flex-row justify-between items-center py-space-xl px-6 w-full max-w-[1080px] mx-auto text-on-surface-variant gap-space-md">
         {/* Left side: Brand identity & Copyright */}
-        <div className="flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left">
-          <span className="text-headline-sm font-display font-bold text-on-surface">
-            {displayName}
-          </span>
+        <div className="flex flex-col sm:flex-row items-center gap-2.5 text-center sm:text-left">
+          <div className="flex items-center gap-2.5">
+            <BrandMark size="sm" />
+            <span className="text-headline-sm font-display font-bold text-on-surface">
+              {displayName}
+            </span>
+          </div>
           <span className="hidden sm:inline text-outline">•</span>
           <span className="text-label-md font-label-md text-outline">
             © {currentYear} {displayName}. All rights reserved.

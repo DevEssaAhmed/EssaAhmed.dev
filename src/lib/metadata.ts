@@ -2,8 +2,7 @@
 
 const SITE_NAME = "Essa Ahmed";
 const SITE_DESCRIPTION =
-  "Design-forward portfolio, writing, and analytics-driven work.";
-const DEFAULT_IMAGE = "/og-image.png";
+  "Workflow Automation · Supply Chain S&OP · Decision Analytics";
 
 type BuildPageMetadataInput = {
   title: string;
@@ -43,13 +42,11 @@ export function buildPageMetadata(input: BuildPageMetadataInput): Metadata {
     !image.includes("placeholder.svg");
   const resolvedImage = isCustomImage
     ? image
-    : path === "/"
-      ? DEFAULT_IMAGE
-      : buildDynamicOgUrl({
-          title,
-          subtitle: description,
-          badge: badge || (type === "article" ? "Article" : "Portfolio"),
-        });
+    : buildDynamicOgUrl({
+        title,
+        subtitle: description,
+        badge: badge || (type === "article" ? "Article" : "Portfolio"),
+      });
 
   return {
     title: absoluteTitle,
@@ -72,4 +69,3 @@ export function buildPageMetadata(input: BuildPageMetadataInput): Metadata {
     },
   };
 }
-

@@ -54,7 +54,7 @@ export default function ArticlesSubNav({ className = "" }: { className?: string 
               {isActive && (
                 <m.div
                   layoutId="activeSubNav"
-                  className="absolute inset-0 bg-on-surface rounded-full shadow-xs"
+                  className="absolute inset-0 bg-on-surface rounded-full shadow-sm"
                   initial={false}
                   transition={{ type: "spring", stiffness: 450, damping: 35 }}
                 />

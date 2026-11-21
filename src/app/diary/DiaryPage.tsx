@@ -129,15 +129,14 @@ export default function DiaryPage({
     <div className="min-h-screen bg-surface text-on-surface selection:bg-primary/30 selection:text-primary flex flex-col justify-between transition-colors duration-200">
       <Navigation />
 
-      <main id="main-content" tabIndex={-1} className="w-full max-w-[1080px] mx-auto px-4 sm:px-6 pt-12 pb-20">
+      <main id="main-content" tabIndex={-1} className="w-full max-w-[1080px] mx-auto px-6 py-12 md:py-16">
         {/* SECTION 1: HERO & CONTROLS */}
-        <section className="pb-10 border-b border-outline-variant/20">
+        <section className="pb-8 border-b border-outline-variant/30">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 text-secondary text-label-sm font-label-sm uppercase tracking-wider mb-4 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                <span>Personal Log · Field Notes</span>
-              </div>
+              <span className="font-code text-xs uppercase tracking-[0.14em] text-outline block mb-2">
+                01 / DIARY
+              </span>
               <h1 className="text-4xl sm:text-5xl font-display font-extrabold tracking-tight text-on-surface mb-3">
                 Personal Diary &amp; Field Notes
               </h1>
@@ -258,7 +257,7 @@ export default function DiaryPage({
                       return (
                         <article
                           key={entry.id}
-                          className="rounded-2xl card-elevated card-interactive border p-6 sm:p-8"
+                          className="rounded-2xl card-elevated border p-6 sm:p-8"
                         >
                           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                             <div className="flex items-center gap-2.5 text-xs font-code">
@@ -339,7 +338,7 @@ export default function DiaryPage({
                 return (
                   <article
                     key={entry.id}
-                    className="relative rounded-2xl card-elevated card-interactive border p-6 sm:p-8"
+                    className="relative rounded-2xl card-elevated border p-6 sm:p-8"
                   >
                     <span className="absolute -left-[31px] sm:-left-[39px] top-7 w-3.5 h-3.5 rounded-full bg-secondary ring-4 ring-surface" />
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-3">

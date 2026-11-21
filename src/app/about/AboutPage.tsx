@@ -1,10 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Mail, Send, Github, Linkedin, MapPin, Zap, Package, LineChart, CheckCircle2 } from "lucide-react";
+import {
+  ArrowRight,
+  Mail,
+  Github,
+  Linkedin,
+  MapPin,
+  Zap,
+  Package,
+  LineChart,
+  CheckCircle2,
+  Check,
+  Copy,
+} from "lucide-react";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
 import OptimizedFooter from "@/components/OptimizedFooter";
+import { BrandMark } from "@/components/BrandMark";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useContentAvailability } from "@/contexts/ContentAvailabilityContext";
 
@@ -19,6 +33,10 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
   const githubUrl = profile?.github_url || "https://github.com/DevEssaAhmed";
   const linkedinUrl = profile?.linkedin_url || "https://www.linkedin.com/in/essa-ahmed";
   const location = profile?.location || "Karachi / Lahore, Pakistan (UTC+5, Async Ready)";
+  const hasValidAvatar =
+    typeof profile?.avatar_url === "string" &&
+    profile.avatar_url.trim().length > 0 &&
+    !profile.avatar_url.includes("placeholder");
 
   const handleCopyEmail = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -32,17 +50,21 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
     <div className="min-h-screen bg-surface text-on-surface selection:bg-primary/30 selection:text-primary flex flex-col justify-between transition-colors duration-200">
       <Navigation />
 
-      <main id="main-content" tabIndex={-1} className="max-w-[1080px] w-full mx-auto px-6 py-12 space-y-16">
+      <main id="main-content" tabIndex={-1} className="max-w-[1080px] w-full mx-auto px-6 py-12 md:py-16 space-y-16">
         {/* SECTION 1: HERO & IDENTITY */}
-        <section id="overview" className="scroll-mt-28 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <section id="overview" className="scroll-mt-28 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start pb-12 border-b border-outline-variant/30">
           {/* Left Column: Narrative */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/30 text-secondary text-label-sm font-label-sm uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              <span>Systems Architect · Operations &amp; Analytics</span>
+            <div>
+              <span className="font-code text-xs uppercase tracking-[0.14em] text-outline block mb-2">
+                01 / ABOUT
+              </span>
+              <p className="text-sm font-medium text-secondary">
+                Systems Architect · Operations &amp; Analytics
+              </p>
             </div>
 
-            <h1 className="font-headline-lg text-4xl sm:text-5xl text-on-surface font-extrabold tracking-tight leading-[1.12]">
+            <h1 className="font-display text-4xl sm:text-5xl text-on-surface font-extrabold tracking-tight leading-[1.1]">
               Engineering self-running workflows, S&amp;OP demand models &amp; decision systems.
             </h1>
 
@@ -61,7 +83,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
               {hasProjects && (
                 <Link
                   href="/projects"
-                  className="px-5 py-3 rounded-full bg-surface-container-lowest dark:bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/55 dark:border-outline-variant/40 text-on-surface font-label-md text-label-md hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-xs"
+                  className="px-5 py-3 rounded-full bg-surface-container-lowest dark:bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/55 dark:border-outline-variant/40 text-on-surface font-label-md text-label-md hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-sm"
                 >
                   Explore Projects
                 </Link>
@@ -96,14 +118,22 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
 
           {/* Right Column: Telemetry & Spatial Identity Card */}
           <div className="lg:col-span-5">
-            <div className="rounded-3xl card-elevated border p-6 relative overflow-hidden backdrop-blur-md">
-              <div className="absolute -right-16 -top-16 w-44 h-44 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-
+            <div className="rounded-2xl card-elevated border p-6 relative overflow-hidden backdrop-blur-md">
               {/* Profile Badge Header */}
               <div className="flex items-center gap-4 pb-5 border-b border-outline-variant/20">
-                <div className="w-16 h-16 rounded-2xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary font-headline-md text-headline-md font-bold shadow-inner">
-                  EA
-                </div>
+                {hasValidAvatar ? (
+                  <div className="w-14 h-14 rounded-2xl overflow-hidden border border-outline-variant/40 bg-surface-container-high shrink-0 shadow-sm">
+                    <OptimizedImage
+                      src={profile.avatar_url}
+                      alt={displayName}
+                      width={56}
+                      height={56}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <BrandMark size="lg" />
+                )}
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
@@ -119,12 +149,12 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
 
               {/* Position Pillars Sub-card */}
               <div className="py-5 space-y-3">
-                <span className="font-label-sm text-label-sm text-outline uppercase tracking-wider block">
+                <span className="font-code text-[11px] text-outline uppercase tracking-[0.14em] block">
                   Core Specializations
                 </span>
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30 hover:border-outline-variant/60 transition-all">
-                  <span className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center text-base">
-                    ⚡
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30">
+                  <span className="w-9 h-9 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                    <Zap className="w-4 h-4" aria-hidden="true" />
                   </span>
                   <div>
                     <span className="font-label-md text-label-md text-on-surface font-semibold block">
@@ -135,9 +165,9 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30 hover:border-outline-variant/60 transition-all">
-                  <span className="w-8 h-8 rounded-xl bg-secondary/10 text-secondary border border-secondary/20 flex items-center justify-center text-base">
-                    📦
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30">
+                  <span className="w-9 h-9 rounded-xl bg-secondary/10 text-secondary border border-secondary/20 flex items-center justify-center shrink-0">
+                    <Package className="w-4 h-4" aria-hidden="true" />
                   </span>
                   <div>
                     <span className="font-label-md text-label-md text-on-surface font-semibold block">
@@ -148,9 +178,9 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30 hover:border-outline-variant/60 transition-all">
-                  <span className="w-8 h-8 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center text-base">
-                    📊
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30">
+                  <span className="w-9 h-9 rounded-xl bg-tertiary/10 text-tertiary border border-tertiary/20 flex items-center justify-center shrink-0">
+                    <LineChart className="w-4 h-4" aria-hidden="true" />
                   </span>
                   <div>
                     <span className="font-label-md text-label-md text-on-surface font-semibold block">
@@ -177,12 +207,12 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
 
         {/* SECTION 2: 3-PILLAR ARCHITECTURE DEEP-DIVE */}
         <section id="pillars" className="scroll-mt-28 space-y-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/20 pb-5">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/30 pb-6">
             <div>
-              <span className="font-label-sm text-label-sm text-primary uppercase tracking-widest block mb-1">
-                Architecture &amp; Domains
+              <span className="font-code text-xs uppercase tracking-[0.14em] text-outline block mb-2">
+                02 / CAPABILITIES
               </span>
-              <h2 className="font-headline-md text-headline-md text-on-surface font-bold">
+              <h2 className="text-2xl sm:text-3xl font-display font-bold text-on-surface tracking-tight">
                 Core Engineering Pillars &amp; Specializations
               </h2>
             </div>
@@ -194,10 +224,10 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
           {/* 3 Equal Pillar Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Pillar 1 */}
-            <div className="rounded-3xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
+            <div className="rounded-2xl card-elevated border p-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/40 flex items-center justify-center text-secondary text-xl group-hover:scale-105 transition-transform duration-300">
-                  <Zap className="w-6 h-6" />
+                <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                  <Zap className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
                   Workflow &amp; Process Automation
@@ -207,15 +237,15 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                 </p>
                 <div className="space-y-2 pt-2">
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                     <span>Asynchronous webhook handlers &amp; idempotent pipelines</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                     <span>Automated reconciliation between legacy ERP &amp; cloud stores</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                     <span>Zero-touch schema validation with strict data contracts</span>
                   </div>
                 </div>
@@ -228,7 +258,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                   {["Python", "Apache Airflow", "n8n", "FastAPI", "Webhooks"].map((t) => (
                     <span
                       key={t}
-                      className="px-2.5 py-1 rounded-lg bg-surface-container border border-outline-variant/30 text-on-surface-variant font-code text-[11px]"
+                      className="px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/25 text-on-surface-variant font-code text-[11px]"
                     >
                       {t}
                     </span>
@@ -238,10 +268,10 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
             </div>
 
             {/* Pillar 2 */}
-            <div className="rounded-3xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
+            <div className="rounded-2xl card-elevated border p-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/40 flex items-center justify-center text-secondary text-xl group-hover:scale-105 transition-transform duration-300">
-                  <Package className="w-6 h-6" />
+                <div className="w-11 h-11 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary">
+                  <Package className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
                   Supply Chain &amp; Demand Planning
@@ -272,7 +302,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                   {["S&OP Modeling", "Python", "SQL", "Snowflake", "Forecasting"].map((t) => (
                     <span
                       key={t}
-                      className="px-2.5 py-1 rounded-lg bg-surface-container border border-outline-variant/30 text-on-surface-variant font-code text-[11px]"
+                      className="px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/25 text-on-surface-variant font-code text-[11px]"
                     >
                       {t}
                     </span>
@@ -282,10 +312,10 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
             </div>
 
             {/* Pillar 3 */}
-            <div className="rounded-3xl card-elevated card-interactive border p-6 flex flex-col justify-between group">
+            <div className="rounded-2xl card-elevated border p-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/50 dark:border-outline-variant/40 flex items-center justify-center text-primary text-xl group-hover:scale-105 transition-transform duration-300">
-                  <LineChart className="w-6 h-6" />
+                <div className="w-11 h-11 rounded-xl bg-tertiary/10 border border-tertiary/20 flex items-center justify-center text-tertiary">
+                  <LineChart className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
                   Analytics &amp; Decision Systems
@@ -295,15 +325,15 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                 </p>
                 <div className="space-y-2 pt-2">
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-tertiary shrink-0 mt-0.5" />
                     <span>Dimensional star schemas &amp; automated dbt lineage</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-tertiary shrink-0 mt-0.5" />
                     <span>Sub-second DAX measures &amp; executive KPI hierarchies</span>
                   </div>
                   <div className="flex items-start gap-2 text-on-surface text-xs font-body-md">
-                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-tertiary shrink-0 mt-0.5" />
                     <span>Real-time factory floor &amp; commercial telemetry</span>
                   </div>
                 </div>
@@ -316,7 +346,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                   {["Power BI", "DAX", "dbt", "PostgreSQL", "Next.js"].map((t) => (
                     <span
                       key={t}
-                      className="px-2.5 py-1 rounded-lg bg-surface-container border border-outline-variant/30 text-on-surface-variant font-code text-[11px]"
+                      className="px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/25 text-on-surface-variant font-code text-[11px]"
                     >
                       {t}
                     </span>
@@ -329,17 +359,17 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
 
         {/* SECTION 3: EXPERIENCE & CREDENTIALS */}
         <section id="experience" className="scroll-mt-28 space-y-8">
-          <div className="border-b border-outline-variant/20 pb-5">
-            <span className="font-label-sm text-label-sm text-secondary uppercase tracking-widest block mb-1">
-              Operational Track Record
+          <div className="border-b border-outline-variant/30 pb-6">
+            <span className="font-code text-xs uppercase tracking-[0.14em] text-outline block mb-2">
+              03 / EXPERIENCE
             </span>
-            <h2 className="font-headline-md text-headline-md text-on-surface font-bold">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-on-surface tracking-tight">
               Experience &amp; Systems Leadership
             </h2>
           </div>
 
           <div className="space-y-4">
-            <div className="p-6 rounded-3xl card-elevated card-interactive border space-y-4">
+            <div className="p-6 rounded-2xl card-elevated border space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                 <div>
                   <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
@@ -365,7 +395,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                 ].map((tag) => (
                   <span
                     key={tag}
-                    className="font-label-sm text-label-sm px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant border border-outline-variant/20"
+                    className="font-label-sm text-label-sm px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container text-on-surface-variant border border-outline-variant/40 dark:border-outline-variant/25"
                   >
                     {tag}
                   </span>
@@ -373,7 +403,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
               </div>
             </div>
 
-            <div className="p-6 rounded-3xl card-elevated card-interactive border space-y-4">
+            <div className="p-6 rounded-2xl card-elevated border space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                 <div>
                   <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
@@ -395,7 +425,7 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
                   (tag) => (
                     <span
                       key={tag}
-                      className="font-label-sm text-label-sm px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant border border-outline-variant/20"
+                      className="font-label-sm text-label-sm px-2.5 py-1 rounded-md bg-surface-container-low dark:bg-surface-container text-on-surface-variant border border-outline-variant/40 dark:border-outline-variant/25"
                     >
                       {tag}
                     </span>
@@ -406,40 +436,49 @@ export default function AboutPage({ initialProfile }: { initialProfile?: any } =
           </div>
         </section>
 
-        {/* SECTION 4: CONTACT & INITIATE ENGAGEMENT BANNER */}
-        <section
-          className="rounded-3xl card-elevated border p-8 md:p-12 relative overflow-hidden backdrop-blur-xl"
-          id="contact"
-        >
-          <div className="absolute -right-24 -bottom-24 w-72 h-72 bg-secondary/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="max-w-2xl space-y-6">
-            <span className="font-label-sm text-label-sm text-secondary uppercase tracking-widest block">
-              Initiate Engagement
-            </span>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">
-              Let&apos;s engineer resilient systems together.
-            </h2>
-            <p className="font-body-lg text-body-lg text-on-surface-variant">
-              Whether you need end-to-end automation pipelines, S&amp;OP demand models, or high-performance dimensional reporting engines—I architect solutions designed to scale reliably.
-            </p>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
-              <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-surface-container-low border border-outline-variant/40 font-code text-code text-on-surface">
-                <span>{email}</span>
+        {/* SECTION 4: INVERTED HIGH-CONTRAST CTA BANNER */}
+        <section id="contact" className="scroll-mt-28">
+          <div className="rounded-2xl bg-inverse-surface text-inverse-on-surface dark:bg-surface-container-low dark:text-on-surface border border-on-surface/10 dark:border-outline-variant/40 p-8 sm:p-12 md:p-14 text-center relative overflow-hidden shadow-xl">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 opacity-60 [background-size:32px_32px] [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)]"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-40 bg-primary/20 blur-[100px]"
+            />
+
+            <div className="relative z-10">
+              <span className="inline-block font-code text-[11px] uppercase tracking-[0.16em] text-inverse-on-surface/70 dark:text-outline mb-5">
+                GET IN TOUCH
+              </span>
+              <h2 className="text-3xl md:text-4xl font-display font-bold tracking-tight max-w-2xl mx-auto">
+                Let&apos;s engineer resilient systems together.
+              </h2>
+              <p className="text-inverse-on-surface/75 dark:text-on-surface-variant font-body-lg text-body-lg max-w-xl mx-auto mt-4 leading-relaxed">
+                Whether you need end-to-end automation pipelines, S&amp;OP demand models, or high-performance dimensional reporting engines—I architect solutions designed to scale reliably.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
+                <a
+                  className="group bg-surface text-on-surface dark:bg-on-surface dark:text-surface font-label-md text-label-md font-semibold px-6 py-3 rounded-full hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center gap-2 shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-inverse-surface dark:focus-visible:ring-offset-surface"
+                  href={`mailto:${email}`}
+                >
+                  <span>Get in touch</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </a>
                 <button
                   type="button"
+                  className="bg-white/10 hover:bg-white/15 border border-white/15 text-inverse-on-surface dark:bg-surface-container dark:hover:bg-surface-container-high dark:border-outline-variant/40 dark:text-on-surface font-code text-label-md px-5 py-3 rounded-full hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-inverse-surface dark:focus-visible:ring-offset-surface"
                   onClick={handleCopyEmail}
-                  className="ml-4 min-h-11 min-w-11 px-2.5 py-1 rounded-lg bg-surface-container text-xs text-primary hover:underline transition-colors"
                 >
-                  {copied ? "Copied!" : "Copy"}
+                  <span>{copied ? "Copied to clipboard!" : email}</span>
+                  {copied ? (
+                    <Check className="w-4 h-4 text-emerald-400 dark:text-secondary" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-inverse-on-surface/70 dark:text-outline" />
+                  )}
                 </button>
               </div>
-              <a
-                className="font-label-md text-label-md font-semibold px-6 py-3 rounded-full bg-on-surface text-surface hover:opacity-90 transition-all text-center flex items-center justify-center gap-2 active:scale-95 shadow-md"
-                href={`mailto:${email}`}
-              >
-                <span>Send Direct Message</span>
-                <Send className="w-4 h-4" />
-              </a>
             </div>
           </div>
         </section>

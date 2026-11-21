@@ -66,15 +66,14 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
     <div className="min-h-screen bg-surface text-on-surface selection:bg-primary/30 selection:text-primary flex flex-col justify-between transition-colors duration-200">
       <Navigation />
 
-      <main id="main-content" tabIndex={-1} className="max-w-[1080px] w-full mx-auto px-4 sm:px-6 pt-12 pb-20">
+      <main id="main-content" tabIndex={-1} className="max-w-[1080px] w-full mx-auto px-6 py-12 md:py-16">
         {/* SECTION 1: HERO & FILTER BAR */}
-        <section className="pb-10 border-b border-outline-variant/20">
+        <section className="pb-8 border-b border-outline-variant/30">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant/30 text-primary text-label-sm font-label-sm uppercase tracking-wider mb-4">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span>Technical Writing · Field Essays</span>
-              </div>
+              <span className="font-code text-xs uppercase tracking-[0.14em] text-outline block mb-2">
+                01 / WRITING
+              </span>
               <h1 className="text-4xl sm:text-5xl font-display font-extrabold tracking-tight text-on-surface mb-3">
                 Articles &amp; External Writing
               </h1>
@@ -106,7 +105,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search articles by topic, tool, or title..."
-                    className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary shadow-xs transition-colors"
+                    className="min-h-11 w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-container-lowest dark:bg-surface-container-low border border-outline-variant/55 dark:border-outline-variant/30 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary shadow-sm transition-colors"
                   />
                 </div>
 
@@ -125,7 +124,7 @@ export default function ArticlesPage({ initialArticles = [] }: ArticlesPageProps
                         {active && (
                           <m.span
                             layoutId="activeArticlePlatformPill"
-                            className="absolute inset-0 bg-on-surface rounded-full -z-10 shadow-xs"
+                            className="absolute inset-0 bg-on-surface rounded-full -z-10 shadow-sm"
                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
                           />
                         )}
