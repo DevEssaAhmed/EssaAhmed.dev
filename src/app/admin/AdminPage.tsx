@@ -66,16 +66,16 @@ function AdminDashboardSkeleton() {
     <div className="space-y-6 animate-pulse">
       <div className="h-24 rounded-2xl bg-white border border-zinc-200/80 p-5 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-zinc-200/80" />
+          <div className="w-14 h-14 rounded-full bg-zinc-200/80 dark:bg-zinc-800" />
           <div className="space-y-2">
-            <div className="h-5 w-52 rounded-md bg-zinc-200/80" />
-            <div className="h-3.5 w-72 rounded-md bg-zinc-100" />
+            <div className="h-5 w-52 rounded-md bg-zinc-200/80 dark:bg-zinc-800" />
+            <div className="h-3.5 w-72 rounded-md bg-zinc-100 dark:bg-zinc-800/60" />
           </div>
         </div>
         <div className="hidden lg:flex gap-2">
-          <div className="h-8 w-24 rounded-lg bg-zinc-100" />
-          <div className="h-8 w-24 rounded-lg bg-zinc-100" />
-          <div className="h-8 w-28 rounded-lg bg-zinc-200/80" />
+          <div className="h-8 w-24 rounded-lg bg-zinc-100 dark:bg-zinc-800/60" />
+          <div className="h-8 w-24 rounded-lg bg-zinc-100 dark:bg-zinc-800/60" />
+          <div className="h-8 w-28 rounded-lg bg-zinc-200/80 dark:bg-zinc-800" />
         </div>
       </div>
 
@@ -85,27 +85,27 @@ function AdminDashboardSkeleton() {
             key={idx}
             className="h-40 rounded-2xl bg-white border border-zinc-200/80 p-5 flex flex-col justify-between"
           >
-            <div className="w-9 h-9 rounded-xl bg-zinc-100" />
+            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800/60" />
             <div className="space-y-2">
-              <div className="h-3 w-24 rounded bg-zinc-100" />
-              <div className="h-7 w-16 rounded bg-zinc-200/80" />
+              <div className="h-3 w-24 rounded bg-zinc-100 dark:bg-zinc-800/60" />
+              <div className="h-7 w-16 rounded bg-zinc-200/80 dark:bg-zinc-800" />
             </div>
-            <div className="h-2 w-full rounded-full bg-zinc-100" />
+            <div className="h-2 w-full rounded-full bg-zinc-100 dark:bg-zinc-800/60" />
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-2 h-80 rounded-2xl bg-white border border-zinc-200/80 p-5 space-y-3">
-          <div className="h-4 w-40 rounded bg-zinc-200/80" />
-          <div className="h-16 rounded-xl bg-zinc-100" />
-          <div className="h-16 rounded-xl bg-zinc-100" />
-          <div className="h-16 rounded-xl bg-zinc-100" />
+          <div className="h-4 w-40 rounded bg-zinc-200/80 dark:bg-zinc-800" />
+          <div className="h-16 rounded-xl bg-zinc-100 dark:bg-zinc-800/60" />
+          <div className="h-16 rounded-xl bg-zinc-100 dark:bg-zinc-800/60" />
+          <div className="h-16 rounded-xl bg-zinc-100 dark:bg-zinc-800/60" />
         </div>
         <div className="lg:col-span-3 h-80 rounded-2xl bg-white border border-zinc-200/80 p-5 space-y-3">
-          <div className="h-4 w-44 rounded bg-zinc-200/80" />
+          <div className="h-4 w-44 rounded bg-zinc-200/80 dark:bg-zinc-800" />
           {Array.from({ length: 5 }).map((_, idx) => (
-            <div key={idx} className="h-11 rounded-xl bg-zinc-100/80" />
+            <div key={idx} className="h-11 rounded-xl bg-zinc-100/80 dark:bg-zinc-800/60" />
           ))}
         </div>
       </div>

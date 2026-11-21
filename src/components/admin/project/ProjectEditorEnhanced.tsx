@@ -53,7 +53,10 @@ import {
   Layers,
   Sparkles,
   AlignLeft,
+  Sun,
+  Moon,
 } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
 
 import dynamic from 'next/dynamic';
 import { OptimizedImage } from '@/components/OptimizedImage';
@@ -83,6 +86,7 @@ const ProjectEditorEnhanced: React.FC = () => {
   const router = useRouter();
   const params = useParams<{ id?: string }>();
   const id = typeof params?.id === 'string' ? params.id : undefined;
+  const { theme, toggleTheme } = useTheme();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -546,6 +550,22 @@ const ProjectEditorEnhanced: React.FC = () => {
               </Link>
             </Button>
           )}
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={toggleTheme}
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            className="h-8 px-2.5 text-xs font-mono text-zinc-700 hover:text-zinc-900 border border-zinc-300 hover:bg-zinc-100"
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-3.5 h-3.5 text-amber-400" />
+            ) : (
+              <Moon className="w-3.5 h-3.5" />
+            )}
+          </Button>
 
           <Button
             type="button"

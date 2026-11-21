@@ -8,8 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Lock, Mail, LogIn } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, LogIn, Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { BrandMark } from '@/components/BrandMark';
 import { toast } from 'sonner';
 
 function resolveSafeAdminRedirect(): string {
@@ -29,6 +31,7 @@ const LoginForm = () => {
   const [error, setError] = useState('');
 
   const { signIn, user, loading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const redirectTarget = useMemo(() => resolveSafeAdminRedirect(), []);
 
@@ -63,19 +66,39 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface flex items-center justify-center p-4">
+    <div className="min-h-screen bg-surface text-on-surface flex items-center justify-center p-4 relative">
+      <button
+        type="button"
+        onClick={toggleTheme}
+        title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+        aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        className="fixed top-5 right-5 z-20 inline-flex items-center gap-2 px-3 py-2 rounded-full bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/40 text-on-surface-variant hover:text-on-surface text-xs font-medium transition-colors shadow-sm"
+      >
+        {theme === 'dark' ? (
+          <>
+            <Sun className="w-4 h-4 text-amber-400" />
+            <span>Light Mode</span>
+          </>
+        ) : (
+          <>
+            <Moon className="w-4 h-4" />
+            <span>Dark Mode</span>
+          </>
+        )}
+      </button>
+
       <div className="w-full max-w-md">
         <Card className="bg-surface-container-low border border-outline-variant/30 rounded-3xl shadow-2xl">
           <CardHeader className="text-center space-y-4">
-            <div className="w-16 h-16 mx-auto bg-primary/10 border border-primary/25 rounded-2xl flex items-center justify-center text-primary">
-              <Lock className="w-8 h-8 text-primary" />
+            <div className="flex justify-center">
+              <BrandMark className="w-14 h-14 rounded-2xl shadow-md" />
             </div>
             <div>
               <CardTitle className="text-2xl font-display font-bold text-on-surface tracking-tight">
-                Admin Login
+                Portfolio Studio Login
               </CardTitle>
               <CardDescription className="text-on-surface-variant mt-2">
-                Enter your credentials to access the admin dashboard
+                Sign in to manage articles, case studies, travel highlights &amp; diary notes
               </CardDescription>
             </div>
           </CardHeader>

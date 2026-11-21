@@ -11,7 +11,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#f6f7f9] text-zinc-900 antialiased selection:bg-zinc-900/10 selection:text-zinc-900">
+    <div className="admin-shell min-h-screen bg-[#f6f7f9] dark:bg-[#0e0f12] text-zinc-900 dark:text-zinc-100 antialiased selection:bg-primary/20 selection:text-primary transition-colors duration-200">
       <AdminProviders>{children}</AdminProviders>
     </div>
   );

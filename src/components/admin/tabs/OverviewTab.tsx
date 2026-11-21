@@ -102,7 +102,7 @@ function HealthScoreRing({ score, strokeClass }: { score: number; strokeClass: s
           fill="none"
           stroke="currentColor"
           strokeWidth="5"
-          className="text-zinc-100"
+          className="text-zinc-200/70 dark:text-zinc-800"
         />
         <circle
           cx="32"
@@ -241,8 +241,12 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   return (
     <div className="space-y-6">
       {/* Hero Operations Strip */}
-      <Card className="bg-white border-zinc-200/80 shadow-2xs rounded-2xl overflow-hidden">
-        <CardContent className="p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+      <Card className="relative bg-white border-zinc-200/80 shadow-2xs rounded-2xl overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-60"
+        />
+        <CardContent className="relative z-10 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
           <div className="flex items-center gap-4">
             <HealthScoreRing score={healthScore} strokeClass={healthTone.stroke} />
             <div className="space-y-1 min-w-0">
@@ -307,13 +311,13 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         <button
           type="button"
           onClick={() => onNavigateTab("blogs")}
-          className="group text-left bg-white border border-zinc-200/80 hover:border-sky-300/80 hover:shadow-md rounded-2xl p-5 transition-all duration-150 flex flex-col justify-between gap-3"
+          className="group text-left bg-white border border-zinc-200/80 hover:border-sky-300/80 dark:hover:border-sky-500/40 hover:shadow-md rounded-2xl p-5 transition-all duration-150 flex flex-col justify-between gap-3"
         >
           <div className="flex items-center justify-between w-full">
-            <div className="w-9 h-9 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600">
+            <div className="w-9 h-9 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600 dark:text-sky-400">
               <FileText className="w-4 h-4" />
             </div>
-            <ArrowUpRight className="w-4 h-4 text-zinc-300 group-hover:text-sky-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            <ArrowUpRight className="w-4 h-4 text-zinc-300 group-hover:text-sky-600 dark:group-hover:text-sky-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
           <div>
             <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-500">
@@ -329,7 +333,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
           </div>
           <div className="space-y-1.5 w-full">
-            <div className="w-full h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+            <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
               <div
                 className="h-full bg-sky-500 rounded-full transition-all duration-500"
                 style={{ width: `${blogLiveRatio}%` }}
@@ -348,13 +352,13 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         <button
           type="button"
           onClick={() => onNavigateTab("projects")}
-          className="group text-left bg-white border border-zinc-200/80 hover:border-indigo-300/80 hover:shadow-md rounded-2xl p-5 transition-all duration-150 flex flex-col justify-between gap-3"
+          className="group text-left bg-white border border-zinc-200/80 hover:border-indigo-300/80 dark:hover:border-indigo-500/40 hover:shadow-md rounded-2xl p-5 transition-all duration-150 flex flex-col justify-between gap-3"
         >
           <div className="flex items-center justify-between w-full">
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
               <Layers className="w-4 h-4" />
             </div>
-            <ArrowUpRight className="w-4 h-4 text-zinc-300 group-hover:text-indigo-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            <ArrowUpRight className="w-4 h-4 text-zinc-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
           <div>
             <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-500">
@@ -364,7 +368,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               <span className="text-2xl font-bold text-zinc-900 tracking-tight">
                 {kpis.projects.total}
               </span>
-              <span className="text-xs text-amber-600 font-medium">
+              <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
                 {kpis.projects.featured} featured
               </span>
             </div>
@@ -385,13 +389,13 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         <button
           type="button"
           onClick={() => onNavigateTab("travel")}
-          className="group text-left bg-white border border-zinc-200/80 hover:border-rose-300/80 hover:shadow-md rounded-2xl p-5 transition-all duration-150 flex flex-col justify-between gap-3"
+          className="group text-left bg-white border border-zinc-200/80 hover:border-rose-300/80 dark:hover:border-rose-500/40 hover:shadow-md rounded-2xl p-5 transition-all duration-150 flex flex-col justify-between gap-3"
         >
           <div className="flex items-center justify-between w-full">
-            <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500">
+            <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 dark:text-rose-400">
               <Compass className="w-4 h-4" />
             </div>
-            <ArrowUpRight className="w-4 h-4 text-zinc-300 group-hover:text-rose-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            <ArrowUpRight className="w-4 h-4 text-zinc-300 group-hover:text-rose-500 dark:group-hover:text-rose-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
           <div>
             <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-500">
@@ -408,7 +412,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
           </div>
           <div className="space-y-1.5 w-full">
-            <div className="w-full h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+            <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
               <div
                 className="h-full bg-rose-500 rounded-full transition-all duration-500"
                 style={{ width: `${travelLiveRatio}%` }}
@@ -425,13 +429,13 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         <button
           type="button"
           onClick={() => onNavigateTab("diary")}
-          className="group text-left bg-white border border-zinc-200/80 hover:border-amber-300/80 hover:shadow-md rounded-2xl p-5 transition-all duration-150 flex flex-col justify-between gap-3"
+          className="group text-left bg-white border border-zinc-200/80 hover:border-amber-300/80 dark:hover:border-amber-500/40 hover:shadow-md rounded-2xl p-5 transition-all duration-150 flex flex-col justify-between gap-3"
         >
           <div className="flex items-center justify-between w-full">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500">
+            <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500 dark:text-amber-400">
               <BookHeart className="w-4 h-4" />
             </div>
-            <ArrowUpRight className="w-4 h-4 text-zinc-300 group-hover:text-amber-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            <ArrowUpRight className="w-4 h-4 text-zinc-300 group-hover:text-amber-500 dark:group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
           <div>
             <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-500">
@@ -447,7 +451,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
           </div>
           <div className="space-y-1.5 w-full">
-            <div className="w-full h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+            <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
               <div
                 className="h-full bg-amber-500 rounded-full transition-all duration-500"
                 style={{ width: `${diaryLiveRatio}%` }}

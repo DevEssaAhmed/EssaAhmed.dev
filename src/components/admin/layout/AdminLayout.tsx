@@ -28,8 +28,12 @@ import {
   RefreshCw,
   ArrowRight,
   Sparkles,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { BrandMark } from "@/components/BrandMark";
 import { revalidatePortfolioCache } from "@/lib/revalidate-client";
 import {
   DropdownMenu,
@@ -63,6 +67,7 @@ interface AdminPaletteAction {
 }
 
 const SIDEBAR_STORAGE_KEY = "admin_sidebar_collapsed";
+const PALETTE_GROUPS: Array<AdminPaletteAction["group"]> = ["Navigate", "Create", "System"];
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({
   children,
@@ -85,6 +90,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   const [isSyncingCache, setIsSyncingCache] = useState(false);
 
   const { user, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const pathname = usePathname() || "/admin";
   const router = useRouter();
 
@@ -133,8 +139,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         fullLabel: "Overview & Health",
         icon: LayoutDashboard,
         count: undefined,
-        accent: "text-emerald-600",
-        activeBg: "bg-emerald-50 text-emerald-700",
+        accent: "text-emerald-600 dark:text-emerald-400",
       },
       {
         id: "blogs",
@@ -142,8 +147,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         fullLabel: "Articles & Writing",
         icon: FileText,
         count: blogsCount,
-        accent: "text-sky-600",
-        activeBg: "bg-sky-50 text-sky-700",
+        accent: "text-sky-600 dark:text-sky-400",
       },
       {
         id: "projects",
@@ -151,8 +155,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         fullLabel: "3-Pillar Projects",
         icon: Layers,
         count: projectsCount,
-        accent: "text-indigo-600",
-        activeBg: "bg-indigo-50 text-indigo-700",
+        accent: "text-indigo-600 dark:text-indigo-400",
       },
       {
         id: "travel",
@@ -160,8 +163,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         fullLabel: "Travel Atlas & Stories",
         icon: Compass,
         count: travelCount,
-        accent: "text-rose-500",
-        activeBg: "bg-rose-50 text-rose-700",
+        accent: "text-rose-500 dark:text-rose-400",
       },
       {
         id: "diary",
@@ -169,8 +171,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         fullLabel: "Personal Diary",
         icon: BookHeart,
         count: diaryCount,
-        accent: "text-amber-500",
-        activeBg: "bg-amber-50 text-amber-700",
+        accent: "text-amber-500 dark:text-amber-400",
       },
       {
         id: "settings",
@@ -178,8 +179,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         fullLabel: "Profile & Site Settings",
         icon: Settings,
         count: undefined,
-        accent: "text-zinc-600",
-        activeBg: "bg-zinc-100 text-zinc-900",
+        accent: "text-zinc-600 dark:text-zinc-400",
       },
     ],
     [blogsCount, projectsCount, travelCount, diaryCount]
@@ -223,7 +223,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         description: "Inspect and prune orphaned taxonomy records",
         group: "Navigate",
         icon: Wrench,
-        accent: "text-zinc-600",
+        accent: "text-zinc-600 dark:text-zinc-400",
         run: () => router.push("/admin/maintenance"),
       },
       {
@@ -232,7 +232,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         description: "Write an on-site article or import from Medium/Substack",
         group: "Create",
         icon: FileText,
-        accent: "text-sky-600",
+        accent: "text-sky-600 dark:text-sky-400",
         run: () => router.push("/admin/blog/new"),
       },
       {
@@ -241,7 +241,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         description: "Create a case study under one of the 3 core pillars",
         group: "Create",
         icon: Layers,
-        accent: "text-indigo-600",
+        accent: "text-indigo-600 dark:text-indigo-400",
         run: () => router.push("/admin/project/new"),
       },
       {
@@ -250,7 +250,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         description: "Add map pin, cover photo, and 9:16 story slides",
         group: "Create",
         icon: Compass,
-        accent: "text-rose-500",
+        accent: "text-rose-500 dark:text-rose-400",
         run: () => router.push("/admin/travel/new"),
       },
       {
@@ -259,8 +259,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         description: "Publish a dated field note or reflection",
         group: "Create",
         icon: BookHeart,
-        accent: "text-amber-500",
+        accent: "text-amber-500 dark:text-amber-400",
         run: () => router.push("/admin/diary/new"),
+      },
+      {
+        id: "sys-theme",
+        label: `Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`,
+        description: "Toggle Admin Studio & portfolio theme appearance",
+        group: "System",
+        icon: theme === "dark" ? Sun : Moon,
+        accent: theme === "dark" ? "text-amber-400" : "text-indigo-600",
+        run: () => toggleTheme(),
       },
       {
         id: "sys-revalidate",
@@ -268,7 +277,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         description: "Revalidate public pages, sitemap.xml, and RSS feed immediately",
         group: "System",
         icon: Sparkles,
-        accent: "text-emerald-600",
+        accent: "text-emerald-600 dark:text-emerald-400",
         run: () => void handleSyncLiveCache(),
       },
       {
@@ -277,11 +286,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         description: "View live site in a new tab",
         group: "System",
         icon: ExternalLink,
-        accent: "text-zinc-600",
+        accent: "text-zinc-600 dark:text-zinc-400",
         run: () => window.open("/", "_blank", "noopener,noreferrer"),
       },
     ],
-    [navItems, handleNavClick, router, handleSyncLiveCache]
+    [navItems, handleNavClick, router, handleSyncLiveCache, theme, toggleTheme]
   );
 
   const filteredActions = useMemo(() => {
@@ -346,9 +355,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
               className="flex items-center gap-2.5 min-w-0 group"
               title="Portfolio CMS Home"
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-zinc-900 to-zinc-700 border border-zinc-800 flex items-center justify-center font-display font-bold text-xs text-white shrink-0 shadow-xs group-hover:scale-[1.03] transition-transform">
-                EA
-              </div>
+              <BrandMark
+                size="sm"
+                className="group-hover:scale-[1.03] transition-transform"
+              />
               {!isCompact && (
                 <div className="min-w-0">
                   <div className="text-[13px] font-semibold text-zinc-900 truncate leading-tight tracking-tight">
@@ -433,7 +443,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                       ? "justify-center h-9 px-0"
                       : "justify-between px-2.5 py-2",
                     isActive
-                      ? "bg-zinc-900 text-white font-medium shadow-xs"
+                      ? "bg-zinc-900 text-white font-medium shadow-sm"
                       : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
                   )}
                 >
@@ -451,7 +461,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                       className={cn(
                         "ml-2 px-1.5 py-0.5 rounded-md text-[10px] font-mono font-medium",
                         isActive
-                          ? "bg-white/15 text-white"
+                          ? "bg-white/15 text-white dark:bg-zinc-900/15 dark:text-zinc-900"
                           : "bg-zinc-100 text-zinc-600"
                       )}
                     >
@@ -471,10 +481,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
               </div>
               <div className="space-y-0.5">
                 {[
-                  { href: "/admin/blog/new", label: "New Article", color: "text-sky-600" },
-                  { href: "/admin/project/new", label: "New Case Study", color: "text-indigo-600" },
-                  { href: "/admin/travel/new", label: "New Travel Pin", color: "text-rose-500" },
-                  { href: "/admin/diary/new", label: "New Diary Note", color: "text-amber-500" },
+                  { href: "/admin/blog/new", label: "New Article", color: "text-sky-600 dark:text-sky-400" },
+                  { href: "/admin/project/new", label: "New Case Study", color: "text-indigo-600 dark:text-indigo-400" },
+                  { href: "/admin/travel/new", label: "New Travel Pin", color: "text-rose-500 dark:text-rose-400" },
+                  { href: "/admin/diary/new", label: "New Diary Note", color: "text-amber-500 dark:text-amber-400" },
                 ].map((shortcut) => (
                   <Link
                     key={shortcut.href}
@@ -550,6 +560,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
               >
                 <PanelLeftOpen className="w-4 h-4" />
               </button>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="h-8 w-8 flex items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/60 transition-colors"
+                title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
+                aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+              </button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -571,7 +594,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           ) : (
             <>
               <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                <div className="w-7 h-7 rounded-full bg-zinc-900 text-white text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
+                <div className="w-7 h-7 rounded-full bg-zinc-800 text-white border border-zinc-700/40 text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
                   {userInitials}
                 </div>
                 <div className="min-w-0">
@@ -581,23 +604,39 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                   <div className="text-[10px] text-zinc-500">Administrator</div>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={async () => {
-                  try {
-                    await signOut();
-                    router.push("/");
-                  } catch {
-                    // ignore
-                  }
-                }}
-                className="h-8 w-8 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg shrink-0"
-                title="Sign out"
-                aria-label="Sign out"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center gap-1 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleTheme}
+                  className="h-8 w-8 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg shrink-0"
+                  title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
+                  aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                >
+                  {theme === "dark" ? (
+                    <Sun className="w-4 h-4 text-amber-400" />
+                  ) : (
+                    <Moon className="w-4 h-4" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={async () => {
+                    try {
+                      await signOut();
+                      router.push("/");
+                    } catch {
+                      // ignore
+                    }
+                  }}
+                  className="h-8 w-8 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg shrink-0"
+                  title="Sign out"
+                  aria-label="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
             </>
           )}
         </div>
@@ -606,7 +645,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f7f9] text-zinc-900 flex antialiased selection:bg-zinc-900/10 selection:text-zinc-900">
+    <div className="min-h-screen bg-[#f6f7f9] text-zinc-900 flex antialiased selection:bg-primary/20 selection:text-primary">
       {/* Desktop Collapsible Sidebar */}
       <aside
         className={cn(
@@ -621,7 +660,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
-            className="fixed inset-0 bg-zinc-950/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-zinc-950/55 backdrop-blur-xs"
             onClick={() => setMobileOpen(false)}
           />
           <div className="relative w-[264px] max-w-[84vw] h-full shadow-2xl z-10 border-r border-zinc-200 bg-white">
@@ -663,6 +702,39 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           <div className="flex items-center gap-2 shrink-0">
             {actions}
 
+            {/* Quick Search / Command Palette Trigger */}
+            <button
+              type="button"
+              onClick={() => setCmdOpen(true)}
+              title="Quick Jump & Actions (⌘K)"
+              aria-label="Open command palette (Cmd+K)"
+              className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-zinc-200/90 bg-zinc-50/80 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 text-xs transition-colors"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline font-mono text-[11px]">⌘K</span>
+            </button>
+
+            {/* Dedicated Dark / Light Theme Toggle */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-lg border border-zinc-200/90 bg-white hover:bg-zinc-50 text-zinc-700 hover:text-zinc-900 text-xs font-medium transition-colors shadow-2xs"
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden xl:inline">Light</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-zinc-700" />
+                  <span className="hidden xl:inline">Dark</span>
+                </>
+              )}
+            </button>
+
             <Button
               type="button"
               variant="outline"
@@ -673,7 +745,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
               className="hidden lg:inline-flex h-8 px-2.5 text-xs bg-white text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 border-zinc-200/90 shadow-2xs gap-1.5"
             >
               <RefreshCw
-                className={cn("w-3.5 h-3.5 text-emerald-600", isSyncingCache && "animate-spin")}
+                className={cn(
+                  "w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400",
+                  isSyncingCache && "animate-spin"
+                )}
               />
               <span>{isSyncingCache ? "Syncing..." : "Sync Live"}</span>
             </Button>
@@ -683,7 +758,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
               <DropdownMenuTrigger asChild>
                 <Button
                   size="sm"
-                  className="bg-zinc-900 text-white hover:bg-zinc-800 font-medium text-xs h-8 px-3 gap-1.5 shadow-xs rounded-lg"
+                  className="bg-zinc-900 text-white hover:bg-zinc-800 font-medium text-xs h-8 px-3 gap-1.5 shadow-sm rounded-lg"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>New</span>
@@ -700,7 +775,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                 >
                   <Link href="/admin/blog/new" className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center shrink-0">
-                      <FileText className="w-3.5 h-3.5 text-sky-600" />
+                      <FileText className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                     </div>
                     <div className="flex flex-col">
                       <span className="font-medium text-zinc-900">Article / Blog</span>
@@ -716,7 +791,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                 >
                   <Link href="/admin/project/new" className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
-                      <Layers className="w-3.5 h-3.5 text-indigo-600" />
+                      <Layers className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div className="flex flex-col">
                       <span className="font-medium text-zinc-900">Portfolio Project</span>
@@ -732,7 +807,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                 >
                   <Link href="/admin/travel/new" className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
-                      <Compass className="w-3.5 h-3.5 text-rose-500" />
+                      <Compass className="w-3.5 h-3.5 text-rose-500 dark:text-rose-400" />
                     </div>
                     <div className="flex flex-col">
                       <span className="font-medium text-zinc-900">Travel City Highlight</span>
@@ -748,7 +823,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                 >
                   <Link href="/admin/diary/new" className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
-                      <BookHeart className="w-3.5 h-3.5 text-amber-500" />
+                      <BookHeart className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                     </div>
                     <div className="flex flex-col">
                       <span className="font-medium text-zinc-900">Personal Diary Entry</span>
@@ -775,6 +850,47 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           </div>
         </header>
 
+        {/* Mobile & Tablet Horizontal Quick-Tab Strip */}
+        {pathname === "/admin" && (
+          <nav
+            aria-label="Mobile workspace tabs"
+            className="md:hidden sticky top-14 z-10 bg-white/90 backdrop-blur-md border-b border-zinc-200/80 px-3 py-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar"
+          >
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleNavClick(item.id)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap shrink-0 transition-colors",
+                    isActive
+                      ? "bg-zinc-900 text-white shadow-sm"
+                      : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
+                  )}
+                >
+                  <Icon className={cn("w-3.5 h-3.5", isActive ? "text-white" : item.accent)} />
+                  <span>{item.label}</span>
+                  {typeof item.count === "number" && (
+                    <span
+                      className={cn(
+                        "text-[10px] font-mono px-1 rounded",
+                        isActive
+                          ? "bg-white/15 text-white dark:bg-zinc-900/15 dark:text-zinc-900"
+                          : "bg-zinc-100 text-zinc-500"
+                      )}
+                    >
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        )}
+
         {/* Main Workspace Canvas */}
         <main
           className={cn(
@@ -789,7 +905,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       {/* Admin Quick Command Palette (Cmd+K) */}
       {cmdOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-zinc-950/45 backdrop-blur-xs flex items-start justify-center pt-20 px-4"
+          className="fixed inset-0 z-[100] bg-zinc-950/55 backdrop-blur-xs flex items-start justify-center pt-20 px-4"
           onClick={() => setCmdOpen(false)}
         >
           <div
@@ -829,57 +945,68 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                     }
                   }
                 }}
-                placeholder="Jump to workspace tab, create content, or sync cache..."
+                placeholder="Jump to workspace tab, create content, toggle theme, or sync cache..."
                 className="w-full bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
               />
               <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-zinc-500 bg-zinc-100 rounded border border-zinc-200">
                 ESC
               </kbd>
             </div>
-            <div className="max-h-80 overflow-y-auto p-2 space-y-0.5">
-              {filteredActions.map((action, idx) => {
-                const Icon = action.icon;
-                const isSelected = idx === cmdIndex;
+            <div className="max-h-80 overflow-y-auto p-2 space-y-2">
+              {PALETTE_GROUPS.map((groupName) => {
+                const groupItems = filteredActions
+                  .map((action, globalIdx) => ({ action, globalIdx }))
+                  .filter((entry) => entry.action.group === groupName);
+                if (groupItems.length === 0) return null;
+
                 return (
-                  <button
-                    key={action.id}
-                    type="button"
-                    onMouseEnter={() => setCmdIndex(idx)}
-                    onClick={() => {
-                      setCmdOpen(false);
-                      setCmdQuery("");
-                      action.run();
-                    }}
-                    className={cn(
-                      "w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-left transition-colors",
-                      isSelected ? "bg-zinc-100 text-zinc-900" : "hover:bg-zinc-50 text-zinc-700"
-                    )}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-zinc-200/80 flex items-center justify-center shrink-0">
-                        <Icon className={cn("w-4 h-4", action.accent)} />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-zinc-900 truncate">
-                            {action.label}
-                          </span>
-                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500">
-                            {action.group}
-                          </span>
-                        </div>
-                        <div className="text-xs text-zinc-500 truncate">
-                          {action.description}
-                        </div>
-                      </div>
+                  <div key={groupName} className="space-y-0.5">
+                    <div className="px-3 pt-1.5 pb-1 text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">
+                      {groupName}
                     </div>
-                    <ArrowRight
-                      className={cn(
-                        "w-4 h-4 shrink-0 transition-transform",
-                        isSelected ? "text-zinc-900 translate-x-0.5" : "text-zinc-300"
-                      )}
-                    />
-                  </button>
+                    {groupItems.map(({ action, globalIdx }) => {
+                      const Icon = action.icon;
+                      const isSelected = globalIdx === cmdIndex;
+                      return (
+                        <button
+                          key={action.id}
+                          type="button"
+                          onMouseEnter={() => setCmdIndex(globalIdx)}
+                          onClick={() => {
+                            setCmdOpen(false);
+                            setCmdQuery("");
+                            action.run();
+                          }}
+                          className={cn(
+                            "w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-left transition-colors",
+                            isSelected
+                              ? "bg-zinc-100 text-zinc-900"
+                              : "hover:bg-zinc-50 text-zinc-700"
+                          )}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-white border border-zinc-200/80 flex items-center justify-center shrink-0">
+                              <Icon className={cn("w-4 h-4", action.accent)} />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium text-zinc-900 truncate">
+                                {action.label}
+                              </div>
+                              <div className="text-xs text-zinc-500 truncate">
+                                {action.description}
+                              </div>
+                            </div>
+                          </div>
+                          <ArrowRight
+                            className={cn(
+                              "w-4 h-4 shrink-0 transition-transform",
+                              isSelected ? "text-zinc-900 translate-x-0.5" : "text-zinc-300"
+                            )}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
                 );
               })}
               {filteredActions.length === 0 && (

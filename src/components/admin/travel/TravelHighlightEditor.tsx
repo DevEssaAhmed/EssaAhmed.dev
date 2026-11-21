@@ -44,7 +44,10 @@ import {
   X,
   AlertCircle,
   CheckCircle2,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 function slugify(text: string): string {
   return text
@@ -80,6 +83,7 @@ export default function TravelHighlightEditor() {
   const params = useParams<{ id?: string }>();
   const paramId = typeof params?.id === "string" ? params.id : undefined;
   const isEditing = Boolean(paramId && paramId !== "new");
+  const { theme, toggleTheme } = useTheme();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -537,6 +541,22 @@ export default function TravelHighlightEditor() {
 
           {/* Action buttons */}
           <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              className="h-8 px-2.5 text-xs text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 border border-zinc-200"
+            >
+              {theme === "dark" ? (
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+              ) : (
+                <Moon className="w-3.5 h-3.5" />
+              )}
+            </Button>
+
             <span
               role="status"
               title="The public Travel page is hidden while it is being rebuilt."

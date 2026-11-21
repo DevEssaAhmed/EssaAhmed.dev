@@ -534,6 +534,247 @@
   color: #c18401;
 }
 
+/* ==========================================================================
+   Admin Studio Dark Mode Adaptation (.dark .admin-shell & Radix Portals)
+   ========================================================================== */
+.dark .admin-shell,
+.dark .admin-shell .bg-\[\#f6f7f9\],
+.dark .admin-shell .bg-\[\#f1f3f5\] {
+  background-color: #0e0f12 !important;
+  color: #f4f4f6;
+}
+
+.dark .admin-shell .bg-white,
+.dark [role="dialog"].bg-white,
+.dark [role="alertdialog"].bg-white,
+.dark [data-radix-popper-content-wrapper] .bg-white {
+  background-color: #16171b !important;
+}
+
+.dark .admin-shell .bg-white\/95,
+.dark .admin-shell .bg-white\/90,
+.dark .admin-shell .bg-white\/85 {
+  background-color: rgba(22, 23, 27, 0.9) !important;
+}
+
+.dark .admin-shell .bg-white\/60 {
+  background-color: rgba(22, 23, 27, 0.65) !important;
+}
+
+.dark .admin-shell .bg-zinc-50,
+.dark .admin-shell .bg-zinc-50\/80,
+.dark .admin-shell .bg-zinc-50\/70,
+.dark .admin-shell .bg-zinc-50\/60,
+.dark .admin-shell .bg-zinc-50\/50 {
+  background-color: #1b1d23 !important;
+}
+
+.dark .admin-shell .bg-zinc-100,
+.dark .admin-shell .bg-zinc-100\/80,
+.dark .admin-shell .bg-zinc-100\/60,
+.dark .admin-shell .bg-gray-100,
+.dark [role="dialog"] .bg-zinc-100,
+.dark [role="alertdialog"] .bg-zinc-100,
+.dark [data-radix-popper-content-wrapper] .bg-zinc-100 {
+  background-color: #22252d !important;
+}
+
+.dark .admin-shell .bg-zinc-200,
+.dark .admin-shell .bg-zinc-200\/80 {
+  background-color: #2a2d37 !important;
+}
+
+.dark .admin-shell .hover\:bg-white:hover,
+.dark .admin-shell .hover\:bg-zinc-50:hover,
+.dark .admin-shell .hover\:bg-zinc-50\/90:hover,
+.dark .admin-shell .hover\:bg-zinc-50\/80:hover,
+.dark .admin-shell .hover\:bg-zinc-50\/60:hover,
+.dark [data-radix-popper-content-wrapper] .focus\:bg-zinc-50:focus {
+  background-color: #20232b !important;
+}
+
+.dark .admin-shell .hover\:bg-zinc-100:hover,
+.dark .admin-shell .hover\:bg-zinc-100\/80:hover,
+.dark .admin-shell .hover\:bg-zinc-200:hover,
+.dark .admin-shell .hover\:bg-zinc-200\/60:hover,
+.dark [role="alertdialog"] .hover\:bg-zinc-200:hover {
+  background-color: #2a2e39 !important;
+}
+
+/* Borders & Dividers in Admin Dark Mode */
+.dark .admin-shell .border-zinc-100,
+.dark .admin-shell .border-zinc-200,
+.dark .admin-shell .border-zinc-200\/80,
+.dark .admin-shell .border-zinc-200\/90,
+.dark .admin-shell .border-zinc-300,
+.dark .admin-shell .border-zinc-300\/80,
+.dark .admin-shell .border-gray-300,
+.dark [role="dialog"].border-zinc-200,
+.dark [role="alertdialog"].border-zinc-200,
+.dark [data-radix-popper-content-wrapper] .border-zinc-200 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .admin-shell .hover\:border-zinc-300:hover,
+.dark .admin-shell .hover\:border-zinc-300\/80:hover,
+.dark .admin-shell .hover\:border-zinc-400:hover,
+.dark .admin-shell .hover\:border-gray-400:hover {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+.dark .admin-shell .divide-zinc-100 > :not([hidden]) ~ :not([hidden]),
+.dark .admin-shell .divide-zinc-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Typography Hierarchy in Admin Dark Mode */
+.dark .admin-shell .text-zinc-900,
+.dark [role="dialog"].text-zinc-900,
+.dark [role="dialog"] .text-zinc-900,
+.dark [role="alertdialog"].text-zinc-900,
+.dark [role="alertdialog"] .text-zinc-900,
+.dark [data-radix-popper-content-wrapper] .text-zinc-900 {
+  color: #f4f4f6 !important;
+}
+
+.dark .admin-shell .text-zinc-800,
+.dark [role="dialog"] .text-zinc-800,
+.dark [data-radix-popper-content-wrapper] .text-zinc-800 {
+  color: #e4e4e7 !important;
+}
+
+.dark .admin-shell .text-zinc-700,
+.dark [role="dialog"] .text-zinc-700,
+.dark [role="alertdialog"] .text-zinc-700,
+.dark [data-radix-popper-content-wrapper] .text-zinc-700 {
+  color: #d4d4d8 !important;
+}
+
+.dark .admin-shell .text-zinc-600,
+.dark [role="dialog"] .text-zinc-600,
+.dark [data-radix-popper-content-wrapper] .text-zinc-600 {
+  color: #a1a1aa !important;
+}
+
+.dark .admin-shell .text-zinc-500,
+.dark .admin-shell .text-gray-500,
+.dark [role="dialog"] .text-zinc-500,
+.dark [role="alertdialog"] .text-zinc-500,
+.dark [data-radix-popper-content-wrapper] .text-zinc-500 {
+  color: #8b8d98 !important;
+}
+
+.dark .admin-shell .text-zinc-400,
+.dark .admin-shell .text-zinc-300 {
+  color: #71717a !important;
+}
+
+.dark .admin-shell .placeholder\:text-zinc-300::placeholder,
+.dark .admin-shell .placeholder\:text-zinc-400::placeholder {
+  color: #52525b !important;
+}
+
+.dark .admin-shell .hover\:text-zinc-900:hover,
+.dark .admin-shell .hover\:text-zinc-800:hover,
+.dark .admin-shell .hover\:text-zinc-700:hover,
+.dark [data-radix-popper-content-wrapper] .hover\:text-zinc-900:hover {
+  color: #ffffff !important;
+}
+
+/* Primary Buttons & Active Tab States in Admin Dark Mode */
+.dark .admin-shell button.bg-zinc-900.text-white,
+.dark .admin-shell a.bg-zinc-900.text-white,
+.dark [role="dialog"] button.bg-zinc-900.text-white,
+.dark .admin-shell [role="tab"][data-state="active"] {
+  background-color: #f4f4f6 !important;
+  color: #111215 !important;
+  border-color: #f4f4f6 !important;
+}
+
+.dark .admin-shell button.bg-zinc-900.text-white:hover,
+.dark .admin-shell a.bg-zinc-900.text-white:hover,
+.dark [role="dialog"] button.bg-zinc-900.text-white:hover {
+  background-color: #ffffff !important;
+  color: #09090b !important;
+}
+
+.dark .admin-shell button.bg-zinc-900.text-white svg,
+.dark .admin-shell [role="tab"][data-state="active"] svg {
+  color: #111215 !important;
+}
+
+/* Pastel Status & Pillar Badges in Admin Dark Mode */
+.dark .admin-shell .bg-emerald-50,
+.dark .admin-shell .bg-emerald-50\/70,
+.dark [data-radix-popper-content-wrapper] .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.14) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+.dark .admin-shell .text-emerald-700 {
+  color: #6ee7b7 !important;
+}
+
+.dark .admin-shell .bg-sky-50,
+.dark .admin-shell .bg-sky-50\/50,
+.dark [data-radix-popper-content-wrapper] .bg-sky-50 {
+  background-color: rgba(14, 165, 233, 0.14) !important;
+  color: #7dd3fc !important;
+  border-color: rgba(14, 165, 233, 0.3) !important;
+}
+
+.dark .admin-shell .text-sky-700 {
+  color: #7dd3fc !important;
+}
+
+.dark .admin-shell .bg-indigo-50,
+.dark .admin-shell .bg-indigo-50\/40,
+.dark [data-radix-popper-content-wrapper] .bg-indigo-50 {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.32) !important;
+}
+
+.dark .admin-shell .text-indigo-700 {
+  color: #a5b4fc !important;
+}
+
+.dark .admin-shell .bg-rose-50,
+.dark [data-radix-popper-content-wrapper] .bg-rose-50 {
+  background-color: rgba(244, 63, 94, 0.14) !important;
+  color: #fda4af !important;
+  border-color: rgba(244, 63, 94, 0.3) !important;
+}
+
+.dark .admin-shell .text-rose-700 {
+  color: #fda4af !important;
+}
+
+.dark .admin-shell .bg-amber-50,
+.dark .admin-shell .bg-amber-50\/40,
+.dark [data-radix-popper-content-wrapper] .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.14) !important;
+  color: #fcd34d !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.dark .admin-shell .text-amber-700,
+.dark .admin-shell .text-amber-800 {
+  color: #fcd34d !important;
+}
+
+.dark .admin-shell .bg-purple-50,
+.dark [data-radix-popper-content-wrapper] .bg-purple-50 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+  color: #d8b4fe !important;
+  border-color: rgba(168, 85, 247, 0.32) !important;
+}
+
+.dark .admin-shell .text-purple-700 {
+  color: #d8b4fe !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html:focus-within {
     scroll-behavior: auto !important;
